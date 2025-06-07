@@ -523,6 +523,7 @@ export interface ConfigReducer {
 
 function normalizeDef(def: PartialProps): Omit<PartialProps, 'property'> {
   const out: Partial<PartialProps> = {};
+  console.log("🚀 ~ normalizeDef ~ def:", def)
 
   out.type = def.type ?? typeString;
 
@@ -566,17 +567,19 @@ export const Generator = (config: PropsToCreate): ConfigReducer => {
       return acc;
     }
 
-    // 3.3) Базовая нормализация
     const base = normalizeDef(def);
-    let finalObj: PartialProps = { property: propName , ...base }
+
+    let fromObj = {}
+
 
     if (from) {
-      const fromObj = normalizeDef(acc[from]);
+      const camelCaseFromKey = camelCase(from)
 
-      finalObj = { ...finalObj, ...fromObj }
+      fromObj = normalizeDef(acc[camelCaseFromKey]);
     }
+    
 
-    acc[camelCaseKey] = finalObj
+    acc[camelCaseKey] = { property: propName, ...fromObj, ...base }
 
     return acc
   }, {} as ConfigReducer)

@@ -1,4 +1,4 @@
-import { useEditorState, useEditorDispatch } from '@/store/editor-сontext';
+import { useEditor } from '@/store/editor-сontext';
 import "./index.css";
 
 interface ActivationButtonProps {
@@ -6,8 +6,9 @@ interface ActivationButtonProps {
 }
 
 const ActivasionButton = ({ handleClick }: ActivationButtonProps) => {
-  const { isEditorModeActivated } = useEditorState();
-  const dispatch = useEditorDispatch();
+  const { state, dispatch } = useEditor();
+
+  const { isEditorModeActivated, initializedFromStorage } = state;
 
   return (
     <div

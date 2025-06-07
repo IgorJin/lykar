@@ -1,14 +1,34 @@
-import React, { useEffect, useContext, useState } from "react";
-// import StylesOptions from "./options";
-import { EditorContext } from "../../../../store/editor-context";
-import { Input, ColorPicker } from "../../components";
-import { SECTORS_CONFIG, StyleType } from './stylesConfig'
-import { commandManager, EditStyleCommand } from "../../lib/command-service";
+import { h, JSX } from "preact";
+import { useEffect, useContext, useReducer } from "preact/hooks";
+import { useEditor } from "@/store/editor-сontext";
+import { Input, ColorPicker } from "@/components";
+import { SECTORS_CONFIG, StyleType } from "./styles-config";
+import { UpdateStyleCommand } from "@/core/command-service/command-service";
 
-const ViewsManager = () => {
-  const { editedElementRef } = useContext(EditorContext);
-  
-  const [styleState, styleStateSetter] = useState({} as stylesReduceType);
+type StylesState = Record<StyleType, string>;
+
+type StylesAction = {
+  type: "update";
+  payload: { key: StyleType; value: string };
+};
+
+const StylesSection: () => JSX.Element = () => {
+  const { editedElementRef, commandService } = useEditor();
+
+  function stylesReducer(state: StylesState, action: StylesAction): StylesState {
+    console.log(action)
+    switch (action.type) {
+      case "update":
+        return { ...state, [action.payload.key]: action.payload.value };
+      default:
+        return state;
+    }
+  }
+
+  const [styleState, dispatch] = useReducer(
+    stylesReducer,
+    {} as StylesState
+  );
   
 
   type stylesReduceType = {
@@ -16,59 +36,93 @@ const ViewsManager = () => {
   };
 
   useEffect(() => {
-    if (!(editedElementRef.current && Object.keys(editedElementRef.current.styles).length)) return;
+    const nodeWrapper = editedElementRef.current;
 
-    const initialGeneralState = editedElementRef.current.styles
+    if (!nodeWrapper) return;
 
-    // @ts-ignore TODO need global styles fix
-    styleStateSetter({ ...initialGeneralState });
+    const elementStyles: StylesState = window.getComputedStyle(nodeWrapper.element, null)
 
+    if (!elementStyles || !Object.keys(elementStyles).length)
+
+    // Однако выше только для одного ключа. 
+    // Лучше сделать отдельный диспатч, который заменяет весь state:
+    // dispatch({ type: "replaceAll", payload: el.styles })
+    // Но тогда нужно добавить кейс в редьюсер. Ниже — упрощённый вариант:
+    Object.entries(elementStyles).forEach(([key, val]) => {
+      dispatch({
+        type: "update",
+        payload: { key: key as StyleType, value: val },
+      });
+    });
   }, [editedElementRef.current]);
 
-  const onStyleChange = (e: any) => {
-    const { name, value } = e.target;
+  const onStyleChange = (e: JSX.TargetedEvent<HTMLInputElement, Event>) => {
+    const target = e.currentTarget;
+    const name = target.name as StyleType;
+    const value = target.value;
 
-    styleStateSetter((state) => ({ ...state, [name]: value }));
-  }
+    dispatch({ type: "update", payload: { key: name, value } });
+  };
 
-  const changeElementStyle = (e: any) => {
-    const { name }: { name: StyleType } = e.target;
+   const changeElementStyle = (e: JSX.TargetedEvent<HTMLInputElement, Event>) => {
+    const name = e.currentTarget.name as StyleType;
+    const currentValue = styleState[name];
+    const wrapper = editedElementRef.current;
 
-    if (!editedElementRef.current) return
-    if (editedElementRef.current.styles[name] === styleState[name]) return
+    if (!wrapper?.element) return;
 
-    const changedData = { parameter: name, value: styleState[name] }
-    const command = new EditStyleCommand(editedElementRef.current, changedData)
+    const previousValue = wrapper.element.style[name];
+  
+    if (previousValue === currentValue) return;
 
-    commandManager.executeCommand(command)
-    // const tagPath = generatePath()
-
-    // localStorage.setItem('#123', tagPath)
-
-    // if (name in styleState) {
-    //   elementRef.current.style[name] = styleState[name];
-
-    //   console.log(elementRef.current.style.cssText)
-    // }
+    const command = new UpdateStyleCommand(wrapper, name, previousValue, currentValue);
+    commandService.executeCommand(command);
   };
 
   return (
     <>
-      ({ SECTORS_CONFIG.map(({ name, properties }) => (
-        <div key={name}>
-          <h3>{name}</h3>
-          {properties.map(style => <Input
-            label={style}
-            id={style}
-            handleChange={onStyleChange}
-            onBlur={changeElementStyle}
-            value={styleState[style]}
-            key={style}
-          />)}
+      {SECTORS_CONFIG.map(({ name: sectorName, properties }) => (
+        <div key={sectorName} style={{ marginBottom: "1rem" }}>
+          <h3>{sectorName}</h3>
+          <div style={{ display: "grid", gap: "0.5rem" }}>
+            {properties.map((styleKey) => {
+              const isColor = styleKey.toLowerCase().includes("color");
+              const value = styleState[styleKey] || "";
+
+              return isColor ? (
+                <ColorPicker
+                  key={styleKey}
+                  label={styleKey}
+                  name={styleKey}
+                  value={value}
+                  onInput={(val: string) =>
+                    dispatch({
+                      type: "update",
+                      payload: { key: styleKey, value: val },
+                    })
+                  }
+                  onBlur={() =>
+                    changeElementStyle({
+                      currentTarget: { name: styleKey } as any,
+                    } as any)
+                  }
+                />
+              ) : (
+                <Input
+                  key={styleKey}
+                  label={styleKey}
+                  name={styleKey}
+                  value={value}
+                  handleChange={onStyleChange}
+                  onBlur={changeElementStyle}
+                />
+              );
+            })}
+          </div>
         </div>
-      )) })
+      ))}
     </>
   );
 };
 
-export default ViewsManager;
+export default StylesSection;

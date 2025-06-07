@@ -1,10 +1,10 @@
-// import StylesManager from './style-manager'
+import StylesSection from '@/components/styles-section'
 import "./index.css";
-import { useEditorDispatch } from '@/store/editor-сontext';
+import { useEditor } from '@/store/editor-сontext';
 
 
 const EditorPanel = () => {
-  const dispatch = useEditorDispatch();
+  const { dispatch } = useEditor();
 
   return (
     <div className="editor-container">
@@ -15,7 +15,7 @@ const EditorPanel = () => {
       </div>
 
       <div className="views-panel">
-        {/* <StylesManager /> */} StylesManager
+        <StylesSection />
       </div>
     </div>
   );
