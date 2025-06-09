@@ -1,25 +1,17 @@
 import { h, JSX } from "preact";
 
 interface SelectOption {
-  /** Отображаемый текст опции */
   label: string;
-  /** Значение опции */
   value: string;
 }
 
 interface SelectProps {
-  /** Текст метки для селекта */
   label: string;
-  /** Название и идентификатор селекта */
   name: string;
-  /** Текущий выбранный value */
   value: string;
-  /** Список опций */
-  options: SelectOption[];
-  /** Коллбэк при изменении выбранного значения */
+  options: string[];
   handleChange: (e: JSX.TargetedEvent<HTMLSelectElement, Event>) => void;
-  /** Коллбэк при потере фокуса */
-  onBlur: (e: JSX.TargetedEvent<HTMLSelectElement, Event>) => void;
+  onBlur?: (e: JSX.TargetedEvent<HTMLElement, Event>) => void;
 }
 
 /**
@@ -41,8 +33,8 @@ const Select = ({ label, name, value, options, handleChange, onBlur }: SelectPro
         onBlur={onBlur}
       >
         {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
+          <option key={opt} value={opt}>
+            {opt}
           </option>
         ))}
       </select>

@@ -1,8 +1,8 @@
 import { h, JSX } from "preact";
-import { useEffect, useContext, useReducer } from "preact/hooks";
+import { useEffect, useContext, useReducer, useCallback, useMemo } from "preact/hooks";
 import { useEditor } from "@/store/editor-сontext";
-import { Input, ColorPicker } from "@/components";
-import { SECTORS_CONFIG, StyleType } from "./styles-config";
+import { StyleField } from "@/components";
+import { SECTORS_CONFIG, StyleType, STYLES_CONFIG } from "./styles-config";
 import { UpdateStyleCommand } from "@/core/command-service/command-service";
 
 type StylesState = Record<StyleType, string>;
@@ -56,28 +56,38 @@ const StylesSection: () => JSX.Element = () => {
     });
   }, [editedElementRef.current]);
 
-  const onStyleChange = (e: JSX.TargetedEvent<HTMLInputElement, Event>) => {
-    const target = e.currentTarget;
-    const name = target.name as StyleType;
-    const value = target.value;
-
-    dispatch({ type: "update", payload: { key: name, value } });
-  };
-
-   const changeElementStyle = (e: JSX.TargetedEvent<HTMLInputElement, Event>) => {
-    const name = e.currentTarget.name as StyleType;
-    const currentValue = styleState[name];
+   const changeElementStyle = (styleKey: StyleType) => () => {
+    const currentValue = styleState[styleKey];
     const wrapper = editedElementRef.current;
 
     if (!wrapper?.element) return;
 
-    const previousValue = wrapper.element.style[name];
+    const previousValue = wrapper.element.style[styleKey];
   
     if (previousValue === currentValue) return;
 
-    const command = new UpdateStyleCommand(wrapper, name, previousValue, currentValue);
+    const command = new UpdateStyleCommand(wrapper, styleKey, previousValue, currentValue);
     commandService.executeCommand(command);
   };
+
+
+  const onStyleChange = useCallback((styleKey: StyleType) => (e: JSX.TargetedEvent<HTMLSelectElement | HTMLInputElement, Event>) => {
+    const target = e.currentTarget;
+    const value = target.value;
+  
+    dispatch({ type: "update", payload: { key: styleKey, value } });
+  
+    changeElementStyle(styleKey)();
+  }, [dispatch, changeElementStyle]);
+
+  const onStatefullStyleChange = useCallback(
+    (styleKey: StyleType) => (value: string) => {
+      dispatch({ type: "update", payload: { key: styleKey, value } });
+
+      changeElementStyle(styleKey)();
+    },
+    [dispatch, changeElementStyle]
+  );
 
   return (
     <>
@@ -85,39 +95,16 @@ const StylesSection: () => JSX.Element = () => {
         <div key={sectorName} style={{ marginBottom: "1rem" }}>
           <h3>{sectorName}</h3>
           <div style={{ display: "grid", gap: "0.5rem" }}>
-            {properties.map((styleKey) => {
-              const isColor = styleKey.toLowerCase().includes("color");
-              const value = styleState[styleKey] || "";
-
-              return isColor ? (
-                <ColorPicker
-                  key={styleKey}
-                  label={styleKey}
-                  name={styleKey}
-                  value={value}
-                  onInput={(val: string) =>
-                    dispatch({
-                      type: "update",
-                      payload: { key: styleKey, value: val },
-                    })
-                  }
-                  onBlur={() =>
-                    changeElementStyle({
-                      currentTarget: { name: styleKey } as any,
-                    } as any)
-                  }
-                />
-              ) : (
-                <Input
-                  key={styleKey}
-                  label={styleKey}
-                  name={styleKey}
-                  value={value}
-                  handleChange={onStyleChange}
-                  onBlur={changeElementStyle}
-                />
-              );
-            })}
+            {properties.map((styleKey) => (
+              <StyleField
+                styleParams={STYLES_CONFIG[styleKey]}
+                key={styleKey}
+                styleKey={styleKey}
+                value={styleState[styleKey] || ""}
+                onStatefullChange={onStatefullStyleChange(styleKey)}
+                onChange={onStyleChange(styleKey)}
+              />
+            ))}
           </div>
         </div>
       ))}

@@ -9,15 +9,11 @@ interface ColorPickerProps {
   /** Текущее цветовое значение в формате "#rrggbb" */
   value: string;
   /** Коллбэк, вызываемый при выборе нового цвета. В качестве аргумента возвращает строку-цвет. */
-  onInput: (color: string) => void;
+  onInput: (value: string) => void;
   /** Коллбэк при потере фокуса полем */
   onBlur: () => void;
 }
 
-/**
- * Комппонент цветового селектора на основе <input type="color" />.
- * Хранит внутри себя локальный стейт, чтобы обеспечить корректную работу контролируемого компонента.
- */
 const ColorPicker = ({ label, name, value, onInput, onBlur }: ColorPickerProps) => {
   const [internalColor, setInternalColor] = useState<string>(value || "#000000");
 

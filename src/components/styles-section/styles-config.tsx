@@ -504,7 +504,7 @@ export const SECTORS_CONFIG = [
       'color',
       'lineHeight',
       'textAlign',
-      'textShadow',
+      // 'textShadow',
     ],
   },
   {
@@ -513,7 +513,7 @@ export const SECTORS_CONFIG = [
   },
   {
     name: 'Extra',
-    properties: ['opacity', 'transition', 'transform'],
+    properties: ['opacity', 'transition'] //'transform'],
   },
 ] as const
 
