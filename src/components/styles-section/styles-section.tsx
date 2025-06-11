@@ -13,7 +13,7 @@ type StylesAction = {
 };
 
 const StylesSection: () => JSX.Element = () => {
-  const { editedElementRef, commandService } = useEditor();
+  const { services: { commandService }, refs: { editedElementRef }, state: { isElementEditing} } = useEditor();
 
   function stylesReducer(state: StylesState, action: StylesAction): StylesState {
     console.log(action)
@@ -29,44 +29,61 @@ const StylesSection: () => JSX.Element = () => {
     stylesReducer,
     {} as StylesState
   );
-  
+
 
   type stylesReduceType = {
     [Property in StyleType]: string;
   };
 
+  // TODO MutationObserver логика
+  // useEffect(() => {
+  //   if (isElementEditing && editingElementRef.current) {
+  //     const observer = new MutationObserver(() => {
+  //       if (!document.body.contains(editingElementRef.current!.element)) {
+  //         // элемент удалили из DOM
+  //         // => выходим из режима редактирования
+  //         dispatch({ type: 'FINISH_EDITING_ELEMENT' });
+  //         editingElementRef.current = null;
+  //       }
+  //     });
+  //     observer.observe(document.body, { childList: true, subtree: true });
+  //     return () => observer.disconnect();
+  //   }
+  // }, [isElementEditing]);
+
   useEffect(() => {
+    console.log("START")
+    if (!isElementEditing) return;
+
     const nodeWrapper = editedElementRef.current;
 
     if (!nodeWrapper) return;
 
     const elementStyles: StylesState = window.getComputedStyle(nodeWrapper.element, null)
+    console.log("🚀 ~ useEffect ~ elementStyles:", elementStyles)
 
-    if (!elementStyles || !Object.keys(elementStyles).length)
-
-    // Однако выше только для одного ключа. 
-    // Лучше сделать отдельный диспатч, который заменяет весь state:
-    // dispatch({ type: "replaceAll", payload: el.styles })
-    // Но тогда нужно добавить кейс в редьюсер. Ниже — упрощённый вариант:
-    Object.entries(elementStyles).forEach(([key, val]) => {
-      dispatch({
-        type: "update",
-        payload: { key: key as StyleType, value: val },
+    if (elementStyles && Object.keys(elementStyles).length)
+      // dispatch({ type: "replaceAll", payload: el.styles })
+      Object.entries(elementStyles).forEach(([key, val]) => {
+        dispatch({
+          type: "update",
+          payload: { key: key as StyleType, value: val },
+        });
       });
-    });
-  }, [editedElementRef.current]);
+  }, [isElementEditing]);
 
-   const changeElementStyle = (styleKey: StyleType) => () => {
+  const changeElementStyle = (styleKey: StyleType) => () => {
     const currentValue = styleState[styleKey];
     const wrapper = editedElementRef.current;
 
     if (!wrapper?.element) return;
 
     const previousValue = wrapper.element.style[styleKey];
-  
+
     if (previousValue === currentValue) return;
 
     const command = new UpdateStyleCommand(wrapper, styleKey, previousValue, currentValue);
+
     commandService.executeCommand(command);
   };
 
@@ -74,9 +91,9 @@ const StylesSection: () => JSX.Element = () => {
   const onStyleChange = useCallback((styleKey: StyleType) => (e: JSX.TargetedEvent<HTMLSelectElement | HTMLInputElement, Event>) => {
     const target = e.currentTarget;
     const value = target.value;
-  
+
     dispatch({ type: "update", payload: { key: styleKey, value } });
-  
+
     changeElementStyle(styleKey)();
   }, [dispatch, changeElementStyle]);
 

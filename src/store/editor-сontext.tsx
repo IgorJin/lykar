@@ -6,33 +6,66 @@ import {
   useRef,
   Dispatch,
 } from "preact/hooks";
-import { NodeWrapper } from "@/core/node-wrapper";
-import { NodeWrapperStorage } from "@/core/node-wrapper";
+import { NodeWrapper, NodeWrapperStorage } from "@/core/node-wrapper";
 import { CommandService } from "@/core/command-service";
-
-export type EditorState = {
-  isEditorModeActivated: boolean;
-  initializedFromStorage: boolean;
-};
-
-type Action =
-  | { type: "ACTIVATE_EDITOR" }
-  | { type: "DEACTIVATE_EDITOR" }
-  | { type: "MARK_STORAGE_LOADED" };
 
 const initialState: EditorState = {
   isEditorModeActivated: false,
   initializedFromStorage: false,
+  isElementEditing: false,
 };
+
+export type EditorState = {
+  isEditorModeActivated: boolean;
+  initializedFromStorage: boolean;
+  isElementEditing: boolean;
+};
+
+export type EditorServices = {
+  nodeWrapperStorage: NodeWrapperStorage;
+  commandService: CommandService;
+};
+
+
+export type EditorRefs = {
+  hoveredElementRef: RefObject<HTMLElement | null>;
+  editedElementRef: RefObject<NodeWrapper | null>;
+  clearEditedElement: () => void;
+  chooseEditedElement: (element: NodeWrapper) => void;
+};
+
+export const ACTIONS = {
+  ACTIVATE_EDITOR: "ACTIVATE_EDITOR",
+  DEACTIVATE_EDITOR: "DEACTIVATE_EDITOR",
+  MARK_STORAGE_LOADED: "MARK_STORAGE_LOADED",
+  START_EDITING_ELEMENT: "START_EDITING_ELEMENT",
+  FINISH_EDITING_ELEMENT: "FINISH_EDITING_ELEMENT",
+} as const;
+
+type ActionMap = {
+  [ACTIONS.ACTIVATE_EDITOR]: undefined;
+  [ACTIONS.DEACTIVATE_EDITOR]: undefined;
+  [ACTIONS.MARK_STORAGE_LOADED]: undefined;
+  [ACTIONS.START_EDITING_ELEMENT]: undefined;
+  [ACTIONS.FINISH_EDITING_ELEMENT]: undefined;
+};
+type Action = {
+  [K in keyof ActionMap]: ActionMap[K] extends undefined ? { type: K } : { type: K; payload: ActionMap[K] }
+}[keyof ActionMap];
+
 
 function editorReducer(state: EditorState, action: Action): EditorState {
   switch (action.type) {
-    case "ACTIVATE_EDITOR":
+    case ACTIONS.ACTIVATE_EDITOR:
       return { ...state, isEditorModeActivated: true };
-    case "DEACTIVATE_EDITOR":
+    case ACTIONS.DEACTIVATE_EDITOR:
       return { ...state, isEditorModeActivated: false };
-    case "MARK_STORAGE_LOADED":
+    case ACTIONS.MARK_STORAGE_LOADED:
       return { ...state, initializedFromStorage: true };
+    case ACTIONS.START_EDITING_ELEMENT:
+      return { ...state, isElementEditing: true };
+    case ACTIONS.FINISH_EDITING_ELEMENT:
+      return { ...state, isElementEditing: false };
     default:
       return state;
   }
@@ -41,23 +74,37 @@ function editorReducer(state: EditorState, action: Action): EditorState {
 export type EditorContextType = {
   state: EditorState;
   dispatch: Dispatch<Action>;
-  editedElementRef: RefObject<NodeWrapper | null>;
-  nodeWrapperStorage: NodeWrapperStorage;
-  commandService: CommandService;
+  refs: EditorRefs;
+  services: EditorServices;
 };
 
 export const EditorContext = createContext<EditorContextType | undefined>(undefined);
 
 export function EditorProvider({ children }: { children: h.JSX.Element }) {
-  const [state, dispatch] = useReducer(editorReducer, initialState);
-  const editedElementRef = useRef<NodeWrapper | null>(null);
-
-  // const commandStorage = new CommandStorage();
   const nodeWrapperStorage = new NodeWrapperStorage();
   const commandService = new CommandService(nodeWrapperStorage);
 
+  const services: EditorServices = { nodeWrapperStorage, commandService };
+
+  const [state, dispatch] = useReducer(editorReducer, initialState);
+
+  const clearEditedElement = () => {
+    refs.editedElementRef.current = null;
+  };
+  const chooseEditedElement = (element: NodeWrapper) => {
+    refs.editedElementRef.current = element;
+  };
+
+  const refs: EditorRefs = {
+    hoveredElementRef: useRef<HTMLElement | null>(null),
+    editedElementRef: useRef<NodeWrapper | null>(null),
+    clearEditedElement,
+    chooseEditedElement,
+  };
+
+
   return (
-    <EditorContext.Provider value={{ state, dispatch, editedElementRef, nodeWrapperStorage, commandService }}>
+    <EditorContext.Provider value={{ state, dispatch, refs, services }}>
       {children}
     </EditorContext.Provider>
   );

@@ -1,0 +1,9 @@
+.toolbar-wrapper {
+  position: absolute;
+  background: #3614FF;
+  width: auto;
+  height: 20px;
+  transform: translateY(-100%);
+  cursor: pointer;
+  z-index: 1000;
+}

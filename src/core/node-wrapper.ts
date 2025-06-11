@@ -3,8 +3,8 @@ import { STYLES_CONFIG } from '@/components/styles-section/styles-config';
 export class NodeWrapperStorage {
   private store = new Map<string, NodeWrapper>();
 
-  push(node: NodeWrapper) {
-    this.store.set(node.id, node);
+  push(wrapper: NodeWrapper) {
+    this.store.set(wrapper.id, wrapper);
   }
 
   getById(id: string): NodeWrapper | undefined {
@@ -13,16 +13,22 @@ export class NodeWrapperStorage {
 
   getByDataSelector(node: HTMLElement): NodeWrapper | undefined {
     // TODO env constant
-    const id = node.dataset['lykar-selector-id'];
+    const id = node.dataset['lykarSelectorId'];
 
     return id ? this.store.get(id) : undefined;
+  }
+
+  getByElement(node: HTMLElement): NodeWrapper | undefined {
+    for (const wrapper of this.store.values()) {
+      if (wrapper.element === node) return wrapper;
+    }
+    return undefined;
   }
 
   delete(id: string) {
     const wrapper = this.store.get(id);
 
     if (wrapper) {
-      // wrapper.destroy();
       this.store.delete(id);
     }
 
@@ -51,12 +57,12 @@ export class NodeWrapper implements NodeWrapperInterface {
 
   constructor(node: HTMLElement) {
     this.element = node
-    this.id = Math.floor(Math.random() * 10000).toString()
+    const id = Math.floor(Math.random() * 10000).toString()
+    this.id = id
+    this.element.dataset['lykarSelectorId'] = id
   }
 
   create() {
-    this.element.dataset['lykar-selector-id'] = this.id
-
     this.isSimplicity = this.element.childElementCount === 0
     this.originalText = this.element.textContent
 
@@ -71,6 +77,7 @@ export class NodeWrapper implements NodeWrapperInterface {
   createSelectors() {
     this.selectors = Array.from(this.element.classList) // TODO
 
+    // TODO заменить на номральный
     const generatePath = () => {
       const stack = []
       let el: any = this.element!
@@ -129,10 +136,6 @@ export class NodeWrapper implements NodeWrapperInterface {
   applyStylePatch(parameter: string, newValue: string | null) {
     (this.element.style as any)[parameter] = newValue;
   }
-
-  // destroy() {
-  //   nodeWrapperStorage.delete(this.id)
-  // }
 
    // Подписаться на события hover TODO на будущее
   //  subscribeHover(onEnter: () => void, onLeave: () => void) {
