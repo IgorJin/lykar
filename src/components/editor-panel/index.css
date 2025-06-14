@@ -5,7 +5,6 @@
   width: 300px;
   display: flex;
   justify-content: flex-start;
-  right: 0;
   height: 100vh;
   word-break: break-word;
   overflow-x: scroll;
@@ -27,4 +26,12 @@
   .views-panel {
     width: 100%;
   }
+}
+
+.editor-container.right {
+  right: 0;
+}
+
+.editor-container.left {
+  left: 0;
 }

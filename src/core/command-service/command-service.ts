@@ -1,7 +1,7 @@
 import { NodeWrapperInterface, NodeWrapper, NodeWrapperStorage } from '../node-wrapper'
 import { StyleType } from '@/components/styles-section/styles-config'
 import { CommandStorage } from './command-storage'
-import { CommandInterface, COMMAND_TYPES, COMMAND_TYPES_LIST, COMMAND_TYPES_LIST_TYPES } from './command-types'
+import { CommandInterface, COMMAND_TYPES, COMMAND_TYPES_LIST, COMMAND_TYPES_LIST_TYPES, CommandMeta } from './command-types'
 
 
 export class CommandService {
@@ -87,11 +87,16 @@ export class UpdateTextCommand implements CommandInterface {
   nodeWrapper: NodeWrapper
   previousValue: string;
   nextValue: string;
+  meta?: CommandMeta
 
-  constructor(nodeWrapper: NodeWrapper, previousValue = '', nextValue: string) {
+  constructor(nodeWrapper: NodeWrapper, previousValue = '', nextValue: string, meta?: CommandMeta) {
     this.nodeWrapper = nodeWrapper
     this.previousValue = previousValue
     this.nextValue = nextValue
+    this.meta = {
+      timestamp: meta?.timestamp || Date.now(),
+      operatorId: meta?.operatorId || null
+    } 
   }
 
   execute() {
@@ -118,12 +123,17 @@ export class UpdateStyleCommand implements CommandInterface {
   previousValue: string;
   nextValue: string;
   property: string;
+  meta?: CommandMeta
 
-  constructor(nodeWrapper: NodeWrapper, property: string, previousValue = '', nextValue: string) {
+  constructor(nodeWrapper: NodeWrapper, property: string, previousValue = '', nextValue: string, meta?: CommandMeta) {
     this.nodeWrapper = nodeWrapper
     this.previousValue = previousValue
     this.nextValue = nextValue
     this.property = property
+    this.meta = {
+      timestamp: meta?.timestamp || Date.now(),
+      operatorId: meta?.operatorId || null
+    } 
   }
 
   execute() {

@@ -1,5 +1,38 @@
 import { camelCase } from '@/core/helpers'
 
+type StyleInputType = 
+  | 'number' 
+  | 'color'
+  | 'select'
+  | 'radio'
+  | 'file'
+  | 'slider'
+  | 'composite'
+  | 'stack';
+
+type Unit = 'px' | 'em' | 'rem' | '%' | 'vh' | 'vw' | 's' | 'ms';
+
+interface Option {
+  value: string;
+  label: string;
+}
+
+interface BaseStyleProperty {
+  key: string;
+  label?: string;
+  type: StyleInputType;
+  units?: Unit[];
+  min?: number;
+  max?: number;
+  step?: number;
+  options?: Option[];
+  default?: string;
+  extends?: string; // для наследования параметров
+  properties?: StyleProperty[]; // для composite/stack
+}
+
+type StyleProperty = BaseStyleProperty;
+
 export interface PropertyProps {
   name?: string;
   label?: string;
@@ -523,9 +556,12 @@ export interface ConfigReducer {
 
 function normalizeDef(def: PartialProps): Omit<PartialProps, 'property'> {
   const out: Partial<PartialProps> = {};
-  console.log("🚀 ~ normalizeDef ~ def:", def)
 
   out.type = def.type ?? typeString;
+
+  if (def.type === typeColor) {
+    return def;
+  }
 
   // 1.2) Значения по умолчанию
   if (def.default !== undefined) {
@@ -578,6 +614,7 @@ export const Generator = (config: PropsToCreate): ConfigReducer => {
       fromObj = normalizeDef(acc[camelCaseFromKey]);
     }
     
+    console.log("🚀 ~ Generator ~ fromObj:", { property: propName, ...fromObj, ...base })
 
     acc[camelCaseKey] = { property: propName, ...fromObj, ...base }
 

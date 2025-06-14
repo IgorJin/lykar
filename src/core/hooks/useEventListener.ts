@@ -12,7 +12,8 @@ type EventTargetLike = Window | Document | HTMLElement | null;
 export function useEventListener<K extends keyof WindowEventMap | keyof HTMLElementEventMap>(
   eventName: K,
   handler: (event: any) => void,
-  element?: EventTargetLike | React.RefObject<EventTargetLike>
+  element?: EventTargetLike | React.RefObject<EventTargetLike>,
+  isActive = true,
 ) {
   // Всегда актуальный handler через ref
   const savedHandler = useRef(handler);
@@ -23,7 +24,8 @@ export function useEventListener<K extends keyof WindowEventMap | keyof HTMLElem
   }, [handler]);
 
   useEffect(() => {
-    // Получаем реальный элемент
+    if (!isActive) return;
+
     let target: EventTargetLike;
     if (!element) {
       target = window;
@@ -38,5 +40,5 @@ export function useEventListener<K extends keyof WindowEventMap | keyof HTMLElem
 
     target.addEventListener(eventName, eventListener);
     return () => target?.removeEventListener(eventName, eventListener);
-  }, [eventName, element]);
+  }, [eventName, element, isActive]);
 }

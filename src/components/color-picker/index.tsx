@@ -2,16 +2,11 @@ import { h, JSX } from "preact";
 import { useState, useEffect } from "preact/hooks";
 
 interface ColorPickerProps {
-  /** Текст метки для поля */
   label: string;
-  /** Название и идентификатор поля */
   name: string;
-  /** Текущее цветовое значение в формате "#rrggbb" */
   value: string;
-  /** Коллбэк, вызываемый при выборе нового цвета. В качестве аргумента возвращает строку-цвет. */
-  onInput: (value: string) => void;
-  /** Коллбэк при потере фокуса полем */
-  onBlur: () => void;
+  onInput?: (value: string) => void;
+  onBlur?: () => void;
 }
 
 const ColorPicker = ({ label, name, value, onInput, onBlur }: ColorPickerProps) => {
@@ -27,7 +22,7 @@ const ColorPicker = ({ label, name, value, onInput, onBlur }: ColorPickerProps) 
   const handleChange = (e: JSX.TargetedEvent<HTMLInputElement, Event>) => {
     const newColor = e.currentTarget.value;
     setInternalColor(newColor);
-    onInput(newColor);
+    onInput?.(newColor);
   };
 
   return (

@@ -134,6 +134,8 @@ export class NodeWrapper implements NodeWrapperInterface {
   }
 
   applyStylePatch(parameter: string, newValue: string | null) {
+    console.log('applyStylePatch',parameter, newValue, (this.element.style as any)[parameter]);
+
     (this.element.style as any)[parameter] = newValue;
   }
 

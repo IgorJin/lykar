@@ -4,6 +4,7 @@ import { useEditor, ACTIONS } from '@/store/editor-сontext';
 import { useEventListener } from '@/core/hooks';
 import './index.css';
 import { NodeWrapper } from '@/core/node-wrapper';
+import { isEditorUiElement, getToolbarPosition } from '@/core/utils';
 
 interface ToolbarPanelProps {
   ref?: preact.Ref<HTMLDivElement>;
@@ -15,24 +16,44 @@ interface ToolbarState {
   visible: boolean;
 }
 
-const TOOLBAR_HEIGHT = 32;
-const TOOLBAR_WIDTH = 180;
-const EDITOR_WIDTH = 270;
 
-// Вынеси в utils для тестирования
-function getToolbarPosition(rect: DOMRect): { x: number; y: number } {
-  const innerWidth = window.innerWidth - EDITOR_WIDTH;
-  if (rect.right > innerWidth) {
-    return { x: rect.x - TOOLBAR_WIDTH, y: rect.top - TOOLBAR_HEIGHT };
-  }
-  if (rect.top < TOOLBAR_HEIGHT) {
-    return { x: rect.left, y: rect.bottom + 8 };
-  }
-  return { x: rect.left, y: rect.top - TOOLBAR_HEIGHT };
-}
+// const getTooltipCoordinates = (rect: DOMRect) => {
+//   const TOOLBAR_HEIGHT = 21;
+//   const TOOLBAR_WIDTH = 150;
+//   const INNER_WIDTH = window.innerWidth
+//   // 1
+//   if (rect.height > window.innerHeight && rect.y < TOOLBAR_HEIGHT) {
+//     if (rect.right > INNER_WIDTH) return { x: rect.x + TOOLBAR_WIDTH + window.screenX, y: window.scrollY ? window.scrollY : rect.y };
+//     else return { x: rect.right, y: window.scrollY ? window.scrollY : rect.y }
+//   }
+//   // 2
+//   if (rect.right > INNER_WIDTH) return { x: rect.x + TOOLBAR_WIDTH + window.screenX, y: rect.top + window.scrollY - TOOLBAR_HEIGHT };
+//   // 3
+//   if (rect.y < TOOLBAR_HEIGHT && rect.bottom + TOOLBAR_HEIGHT <= window.innerHeight) {
+//     return {
+//       x: rect.left + rect.width - window.scrollX,
+//       y: rect.bottom + window.scrollY,
+//     };
+//   }
+//   // 4
+//   return {
+//     x: rect.left + rect.width + window.scrollX,
+//     y: rect.top + window.scrollY - TOOLBAR_HEIGHT,
+//   };
+// }
 
 export default function ToolbarPanel(props: ToolbarPanelProps) {
-  const { state: { isEditorModeActivated }, refs: { editedElementRef, hoveredElementRef, clearEditedElement, chooseEditedElement }, dispatch, services: { nodeWrapperStorage} } = useEditor();
+  const {
+    state: { isEditorModeActivated, isElementEditing },
+    refs: {
+      editedElementRef,
+      hoveredElementRef,
+      clearEditedElement,
+      chooseEditedElement,
+    },
+    dispatch,
+    services: { nodeWrapperStorage },
+  } = useEditor();
 
   const moveBtnRef = useRef<HTMLButtonElement>(null);
   const [toolbar, setToolbar] = useState<ToolbarState>({ x: 0, y: 0, visible: false });
@@ -42,6 +63,9 @@ export default function ToolbarPanel(props: ToolbarPanelProps) {
     if (!isEditorModeActivated) return;
 
     const target = e.target as HTMLElement;
+
+    if (isEditorUiElement(target)) return;
+
     console.log("🚀 ~ handleHover ~ target:", target)
 
     if (!target || target.closest('.toolbar-wrapper') || target.closest('.editor-container')) return;
@@ -59,18 +83,24 @@ export default function ToolbarPanel(props: ToolbarPanelProps) {
     setToolbar({ ...getToolbarPosition(rect), visible: true });
   }, [isEditorModeActivated]);
 
-  // Скрывать тулбар при скролле/потере элемента
-  const handleScroll = useCallback(() => {
-    if (!editedElementRef.current) return;
+  const handleScroll = () => {
+    const focusElement = hoveredElementRef.current || editedElementRef.current?.element
 
-    if (!isEditorModeActivated) {
-      setToolbar(t => ({ ...t, visible: false }));
-      editedElementRef.current.element.classList.remove('hovered');
-    } else {
-      const rect = editedElementRef.current.element.getBoundingClientRect();
-      setToolbar({ ...getToolbarPosition(rect), visible: true });
+    if (isEditorUiElement(focusElement!)) return;
+
+    if (focusElement) {
+      if (focusElement.classList.contains("hovered")) {
+        window.requestAnimationFrame(() => {
+          const rect = focusElement!.getBoundingClientRect();
+
+          setToolbar({
+            visible: true,
+            ...getToolbarPosition(rect),
+          });
+        });
+      }
     }
-  }, [isEditorModeActivated]);
+  }
 
   // Drag & Drop
   const handleDragStart = useCallback((e: DragEvent) => {
@@ -124,14 +154,16 @@ export default function ToolbarPanel(props: ToolbarPanelProps) {
   };
 
   // Навешиваем события только когда надо
-  useEventListener('mouseover', handleHover);
+  // TODO проблема, что моузовер не работает при самом первом запуске на общий элемент
+  useEventListener('mouseover', handleHover, null, !isElementEditing);
   useEventListener('scroll', handleScroll);
   useEventListener('dragstart', handleDragStart, moveBtnRef);
   useEventListener('dragend', handleDragEnd, moveBtnRef);
 
   return (
     <div
-      className="toolbar-wrapper"
+      className="toolbar-wrapper lykar-disable-tooltip"
+      data-lykar-ui-part="toolbar"
       ref={props.ref}
       style={{
         left: toolbar.x,
@@ -143,7 +175,7 @@ export default function ToolbarPanel(props: ToolbarPanelProps) {
       }}
     >
       <button title="Редактировать" onClick={handleEditClick}>
-        {editedElementRef.current ? '⏹️' : '✏️'}
+        {isElementEditing ? '⏹️' : '✏️'}
       </button>
       <button ref={moveBtnRef} draggable title="Переместить">
         ☰

@@ -16,6 +16,7 @@ interface StyleFieldProps {
 
 const StyleField = ({ styleKey, value, onChange, styleParams, onStatefullChange  }: StyleFieldProps) => {
   const isColor = styleKey.toLowerCase().includes("color");
+  console.log("🚀 ~ StyleField ~ isColor:", styleKey.toLowerCase(), isColor, !!styleParams.options, !!styleParams.units)
 
   if (styleParams.options) {
     return (
@@ -36,21 +37,18 @@ const StyleField = ({ styleKey, value, onChange, styleParams, onStatefullChange 
         name={styleKey}
         value={value}
         options={styleParams.units}
-        onSelectChange={onStatefullChange}
-        onInputChange={onStatefullChange}
+        onCompleteChange={onStatefullChange}
       />
     );
   }
 
   return isColor ? (
-    // <ColorPicker
-    //   label={styleKey}
-    //   name={styleKey}
-    //   value={value}
-    //   onInput={onStatefullChange}
-    //   onBlur={onChange}
-    // />
-    <span></span>
+    <ColorPicker
+      label={styleKey}
+      name={styleKey}
+      value={value}
+      onInput={onStatefullChange}
+    />
   ) : (
     <Input
       label={styleKey}

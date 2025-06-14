@@ -8,6 +8,7 @@ interface SelectInput {
   value: string;
   onSelectChange?: (newValue: string) => void;
   onInputChange?: (newText: string) => void;
+  onCompleteChange?: (newValue: string) => void;
   placeholder?: string;
   className?: string;
   name: string;
@@ -37,6 +38,7 @@ const SelectInput: FunctionalComponent<SelectInput> = ({
   value,
   onSelectChange,
   onInputChange,
+  onCompleteChange,
   placeholder = '',
   className = '',
   name = '',
@@ -49,14 +51,18 @@ const SelectInput: FunctionalComponent<SelectInput> = ({
 
   const handleSelect = (e: h.JSX.TargetedEvent<HTMLSelectElement, Event>) => {
     const val = e.currentTarget.value;
+
     setCurrentSelect(val);
     onSelectChange?.(val);
+    onCompleteChange?.(currentInput + val);
   };
 
   const handleInput = (e: h.JSX.TargetedEvent<HTMLInputElement, Event>) => {
     const txt = e.currentTarget.value;
+
     setCurrentInput(txt);
     onInputChange?.(txt);
+    onCompleteChange?.(txt + currentSelect);
   };
 
   return (

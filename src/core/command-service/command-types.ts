@@ -18,6 +18,10 @@ export interface CommandInterface {
   toJSON(): CommandItem;
   nodeWrapper: NodeWrapperInterface;
 }
+export type CommandMeta = {
+  timestamp: number,
+  operatorId: number | null,
+}
 
 // TODO разобраться
 type CommandItem = {
