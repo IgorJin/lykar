@@ -1,42 +1,37 @@
 import { h, JSX } from "preact";
 import { memo } from "preact/compat";
 import { Input, Select, SelectInput, ColorPicker } from '@/components'
-import { StyleType } from '@/components/styles-section/styles-config'
+import { BaseStyleProperty, SectionsStylesType } from '@/core/styles-service/styles-config'
 
 interface StyleFieldProps {
-  styleKey: StyleType;
+  property: BaseStyleProperty & { key: SectionsStylesType };
   value: string;
   onChange: (e: JSX.TargetedEvent<HTMLSelectElement | HTMLInputElement, Event>) => void;
-  styleParams: {
-    options?: string[];
-    units?: string[];
-  };
   onStatefullChange?: (value: string) => void;
 }
 
-const StyleField = ({ styleKey, value, onChange, styleParams, onStatefullChange  }: StyleFieldProps) => {
+const StyleField = ({ property: { key: styleKey, options, units }, value, onChange, onStatefullChange  }: StyleFieldProps) => {
   const isColor = styleKey.toLowerCase().includes("color");
-  console.log("🚀 ~ StyleField ~ isColor:", styleKey.toLowerCase(), isColor, !!styleParams.options, !!styleParams.units)
 
-  if (styleParams.options) {
+  if (options) {
     return (
       <Select
         label={styleKey}
         name={styleKey}
         value={value}
-        options={styleParams.options}
+        options={options}
         handleChange={onChange}
       />
     );
   }
 
-  if (styleParams.units) {
+  if (units) {
     return (
       <SelectInput
         label={styleKey}
         name={styleKey}
         value={value}
-        options={styleParams.units}
+        options={units}
         onCompleteChange={onStatefullChange}
       />
     );

@@ -10,13 +10,15 @@ type StyleInputType =
 
 type Unit = 'px' | 'em' | 'rem' | '%' | 'vh' | 'vw' | 's' | 'ms';
 
-interface Option {
+export interface Option {
   value: string;
   label: string;
 }
 
 export interface BaseStyleProperty {
-  key: string;
+  // TODO непонятно почему так работает, ведь ключи у меня через "-" пишутся
+  // лучше в будущем перенести тут в конфиге все key через camelCase
+  key: SectionsStylesType;
   label?: string;
   type: StyleInputType;
   units?: Unit[];
@@ -26,14 +28,17 @@ export interface BaseStyleProperty {
   options?: string[] | Option[];
   default?: string;
   extends?: string; // для наследования параметров
-  properties?: StyleProperty[]; // для composite/stack
+  properties?: BaseStyleProperty[]; // для composite/stack
   property?: string;
   functionName?: any
 }
 
-export type StyleProperty = BaseStyleProperty;
+export type Section = {
+  name: string;
+  properties: string[];
+}
 
-// styleConfig.js
+// stylesConfig.js
 export const typeNumber = 'number';
 export const typeColor = 'color';
 export const typeRadio = 'radio';
@@ -133,7 +138,7 @@ const optsFonts = [
 // Fixed values
 const requireFlex = { display: ['flex'] };
 
-export const styleConfig = [
+export const stylesConfig = [
   // Number types
   {
     key: 'text-shadow-h',
@@ -327,7 +332,7 @@ export const styleConfig = [
   },
 ] as BaseStyleProperty[]
 
-export const SECTORS_CONFIG = [
+export const sectionsConfig = [
   {
     name: 'General',
     properties: ['display', 'float', 'position', 'top', 'right', 'left', 'bottom'],
@@ -374,8 +379,8 @@ export const SECTORS_CONFIG = [
   },
 ] as const
 
-export const STYLE_KEYS = styleConfig.map(p => p.key) as string[];
+export const STYLE_KEYS = stylesConfig.map(p => p.key) as string[];
 
-export type StyleType = typeof STYLE_KEYS[number];
+export type SectionsStylesType = typeof sectionsConfig[number]['properties'][number];;
 
-export default styleConfig;
+export default stylesConfig;
