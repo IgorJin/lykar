@@ -19,7 +19,7 @@ type StylesActionUpdateAll = {
 };
 
 const StylesSection: () => JSX.Element = () => {
-  const { services: { commandService }, refs: { editedElementRef }, state: { isElementEditing} } = useEditor();
+  const { services: { commandService }, refs: { editedElementRef }, state: { isElementEditing } } = useEditor();
 
   function stylesReducer(state: StylesState, action: StylesAction | StylesActionUpdateAll): StylesState {
     console.log(action)
@@ -74,35 +74,36 @@ const StylesSection: () => JSX.Element = () => {
     console.log(styleState)
   }, [isElementEditing]);
 
-  const changeElementStyle = (styleKey: SectionsStylesType, value?: string) => () => {
+  const changeElementStyle = useCallback((styleKey: SectionsStylesType) => (value?: string) => {
+    console.log('HERE')
     const currentValue = value ?? styleState[styleKey];
     const wrapper = editedElementRef.current;
 
     if (!wrapper?.element) return;
 
     const previousValue = (wrapper.element.style as Record<string, any>)[styleKey];
+    console.log("🚀 ~ previousValue:", previousValue)
 
     if (previousValue === currentValue) return;
 
     const command = new UpdateStyleCommand(wrapper, styleKey, previousValue, currentValue);
 
     commandService.executeCommand(command);
-
-    dispatch({ type: "update", payload: { key: styleKey, value: currentValue } });
-  };
+  }, [styleState]);
 
 
   const onStyleChange = useCallback((styleKey: SectionsStylesType) => (e: JSX.TargetedEvent<HTMLSelectElement | HTMLInputElement, Event>) => {
     const value = e.currentTarget.value;
 
-    changeElementStyle(styleKey, value)();
-  }, [changeElementStyle]);
+    dispatch({ type: "update", payload: { key: styleKey, value } });
+  }, []);
 
   const onStatefullStyleChange = useCallback(
     (styleKey: SectionsStylesType) => (value: string) => {
-      changeElementStyle(styleKey, value)();
+
+      dispatch({ type: "update", payload: { key: styleKey, value } });
     },
-    [changeElementStyle]
+    []
   );
 
   return (
@@ -117,6 +118,7 @@ const StylesSection: () => JSX.Element = () => {
                 value={styleState[property.key] || ""}
                 onStatefullChange={onStatefullStyleChange(property.key)}
                 onChange={onStyleChange(property.key)}
+                handleSave={changeElementStyle(property.key)}
               />
             ))}
           </div>

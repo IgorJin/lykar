@@ -7,7 +7,7 @@ interface SelectProps {
   value: string;
   options: string[] | Option[];
   handleChange: (e: JSX.TargetedEvent<HTMLSelectElement, Event>) => void;
-  onBlur?: (e: JSX.TargetedEvent<HTMLElement, Event>) => void;
+  onBlur?: (e: JSX.TargetedEvent<HTMLSelectElement, Event>) => void;
 }
 
 /**

@@ -1,4 +1,5 @@
-import { STYLES_CONFIG } from '@/components/styles-section/styles-config';
+import { stylesConfig } from '@/core/styles-service/styles-config';
+import { getElementSelectors } from './utils';
 
 export class NodeWrapperStorage {
   private store = new Map<string, NodeWrapper>();
@@ -11,7 +12,7 @@ export class NodeWrapperStorage {
     return this.store.get(id);
   }
 
-  getByDataSelector(node: HTMLElement): NodeWrapper | undefined {
+  getByDataId(node: HTMLElement): NodeWrapper | undefined {
     // TODO env constant
     const id = node.dataset['lykarSelectorId'];
 
@@ -39,8 +40,7 @@ export class NodeWrapperStorage {
 export interface NodeWrapperInterface {
   element: HTMLElement
   id: string
-  selectors: string[]
-  coordinates: { x: number, y: number }
+  selectors: { css: string, xpath: string }
   isSimplicity: boolean;
   stylesList: Record<string, string>;
   originalText: string | null;
@@ -49,14 +49,14 @@ export interface NodeWrapperInterface {
 export class NodeWrapper implements NodeWrapperInterface {
   element: HTMLElement
   id: string
-  selectors: string[] = []
-  coordinates: { x: number, y: number } = { x: 0, y: 0 }
+  selectors: { css: string, xpath: string } = { css: '', xpath: '' }
   isSimplicity: boolean = false
   stylesList: Record<string, string> = {}
   originalText: string | null = null
 
   constructor(node: HTMLElement) {
     this.element = node
+    // TODO заменит на uid
     const id = Math.floor(Math.random() * 10000).toString()
     this.id = id
     this.element.dataset['lykarSelectorId'] = id
@@ -67,7 +67,6 @@ export class NodeWrapper implements NodeWrapperInterface {
     this.originalText = this.element.textContent
 
     this.createSelectors()
-    this.createCoordinates()
 
     // TODO может возникнуть случай когда стиль у элемента в СПА приложении изменится, и мы можем получить устаревшие данные
     // возможно стоит получать их при каждом открытии формы
@@ -75,56 +74,13 @@ export class NodeWrapper implements NodeWrapperInterface {
   }
 
   createSelectors() {
-    this.selectors = Array.from(this.element.classList) // TODO
-
-    // TODO заменить на номральный
-    const generatePath = () => {
-      const stack = []
-      let el: any = this.element!
-
-      while(el.parentNode) {
-        const siblings = el.parentNode.childNodes
-
-        let elementIndex = 0
-        let sibCount = 0
-
-        // eslint-disable-next-line no-loop-func
-        siblings.forEach((sib: any) => {
-          if (sib.nodeName === el.nodeName){
-            if (el === sib) elementIndex = sibCount
-            sibCount++
-          } 
-        })
-
-        if (el.hasAttribute('id') && el.id !== '') {
-          stack.unshift(el.nodeName.toLowerCase() + '#' + el.id);
-        } else if ( sibCount > 1 ) {
-          stack.unshift(el.nodeName.toLowerCase() + ':nth-child(' + ++elementIndex + ')');
-        } else if (el.classList.length && el.classList.toString().split(' ').join('.') !== '') {
-          stack.unshift(el.nodeName.toLowerCase() + '.' + el.classList.toString().split(' ').join('.'));
-        } else {
-          stack.unshift(el.nodeName.toLowerCase());
-        }
-
-
-        el = el.parentNode
-      }
-
-      return stack.slice(1).join(' > ')
-    }
-  }
-
-  createCoordinates() {
-    this.coordinates = {
-      x: this.element.offsetLeft,
-      y: this.element.offsetTop
-    }
+    this.selectors = getElementSelectors(this.element)
   }
 
   createStylesListMap() {
     const elementStyles: Record<string, any> = window.getComputedStyle(this.element, null)
 
-    this.stylesList = Object.keys(STYLES_CONFIG).reduce((acc, style) => ({ ...acc, [style]: elementStyles[style] }), {})
+    this.stylesList = Object.keys(stylesConfig).reduce((acc, style) => ({ ...acc, [style]: elementStyles[style] }), {})
 
     for (let i = 0; i < this.element.attributes.length; i++) console.log(this.element.attributes[i])
   }

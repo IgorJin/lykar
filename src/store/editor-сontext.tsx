@@ -5,20 +5,24 @@ import {
   useContext,
   useRef,
   Dispatch,
+  useEffect,
 } from "preact/hooks";
 import { NodeWrapper, NodeWrapperStorage } from "@/core/node-wrapper";
 import { CommandService } from "@/core/command-service";
+import { CommandJson } from "@/core/command-service/command-types";
 
 const initialState: EditorState = {
   isEditorModeActivated: false,
   initializedFromStorage: false,
   isElementEditing: false,
+  patches: [],
 };
 
 export type EditorState = {
   isEditorModeActivated: boolean;
   initializedFromStorage: boolean;
   isElementEditing: boolean;
+  patches: CommandJson[]
 };
 
 export type EditorServices = {
@@ -37,15 +41,15 @@ export type EditorRefs = {
 export const ACTIONS = {
   ACTIVATE_EDITOR: "ACTIVATE_EDITOR",
   DEACTIVATE_EDITOR: "DEACTIVATE_EDITOR",
-  MARK_STORAGE_LOADED: "MARK_STORAGE_LOADED",
   START_EDITING_ELEMENT: "START_EDITING_ELEMENT",
   FINISH_EDITING_ELEMENT: "FINISH_EDITING_ELEMENT",
+  PATCHES_LOADED: "PATCHES_LOADED",
 } as const;
 
 type ActionMap = {
   [ACTIONS.ACTIVATE_EDITOR]: undefined;
   [ACTIONS.DEACTIVATE_EDITOR]: undefined;
-  [ACTIONS.MARK_STORAGE_LOADED]: undefined;
+  [ACTIONS.PATCHES_LOADED]: CommandJson[];
   [ACTIONS.START_EDITING_ELEMENT]: undefined;
   [ACTIONS.FINISH_EDITING_ELEMENT]: undefined;
 };
@@ -60,8 +64,8 @@ function editorReducer(state: EditorState, action: Action): EditorState {
       return { ...state, isEditorModeActivated: true };
     case ACTIONS.DEACTIVATE_EDITOR:
       return { ...state, isEditorModeActivated: false };
-    case ACTIONS.MARK_STORAGE_LOADED:
-      return { ...state, initializedFromStorage: true };
+    case ACTIONS.PATCHES_LOADED:
+      return { ...state, patches: action.payload };
     case ACTIONS.START_EDITING_ELEMENT:
       return { ...state, isElementEditing: true };
     case ACTIONS.FINISH_EDITING_ELEMENT:
@@ -80,13 +84,19 @@ export type EditorContextType = {
 
 export const EditorContext = createContext<EditorContextType | undefined>(undefined);
 
-export function EditorProvider({ children }: { children: h.JSX.Element }) {
+export function EditorProvider({ children, initialPatches }: { children: h.JSX.Element, initialPatches?: CommandJson[] }) {
   const nodeWrapperStorage = new NodeWrapperStorage();
   const commandService = new CommandService(nodeWrapperStorage);
 
   const services: EditorServices = { nodeWrapperStorage, commandService };
 
   const [state, dispatch] = useReducer(editorReducer, initialState);
+
+  useEffect(() => {
+    if (initialPatches) {
+      commandService.deserializeHistory(initialPatches);
+    }
+  }, [initialPatches]);
 
   const clearEditedElement = () => {
     refs.editedElementRef.current = null;
@@ -101,7 +111,6 @@ export function EditorProvider({ children }: { children: h.JSX.Element }) {
     clearEditedElement,
     chooseEditedElement,
   };
-
 
   return (
     <EditorContext.Provider value={{ state, dispatch, refs, services }}>

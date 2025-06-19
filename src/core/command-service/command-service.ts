@@ -1,8 +1,8 @@
 import { NodeWrapperInterface, NodeWrapper, NodeWrapperStorage } from '../node-wrapper'
-import { StyleType } from '@/components/styles-section/styles-config'
+import { SectionsStylesType } from '@/core/styles-service/styles-config'
 import { CommandStorage } from './command-storage'
-import { CommandInterface, COMMAND_TYPES, COMMAND_TYPES_LIST, COMMAND_TYPES_LIST_TYPES, CommandMeta } from './command-types'
-
+import { CommandInterface, COMMAND_TYPES, COMMAND_TYPES_LIST, COMMAND_TYPES_LIST_TYPES, CommandMeta, UpdateTextCommandItem, UpdateStyleCommandItem, CommandJson } from './command-types'
+import { getElementSelectors, getOrCreateWrapper, findElementBySelectors } from '@/core/utils'
 
 export class CommandService {
   private history: CommandStorage = new CommandStorage();
@@ -41,7 +41,52 @@ export class CommandService {
   }
 
   serializeHistory(): any[] {
-    return this.history.getAll().map(cmd => cmd.toJSON());
+    // объединяем записи по элементу и типу изменения, если один параметр менялся несколько раз, то оставляем только итоговый
+    const commands = this.history.getAll() as Array<UpdateTextCommand | UpdateStyleCommand>;
+
+    function isUpdateStyle(command: any): command is UpdateStyleCommand {
+      return command.type === COMMAND_TYPES.UPDATE_STYLE && command.property
+    }
+    function isUpdateText(command: any): command is UpdateTextCommand {
+      return command.type === COMMAND_TYPES.UPDATE_TEXT
+    }
+
+    const groupedCommands = commands.reduce((acc: Record<string, CommandJson>, command) => {
+      const { type, nodeWrapper, meta, ...values } = command;
+
+      const nodeId = nodeWrapper.id
+
+      if (!acc[nodeId]) {
+        acc[nodeId] = {
+          id: nodeId,
+          type,
+          values: {},
+          meta: {
+            timestamp: meta?.timestamp || Date.now(),
+            operatorId: meta?.operatorId || null
+          },
+          selectors: nodeWrapper.selectors
+        };
+      }
+
+      if (meta) {
+        acc[nodeId].meta = meta;
+      }
+
+      if (isUpdateStyle(command)) {
+        acc[nodeId].values = {
+          ...acc[nodeId].values,
+          [command.property]: { previousValue: values.previousValue, nextValue: values.nextValue },
+        };
+      }
+      if (isUpdateText(command)) {
+        acc[nodeId].innerText = { previousValue: values.previousValue, nextValue: values.nextValue };
+      }
+
+      return acc
+    }, {});
+
+    return Object.values(groupedCommands);
   }
 
   getInstance(type: COMMAND_TYPES_LIST_TYPES) {
@@ -56,7 +101,7 @@ export class CommandService {
     return config[type]
   }
 
-  deserializeHistory(jsonArr: any[]) {
+  deserializeHistory(jsonArr: CommandJson[]) {
     const commands = jsonArr.map(raw => {
       const type = raw.type;
 
@@ -66,10 +111,11 @@ export class CommandService {
       const commandInstance = this.getInstance(type);
 
       return commandInstance.fromJSON(raw, this.nodeWrapperStorage);
-    });
+    }).flat();
 
     this.history.set(commands)
     this.trash.clearAll();
+    this.replayHistory();
   }
 
   replayHistory() {
@@ -82,12 +128,12 @@ export class CommandService {
   }
 }
 
-export class UpdateTextCommand implements CommandInterface {
+export class UpdateTextCommand implements UpdateTextCommandItem {
   type = COMMAND_TYPES.UPDATE_TEXT
   nodeWrapper: NodeWrapper
   previousValue: string;
   nextValue: string;
-  meta?: CommandMeta
+  meta: CommandMeta
 
   constructor(nodeWrapper: NodeWrapper, previousValue = '', nextValue: string, meta?: CommandMeta) {
     this.nodeWrapper = nodeWrapper
@@ -96,7 +142,7 @@ export class UpdateTextCommand implements CommandInterface {
     this.meta = {
       timestamp: meta?.timestamp || Date.now(),
       operatorId: meta?.operatorId || null
-    } 
+    }
   }
 
   execute() {
@@ -109,23 +155,34 @@ export class UpdateTextCommand implements CommandInterface {
 
   toJSON() { return { type: this.type, id: this.nodeWrapper.id, previousValue: this.previousValue, nextValue: this.nextValue }; }
 
-  static fromJSON(rawCommand: any, nodeWrapperStorage: NodeWrapperStorage): UpdateTextCommand {
-    const { id, previousValue, nextValue } = rawCommand;
-    const nodeWrapper = nodeWrapperStorage.getById(id)!;
+  static fromJSON(rawCommand: CommandJson, nodeWrapperStorage: NodeWrapperStorage): UpdateTextCommandItem {
+    const { id, innerText, meta, selectors } = rawCommand;
 
-    return new UpdateTextCommand(nodeWrapper, previousValue, nextValue);
+    const commandElement = findElementBySelectors(selectors)
+
+    if (!commandElement) {
+      throw new Error(`Command id: "${id}" has no element with selectors: ${JSON.stringify(selectors)}`);
+    }
+
+    const nodeWrapper = getOrCreateWrapper(nodeWrapperStorage, commandElement);
+
+    if (!innerText) {
+      throw new Error(`Command id: "${id}" has no innerText`);
+    }
+
+    return new UpdateTextCommand(nodeWrapper, innerText.previousValue, innerText.nextValue, meta);
   }
 }
 
-export class UpdateStyleCommand implements CommandInterface {
+export class UpdateStyleCommand implements UpdateStyleCommandItem {
   type = COMMAND_TYPES.UPDATE_STYLE
   nodeWrapper: NodeWrapper
   previousValue: string;
   nextValue: string;
-  property: string;
-  meta?: CommandMeta
+  property: SectionsStylesType;
+  meta: CommandMeta
 
-  constructor(nodeWrapper: NodeWrapper, property: string, previousValue = '', nextValue: string, meta?: CommandMeta) {
+  constructor(nodeWrapper: NodeWrapper, property: SectionsStylesType, previousValue = '', nextValue: string, meta?: CommandMeta) {
     this.nodeWrapper = nodeWrapper
     this.previousValue = previousValue
     this.nextValue = nextValue
@@ -133,7 +190,7 @@ export class UpdateStyleCommand implements CommandInterface {
     this.meta = {
       timestamp: meta?.timestamp || Date.now(),
       operatorId: meta?.operatorId || null
-    } 
+    }
   }
 
   execute() {
@@ -144,13 +201,26 @@ export class UpdateStyleCommand implements CommandInterface {
     this.nodeWrapper.applyStylePatch(this.property, this.previousValue)
   }
 
-  toJSON() { return { type: this.type, id: this.nodeWrapper.id, previousValue: this.previousValue, nextValue: this.nextValue }; }
+  toJSON() { return { type: this.type, property: this.property, id: this.nodeWrapper.id, previousValue: this.previousValue, nextValue: this.nextValue }; }
 
-  static fromJSON(rawCommand: any, nodeWrapperStorage: NodeWrapperStorage): UpdateStyleCommand {
-    const { id, previousValue, nextValue, property } = rawCommand;
-    const nodeWrapper = nodeWrapperStorage.getById(id)!;
+  static fromJSON(rawCommand: CommandJson, nodeWrapperStorage: NodeWrapperStorage): UpdateStyleCommandItem[] {
+    const { id, values, meta, selectors } = rawCommand;
+    
+    const commandElement = findElementBySelectors(selectors)
 
-    return new UpdateStyleCommand(nodeWrapper, property, previousValue, nextValue);
+    if (!commandElement) {
+      throw new Error(`Command id: "${id}" has no element with selectors: ${JSON.stringify(selectors)}`);
+    }
+
+    const nodeWrapper = getOrCreateWrapper(nodeWrapperStorage, commandElement);
+
+    if (!values) {
+      throw new Error(`Command id: "${id}" has no values`);
+    }
+
+    const commands = Object.entries(values).map(([property, value]) => new UpdateStyleCommand(nodeWrapper, property as SectionsStylesType, value.previousValue, value.nextValue, meta));
+
+    return commands
   }
 }
 

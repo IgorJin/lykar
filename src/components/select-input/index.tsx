@@ -14,6 +14,7 @@ interface SelectInput {
   name: string;
   defaultValue?: string;
   disabled?: boolean;
+  handleSave?: (value?: string) => void;
 }
 
 function parseSelectInput(value: string, options: string[]): { inputValue: string, selected: string | null } {
@@ -44,6 +45,7 @@ const SelectInput: FunctionalComponent<SelectInput> = ({
   name = '',
   defaultValue = '',
   disabled,
+  handleSave,
 }) => {
   const { selected, inputValue } = useMemo(() => parseSelectInput(value, options), [value, options]);
   const [currentSelect, setCurrentSelect] = useState<string>(selected || defaultValue || '');
@@ -51,10 +53,12 @@ const SelectInput: FunctionalComponent<SelectInput> = ({
 
   const handleSelect = (e: h.JSX.TargetedEvent<HTMLSelectElement, Event>) => {
     const val = e.currentTarget.value;
+    const concatenatedValue = currentInput + val;
 
     setCurrentSelect(val);
     onSelectChange?.(val);
-    onCompleteChange?.(currentInput + val);
+    onCompleteChange?.(concatenatedValue);
+    handleSave?.(concatenatedValue);
   };
 
   const handleInput = (e: h.JSX.TargetedEvent<HTMLInputElement, Event>) => {
@@ -64,6 +68,10 @@ const SelectInput: FunctionalComponent<SelectInput> = ({
     onInputChange?.(txt);
     onCompleteChange?.(txt + currentSelect);
   };
+
+  const handleBlur = () => {
+    handleSave?.(currentInput + currentSelect);
+  }
 
   return (
     <div className={`flex items-center border rounded overflow-hidden ${className}`}>
@@ -86,6 +94,7 @@ const SelectInput: FunctionalComponent<SelectInput> = ({
           onInput={handleInput}
           placeholder={placeholder}
           className="flex-1 px-2 py-1 focus:outline-none"
+          onBlur={handleBlur}
         />
       </label>
     </div>

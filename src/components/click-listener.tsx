@@ -12,19 +12,6 @@ export function ClickListener() {
 
   const toolbarRef = useRef<HTMLDivElement>(null);
 
-  // TODO ПОТОМ ЗАМЕНИТЬ АПИШКОЙ
-  useEffect(() => {
-    if (!initializedFromStorage) {
-      Object.entries(localStorage).forEach(([className, selector]) => {
-        const el = document.querySelector<HTMLElement>(selector as string);
-        if (el) {
-          el.classList.add(className);
-        }
-      });
-      dispatch({ type: 'MARK_STORAGE_LOADED' });
-    }
-  }, [initializedFromStorage, dispatch]);
-
   if (!isEditorModeActivated) {
     return <ActivasionButton handleClick={() => dispatch({ type: ACTIONS.ACTIVATE_EDITOR })} />;
   }

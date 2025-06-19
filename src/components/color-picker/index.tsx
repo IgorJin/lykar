@@ -6,13 +6,12 @@ interface ColorPickerProps {
   name: string;
   value: string;
   onInput?: (value: string) => void;
-  onBlur?: () => void;
+  onBlur?: (value: string) => void;
 }
 
 const ColorPicker = ({ label, name, value, onInput, onBlur }: ColorPickerProps) => {
   const [internalColor, setInternalColor] = useState<string>(value || "#000000");
 
-  // При изменении пропса value обновляем локальный стейт
   useEffect(() => {
     if (value && value !== internalColor) {
       setInternalColor(value);
@@ -37,7 +36,7 @@ const ColorPicker = ({ label, name, value, onInput, onBlur }: ColorPickerProps) 
         className="w-10 h-10 p-0 border-none"
         value={internalColor}
         onInput={handleChange}
-        onBlur={onBlur}
+        onBlur={() => onBlur?.(internalColor)}
       />
     </div>
   );

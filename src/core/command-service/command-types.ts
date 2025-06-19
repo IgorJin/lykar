@@ -18,6 +18,7 @@ export interface CommandInterface {
   toJSON(): CommandItem;
   nodeWrapper: NodeWrapperInterface;
 }
+
 export type CommandMeta = {
   timestamp: number,
   operatorId: number | null,
@@ -35,15 +36,26 @@ type CommandItem = {
   // сохранять тут paths: разные пути к элементу
 }
 
-type UpdateTextCommandItem = CommandItem & {
+export type UpdateTextCommandItem = CommandInterface & {
   type: typeof COMMAND_TYPES.UPDATE_TEXT;
   previousValue: string;
   nextValue: string;
 }
 
-type EditStyleCommandItem = CommandItem & {
+export type UpdateStyleCommandItem = CommandInterface & {
   type: typeof COMMAND_TYPES.UPDATE_STYLE;
   property: string;
   previousValue: string;
   nextValue: string;
+}
+
+export type UpdatedValue = { previousValue: string, nextValue: string }
+
+export type CommandJson = {
+  id: string;
+  type: COMMAND_TYPES_LIST_TYPES
+  meta: CommandMeta
+  values?: Record<string, UpdatedValue>
+  innerText?: UpdatedValue
+  selectors: { css: string, xpath: string }
 }

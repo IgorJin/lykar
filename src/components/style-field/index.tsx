@@ -7,11 +7,21 @@ interface StyleFieldProps {
   property: BaseStyleProperty & { key: SectionsStylesType };
   value: string;
   onChange: (e: JSX.TargetedEvent<HTMLSelectElement | HTMLInputElement, Event>) => void;
-  onStatefullChange?: (value: string) => void;
+  onStatefullChange: (value: string) => void;
+  handleSave: (value?: string) => void
 }
 
-const StyleField = ({ property: { key: styleKey, options, units }, value, onChange, onStatefullChange  }: StyleFieldProps) => {
+const StyleField = ({ property: { key: styleKey, options, units }, value, onChange, onStatefullChange, handleSave  }: StyleFieldProps) => {
   const isColor = styleKey.toLowerCase().includes("color");
+
+  const handleBlur = (e: JSX.TargetedEvent<HTMLSelectElement | HTMLInputElement, Event>) => {
+    handleSave(e.currentTarget.value);
+  };
+
+  const handleColorChange = (value: string) => {
+    onStatefullChange(value);
+    handleSave(value);
+  };
 
   if (options) {
     return (
@@ -21,6 +31,7 @@ const StyleField = ({ property: { key: styleKey, options, units }, value, onChan
         value={value}
         options={options}
         handleChange={onChange}
+        onBlur={handleBlur}
       />
     );
   }
@@ -33,6 +44,7 @@ const StyleField = ({ property: { key: styleKey, options, units }, value, onChan
         value={value}
         options={units}
         onCompleteChange={onStatefullChange}
+        handleSave={handleSave}
       />
     );
   }
@@ -42,7 +54,7 @@ const StyleField = ({ property: { key: styleKey, options, units }, value, onChan
       label={styleKey}
       name={styleKey}
       value={value}
-      onInput={onStatefullChange}
+      onInput={handleColorChange}
     />
   ) : (
     <Input
@@ -50,6 +62,7 @@ const StyleField = ({ property: { key: styleKey, options, units }, value, onChan
       name={styleKey}
       value={value}
       handleChange={onChange}
+      onBlur={handleBlur}
     />
   );
 };

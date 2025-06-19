@@ -3,8 +3,7 @@ import { useRef, useState, useCallback } from 'preact/hooks';
 import { useEditor, ACTIONS } from '@/store/editor-сontext';
 import { useEventListener } from '@/core/hooks';
 import './index.css';
-import { NodeWrapper } from '@/core/node-wrapper';
-import { isEditorUiElement, getToolbarPosition } from '@/core/utils';
+import { isEditorUiElement, getToolbarPosition, getOrCreateWrapper } from '@/core/utils';
 
 interface ToolbarPanelProps {
   ref?: preact.Ref<HTMLDivElement>;
@@ -128,21 +127,10 @@ export default function ToolbarPanel(props: ToolbarPanelProps) {
     setToolbar(t => ({ ...t, visible: false }));
   }, []);
 
-  function getOrCreateWrapper(element: HTMLElement) {
-    let wrapper = nodeWrapperStorage.getByElement(element);
-    if (!wrapper) {
-      wrapper = new NodeWrapper(element);
-      wrapper.create()
-
-      nodeWrapperStorage.push(wrapper);
-    }
-    return wrapper;
-  }
-
   const handleEditClick = () => {
     if (!hoveredElementRef.current) return;
 
-    const wrapper = getOrCreateWrapper(hoveredElementRef.current);
+    const wrapper = getOrCreateWrapper(nodeWrapperStorage, hoveredElementRef.current);
 
     if (editedElementRef.current) {
       clearEditedElement();
