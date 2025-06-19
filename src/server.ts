@@ -6,7 +6,7 @@ import dbPlugin from './plugins/db';
 // import authPlugin from './plugins/auth';
 
 // import authRoutes from './routes/auth';
-// import patchesRoutes from './routes/patches';
+import patchesRoutes from './routes/patches';
 // import sessionsRoutes from './routes/sessions';
 
 dotenv.config();
@@ -16,24 +16,25 @@ const server = Fastify({ logger: true });
 server.register(cors, {
   origin: (origin, cb) => {
     const allowed = [process.env.CLIENT_ORIGIN];
-    if (!origin || allowed.includes(origin)) {
+
+    if (!origin || origin === 'null' || allowed.includes(origin)) {
       cb(null, true);
     } else {
       cb(new Error('Not allowed'), false);
     }
   },
+
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
 });
 
 server.register(dbPlugin);
 // server.register(authPlugin);
 
 // server.register(authRoutes);
-// server.register(patchesRoutes);
+server.register(patchesRoutes);
 // server.register(sessionsRoutes);
 
-server.get('/', async function(req, reply) {
+server.get('/api', async function(req, reply) {
   const client = await this.pg.connect();
 
   console.log(await client.query('SELECT 1'));
