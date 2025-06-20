@@ -44,4 +44,3 @@ function resolveSections(sectionsConfig: SectionsConfig, stylesListConfigResolve
 }
 
 export const sectionsConfigResolved = resolveSections(sectionsConfig, stylesListConfigResolved)
-console.log("🚀 ~ sectionsConfigResolved:", sectionsConfigResolved)

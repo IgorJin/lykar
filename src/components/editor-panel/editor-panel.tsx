@@ -4,6 +4,7 @@ import { useEditor } from '@/store/editor-сontext';
 import { h } from 'preact'
 import { useState } from 'preact/hooks'
 import { sendPatches } from "@/features/patches/api"
+import PatchesSection from '@/components/patches-section'
 
 const EditorPanel = () => {
   const { dispatch, services: { commandService } } = useEditor();
@@ -38,6 +39,9 @@ const EditorPanel = () => {
 
       <div className="views-panel">
         <StylesSection />
+
+        Патчи
+        <PatchesSection />
       </div>
     </div>
   );

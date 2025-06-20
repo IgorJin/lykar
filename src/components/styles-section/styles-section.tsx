@@ -67,22 +67,18 @@ const StylesSection: () => JSX.Element = () => {
     if (!nodeWrapper) return;
 
     const elementStyles: StylesState = window.getComputedStyle(nodeWrapper.element, null)
-    console.log("🚀 ~ useEffect ~ elementStyles:", elementStyles)
 
     dispatch({ type: "update-all", payload: elementStyles });
 
-    console.log(styleState)
   }, [isElementEditing]);
 
   const changeElementStyle = useCallback((styleKey: SectionsStylesType) => (value?: string) => {
-    console.log('HERE')
     const currentValue = value ?? styleState[styleKey];
     const wrapper = editedElementRef.current;
 
     if (!wrapper?.element) return;
 
     const previousValue = (wrapper.element.style as Record<string, any>)[styleKey];
-    console.log("🚀 ~ previousValue:", previousValue)
 
     if (previousValue === currentValue) return;
 

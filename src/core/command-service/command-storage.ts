@@ -4,14 +4,18 @@ export class CommandStorage {
   private commands: CommandInterface[] = [];
 
   addCommand(command: CommandInterface) {
-    this.commands.push(command);
+    this.commands = [...this.commands, command];
   }
 
   getCommand() {
-    return this.commands.pop()
+    const lastCommand = this.commands[this.commands.length - 1];
+
+    this.commands = this.commands.slice(0, -1);
+
+    return lastCommand
   }
 
-  getAll() {
+  getAll(): readonly CommandInterface[] {
     return this.commands
   }
 

@@ -93,10 +93,10 @@ export function EditorProvider({ children, initialPatches }: { children: h.JSX.E
   const [state, dispatch] = useReducer(editorReducer, initialState);
 
   useEffect(() => {
-    if (initialPatches) {
+    if (initialPatches && commandService) {
       commandService.deserializeHistory(initialPatches);
     }
-  }, [initialPatches]);
+  }, [commandService, initialPatches]);
 
   const clearEditedElement = () => {
     refs.editedElementRef.current = null;

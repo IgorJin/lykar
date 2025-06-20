@@ -8,6 +8,7 @@ export class CommandService {
   private history: CommandStorage = new CommandStorage();
   private trash: CommandStorage = new CommandStorage();
   nodeWrapperStorage: NodeWrapperStorage
+  listeners: Set<() => void> = new Set();
 
   constructor(nodeWrapperStorage: NodeWrapperStorage) {
     this.nodeWrapperStorage = nodeWrapperStorage
@@ -18,6 +19,8 @@ export class CommandService {
 
     this.history.addCommand(command)
     this.trash.clearAll()
+
+    this.notify()
   }
   undo() {
     const prevCommand = this.history.getCommand()
@@ -28,6 +31,8 @@ export class CommandService {
 
     prevCommand.cancel()
     this.trash.addCommand(prevCommand)
+
+    this.notify()
   }
   redo() {
     const nextCommand = this.trash.getCommand()
@@ -38,6 +43,8 @@ export class CommandService {
 
     nextCommand?.execute()
     this.history.addCommand(nextCommand!)
+
+    this.notify()
   }
 
   serializeHistory(): any[] {
@@ -120,11 +127,33 @@ export class CommandService {
 
   replayHistory() {
     this.history.getAll().forEach(cmd => cmd.execute());
+
+    this.notify()
   }
 
   clear() {
     this.history.clearAll();
     this.trash.clearAll();
+
+    this.notify()
+  }
+
+  getHistory() {
+    return this.history.getAll()
+  }
+
+  subscribe(cb: () => void) {
+    this.listeners.add(cb);
+
+    return () => this.unsubscribe(cb);
+  }
+
+  unsubscribe(cb: () => void) {
+    this.listeners.delete(cb)
+  }
+
+  notify() {
+    this.listeners.forEach(cb => cb());
   }
 }
 
