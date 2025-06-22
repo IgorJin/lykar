@@ -10,8 +10,6 @@ const PatchesSection = (): JSX.Element => {
     commandService.getHistory.bind(commandService),
   )
 
-  console.log(patches.length)
-
   return (
     <ul>
       {patches.map((patch, index) => (

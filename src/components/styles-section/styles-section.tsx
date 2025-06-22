@@ -3,7 +3,7 @@ import { useEffect, useContext, useReducer, useCallback, useMemo } from "preact/
 import { useEditor } from "@/store/editor-сontext";
 import { StyleField } from "@/components";
 import { sectionsConfigResolved } from "@/core/styles-service";
-import { SectionsStylesType } from "@/core/styles-service/styles-config";
+import { SectionsStylesType, STYLE_KEYS } from "@/core/styles-service/styles-config";
 import { UpdateStyleCommand } from "@/core/command-service/command-service";
 
 type StylesState = Record<SectionsStylesType, string>;
@@ -22,7 +22,6 @@ const StylesSection: () => JSX.Element = () => {
   const { services: { commandService }, refs: { editedElementRef }, state: { isElementEditing } } = useEditor();
 
   function stylesReducer(state: StylesState, action: StylesAction | StylesActionUpdateAll): StylesState {
-    console.log(action)
     switch (action.type) {
       case "update":
         return { ...state, [action.payload.key]: action.payload.value };
@@ -37,6 +36,10 @@ const StylesSection: () => JSX.Element = () => {
     stylesReducer,
     {} as StylesState
   );
+
+  useEffect(() => {
+    console.log("🚀UPDATE STYLE ~ useEffect ~ styleState:", styleState)
+  }, [styleState])
 
 
   type stylesReduceType = {
@@ -66,6 +69,7 @@ const StylesSection: () => JSX.Element = () => {
 
     if (!nodeWrapper) return;
 
+    // TODO собирать только необходимые стили
     const elementStyles: StylesState = window.getComputedStyle(nodeWrapper.element, null)
 
     dispatch({ type: "update-all", payload: elementStyles });

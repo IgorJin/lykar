@@ -1,5 +1,6 @@
 import { h, JSX } from "preact";
 import { Option } from "@/core/styles-service/styles-config";
+import "./select.css";
 
 interface SelectProps {
   label: string;
@@ -15,32 +16,25 @@ interface SelectProps {
  * Использует стандартный <select> элемент.
  */
 const Select = ({ label, name, value, options, handleChange, onBlur }: SelectProps) => {
-  const resolvedOptions = options.map((opt) => {
-    if (typeof opt === "string") {
-      return {
-        label: opt,
-        value: opt
-      };
-    } 
-
-    return opt
-  })
+  const resolvedOptions: Option[] = options.map((opt) =>
+    typeof opt === "string" ? { label: opt, value: opt } : opt
+  );
 
   return (
-    <div className="flex flex-col mb-2">
-      <label htmlFor={name} className="text-sm text-gray-700 mb-1">
+    <div className="lykar-select__wrapper">
+      <label htmlFor={name} className="lykar-select__label">
         {label}
       </label>
       <select
         id={name}
         name={name}
-        className="border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        className="lykar-select__field"
         value={value}
         onChange={handleChange}
         onBlur={onBlur}
       >
         {resolvedOptions.map((opt) => (
-          <option key={opt.value} label={opt.label} value={opt.value}>
+          <option key={opt.value} value={opt.value}>
             {opt.label}
           </option>
         ))}

@@ -1,0 +1,50 @@
+.lykar-selectinput__wrapper {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 14px;
+}
+
+.lykar-selectinput__label {
+  font-size: 14px;
+  color: #444;
+  margin-bottom: 4px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.lykar-selectinput__inner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  border: 1px solid #d0d4da;
+  border-radius: 4px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.lykar-selectinput__input {
+  border: none;
+  flex: 1;
+  padding: 7px 10px;
+  font-size: 15px;
+  background: transparent;
+  outline: none;
+}
+
+.lykar-selectinput__select {
+  border: none;
+  border-left: 1px solid #d0d4da;
+  padding: 7px 10px;
+  font-size: 15px;
+  background: #f6f8fa;
+  outline: none;
+  min-width: 60px;
+  cursor: pointer;
+}
+
+.lykar-selectinput__input:disabled,
+.lykar-selectinput__select:disabled {
+  background: #f3f3f3;
+  color: #aaa;
+  cursor: not-allowed;
+}

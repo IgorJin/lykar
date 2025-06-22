@@ -5,6 +5,7 @@ import { h } from 'preact'
 import { useState } from 'preact/hooks'
 import { sendPatches } from "@/features/patches/api"
 import PatchesSection from '@/components/patches-section'
+import InnerTextSection from '@/components/inner-text-section'
 
 const EditorPanel = () => {
   const { dispatch, services: { commandService } } = useEditor();
@@ -38,9 +39,10 @@ const EditorPanel = () => {
       </div>
 
       <div className="views-panel">
+        <InnerTextSection />
+
         <StylesSection />
 
-        Патчи
         <PatchesSection />
       </div>
     </div>

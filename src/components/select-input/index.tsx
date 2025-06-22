@@ -1,6 +1,7 @@
 import { h, FunctionalComponent } from 'preact';
 import { useState } from 'preact/hooks';
 import { useMemo } from 'preact/hooks';
+import './index.css';
 
 interface SelectInput {
   label: string;
@@ -73,31 +74,36 @@ const SelectInput: FunctionalComponent<SelectInput> = ({
     handleSave?.(currentInput + currentSelect);
   }
 
+  const selectId = `lykar-selectinput-${name}`;
+
   return (
-    <div className={`flex items-center border rounded overflow-hidden ${className}`}>
-      <label>{label}
-        <select
-          disabled={disabled}
-          value={currentSelect}
-          onChange={handleSelect}
-          className="px-2 py-1 bg-gray-100 text-gray-800 border-r focus:outline-none"
-        >
-          {options.map(opt => (
-            <option value={opt}>{opt}</option>
-          ))}
-        </select>
-        <input
-          disabled={disabled}
-          name={name}
-          type="text"
-          value={currentInput}
-          onInput={handleInput}
-          placeholder={placeholder}
-          className="flex-1 px-2 py-1 focus:outline-none"
-          onBlur={handleBlur}
-        />
-      </label>
+    <div className={`lykar-selectinput__wrapper ${className}`}>
+    <label htmlFor={selectId} className="lykar-selectinput__label">{label}</label>
+    <div className="lykar-selectinput__inner">
+      <input
+        disabled={disabled}
+        name={name}
+        type="text"
+        value={currentInput}
+        onInput={handleInput}
+        placeholder={placeholder}
+        className="lykar-selectinput__input"
+        onBlur={handleBlur}
+        autoComplete="off"
+      />
+      <select
+        id={selectId}
+        disabled={disabled}
+        value={currentSelect}
+        onChange={handleSelect}
+        className="lykar-selectinput__select"
+      >
+        {options.map(opt => (
+          <option key={opt} value={opt}>{opt}</option>
+        ))}
+      </select>
     </div>
+  </div>
   );
 };
 

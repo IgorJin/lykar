@@ -118,19 +118,19 @@ const optsShadowType = [
   { value: 'inset', label: 'Inside' },
 ];
 const optsFonts = [
-  'Arial, Helvetica' + ss,
-  'Arial Black, Gadget' + ss,
-  'Brush Script MT' + ss,
-  'Comic Sans MS, cursive' + ss,
-  'Courier New, Courier, monospace',
+  'Arial',
+  'Arial Black',
+  'Brush Scrip',
+  'Comic Sans MS',
+  'Courier New, Courier',
   'Georgia, serif',
-  'Helvetica' + ss,
-  'Impact, Charcoal' + ss,
-  'Lucida Sans Unicode, Lucida Grande' + ss,
-  'Tahoma, Geneva' + ss,
-  'Times New Roman, Times, serif',
-  'Trebuchet MS, Helvetica' + ss,
-  'Verdana, Geneva' + ss,
+  'Helvetica',
+  'Impact',
+  'Lucida Sans Unicode',
+  'Tahoma',
+  'Times New Roman, Times',
+  'Trebuchet MS',
+  'Verdana',
 ].map(font => {
   return { value: font, label: font.split(',')[0] };
 });
@@ -228,24 +228,24 @@ export const stylesConfig = [
 
   // Select types
   { key: 'display', type: typeSelect, default: 'block', options: opstDisplay },
-  { key: 'flex-direction', type: typeSelect, default: 'row', options: optsDir, extends: 'display' },
+  { key: 'flex-direction', type: typeSelect, default: 'row', options: optsDir },
   { key: 'flex-wrap', type: typeSelect, default: 'nowrap', options: optsWrap, extends: 'flex-direction' },
   { key: 'justify-content', type: typeSelect, default: 'flex-start', options: optsJustCont, extends: 'flex-wrap' },
   { key: 'align-items', type: typeSelect, default: 'stretch', options: optsFlexAlign, extends: 'flex-wrap' },
   { key: 'align-content', type: typeSelect, options: optsAlignCont, extends: 'align-items' },
-  { key: 'align-self', type: typeSelect, default: 'auto', options: optsAlignSelf, extends: 'display' },
-  { key: 'font-family', type: typeSelect, default: 'Arial, Helvetica, sans-serif', options: optsFonts, extends: 'display' },
-  { key: 'font-weight', type: typeSelect, default: '400', options: optsWeight, extends: 'display' },
-  { key: 'border-style', type: typeSelect, default: 'solid', options: optsBorderStyle, extends: 'display' },
-  { key: 'box-shadow-type', type: typeSelect, default: '', options: optsShadowType, extends: 'display' },
-  { key: 'background-repeat', type: typeSelect, default: 'repeat', options: optsBgRepeat, extends: 'display' },
-  { key: 'background-position', type: typeSelect, default: 'left top', options: optsBgPos, extends: 'display' },
-  { key: 'background-attachment', type: typeSelect, default: 'scroll', options: optsBgAttach, extends: 'display' },
-  { key: 'background-size', type: typeSelect, default: 'auto', options: optsBgSize, extends: 'display' },
-  { key: 'transition-property', type: typeSelect, default: 'width', options: optsTransitProp, extends: 'display' },
-  { key: 'transition-timing-function', type: typeSelect, default: 'ease', options: optsTransitFn, extends: 'display' },
-  { key: 'cursor', type: typeSelect, default: 'auto', options: optsCursor, extends: 'display' },
-  { key: 'overflow', type: typeSelect, default: 'visible', options: optsOverflow, extends: 'display' },
+  { key: 'align-self', type: typeSelect, default: 'auto', options: optsAlignSelf },
+  { key: 'font-family', type: typeSelect, default: 'Arial, Helvetica', options: optsFonts },
+  { key: 'font-weight', type: typeSelect, default: '400', options: optsWeight },
+  { key: 'border-style', type: typeSelect, default: 'solid', options: optsBorderStyle },
+  { key: 'box-shadow-type', type: typeSelect, default: '', options: optsShadowType },
+  { key: 'background-repeat', type: typeSelect, default: 'repeat', options: optsBgRepeat },
+  { key: 'background-position', type: typeSelect, default: 'left top', options: optsBgPos },
+  { key: 'background-attachment', type: typeSelect, default: 'scroll', options: optsBgAttach },
+  { key: 'background-size', type: typeSelect, default: 'auto', options: optsBgSize },
+  { key: 'transition-property', type: typeSelect, default: 'width', options: optsTransitProp },
+  { key: 'transition-timing-function', type: typeSelect, default: 'ease', options: optsTransitFn },
+  { key: 'cursor', type: typeSelect, default: 'auto', options: optsCursor },
+  { key: 'overflow', type: typeSelect, default: 'visible', options: optsOverflow },
   { key: 'overflow-x', type: typeSelect, extends: 'overflow' },
   { key: 'overflow-y', type: typeSelect, extends: 'overflow' },
 
@@ -333,10 +333,10 @@ export const stylesConfig = [
 ] as BaseStyleProperty[]
 
 export const sectionsConfig = [
-  {
-    name: 'General',
-    properties: ['display', 'float', 'position', 'top', 'right', 'left', 'bottom'],
-  },
+  // {
+  //   name: 'General',
+  //   properties: ['display', 'float', 'position', 'top', 'right', 'left', 'bottom'],
+  // },
   // {
   //   name: 'Flex',
   //   properties: [
@@ -367,16 +367,17 @@ export const sectionsConfig = [
       'lineHeight',
       'textAlign',
       // 'textShadow',
+      'backgroundColor', // убрать
     ],
   },
-  {
-    name: 'Decorations',
-    properties: ['backgroundColor', 'borderRadius', 'border', 'boxShadow', 'background'],
-  },
-  {
-    name: 'Extra',
-    properties: ['opacity', 'transition'] //'transform'],
-  },
+  // {
+  //   name: 'Decorations',
+  //   properties: ['backgroundColor', 'borderRadius', 'border', 'boxShadow', 'background'],
+  // },
+  // {
+  //   name: 'Extra',
+  //   properties: ['opacity', 'transition'] //'transform'],
+  // },
 ] as const
 
 export const STYLE_KEYS = stylesConfig.map(p => p.key) as string[];

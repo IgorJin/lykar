@@ -1,5 +1,6 @@
 import { h, JSX } from "preact";
-import { useState, useEffect } from "preact/hooks";
+import { useRef } from "preact/hooks";
+import "./index.css";
 
 interface ColorPickerProps {
   label: string;
@@ -10,34 +11,46 @@ interface ColorPickerProps {
 }
 
 const ColorPicker = ({ label, name, value, onInput, onBlur }: ColorPickerProps) => {
-  const [internalColor, setInternalColor] = useState<string>(value || "#000000");
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    if (value && value !== internalColor) {
-      setInternalColor(value);
-    }
-  }, [value]);
+  const handleSwatchClick = () => {
+    inputRef.current?.click();
+  };
 
   const handleChange = (e: JSX.TargetedEvent<HTMLInputElement, Event>) => {
     const newColor = e.currentTarget.value;
-    setInternalColor(newColor);
     onInput?.(newColor);
   };
 
+  const handleBlur = () => {
+    onBlur?.(value);
+  };
+
   return (
-    <div className="flex flex-col mb-2">
-      <label htmlFor={name} className="text-sm text-gray-700 mb-1">
+    <div className="lykar-colorpicker__wrapper">
+      <label className="lykar-colorpicker__label" htmlFor={name}>
         {label}
       </label>
-      <input
-        type="color"
-        id={name}
-        name={name}
-        className="w-10 h-10 p-0 border-none"
-        value={internalColor}
-        onInput={handleChange}
-        onBlur={() => onBlur?.(internalColor)}
-      />
+      <div className="lykar-colorpicker__row">
+        <div
+          className="lykar-colorpicker__swatch"
+          style={{ background: value }}
+          onClick={handleSwatchClick}
+          tabIndex={0}
+        />
+        <input
+          ref={inputRef}
+          type="color"
+          id={name}
+          name={name}
+          value={value}
+          className="lykar-colorpicker__native"
+          onInput={handleChange}
+          onBlur={handleBlur}
+          aria-label={label}
+        />
+        <span className="lykar-colorpicker__value">{value}</span>
+      </div>
     </div>
   );
 };

@@ -7,6 +7,7 @@ export interface ConfigReducer {
 
 type SectionsConfig = typeof sectionsConfig
 
+// TODO ЗАМЕНИТЬ СГЕНЕРИРОВАННЫМ КОНФИГОМ!
 function resolveExtends(
   config: typeof stylesConfig
 ): ConfigReducer {

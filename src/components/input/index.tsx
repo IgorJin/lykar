@@ -1,4 +1,5 @@
 import { h, JSX } from "preact";
+import "./input.css";
 
 interface InputProps {
   label: string;
@@ -10,18 +11,19 @@ interface InputProps {
 
 const Input = ({ label, name, value, handleChange, onBlur }: InputProps) => {
   return (
-    <div className="flex flex-col mb-2">
-      <label htmlFor={name} className="text-sm text-gray-700 mb-1">
+    <div className="lykar-input__wrapper">
+      <label htmlFor={name} className="lykar-input__label">
         {label}
       </label>
       <input
         type="text"
         id={name}
         name={name}
-        className="border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        className="lykar-input__field"
         value={value || ""}
         onInput={handleChange}
         onBlur={onBlur}
+        autoComplete="off"
       />
     </div>
   );

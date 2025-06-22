@@ -2,6 +2,16 @@ import { h, JSX } from "preact";
 import { memo } from "preact/compat";
 import { Input, Select, SelectInput, ColorPicker } from '@/components'
 import { BaseStyleProperty, SectionsStylesType } from '@/core/styles-service/styles-config'
+import {
+  typeNumber,
+  typeColor,
+  typeRadio,
+  typeSelect,
+  typeFile,
+  typeSlider,
+  typeComposite,
+  typeStack,
+} from '@/core/styles-service/styles-config'
 
 interface StyleFieldProps {
   property: BaseStyleProperty & { key: SectionsStylesType };
@@ -11,8 +21,10 @@ interface StyleFieldProps {
   handleSave: (value?: string) => void
 }
 
-const StyleField = ({ property: { key: styleKey, options, units }, value, onChange, onStatefullChange, handleSave  }: StyleFieldProps) => {
-  const isColor = styleKey.toLowerCase().includes("color");
+const StyleField = (props: StyleFieldProps) => {
+  const { property, onStatefullChange, handleSave } = props;
+
+  type ComponentGenerator = (props: StyleFieldProps) => JSX.Element
 
   const handleBlur = (e: JSX.TargetedEvent<HTMLSelectElement | HTMLInputElement, Event>) => {
     handleSave(e.currentTarget.value);
@@ -23,48 +35,52 @@ const StyleField = ({ property: { key: styleKey, options, units }, value, onChan
     handleSave(value);
   };
 
-  if (options) {
-    return (
-      <Select
-        label={styleKey}
-        name={styleKey}
-        value={value}
-        options={options}
-        handleChange={onChange}
-        onBlur={handleBlur}
-      />
-    );
-  }
-
-  if (units) {
-    return (
+  const ComponentByType: Record<string, ComponentGenerator> = {
+    [typeNumber]: ({ property: { key: styleKey, units }, value, onStatefullChange, handleSave }: StyleFieldProps) => (
       <SelectInput
         label={styleKey}
         name={styleKey}
         value={value}
-        options={units}
+        options={units!}
         onCompleteChange={onStatefullChange}
         handleSave={handleSave}
       />
-    );
-  }
+    ),
+    [typeColor]: ({ property: { key: styleKey }, value }: StyleFieldProps) => (
+      <ColorPicker
+        label={styleKey}
+        name={styleKey}
+        value={value}
+        onInput={handleColorChange} />
+    ),
+    [typeSelect]: ({ property: { key: styleKey, options }, value, onChange }: StyleFieldProps) => (
+      <Select
+        label={styleKey}
+        name={styleKey}
+        value={value}
+        options={options!}
+        handleChange={onChange}
+        onBlur={handleBlur}
+      />
+    ),
+    // [typeRadio]: Input,
+    // [typeFile]: Input,
+    // [typeSlider]: Input,
+    // [typeComposite]: Input,
+    // [typeStack]: Input,
+  };
 
-  return isColor ? (
-    <ColorPicker
-      label={styleKey}
-      name={styleKey}
-      value={value}
-      onInput={handleColorChange}
-    />
-  ) : (
+  const Component = ComponentByType[property.type] || ((props: StyleFieldProps) => (
     <Input
-      label={styleKey}
-      name={styleKey}
-      value={value}
-      handleChange={onChange}
-      onBlur={handleBlur}
+      label={props.property.key}
+      name={props.property.key}
+      value={props.value}
+      handleChange={props.onChange}
+      onBlur={e => props.handleSave(e.currentTarget.value)}
     />
-  );
+  ));
+
+  return <Component {...props} />
 };
 
 export default memo(StyleField);

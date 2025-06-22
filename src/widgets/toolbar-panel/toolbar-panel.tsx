@@ -65,7 +65,7 @@ export default function ToolbarPanel(props: ToolbarPanelProps) {
 
     if (isEditorUiElement(target)) return;
 
-    console.log("🚀 ~ handleHover ~ target:", target)
+    // console.log("🚀 ~ handleHover ~ target:", target)
 
     if (!target || target.closest('.toolbar-wrapper') || target.closest('.editor-container')) return;
 
@@ -76,8 +76,6 @@ export default function ToolbarPanel(props: ToolbarPanelProps) {
 
     const rect = target.getBoundingClientRect();
     target.classList.add('hovered');
-
-    console.log(getToolbarPosition(rect))
 
     setToolbar({ ...getToolbarPosition(rect), visible: true });
   }, [isEditorModeActivated]);

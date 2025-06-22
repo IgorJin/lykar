@@ -1,0 +1,35 @@
+.lykar-select__wrapper {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 14px;
+}
+
+.lykar-select__label {
+  font-size: 14px;
+  color: #444;
+  margin-bottom: 4px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.lykar-select__field {
+  border: 1px solid #d0d4da;
+  border-radius: 4px;
+  padding: 7px 10px;
+  font-size: 15px;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  appearance: none;
+}
+
+.lykar-select__field:focus {
+  border-color: #397afe;
+  box-shadow: 0 0 0 2px #397afe22;
+}
+
+.lykar-select__field:disabled {
+  background: #f3f3f3;
+  color: #aaa;
+  cursor: not-allowed;
+}
