@@ -1,7 +1,7 @@
 import { h, JSX } from "preact";
-import { memo } from "preact/compat";
-import { Input, Select, SelectInput, ColorPicker } from '@/components'
-import { BaseStyleProperty, SectionsStylesType } from '@/core/styles-service/styles-config'
+import { memo, useMemo, useCallback } from "preact/compat";
+import { Input, Select, SelectInput, ColorPicker, Dropdown } from '@/components'
+import { BaseStyleProperty, StylesKeysType, StylesObject } from '@/core/styles-service/styles-config'
 import {
   typeNumber,
   typeColor,
@@ -10,77 +10,131 @@ import {
   typeFile,
   typeSlider,
   typeComposite,
-  typeStack,
+  typeGrouped,
 } from '@/core/styles-service/styles-config'
 
 interface StyleFieldProps {
-  property: BaseStyleProperty & { key: SectionsStylesType };
-  value: string;
-  onChange: (e: JSX.TargetedEvent<HTMLSelectElement | HTMLInputElement, Event>) => void;
-  onStatefullChange: (value: string) => void;
-  handleSave: (value?: string) => void
+  property: BaseStyleProperty & { key: StylesKeysType };
+  state: StylesObject;
+  onChange: (styleKey: StylesKeysType) => (e: JSX.TargetedEvent<HTMLSelectElement | HTMLInputElement, Event>) => void;
+  onStatefullChange: (styleKey: StylesKeysType) => (value: string) => void;
+  handleSave: (styleKey: StylesKeysType) => (value?: string) => void
 }
 
-const StyleField = (props: StyleFieldProps) => {
-  const { property, onStatefullChange, handleSave } = props;
-
-  type ComponentGenerator = (props: StyleFieldProps) => JSX.Element
-
-  const handleBlur = (e: JSX.TargetedEvent<HTMLSelectElement | HTMLInputElement, Event>) => {
-    handleSave(e.currentTarget.value);
-  };
-
-  const handleColorChange = (value: string) => {
-    onStatefullChange(value);
-    handleSave(value);
-  };
-
-  const ComponentByType: Record<string, ComponentGenerator> = {
-    [typeNumber]: ({ property: { key: styleKey, units }, value, onStatefullChange, handleSave }: StyleFieldProps) => (
-      <SelectInput
-        label={styleKey}
-        name={styleKey}
-        value={value}
-        options={units!}
-        onCompleteChange={onStatefullChange}
-        handleSave={handleSave}
-      />
-    ),
-    [typeColor]: ({ property: { key: styleKey }, value }: StyleFieldProps) => (
-      <ColorPicker
-        label={styleKey}
-        name={styleKey}
-        value={value}
-        onInput={handleColorChange} />
-    ),
-    [typeSelect]: ({ property: { key: styleKey, options }, value, onChange }: StyleFieldProps) => (
-      <Select
-        label={styleKey}
-        name={styleKey}
-        value={value}
-        options={options!}
-        handleChange={onChange}
-        onBlur={handleBlur}
-      />
-    ),
-    // [typeRadio]: Input,
-    // [typeFile]: Input,
-    // [typeSlider]: Input,
-    // [typeComposite]: Input,
-    // [typeStack]: Input,
-  };
-
-  const Component = ComponentByType[property.type] || ((props: StyleFieldProps) => (
-    <Input
-      label={props.property.key}
-      name={props.property.key}
-      value={props.value}
-      handleChange={props.onChange}
-      onBlur={e => props.handleSave(e.currentTarget.value)}
-    />
-  ));
-
-  return <Component {...props} />
+const getKeyValue = (state: StylesObject, styleKey: StylesKeysType) => {
+  return state[styleKey] || '';
 };
 
-export default memo(StyleField);
+type ComponentGenerator = (props: StyleFieldProps) => JSX.Element;
+
+const DefaultField: ComponentGenerator = ({ property: { key: styleKey, label }, state, onChange, handleSave }) => {
+  const onInputChange = useCallback(onChange(styleKey), [onChange, styleKey]);
+  const onBlur = useCallback((e: JSX.TargetedEvent<HTMLInputElement, Event>) => {
+    handleSave(styleKey)(e.currentTarget.value);
+  }, [handleSave, styleKey]);
+
+  return (
+    <Input
+      label={label}
+      name={styleKey}
+      value={getKeyValue(state, styleKey)}
+      handleChange={onInputChange}
+      onBlur={onBlur}
+    />
+  );
+};
+
+const ComponentByType: Record<string, ComponentGenerator> = {
+  [typeNumber]: ({ property: { key: styleKey, units, label }, state, onStatefullChange, handleSave }) => {
+    const handleComplete = useCallback(onStatefullChange(styleKey), [onStatefullChange, styleKey]);
+    const handleSaveFn = useCallback(handleSave(styleKey), [handleSave, styleKey]);
+
+    console.log(styleKey, getKeyValue(state, styleKey))
+
+    
+    return (
+      <SelectInput
+        label={label}
+        name={styleKey}
+        value={getKeyValue(state, styleKey)}
+        options={units!}
+        onCompleteChange={handleComplete}
+        handleSave={handleSaveFn}
+      />
+    );
+  },
+  [typeColor]: ({ property: { key: styleKey, label }, state, onStatefullChange, handleSave }) => {
+    const handleColor = useCallback((v: string) => {
+      onStatefullChange(styleKey)(v);
+      handleSave(styleKey)(v);
+    }, [onStatefullChange, handleSave, styleKey]);
+
+    return (
+      <ColorPicker
+        label={label}
+        name={styleKey}
+        value={getKeyValue(state, styleKey)}
+        onInput={handleColor}
+      />
+    );
+  },
+  [typeSelect]: ({ property: { key: styleKey, label, options }, state, onChange, handleSave }) => {
+    const onChangeFn = useCallback(onChange(styleKey), [onChange, styleKey]);
+    const onBlur = useCallback((e: JSX.TargetedEvent<HTMLSelectElement, Event>) => {
+      handleSave(styleKey)(e.currentTarget.value);
+    }, [handleSave, styleKey]);
+
+    return (
+      <Select
+        label={label}
+        name={styleKey}
+        value={getKeyValue(state, styleKey)}
+        options={options!}
+        handleChange={onChangeFn}
+        onBlur={onBlur}
+      />
+    );
+  },
+  [typeComposite]: ({ property, state, onChange, handleSave, onStatefullChange }) => (
+    <Dropdown trigger={<span>{property.label}</span>}>
+      {() =>
+        <>
+          {property.properties!.map(childProperty => {
+            const styleKey = childProperty.key;
+
+            const ChildComponent = ComponentByType[childProperty.type] || DefaultField;
+
+            return (
+              <ChildComponent
+                key={styleKey}
+                property={childProperty}
+                state={state}
+                onChange={onChange}
+                onStatefullChange={onStatefullChange}
+                handleSave={handleSave}
+              />
+            );
+          })}
+        </>
+      }
+    </Dropdown>
+  ),
+  // [typeRadio]: Input,
+  // [typeFile]: Input,
+  // [typeSlider]: Input,
+  // [typeGrouped]: ({ property: { key: styleKey, label }, onChange }: StyleFieldProps) => (
+  //   <Dropdown trigger={<span>{label}</span>}>
+  //     <span>{label}</span>
+  //   </Dropdown>
+  // ),
+};
+
+const StyleField = memo((props: StyleFieldProps) => {
+  const { property } = props;
+
+  const Component = ComponentByType[property.type] || DefaultField;
+
+  return <Component {...props} />;
+});
+
+export default StyleField;

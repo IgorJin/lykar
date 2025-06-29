@@ -1,5 +1,4 @@
-import { stylesConfig } from '@/core/styles-service/styles-config';
-import { getElementSelectors } from './utils';
+import { getElementSelectors, getElementStylesMap } from './utils';
 
 export class NodeWrapperStorage {
   private store = new Map<string, NodeWrapper>();
@@ -67,9 +66,6 @@ export class NodeWrapper implements NodeWrapperInterface {
     this.originalText = this.element.textContent
 
     this.createSelectors()
-
-    // TODO может возникнуть случай когда стиль у элемента в СПА приложении изменится, и мы можем получить устаревшие данные
-    // возможно стоит получать их при каждом открытии формы
     this.createStylesListMap()
   }
 
@@ -78,9 +74,7 @@ export class NodeWrapper implements NodeWrapperInterface {
   }
 
   createStylesListMap() {
-    const elementStyles: Record<string, any> = window.getComputedStyle(this.element, null)
-
-    this.stylesList = Object.keys(stylesConfig).reduce((acc, style) => ({ ...acc, [style]: elementStyles[style] }), {})
+    this.stylesList = getElementStylesMap(this.element)
 
     for (let i = 0; i < this.element.attributes.length; i++) console.log(this.element.attributes[i])
   }

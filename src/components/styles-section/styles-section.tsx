@@ -3,25 +3,24 @@ import { useEffect, useContext, useReducer, useCallback, useMemo } from "preact/
 import { useEditor } from "@/store/editor-сontext";
 import { StyleField } from "@/components";
 import { sectionsConfigResolved } from "@/core/styles-service";
-import { SectionsStylesType, STYLE_KEYS } from "@/core/styles-service/styles-config";
+import { StylesKeysType, StylesObject, ALL_STYLE_KEYS } from "@/core/styles-service/styles-config";
 import { UpdateStyleCommand } from "@/core/command-service/command-service";
-
-type StylesState = Record<SectionsStylesType, string>;
+import { getElementStylesMap } from "@/core/utils";
 
 type StylesAction = {
   type: "update";
-  payload: { key: SectionsStylesType; value: string };
+  payload: { key: StylesKeysType; value: string };
 };
 
 type StylesActionUpdateAll = {
   type: "update-all";
-  payload: StylesState;
+  payload: StylesObject;
 };
 
 const StylesSection: () => JSX.Element = () => {
   const { services: { commandService }, refs: { editedElementRef }, state: { isElementEditing } } = useEditor();
 
-  function stylesReducer(state: StylesState, action: StylesAction | StylesActionUpdateAll): StylesState {
+  function stylesReducer(state: StylesObject, action: StylesAction | StylesActionUpdateAll): StylesObject {
     switch (action.type) {
       case "update":
         return { ...state, [action.payload.key]: action.payload.value };
@@ -34,7 +33,7 @@ const StylesSection: () => JSX.Element = () => {
 
   const [styleState, dispatch] = useReducer(
     stylesReducer,
-    {} as StylesState
+    {} as StylesObject
   );
 
   useEffect(() => {
@@ -43,7 +42,7 @@ const StylesSection: () => JSX.Element = () => {
 
 
   type stylesReduceType = {
-    [Property in SectionsStylesType]: string;
+    [Property in StylesKeysType]: string;
   };
 
   // TODO MutationObserver логика
@@ -69,14 +68,13 @@ const StylesSection: () => JSX.Element = () => {
 
     if (!nodeWrapper) return;
 
-    // TODO собирать только необходимые стили
-    const elementStyles: StylesState = window.getComputedStyle(nodeWrapper.element, null)
+    const allowedStyles = getElementStylesMap(nodeWrapper.element);
 
-    dispatch({ type: "update-all", payload: elementStyles });
-
+    console.log("🚀 ~ useEffect ~ allowedStyles:", allowedStyles)
+    dispatch({ type: "update-all", payload: allowedStyles });
   }, [isElementEditing]);
 
-  const changeElementStyle = useCallback((styleKey: SectionsStylesType) => (value?: string) => {
+  const changeElementStyle = useCallback((styleKey: StylesKeysType) => (value?: string) => {
     const currentValue = value ?? styleState[styleKey];
     const wrapper = editedElementRef.current;
 
@@ -86,24 +84,24 @@ const StylesSection: () => JSX.Element = () => {
 
     if (previousValue === currentValue) return;
 
-    const command = new UpdateStyleCommand(wrapper, styleKey, previousValue, currentValue);
+    const command = new UpdateStyleCommand(wrapper, styleKey, previousValue, currentValue || '');
 
     commandService.executeCommand(command);
-  }, [styleState]);
+  }, [editedElementRef.current]);
 
 
-  const onStyleChange = useCallback((styleKey: SectionsStylesType) => (e: JSX.TargetedEvent<HTMLSelectElement | HTMLInputElement, Event>) => {
+  const onStyleChange = useCallback((styleKey: StylesKeysType) => (e: JSX.TargetedEvent<HTMLSelectElement | HTMLInputElement, Event>) => {
     const value = e.currentTarget.value;
 
     dispatch({ type: "update", payload: { key: styleKey, value } });
-  }, []);
+  }, [editedElementRef.current]);
 
   const onStatefullStyleChange = useCallback(
-    (styleKey: SectionsStylesType) => (value: string) => {
+    (styleKey: StylesKeysType) => (value: string) => {
 
       dispatch({ type: "update", payload: { key: styleKey, value } });
     },
-    []
+    [editedElementRef.current]
   );
 
   return (
@@ -115,10 +113,10 @@ const StylesSection: () => JSX.Element = () => {
             {properties.map(property => (
               <StyleField
                 property={property}
-                value={styleState[property.key] || ""}
-                onStatefullChange={onStatefullStyleChange(property.key)}
-                onChange={onStyleChange(property.key)}
-                handleSave={changeElementStyle(property.key)}
+                state={styleState}
+                onStatefullChange={onStatefullStyleChange}
+                onChange={onStyleChange}
+                handleSave={changeElementStyle}
               />
             ))}
           </div>

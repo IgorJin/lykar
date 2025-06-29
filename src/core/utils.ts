@@ -1,5 +1,7 @@
 import { finder } from '@medv/finder';
 import { NodeWrapper, NodeWrapperStorage } from './node-wrapper';
+import { ALL_STYLE_KEYS, StylesObject } from './styles-service/styles-config';
+import { camelToKebab } from './helpers';
 
 export function isEditorUiElement(node: HTMLElement | null): boolean {
   if (!node) return false;
@@ -102,4 +104,12 @@ export function findElementBySelectors(selectors: { css: string, xpath: string }
   element = document.evaluate(selectors.xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue as HTMLElement | null
 
   return element;
+}
+
+export function getElementStylesMap(element: HTMLElement) {
+  const elementStyles: Record<string, any> = window.getComputedStyle(element, null)
+
+  const allowedStyles = ALL_STYLE_KEYS.reduce((acc, allowedKey) => ({ ...acc, [allowedKey]: elementStyles.getPropertyValue(camelToKebab(allowedKey)) || '' }), {} as StylesObject);
+
+  return allowedStyles
 }

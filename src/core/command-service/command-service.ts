@@ -1,5 +1,5 @@
 import { NodeWrapperInterface, NodeWrapper, NodeWrapperStorage } from '../node-wrapper'
-import { SectionsStylesType } from '@/core/styles-service/styles-config'
+import { StylesKeysType } from '@/core/styles-service/styles-config'
 import { CommandStorage } from './command-storage'
 import { CommandInterface, COMMAND_TYPES, COMMAND_TYPES_LIST, COMMAND_TYPES_LIST_TYPES, CommandMeta, UpdateTextCommandItem, UpdateStyleCommandItem, CommandJson } from './command-types'
 import { getElementSelectors, getOrCreateWrapper, findElementBySelectors } from '@/core/utils'
@@ -208,10 +208,10 @@ export class UpdateStyleCommand implements UpdateStyleCommandItem {
   nodeWrapper: NodeWrapper
   previousValue: string;
   nextValue: string;
-  property: SectionsStylesType;
+  property: StylesKeysType;
   meta: CommandMeta
 
-  constructor(nodeWrapper: NodeWrapper, property: SectionsStylesType, previousValue = '', nextValue: string, meta?: CommandMeta) {
+  constructor(nodeWrapper: NodeWrapper, property: StylesKeysType, previousValue = '', nextValue: string, meta?: CommandMeta) {
     this.nodeWrapper = nodeWrapper
     this.previousValue = previousValue
     this.nextValue = nextValue
@@ -247,7 +247,7 @@ export class UpdateStyleCommand implements UpdateStyleCommandItem {
       throw new Error(`Command id: "${id}" has no values`);
     }
 
-    const commands = Object.entries(values).map(([property, value]) => new UpdateStyleCommand(nodeWrapper, property as SectionsStylesType, value.previousValue, value.nextValue, meta));
+    const commands = Object.entries(values).map(([property, value]) => new UpdateStyleCommand(nodeWrapper, property as StylesKeysType, value.previousValue, value.nextValue, meta));
 
     return commands
   }

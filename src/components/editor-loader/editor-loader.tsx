@@ -11,9 +11,9 @@ const EditorLoader = ({ children }: { children: h.JSX.Element }) => {
   useEffect(() => {
     (async () => {
       try {
-        const loadedPatches = await fetchPatches()
+        // const loadedPatches = await fetchPatches()
 
-        setInitialPatches(loadedPatches.patches)
+        // setInitialPatches(loadedPatches.patches)
       } finally {
         setLoading(false)
       }

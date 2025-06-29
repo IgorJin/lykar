@@ -1,47 +1,21 @@
-import { stylesConfig, BaseStyleProperty, sectionsConfig, SectionsStylesType } from './styles-config';
-import { camelCase } from '@/core/helpers'
+import { STYLES_LIST, BaseStyleProperty, SectionsConfig, SECTIONS, StylesKeysType } from './styles-config';
 
 export interface ConfigReducer {
-  [index: string]: BaseStyleProperty & { key: SectionsStylesType }
+  [index: string]: BaseStyleProperty & { key: StylesKeysType }
 }
 
-type SectionsConfig = typeof sectionsConfig
+type SectionResolved = { name: string; label: string; properties: readonly BaseStyleProperty[] };
+type stylesListConfigResolved = typeof STYLES_LIST
 
-// TODO ЗАМЕНИТЬ СГЕНЕРИРОВАННЫМ КОНФИГОМ!
-function resolveExtends(
-  config: typeof stylesConfig
-): ConfigReducer {
-
-  return config.reduce((acc, style) => {
-    const camelCaseKey = camelCase(style.key) as SectionsStylesType;
-
-    acc[camelCaseKey] = { ...style, key: camelCaseKey };
-
-    if ('extends' in style && style.extends) {
-      const camelCaseOfExtendsKey = camelCase(style.extends)
-
-      const extendsProperty = acc[camelCaseOfExtendsKey]
-
-
-      acc[camelCaseKey] = { ...acc[camelCaseKey], ...extendsProperty, key: camelCaseKey }
-    };
-
-    return acc
-  }, {} as ConfigReducer);
-}
-
-export const stylesListConfigResolved = resolveExtends(stylesConfig);
-
-type SectionResolved = { name: string; properties: BaseStyleProperty[] };
-
-function resolveSections(sectionsConfig: SectionsConfig, stylesListConfigResolved: ConfigReducer): SectionResolved[] {
+function resolveSections(sectionsConfig: SectionsConfig, stylesConfig: stylesListConfigResolved): SectionResolved[] {
   return sectionsConfig.map(section => {
-    const { properties: propertiesNames } = section;
+    const { childProperties } = section;
+    const getProperty = (property: string) => stylesConfig.find(style => style.key === property);
 
-    const properties = propertiesNames.map(p => stylesListConfigResolved[p]);
+    const properties = childProperties.map(childProperty => getProperty(childProperty)!) as readonly BaseStyleProperty[];
 
     return { ...section, properties };
   });
 }
 
-export const sectionsConfigResolved = resolveSections(sectionsConfig, stylesListConfigResolved)
+export const sectionsConfigResolved = resolveSections(SECTIONS, STYLES_LIST)

@@ -1,6 +1,5 @@
 import { h, FunctionalComponent } from 'preact';
-import { useState } from 'preact/hooks';
-import { useMemo } from 'preact/hooks';
+import { useState, useEffect } from 'preact/hooks';
 import './index.css';
 
 interface SelectInput {
@@ -48,9 +47,14 @@ const SelectInput: FunctionalComponent<SelectInput> = ({
   disabled,
   handleSave,
 }) => {
-  const { selected, inputValue } = useMemo(() => parseSelectInput(value, options), [value, options]);
+  const { selected, inputValue } = parseSelectInput(value, options);
   const [currentSelect, setCurrentSelect] = useState<string>(selected || defaultValue || '');
   const [currentInput, setCurrentInput] = useState<string>(inputValue || '');
+
+  useEffect(() => {
+    setCurrentSelect(selected || '');
+    setCurrentInput(inputValue || '');
+  }, [selected, inputValue]);
 
   const handleSelect = (e: h.JSX.TargetedEvent<HTMLSelectElement, Event>) => {
     const val = e.currentTarget.value;
