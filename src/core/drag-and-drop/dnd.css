@@ -1,0 +1,47 @@
+:root {
+  --dnd-line-color: #267fff;
+  --dnd-inside-color: #39c563;
+  --dnd-line-thickness: 3px;
+  --dnd-z: 2147483646;
+}
+
+body.dnd-dragging {
+  user-select: none !important;
+  cursor: grabbing !important;
+}
+
+.dnd-overlay-root {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: var(--dnd-z);
+}
+
+.dnd-drop-line {
+  position: fixed;
+  left: 0;
+  width: 0;
+  height: var(--dnd-line-thickness);
+  background: var(--dnd-line-color);
+  border-radius: 2px;
+  box-shadow: 0 0 0.5px rgba(0,0,0,.15);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateZ(0);
+  transition: opacity .08s ease, transform .08s ease;
+}
+.dnd-drop-line.visible { opacity: 1; }
+.dnd-drop-line.inside {
+  height: calc(var(--dnd-line-thickness) + 1px);
+  background: var(--dnd-inside-color);
+}
+
+.dnd-highlight {
+  position: fixed;
+  outline: 1.5px dashed rgba(38,127,255,.35);
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: var(--dnd-z);
+  opacity: 0;
+  transition: opacity .08s ease;
+}

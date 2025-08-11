@@ -94,7 +94,6 @@ export function getOrCreateWrapper(nodeWrapperStorage: NodeWrapperStorage, eleme
   return wrapper;
 }
 
-
 // TODO добавить сравнение результатов поиска?
 export function findElementBySelectors(selectors: { css: string, xpath: string }) {
   let element: HTMLElement | null = document.querySelector(selectors.css)

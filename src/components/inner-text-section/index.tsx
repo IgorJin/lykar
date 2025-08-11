@@ -3,7 +3,6 @@ import { useState, useEffect } from "preact/hooks";
 import { useEditor } from "@/store/editor-сontext";
 import { Input } from "@/components";
 
-import { SectionsStylesType, STYLE_KEYS } from "@/core/styles-service/styles-config";
 import { UpdateTextCommand } from "@/core/command-service/command-service";
 
 const InnerTextSection = () => {

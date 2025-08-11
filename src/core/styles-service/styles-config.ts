@@ -29,7 +29,7 @@ export interface BaseStyleProperty {
   default?: string;
   properties?: BaseStyleProperty[]; // для composite/stack
   property?: string;
-  functionName?: any
+  grouppedHandler?: (values: any) => string
 }
 
 export type Section = {
@@ -37,13 +37,14 @@ export type Section = {
   properties: string[];
 }
 
+const createString = (str: unknown) => str && typeof str === 'string' ? str : '';
+
 // stylesConfig.js
 export const typeNumber = 'number';
 export const typeColor = 'color';
-export const typeRadio = 'radio';
 export const typeSelect = 'select';
 export const typeFile = 'file';
-export const typeSlider = 'slider';
+export const typeInput = 'input';
 export const typeComposite = 'composite';
 export const typeGrouped = 'grouped';
 const unitsSize: Unit[] = ['px', '%', 'em', 'rem', 'vh', 'vw'];
@@ -189,7 +190,7 @@ export const STYLES_LIST = [
   { key: 'flexShrink', label: 'Flex Shrink', type: typeNumber, units: unitsSize, default: '1' },
 
   // Radio types
-  { key: 'float', label: 'Float', type: typeRadio, default: 'none', options: optsFloat },
+  { key: 'float', label: 'Float', type: typeSelect, default: 'none', options: optsFloat },
   { key: 'position', label: 'Position', type: typeSelect, default: 'static', options: optsPos },
   { key: 'textAlign', label: 'Text Align', type: typeSelect, default: 'left', options: optsTextAlign },
 
@@ -204,7 +205,7 @@ export const STYLES_LIST = [
   { key: 'backgroundImage', label: 'Background Image', type: typeFile, functionName: 'url', default: 'none' },
 
   // Slider type
-  { key: 'opacity', label: 'Opacity', type: typeSlider, default: '1', min: 0, max: 1, step: 0.01 },
+  { key: 'opacity', label: 'Opacity', type: typeInput, default: '1', min: 0, max: 1, step: 0.01 },
 
   // Select types
   { key: 'display', label: 'Display', type: typeSelect, default: 'block', options: optsDisplay },
@@ -278,12 +279,22 @@ export const STYLES_LIST = [
   {
     key: 'transition',
     label: 'Transition',
-    type: typeGrouped,
+    type: typeComposite,
     properties: [
       { key: 'transitionProperty', label: 'Property', type: typeSelect, options: optsTransitProp, default: 'width' },
       { key: 'transitionDuration', label: 'Duration', type: typeNumber, units: unitsTime, default: '2s' },
       { key: 'transitionTimingFunction', label: 'Timing Function', type: typeSelect, options: optsTransitFn, default: 'ease' },
-    ]
+    ],
+    grouppedHandler: (values: { transitionProperty?: string, transitionDuration?: string, transitionTimingFunction?: string }) => {
+      return [
+        values.transitionProperty,
+        values.transitionDuration,
+        values.transitionTimingFunction
+      ]
+        .filter(Boolean)
+        .map(createString)
+        .join(' ')
+    },
   },
   {
     key: 'boxShadow',
@@ -296,12 +307,25 @@ export const STYLES_LIST = [
       { key: 'boxShadowSpread', label: 'Spread', type: typeNumber, units: unitsSize, default: '0' },
       { key: 'boxShadowColor', label: 'Color', type: typeColor, default: '#000000' },
       { key: 'boxShadowType', label: 'Type', type: typeSelect, options: optsShadowType, default: '' }
-    ]
+    ],
+    grouppedHandler: (values: { boxShadowH?: string, boxShadowV?: string, boxShadowBlur?: string, boxShadowSpread?: string, boxShadowColor?: string, boxShadowType?: string }) => {
+      return [
+        values.boxShadowH,
+        values.boxShadowV,
+        values.boxShadowBlur,
+        values.boxShadowSpread,
+        values.boxShadowColor,
+        values.boxShadowType
+      ]
+        .filter(Boolean)
+        .map(createString)
+        .join(' ')
+    },
   },
   {
     key: 'background',
     label: 'Background',
-    type: typeGrouped,
+    type: typeComposite,
     properties: [
       { key: 'backgroundImage', label: 'Image', type: typeFile, default: 'none', functionName: 'url' },
       { key: 'backgroundRepeat', label: 'Repeat', type: typeSelect, options: optsBgRepeat, default: 'repeat' },
@@ -351,13 +375,13 @@ export const SECTIONS: SectionsConfig = [
     name: 'typography',
     label: 'Typography',
     childProperties: [
-      'fontFamily',
-      'fontSize',
-      'fontWeight',
-      'letterSpacing',
-      'color',
-      'lineHeight',
-      'textAlign',
+      // 'fontFamily',
+      // 'fontSize',
+      // 'fontWeight',
+      // 'letterSpacing',
+      // 'color',
+      // 'lineHeight',
+      // 'textAlign',
       // 'textShadow',
     ],
   },
@@ -366,10 +390,11 @@ export const SECTIONS: SectionsConfig = [
     label: 'Decorations',
     childProperties: ['backgroundColor', 'borderRadius', 'border', 'boxShadow', 'background'],
   },
-  // {
-  //   name: 'Extra',
-  //   childProperties: ['opacity', 'transition'] //'transform'],
-  // },
+  {
+    name: 'Extra',
+    label: 'Effects',
+    childProperties: ['opacity', 'transition'] //'transform'],
+  },
 ];
 
 function extractAllStyleKeys(config: readonly any[]): string[] {

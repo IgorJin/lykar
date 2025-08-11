@@ -1,16 +1,15 @@
 import { h, JSX } from "preact";
-import { memo, useMemo, useCallback } from "preact/compat";
+import { memo, useMemo, useCallback, useState } from "preact/compat";
 import { Input, Select, SelectInput, ColorPicker, Dropdown } from '@/components'
 import { BaseStyleProperty, StylesKeysType, StylesObject } from '@/core/styles-service/styles-config'
 import {
   typeNumber,
   typeColor,
-  typeRadio,
   typeSelect,
   typeFile,
-  typeSlider,
   typeComposite,
   typeGrouped,
+  typeInput,
 } from '@/core/styles-service/styles-config'
 
 interface StyleFieldProps {
@@ -51,7 +50,7 @@ const ComponentByType: Record<string, ComponentGenerator> = {
 
     console.log(styleKey, getKeyValue(state, styleKey))
 
-    
+
     return (
       <SelectInput
         label={label}
@@ -119,14 +118,44 @@ const ComponentByType: Record<string, ComponentGenerator> = {
       }
     </Dropdown>
   ),
-  // [typeRadio]: Input,
-  // [typeFile]: Input,
-  // [typeSlider]: Input,
-  // [typeGrouped]: ({ property: { key: styleKey, label }, onChange }: StyleFieldProps) => (
-  //   <Dropdown trigger={<span>{label}</span>}>
-  //     <span>{label}</span>
-  //   </Dropdown>
-  // ),
+  // [typeInput]: Input,
+  // Собираются в один стиль
+  [typeGrouped]: ({ property: { key: parentStyleKey, label, grouppedHandler, properties }, state, onChange, handleSave, onStatefullChange }: StyleFieldProps) => (
+    <Dropdown trigger={<span>{label}</span>}>
+      {() => {
+        if (!properties) return <>Нет полей!</>;
+
+        const initialState = properties.reduce((acc, childProperty) => ({ ...acc, [childProperty.key]: getKeyValue(state, childProperty.key)}), {});
+        const [localState, setLocalState] = useState(initialState)
+        console.log("🚀 ~ localState:", localState)
+
+        
+        // handleSave, onStatefullChange
+        // буду вызывать их при изменении локального стейта
+        return (
+          <>
+            {properties.map(childProperty => {
+              const styleKey = childProperty.key;
+
+              const ChildComponent = ComponentByType[childProperty.type] || DefaultField;
+
+              return (
+                <ChildComponent
+                  key={styleKey}
+                  property={childProperty}
+                  state={state}
+                  onChange={onChange}
+                  onStatefullChange={onStatefullChange}
+                  handleSave={handleSave}
+                />
+              );
+            })}
+          </>
+        )
+      }
+      }
+    </Dropdown>
+  ),
 };
 
 const StyleField = memo((props: StyleFieldProps) => {

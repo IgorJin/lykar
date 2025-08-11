@@ -7,3 +7,10 @@
   cursor: pointer;
   z-index: 1000;
 }
+
+[data-lykar-ui-part="toolbar-move"] { touch-action: none; cursor: grab; }
+body.dnd-dragging [data-lykar-ui-part="toolbar-move"] { cursor: grabbing; }
+
+/* исключи твой тулбар и overlay из таргетов dnd */
+.dnd-overlay-root,
+[data-lykar-ui-part="toolbar"] { pointer-events: auto; }

@@ -1,9 +1,10 @@
 import { h } from 'preact';
-import { useRef, useState, useCallback } from 'preact/hooks';
+import { useRef, useState, useCallback, useEffect } from 'preact/hooks';
 import { useEditor, ACTIONS } from '@/store/editor-сontext';
 import { useEventListener } from '@/core/hooks';
 import './index.css';
 import { isEditorUiElement, getToolbarPosition, getOrCreateWrapper } from '@/core/utils';
+import { initDndHandler } from '@/core/drag-and-drop';
 
 interface ToolbarPanelProps {
   ref?: preact.Ref<HTMLDivElement>;
@@ -14,7 +15,6 @@ interface ToolbarState {
   y: number;
   visible: boolean;
 }
-
 
 // const getTooltipCoordinates = (rect: DOMRect) => {
 //   const TOOLBAR_HEIGHT = 21;
@@ -56,7 +56,24 @@ export default function ToolbarPanel(props: ToolbarPanelProps) {
 
   const moveBtnRef = useRef<HTMLButtonElement>(null);
   const [toolbar, setToolbar] = useState<ToolbarState>({ x: 0, y: 0, visible: false });
-  const [dragActive, setDragActive] = useState(false);
+
+  // DND
+  const { controller } = initDndHandler({
+    excludeSelectors: ['.dnd-overlay-root', '[data-lykar-ui-part="toolbar"]'],
+    highlightTarget: true,
+    onPatch: (patch: any) => { console.log('patch', patch) },
+  });
+
+  useEffect(() => {
+    const moveBtn = moveBtnRef.current;
+    const editedElement = editedElementRef.current;
+
+    if (!moveBtn || !editedElement) return;
+
+    moveBtn.setAttribute('draggable', 'false');
+    controller.attachHandle(moveBtn, editedElement);
+
+  }, [controller, moveBtnRef.current, editedElementRef.current])
 
   const handleHover = useCallback((e: MouseEvent) => {
     if (!isEditorModeActivated) return;
@@ -64,8 +81,6 @@ export default function ToolbarPanel(props: ToolbarPanelProps) {
     const target = e.target as HTMLElement;
 
     if (isEditorUiElement(target)) return;
-
-    // console.log("🚀 ~ handleHover ~ target:", target)
 
     if (!target || target.closest('.toolbar-wrapper') || target.closest('.editor-container')) return;
 
@@ -98,13 +113,6 @@ export default function ToolbarPanel(props: ToolbarPanelProps) {
       }
     }
   }
-
-  // Drag & Drop
-  const handleDragStart = useCallback((e: DragEvent) => {
-    setDragActive(true);
-    e.dataTransfer?.setData('text/plain', 'dragging');
-  }, []);
-  const handleDragEnd = useCallback(() => setDragActive(false), []);
 
   // Дублировать элемент
   const handleCopy = useCallback(() => {
@@ -143,8 +151,10 @@ export default function ToolbarPanel(props: ToolbarPanelProps) {
   // TODO проблема, что моузовер не работает при самом первом запуске на общий элемент
   useEventListener('mouseover', handleHover, null, !isElementEditing);
   useEventListener('scroll', handleScroll);
-  useEventListener('dragstart', handleDragStart, moveBtnRef);
-  useEventListener('dragend', handleDragEnd, moveBtnRef);
+
+  const dndButton = isElementEditing ?
+    <button ref={moveBtnRef} data-lykar-ui-part="toolbar-move" title="Переместить" aria-label="Переместить элемент">M</button> :
+    <button>/</button>;
 
   return (
     <div
@@ -163,9 +173,7 @@ export default function ToolbarPanel(props: ToolbarPanelProps) {
       <button title="Редактировать" onClick={handleEditClick}>
         {isElementEditing ? '⏹️' : '✏️'}
       </button>
-      <button ref={moveBtnRef} draggable title="Переместить">
-        ☰
-      </button>
+      {dndButton}
       <button onClick={handleCopy} title="Дублировать">
         📄
       </button>
