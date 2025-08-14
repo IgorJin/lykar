@@ -1,4 +1,4 @@
-import { DndConfig, DndController, OverlayState } from './dnd';
+import { DndConfig, DndController, OverlayState } from '@/core/drag-and-drop';
 
 export class DomOverlay {
   root: HTMLDivElement;
@@ -26,6 +26,8 @@ export class DomOverlay {
     this.root.appendChild(this.highlight);
     this.root.appendChild(this.line);
     document.body.appendChild(this.root);
+
+    console.log('DomOverlay');
 
     this.unsubscribe = controller.subscribe((s) => this.render(s, cfg));
   }

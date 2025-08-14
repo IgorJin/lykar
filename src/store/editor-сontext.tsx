@@ -6,10 +6,13 @@ import {
   useRef,
   Dispatch,
   useEffect,
+  useMemo,
 } from "preact/hooks";
 import { NodeWrapper, NodeWrapperStorage } from "@/core/node-wrapper";
 import { CommandService } from "@/core/command-service";
 import { CommandJson } from "@/core/command-service/command-types";
+import { DndController } from '@/core/drag-and-drop/dnd';
+import { initDndHandler } from '@/core/drag-and-drop';
 
 const initialState: EditorState = {
   isEditorModeActivated: false,
@@ -28,6 +31,7 @@ export type EditorState = {
 export type EditorServices = {
   nodeWrapperStorage: NodeWrapperStorage;
   commandService: CommandService;
+  dndController: DndController;
 };
 
 
@@ -85,10 +89,18 @@ export type EditorContextType = {
 export const EditorContext = createContext<EditorContextType | undefined>(undefined);
 
 export function EditorProvider({ children, initialPatches }: { children: h.JSX.Element, initialPatches?: CommandJson[] }) {
-  const nodeWrapperStorage = new NodeWrapperStorage();
-  const commandService = new CommandService(nodeWrapperStorage);
+  const nodeWrapperStorage = useMemo(() => new NodeWrapperStorage(), []);
+  const commandService = useMemo(() => new CommandService(nodeWrapperStorage), [nodeWrapperStorage]);
 
-  const services: EditorServices = { nodeWrapperStorage, commandService };
+  const dnd = useMemo(() => {
+    return initDndHandler({
+      excludeSelectors: ['.dnd-overlay-root', '[data-lykar-ui-part="toolbar"]', '.editor-container'],
+      highlightTarget: true,
+      autoScroll: true,
+    });
+  }, []);
+
+  const services: EditorServices = { nodeWrapperStorage, commandService, dndController: dnd.controller };
 
   const [state, dispatch] = useReducer(editorReducer, initialState);
 
@@ -111,6 +123,8 @@ export function EditorProvider({ children, initialPatches }: { children: h.JSX.E
     clearEditedElement,
     chooseEditedElement,
   };
+
+  useEffect(() => () => dnd.destroy(), [dnd]);
 
   return (
     <EditorContext.Provider value={{ state, dispatch, refs, services }}>

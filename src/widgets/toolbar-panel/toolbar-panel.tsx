@@ -1,5 +1,5 @@
 import { h } from 'preact';
-import { useRef, useState, useCallback, useEffect } from 'preact/hooks';
+import { useRef, useState, useCallback, useEffect, useMemo } from 'preact/hooks';
 import { useEditor, ACTIONS } from '@/store/editor-сontext';
 import { useEventListener } from '@/core/hooks';
 import './index.css';
@@ -51,19 +51,13 @@ export default function ToolbarPanel(props: ToolbarPanelProps) {
       chooseEditedElement,
     },
     dispatch,
-    services: { nodeWrapperStorage },
+    services: { nodeWrapperStorage, dndController },
   } = useEditor();
 
   const moveBtnRef = useRef<HTMLButtonElement>(null);
   const [toolbar, setToolbar] = useState<ToolbarState>({ x: 0, y: 0, visible: false });
 
   // DND
-  const { controller } = initDndHandler({
-    excludeSelectors: ['.dnd-overlay-root', '[data-lykar-ui-part="toolbar"]'],
-    highlightTarget: true,
-    onPatch: (patch: any) => { console.log('patch', patch) },
-  });
-
   useEffect(() => {
     const moveBtn = moveBtnRef.current;
     const editedElement = editedElementRef.current;
@@ -71,9 +65,11 @@ export default function ToolbarPanel(props: ToolbarPanelProps) {
     if (!moveBtn || !editedElement) return;
 
     moveBtn.setAttribute('draggable', 'false');
-    controller.attachHandle(moveBtn, editedElement);
+    dndController.attachHandle(moveBtn, editedElement, (patch) => console.log('patch', patch));
 
-  }, [controller, moveBtnRef.current, editedElementRef.current])
+    return () => dndController.detachHandle?.(moveBtn);
+
+  }, [dndController, moveBtnRef.current, editedElementRef.current])
 
   const handleHover = useCallback((e: MouseEvent) => {
     if (!isEditorModeActivated) return;

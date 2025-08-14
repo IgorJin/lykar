@@ -1,3 +1,3 @@
-import { initDndHandler } from './dnd';
+import { initDndHandler, DndConfig, DndController, OverlayState } from './dnd';
 
-export { initDndHandler }
+export { initDndHandler, DndConfig, DndController, OverlayState }

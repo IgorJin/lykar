@@ -1,11 +1,8 @@
-// DnD overlay implementation WITHOUT Preact — pure DOM + AutoScrollService
-// Drop-in replacement for your previous initDndHandler that rendered a Preact overlay
-// Paste into: src/core/drag-and-drop/dom-dnd.ts (or replace the old module)
-
-import { NodeWrapper } from '../node-wrapper';
+import { NodeWrapper } from '@/core/node-wrapper';
+import { DomOverlay } from '@/core/overlay'
 
 export type DropOrder = 'before' | 'after' | 'inside';
-export type MovePatch = unknown; // replace with your concrete type
+export type Patch = any; // replace with your concrete type TODO
 
 // ---- Config ----
 export interface DndConfig {
@@ -14,7 +11,7 @@ export interface DndConfig {
   /** Разрешить drop "inside" */
   allowInside?: (container: Element, dragged: Element) => boolean;
   /** Куда отдавать патч (хранилище патчей) */
-  onPatch?: (patch: MovePatch) => void;
+  onPatch?: (patch: Patch) => void;
   /** Подсветка прямоугольником цели */
   highlightTarget?: boolean;
   /** Автоскролл во время DnD */
@@ -91,13 +88,21 @@ class AutoScrollService {
     this.onTickRecompute = opts.onTick ?? null;
   }
 
-  setPointer(x: number, y: number) { this.pointerX = x; this.pointerY = y; }
-  setContainer(el: HTMLElement | null) { this.container = el; }
-  start() { if (!this.active) { this.active = true; this.ensureTick(); } }
+  setPointer(x: number, y: number) {
+    this.pointerX = x; this.pointerY = y;
+    // Перезапускаем цикл, если стоим
+    this.ensureTick();
+  }
+  setContainer(el: HTMLElement | null) {
+    this.container = el;
+    // На смене контейнера тоже пробуем перезапустить
+    this.ensureTick();
+  }
+  start() { this.active = true; this.ensureTick(); }
   stop() { this.active = false; if (this.rafId) { cancelAnimationFrame(this.rafId); this.rafId = null; } }
 
   private ensureTick() {
-    if (this.rafId != null || !this.active) return;
+    if (!this.active || this.rafId != null) return;
     this.rafId = requestAnimationFrame(() => { this.rafId = null; this.tick(); });
   }
 
@@ -112,12 +117,12 @@ class AutoScrollService {
     if (v.dx || v.dy) window.scrollBy(v.dx, v.dy);
     if (c.dx || c.dy) this.container!.scrollBy(c.dx, c.dy);
 
-    // Ask controller to recompute overlays/target based on scroll
+    // Recompute overlays/target based on scroll
     if ((v.dx || v.dy || c.dx || c.dy) && this.onTickRecompute) {
       this.onTickRecompute();
     }
 
-    // Continue loop while we still need to scroll
+    // Continue loop while we still need to scroll; иначе подождём следующего движения/смены контейнера
     if ((v.dx || v.dy || c.dx || c.dy)) {
       this.ensureTick();
     }
@@ -189,7 +194,6 @@ class AutoScrollService {
     return Math.round(this.maxSpeed * t * t);
   }
 }
-
 // ---- Controller ----
 export class DndController {
   private cfg: Required<DndConfig>;
@@ -244,18 +248,22 @@ export class DndController {
   subscribe(fn: Subscriber) { return this.emitter.subscribe(fn); }
 
   /** Привязать к drag-handle (в тулбаре над целевым элементом) */
-  attachHandle(handleBtn: HTMLElement, source: NodeWrapper) {
-    // если уже был обработчик — снимем его, чтобы не плодить
+  attachHandle(handleBtn: HTMLElement, source: NodeWrapper, onCommit? : (e: PointerEvent) => void) {
     this.detachHandle(handleBtn);
 
     const onDown = (e: PointerEvent) => {
       if (e.button !== 0) return; // только ЛКМ
       this.beginDrag(source, e);
     };
+
+    if (onCommit) this.cfg.onPatch = onCommit;
+    
     // Захватываем рано, чтобы не дать странице перехватить жест
     handleBtn.addEventListener('pointerdown', onDown, { capture: true });
     this.handleMap.set(handleBtn, onDown);
   }
+
+  attachInsertHandle(handleEl: HTMLElement, block: any, onCommit?: (e: any /* InsertCommit */) => void) { };
 
   detachHandle(handleBtn: HTMLElement) {
     const fn = this.handleMap.get(handleBtn);
@@ -373,37 +381,22 @@ export class DndController {
     });
   }
 
-  private finishDrag() {
+  private endDrag(commit: boolean = false) {
     if (!this.dragging) return;
-    this.dragging = false;
-
     this.ac?.abort();
     this.ac = null;
-
     document.body.classList.remove('dnd-dragging');
 
-    if (this.draggedEl && this.overEl && this.order) {
+    if (commit && this.draggedEl && this.overEl && this.order) {
       if (this.order === 'before') this.overEl.parentNode?.insertBefore(this.draggedEl, this.overEl);
       else if (this.order === 'after') this.overEl.parentNode?.insertBefore(this.draggedEl, this.overEl.nextSibling);
       else this.overEl.appendChild(this.draggedEl);
 
       // TODO: заменить createMovePatch на вашу реализацию
-      const patch = { type: 'move', source: this.draggedEl, target: this.overEl, order: this.order } as MovePatch;
+      const patch = { type: 'move', source: this.draggedEl, target: this.overEl, order: this.order } as Patch;
       this.cfg.onPatch(patch);
     }
 
-    this.draggedEl = null;
-    this.overEl = null;
-    this.order = null;
-    this.emitHidden();
-    this.autoScroll?.stop();
-  }
-
-  cancelDrag() {
-    if (!this.dragging) return;
-    this.ac?.abort();
-    this.ac = null;
-    document.body.classList.remove('dnd-dragging');
     this.dragging = false;
     this.draggedEl = null;
     this.overEl = null;
@@ -411,6 +404,9 @@ export class DndController {
     this.emitHidden();
     this.autoScroll?.stop();
   }
+
+  private finishDrag() { this.endDrag(true); }
+  cancelDrag() { this.endDrag(); }
 
   private emitHidden() {
     this.emitter.emit({
@@ -428,85 +424,6 @@ export class DndController {
   }
 }
 
-// ---- DOM Overlay (no Preact) ----
-class DomOverlay {
-  root: HTMLDivElement;
-  line: HTMLDivElement;
-  highlight: HTMLDivElement;
-  unsubscribe: (() => void) | null = null;
-
-  constructor(controller: DndController, cfg: Required<DndConfig>) {
-    this.injectStyles();
-
-    this.root = document.createElement('div');
-    this.root.className = 'dnd-overlay-root';
-    this.root.setAttribute('aria-hidden', 'true');
-    this.root.style.position = 'absolute';
-    this.root.style.inset = '0';
-    this.root.style.pointerEvents = 'none';
-    this.root.style.zIndex = '2147483646';
-
-    this.line = document.createElement('div');
-    this.line.className = 'dnd-drop-line';
-
-    this.highlight = document.createElement('div');
-    this.highlight.className = 'dnd-highlight';
-
-    this.root.appendChild(this.highlight);
-    this.root.appendChild(this.line);
-    document.body.appendChild(this.root);
-
-    this.unsubscribe = controller.subscribe((s) => this.render(s, cfg));
-  }
-
-  render(s: OverlayState, cfg: Required<DndConfig>) {
-    // line
-    if (s.lineVisible) {
-      this.line.style.display = 'block';
-      this.line.style.position = 'absolute';
-      this.line.style.left = `${s.lineLeft}px`;
-      this.line.style.top = `${s.lineTop}px`;
-      this.line.style.width = `${s.lineWidth}px`;
-      this.line.style.height = s.lineInside ? '4px' : '3px';
-      this.line.classList.toggle('inside', !!s.lineInside);
-    } else {
-      this.line.style.display = 'none';
-    }
-
-    // highlight
-    if (cfg.highlightTarget && s.highlightVisible) {
-      this.highlight.style.display = 'block';
-      this.highlight.style.position = 'absolute';
-      this.highlight.style.left = `${s.highlightLeft}px`;
-      this.highlight.style.top = `${s.highlightTop}px`;
-      this.highlight.style.width = `${s.highlightWidth}px`;
-      this.highlight.style.height = `${s.highlightHeight}px`;
-    } else {
-      this.highlight.style.display = 'none';
-    }
-  }
-
-  destroy() {
-    this.unsubscribe?.();
-    this.root.remove();
-  }
-
-  private injectStyles() {
-    if (document.getElementById('dnd-overlay-styles')) return;
-    const style = document.createElement('style');
-    style.id = 'dnd-overlay-styles';
-    style.textContent = `
-      .dnd-overlay-root { pointer-events: none; position: absolute; inset: 0; z-index: 2147483646; }
-      .dnd-drop-line { background: rgba(80,180,255,0.9); box-shadow: 0 0 0 1px rgba(0,0,0,0.25); border-radius: 2px; }
-      .dnd-drop-line.inside { background: rgba(95,240,190,0.95); }
-      .dnd-highlight { outline: 2px solid rgba(95,240,190,0.55); background: rgba(95,240,190,0.08); border-radius: 4px; }
-      body.dnd-dragging * { cursor: grabbing !important; }
-    `;
-    document.head.appendChild(style);
-  }
-}
-
-// ---- Public init (no Preact) ----
 export function initDndHandler(cfg: DndConfig) {
   const fullCfg: Required<DndConfig> = {
     excludeSelectors: ['.dnd-overlay-root', '[data-lykar-ui-part="toolbar"]'],
@@ -525,6 +442,7 @@ export function initDndHandler(cfg: DndConfig) {
   const controller = new DndController(fullCfg);
   const overlay = new DomOverlay(controller, fullCfg);
 
+  console.log('initDndHandler');
   return {
     controller,
     destroy() {
@@ -533,3 +451,4 @@ export function initDndHandler(cfg: DndConfig) {
     },
   } as const;
 }
+
