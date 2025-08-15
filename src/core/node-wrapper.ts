@@ -89,6 +89,12 @@ export class NodeWrapper implements NodeWrapperInterface {
     (this.element.style as any)[parameter] = newValue;
   }
 
+  applyMovePatch({ order, source, target }) {
+    if (order === 'before') target.parentNode?.insertBefore(source, target);
+    else if (order === 'after') target.parentNode?.insertBefore(source, target.nextSibling);
+    else target.appendChild(source);
+  }
+
    // Подписаться на события hover TODO на будущее
   //  subscribeHover(onEnter: () => void, onLeave: () => void) {
   //   const enterHandler = (e: Event) => onEnter();

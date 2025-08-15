@@ -25,8 +25,8 @@ export interface DndConfig {
 }
 
 // ---- Internals ----
-const BLOCKLIST_TAGS = new Set(['SCRIPT','STYLE','LINK','META','TITLE','HEAD']);
-const VOID_TAGS = new Set(['AREA','BASE','BR','COL','EMBED','HR','IMG','INPUT','LINK','META','PARAM','SOURCE','TRACK','WBR','IFRAME']);
+const BLOCKLIST_TAGS = new Set(['SCRIPT', 'STYLE', 'LINK', 'META', 'TITLE', 'HEAD']);
+const VOID_TAGS = new Set(['AREA', 'BASE', 'BR', 'COL', 'EMBED', 'HR', 'IMG', 'INPUT', 'LINK', 'META', 'PARAM', 'SOURCE', 'TRACK', 'WBR', 'IFRAME']);
 
 export type OverlayState = {
   lineVisible: boolean;
@@ -218,7 +218,7 @@ export class DndController {
       allowInside: (container, dragged) => (
         container !== dragged && !container.contains(dragged) && !VOID_TAGS.has(container.tagName)
       ),
-      onPatch: () => {},
+      onPatch: () => { },
       highlightTarget: true,
       autoScroll: true,
       autoScrollViewportMargin: 32,
@@ -248,7 +248,7 @@ export class DndController {
   subscribe(fn: Subscriber) { return this.emitter.subscribe(fn); }
 
   /** Привязать к drag-handle (в тулбаре над целевым элементом) */
-  attachHandle(handleBtn: HTMLElement, source: NodeWrapper, onCommit? : (e: PointerEvent) => void) {
+  attachHandle(handleBtn: HTMLElement, source: NodeWrapper, onCommit?: (e: PointerEvent) => void) {
     this.detachHandle(handleBtn);
 
     const onDown = (e: PointerEvent) => {
@@ -257,7 +257,7 @@ export class DndController {
     };
 
     if (onCommit) this.cfg.onPatch = onCommit;
-    
+
     // Захватываем рано, чтобы не дать странице перехватить жест
     handleBtn.addEventListener('pointerdown', onDown, { capture: true });
     this.handleMap.set(handleBtn, onDown);
@@ -393,7 +393,7 @@ export class DndController {
       else this.overEl.appendChild(this.draggedEl);
 
       // TODO: заменить createMovePatch на вашу реализацию
-      const patch = { type: 'move', source: this.draggedEl, target: this.overEl, order: this.order } as Patch;
+      const patch = { source: this.draggedEl, target: this.overEl, order: this.order } as Patch;
       this.cfg.onPatch(patch);
     }
 
@@ -430,7 +430,7 @@ export function initDndHandler(cfg: DndConfig) {
     allowInside: (container, dragged) => (
       container !== dragged && !container.contains(dragged) && !VOID_TAGS.has(container.tagName)
     ),
-    onPatch: () => {},
+    onPatch: () => { },
     highlightTarget: true,
     autoScroll: true,
     autoScrollViewportMargin: 32,

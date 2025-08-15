@@ -1,8 +1,9 @@
 import { NodeWrapperInterface, NodeWrapper, NodeWrapperStorage } from '../node-wrapper'
 import { StylesKeysType } from '@/core/styles-service/styles-config'
 import { CommandStorage } from './command-storage'
-import { CommandInterface, COMMAND_TYPES, COMMAND_TYPES_LIST, COMMAND_TYPES_LIST_TYPES, CommandMeta, UpdateTextCommandItem, UpdateStyleCommandItem, CommandJson } from './command-types'
+import { CommandInterface, COMMAND_TYPES, COMMAND_TYPES_LIST, COMMAND_TYPES_LIST_TYPES, CommandMeta, UpdateTextCommandItem, UpdateStyleCommandItem, MoveCommandItem, CommandJson } from './command-types'
 import { getElementSelectors, getOrCreateWrapper, findElementBySelectors } from '@/core/utils'
+import { DropOrder } from '../drag-and-drop/dnd'
 
 export class CommandService {
   private history: CommandStorage = new CommandStorage();
@@ -102,7 +103,7 @@ export class CommandService {
       [COMMAND_TYPES.UPDATE_STYLE]: UpdateStyleCommand,
       [COMMAND_TYPES.ADD_ELEMENT]: UpdateStyleCommand,
       [COMMAND_TYPES.DELETE_ELEMENT]: UpdateStyleCommand,
-      [COMMAND_TYPES.EDIT_LOCATION]: UpdateStyleCommand
+      [COMMAND_TYPES.MOVE_ELEMENT]: MoveCommand,
     }
 
     return config[type]
@@ -234,7 +235,52 @@ export class UpdateStyleCommand implements UpdateStyleCommandItem {
 
   static fromJSON(rawCommand: CommandJson, nodeWrapperStorage: NodeWrapperStorage): UpdateStyleCommandItem[] {
     const { id, values, meta, selectors } = rawCommand;
-    
+
+    const commandElement = findElementBySelectors(selectors)
+
+    if (!commandElement) {
+      throw new Error(`Command id: "${id}" has no element with selectors: ${JSON.stringify(selectors)}`);
+    }
+
+    const nodeWrapper = getOrCreateWrapper(nodeWrapperStorage, commandElement);
+
+    if (!values) {
+      throw new Error(`Command id: "${id}" has no values`);
+    }
+
+    const commands = Object.entries(values).map(([property, value]) => new UpdateStyleCommand(nodeWrapper, property as StylesKeysType, value.previousValue, value.nextValue, meta));
+
+    return commands
+  }
+}
+
+export class MoveCommand implements MoveCommandItem {
+  type = COMMAND_TYPES.MOVE_ELEMENT
+  nodeWrapper: NodeWrapper
+  source: NodeWrapperInterface
+  target: NodeWrapperInterface
+  order: DropOrder
+
+  constructor(nodeWrapper: NodeWrapper, source: NodeWrapperInterface, target: NodeWrapperInterface, order: DropOrder) {
+    this.nodeWrapper = nodeWrapper
+    this.source = source
+    this.target = target
+    this.order = order
+  }
+
+  execute() {
+    this.nodeWrapper.applyMovePatch({ source: this.source, target: this.target, order: this.order })
+  }
+
+  cancel() {
+    this.nodeWrapper.applyMovePatch({ source: this.target, target: this.source, order: this.order })
+  }
+
+  toJSON() { return { type: this.type, id: this.nodeWrapper.id, source: this.source.id, target: this.target.id, order: this.order }; }
+
+  static fromJSON(rawCommand: CommandJson, nodeWrapperStorage: NodeWrapperStorage): UpdateStyleCommandItem[] {
+    const { id, values, meta, selectors } = rawCommand;
+
     const commandElement = findElementBySelectors(selectors)
 
     if (!commandElement) {

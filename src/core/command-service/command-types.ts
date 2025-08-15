@@ -1,3 +1,4 @@
+import { DropOrder } from "@/core/drag-and-drop/dnd";
 import { NodeWrapperInterface } from "../node-wrapper";
 
 export const COMMAND_TYPES = {
@@ -5,7 +6,7 @@ export const COMMAND_TYPES = {
   UPDATE_STYLE: 'UPDATE_STYLE',
   ADD_ELEMENT: 'add-element',
   DELETE_ELEMENT: 'delete-element',
-  EDIT_LOCATION: 'edit-location',
+  MOVE_ELEMENT: 'move-element',
 } as const
 
 export const COMMAND_TYPES_LIST = Object.values(COMMAND_TYPES)
@@ -47,6 +48,13 @@ export type UpdateStyleCommandItem = CommandInterface & {
   property: string;
   previousValue: string;
   nextValue: string;
+}
+
+export type MoveCommandItem = CommandInterface & {
+  type: typeof COMMAND_TYPES.MOVE_ELEMENT;
+  source: NodeWrapperInterface;
+  target: NodeWrapperInterface;
+  order: DropOrder;
 }
 
 export type UpdatedValue = { previousValue: string, nextValue: string }
