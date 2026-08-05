@@ -1,5 +1,5 @@
-import { DropOrder } from "@/core/drag-and-drop/dnd";
-import { NodeWrapperInterface } from "../node-wrapper";
+import type { DropOrder } from "@/core/drag-and-drop/dnd";
+import type { NodeWrapperInterface } from "../node-wrapper";
 
 export const COMMAND_TYPES = {
   UPDATE_TEXT: 'UPDATE_TEXT',

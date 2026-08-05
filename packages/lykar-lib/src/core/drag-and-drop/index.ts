@@ -1,3 +1,5 @@
-import { initDndHandler, DndConfig, DndController, OverlayState } from './dnd';
+import { initDndHandler, DndController } from './dnd';
+import type { DndConfig, OverlayState } from './dnd';
 
-export { initDndHandler, DndConfig, DndController, OverlayState }
+export { initDndHandler, DndController }
+export type { DndConfig, OverlayState }

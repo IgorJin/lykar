@@ -5,9 +5,11 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "cross-env NODE_ENV=production rollup -c",
-    "dev": "cross-env NODE_ENV=development rollup -c --watch",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "build": "npm run build:types && rollup -c --environment NODE_ENV:production",
+    "build:types": "tsc --emitDeclarationOnly --outDir dist/types",
+    "dev": "rollup -c --watch --environment NODE_ENV:development",
     "serve": "npm run dev"
   },
   "keywords": [],
@@ -22,15 +24,17 @@
     "@rollup/plugin-alias": "^5.1.1",
     "@rollup/plugin-commonjs": "^28.0.3",
     "@rollup/plugin-node-resolve": "^16.0.1",
-    "@rollup/plugin-typescript": "^12.1.2",
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.5",
-    "rollup": "^2.79.2",
+    "esbuild": "^0.28.1",
+    "jsdom": "^30.0.1",
+    "rollup": "^4.62.4",
+    "rollup-plugin-esbuild": "^6.2.1",
     "rollup-plugin-livereload": "^2.0.5",
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "rollup-plugin-postcss": "^4.0.2",
     "rollup-plugin-serve": "^3.0.0",
-    "rollup-plugin-terser": "^7.0.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^4.1.10"
   }
 }

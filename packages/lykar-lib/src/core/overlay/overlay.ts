@@ -1,4 +1,5 @@
-import { DndConfig, DndController, OverlayState } from '@/core/drag-and-drop';
+import { DndController } from '@/core/drag-and-drop';
+import type { DndConfig, OverlayState } from '@/core/drag-and-drop';
 
 export class DomOverlay {
   root: HTMLDivElement;

@@ -79,10 +79,11 @@ class OverlayLayerImpl implements OverlayLayer {
   private visible = false;
   private onVisChange: (v: boolean) => void;
 
-  constructor(private doc: Document | ShadowRoot, parent: HTMLElement, zIndex: number, prefix: string, onVisChange: (v: boolean) => void) {
+  constructor(parent: HTMLElement, zIndex: number, prefix: string, onVisChange: (v: boolean) => void) {
     this.onVisChange = onVisChange;
+    const doc = parent.ownerDocument;
 
-    this.container = this.doc.createElement('div');
+    this.container = doc.createElement('div');
     this.container.className = `${prefix}-layer`;
     // Слой позиционирован относительно root (который fixed на вьюпорте)
     Object.assign(this.container.style, {
@@ -94,9 +95,9 @@ class OverlayLayerImpl implements OverlayLayer {
       contain: 'layout style size',
     } as CSSStyleDeclaration);
 
-    this.poolRoot = this.doc.createElement('div');
+    this.poolRoot = doc.createElement('div');
     this.poolRoot.className = `${prefix}-pool`;
-    this.htmlRoot = this.doc.createElement('div');
+    this.htmlRoot = doc.createElement('div');
     this.htmlRoot.className = `${prefix}-html`;
 
     this.container.appendChild(this.poolRoot);
@@ -134,7 +135,7 @@ class OverlayLayerImpl implements OverlayLayer {
     const i = this.usedLines++;
     let el = this.linePool[i];
     if (!el) {
-      el = this.doc.createElement('div') as HTMLDivElement;
+      el = this.container.ownerDocument.createElement('div');
       el.className = 'ly-o-line';
       Object.assign(el.style, {
         position: 'absolute',
@@ -151,7 +152,7 @@ class OverlayLayerImpl implements OverlayLayer {
     const i = this.usedRects++;
     let el = this.rectPool[i];
     if (!el) {
-      el = this.doc.createElement('div') as HTMLDivElement;
+      el = this.container.ownerDocument.createElement('div');
       el.className = 'ly-o-rect';
       Object.assign(el.style, {
         position: 'absolute',
@@ -168,7 +169,7 @@ class OverlayLayerImpl implements OverlayLayer {
     const i = this.usedBadges++;
     let el = this.badgePool[i];
     if (!el) {
-      el = this.doc.createElement('div') as HTMLDivElement;
+      el = this.container.ownerDocument.createElement('div');
       el.className = 'ly-o-badge';
       Object.assign(el.style, {
         position: 'absolute',
@@ -260,14 +261,14 @@ class OverlayServiceImpl implements OverlayService {
       mount = host.attachShadow({ mode: 'open' });
     }
 
-    const container = (mount as Document | ShadowRoot).createElement('div') as HTMLDivElement;
+    const container = doc.createElement('div');
     container.className = `${this.options.classPrefix}-root`;
     Object.assign(container.style, {
       position: 'fixed', left: '0', top: '0', width: '100%', height: '100%',
       pointerEvents: 'none', // слои сами включают интерактивность при необходимости
     } as CSSStyleDeclaration);
 
-    if ('appendChild' in mount) (mount as any).appendChild(container);
+    mount.appendChild(container);
 
     this.rootHost = host;
     this.rootDoc = mount;
@@ -286,17 +287,17 @@ class OverlayServiceImpl implements OverlayService {
       .ly-o-line.before, .ly-o-line.after { height: 3px !important; }
     `;
 
-    const styleEl = (this.rootDoc as Document | ShadowRoot).createElement('style') as HTMLStyleElement;
+    const styleEl = this.rootHost.ownerDocument.createElement('style');
     styleEl.textContent = css;
 
-    (this.rootDoc as any).appendChild(styleEl);
+    this.rootDoc.appendChild(styleEl);
     this.styleEl = styleEl;
   }
 
   getLayer(id: string, zIndex: number = 0): OverlayLayer {
     let layer = this.layers.get(id);
     if (!layer) {
-      layer = new OverlayLayerImpl(this.rootDoc, this.rootContainer, zIndex, this.options.classPrefix, (v) => this.onLayerVisibilityChange(v));
+      layer = new OverlayLayerImpl(this.rootContainer, zIndex, this.options.classPrefix, (v) => this.onLayerVisibilityChange(v));
       this.layers.set(id, layer);
     }
     return layer;

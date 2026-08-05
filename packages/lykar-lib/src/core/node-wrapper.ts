@@ -1,4 +1,11 @@
-import { getElementSelectors, getElementStylesMap } from './utils';
+import { getElementSelectors, getElementStylesMap } from './element-state';
+import type { DropOrder } from './drag-and-drop/dnd';
+
+type MovePatch = {
+  order: DropOrder;
+  source: NodeWrapperInterface;
+  target: NodeWrapperInterface;
+};
 
 export class NodeWrapperStorage {
   private store = new Map<string, NodeWrapper>();
@@ -89,10 +96,13 @@ export class NodeWrapper implements NodeWrapperInterface {
     (this.element.style as any)[parameter] = newValue;
   }
 
-  applyMovePatch({ order, source, target }) {
-    if (order === 'before') target.parentNode?.insertBefore(source, target);
-    else if (order === 'after') target.parentNode?.insertBefore(source, target.nextSibling);
-    else target.appendChild(source);
+  applyMovePatch({ order, source, target }: MovePatch) {
+    const sourceElement = source.element;
+    const targetElement = target.element;
+
+    if (order === 'before') targetElement.parentNode?.insertBefore(sourceElement, targetElement);
+    else if (order === 'after') targetElement.parentNode?.insertBefore(sourceElement, targetElement.nextSibling);
+    else targetElement.appendChild(sourceElement);
   }
 
    // Подписаться на события hover TODO на будущее

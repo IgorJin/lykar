@@ -1,7 +1,7 @@
 import { h, JSX } from "preact";
 import { useEffect, useContext, useReducer, useCallback, useMemo } from "preact/hooks";
 import { useEditor } from "@/store/editor-сontext";
-import { StyleField } from "@/components";
+import StyleField from "@/components/style-field";
 import { sectionsConfigResolved } from "@/core/styles-service";
 import { StylesKeysType, StylesObject, ALL_STYLE_KEYS } from "@/core/styles-service/styles-config";
 import { UpdateStyleCommand } from "@/core/command-service/command-service";

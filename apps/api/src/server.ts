@@ -3,7 +3,6 @@ import dotenv from 'dotenv';
 import cors from '@fastify/cors'
 
 import dbPlugin from './plugins/db';
-// import authPlugin from './plugins/auth';
 
 // import authRoutes from './routes/auth';
 import patchesRoutes from './routes/patches';
@@ -28,7 +27,6 @@ server.register(cors, {
 });
 
 server.register(dbPlugin);
-// server.register(authPlugin);
 
 // server.register(authRoutes);
 server.register(patchesRoutes);

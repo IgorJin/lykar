@@ -1,7 +1,6 @@
-import { finder } from '@medv/finder';
 import { NodeWrapper, NodeWrapperStorage } from './node-wrapper';
-import { ALL_STYLE_KEYS, StylesObject } from './styles-service/styles-config';
-import { camelToKebab } from './helpers';
+
+export { getElementSelectors, getElementStylesMap } from './element-state';
 
 export function isEditorUiElement(node: HTMLElement | null): boolean {
   if (!node) return false;
@@ -49,40 +48,6 @@ export function getToolbarPosition(rect: DOMRect): { x: number; y: number } {
   return resultPositions
 }
 
-export const getElementSelectors = (element: HTMLElement) => {
-  const getCssSelector = (el: HTMLElement) => {
-    return finder(el, { root: document.body });
-  }
-
-  const getXPathSelector = (element: HTMLElement) => {
-    if (element.id) {
-      return `//*[@id="${element.id}"]`;
-    }
-
-    const parts = [];
-    while (element && element.nodeType === Node.ELEMENT_NODE) {
-      let ix = 0;
-      let sib = element.previousSibling;
-      while (sib) {
-        if (sib.nodeType === Node.ELEMENT_NODE && sib.nodeName === element.nodeName) {
-          ix++;
-        }
-        sib = sib.previousSibling;
-      }
-      const tagName = element.nodeName.toLowerCase();
-      const part = ix ? `${tagName}[${ix + 1}]` : tagName;
-      parts.unshift(part);
-      element = element.parentElement!;
-    }
-    return '/' + parts.join('/');
-  }
-
-  return {
-    css: getCssSelector(element),
-    xpath: getXPathSelector(element),
-  };
-}
-
 export function getOrCreateWrapper(nodeWrapperStorage: NodeWrapperStorage, element: HTMLElement) {
   let wrapper = nodeWrapperStorage.getByElement(element);
   if (!wrapper) {
@@ -103,12 +68,4 @@ export function findElementBySelectors(selectors: { css: string, xpath: string }
   element = document.evaluate(selectors.xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue as HTMLElement | null
 
   return element;
-}
-
-export function getElementStylesMap(element: HTMLElement) {
-  const elementStyles: Record<string, any> = window.getComputedStyle(element, null)
-
-  const allowedStyles = ALL_STYLE_KEYS.reduce((acc, allowedKey) => ({ ...acc, [allowedKey]: elementStyles.getPropertyValue(camelToKebab(allowedKey)) || '' }), {} as StylesObject);
-
-  return allowedStyles
 }

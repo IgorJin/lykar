@@ -1,6 +1,10 @@
 import { h, JSX } from "preact";
 import { memo, useMemo, useCallback, useState } from "preact/compat";
-import { Input, Select, SelectInput, ColorPicker, Dropdown } from '@/components'
+import ColorPicker from '@/components/color-picker';
+import Dropdown from '@/components/dropdown';
+import Input from '@/components/input';
+import Select from '@/components/select';
+import SelectInput from '@/components/select-input';
 import { BaseStyleProperty, StylesKeysType, StylesObject } from '@/core/styles-service/styles-config'
 import {
   typeNumber,

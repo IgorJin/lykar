@@ -1,7 +1,7 @@
 import { h, JSX } from "preact";
 import { useState, useEffect } from "preact/hooks";
 import { useEditor } from "@/store/editor-сontext";
-import { Input } from "@/components";
+import Input from "@/components/input";
 
 import { UpdateTextCommand } from "@/core/command-service/command-service";
 

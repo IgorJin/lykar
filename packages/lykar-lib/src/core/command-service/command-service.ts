@@ -1,9 +1,10 @@
-import { NodeWrapperInterface, NodeWrapper, NodeWrapperStorage } from '../node-wrapper'
-import { StylesKeysType } from '@/core/styles-service/styles-config'
+import { NodeWrapper, NodeWrapperStorage } from '../node-wrapper'
+import type { NodeWrapperInterface } from '../node-wrapper'
+import type { StylesKeysType } from '@/core/styles-service/styles-config'
 import { CommandStorage } from './command-storage'
 import { CommandInterface, COMMAND_TYPES, COMMAND_TYPES_LIST, COMMAND_TYPES_LIST_TYPES, CommandMeta, UpdateTextCommandItem, UpdateStyleCommandItem, MoveCommandItem, CommandJson } from './command-types'
-import { getElementSelectors, getOrCreateWrapper, findElementBySelectors } from '@/core/utils'
-import { DropOrder } from '../drag-and-drop/dnd'
+import { getOrCreateWrapper, findElementBySelectors } from '@/core/utils'
+import type { DropOrder } from '../drag-and-drop/dnd'
 
 export class CommandService {
   private history: CommandStorage = new CommandStorage();
@@ -48,9 +49,10 @@ export class CommandService {
     this.notify()
   }
 
-  serializeHistory(): any[] {
-    // объединяем записи по элементу и типу изменения, если один параметр менялся несколько раз, то оставляем только итоговый
-    const commands = this.history.getAll() as Array<UpdateTextCommand | UpdateStyleCommand>;
+  serializeHistory(): CommandJson[] {
+    // Group by element and command type. Text and style operations must remain
+    // separate because they use different replay implementations.
+    const commands = this.history.getAll() as Array<UpdateTextCommand | UpdateStyleCommand | MoveCommand>;
 
     function isUpdateStyle(command: any): command is UpdateStyleCommand {
       return command.type === COMMAND_TYPES.UPDATE_STYLE && command.property
@@ -59,42 +61,48 @@ export class CommandService {
       return command.type === COMMAND_TYPES.UPDATE_TEXT
     }
 
-    const groupedCommands = commands.reduce((acc: Record<string, CommandJson>, command) => {
-      const { type, nodeWrapper, meta, ...values } = command;
-
-      const nodeId = nodeWrapper.id
-
-      if (!acc[nodeId]) {
-        acc[nodeId] = {
-          id: nodeId,
-          type,
-          values: {},
-          meta: {
-            timestamp: meta?.timestamp || Date.now(),
-            operatorId: meta?.operatorId || null
-          },
-          selectors: nodeWrapper.selectors
-        };
+    const groupedCommands = commands.reduce((acc: Map<string, CommandJson>, command) => {
+      if (!isUpdateStyle(command) && !isUpdateText(command)) {
+        throw new Error(`Command type "${command.type}" cannot be serialized yet`);
       }
 
-      if (meta) {
-        acc[nodeId].meta = meta;
-      }
+      const { type, nodeWrapper, meta } = command;
+      const key = `${nodeWrapper.id}:${type}`;
+      const serialized = acc.get(key) ?? {
+        id: nodeWrapper.id,
+        type,
+        meta: {
+          timestamp: meta?.timestamp || Date.now(),
+          operatorId: meta?.operatorId || null
+        },
+        selectors: nodeWrapper.selectors
+      };
+
+      serialized.meta = meta;
 
       if (isUpdateStyle(command)) {
-        acc[nodeId].values = {
-          ...acc[nodeId].values,
-          [command.property]: { previousValue: values.previousValue, nextValue: values.nextValue },
+        const previous = serialized.values?.[command.property];
+        serialized.values = {
+          ...serialized.values,
+          [command.property]: {
+            previousValue: previous?.previousValue ?? command.previousValue,
+            nextValue: command.nextValue
+          },
         };
       }
+
       if (isUpdateText(command)) {
-        acc[nodeId].innerText = { previousValue: values.previousValue, nextValue: values.nextValue };
+        serialized.innerText = {
+          previousValue: serialized.innerText?.previousValue ?? command.previousValue,
+          nextValue: command.nextValue
+        };
       }
 
-      return acc
-    }, {});
+      acc.set(key, serialized);
+      return acc;
+    }, new Map<string, CommandJson>());
 
-    return Object.values(groupedCommands);
+    return Array.from(groupedCommands.values());
   }
 
   getInstance(type: COMMAND_TYPES_LIST_TYPES) {

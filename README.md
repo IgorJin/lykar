@@ -22,3 +22,14 @@ revived here.
 The imported packages are intentionally kept intact at first. Their code will
 be migrated incrementally into the new packages after baseline builds and tests
 are restored.
+
+## Development
+
+The repository uses npm workspaces and a single root lockfile.
+
+```sh
+npm install
+npm run build
+npm run typecheck
+npm test
+```
