@@ -104,6 +104,20 @@ export type OperationValidationResult =
   | { ok: true; value: OperationV1 }
   | { ok: false; errors: string[] };
 
+export type PublishedManifestV1 = {
+  schemaVersion: typeof OPERATION_SCHEMA_VERSION;
+  projectId: string;
+  releaseId: string;
+  version: number;
+  manifestHash: string;
+  operations: OperationV1[];
+  createdAt: string;
+};
+
+export type PublishedManifestValidationResult =
+  | { ok: true; value: PublishedManifestV1 }
+  | { ok: false; errors: string[] };
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
@@ -218,6 +232,49 @@ export function parseOperationV1(value: unknown): OperationV1 {
 
   if (!result.ok) {
     throw new Error(`Invalid Lykar operation: ${result.errors.join('; ')}`);
+  }
+
+  return result.value;
+}
+
+export function validatePublishedManifestV1(value: unknown): PublishedManifestValidationResult {
+  if (!isRecord(value)) return { ok: false, errors: ['manifest must be an object'] };
+
+  const errors: string[] = [];
+  if (value.schemaVersion !== OPERATION_SCHEMA_VERSION) errors.push('schemaVersion must be 1');
+  if (!isNonEmptyString(value.projectId)) errors.push('projectId must be a non-empty string');
+  if (!isNonEmptyString(value.releaseId)) errors.push('releaseId must be a non-empty string');
+  if (!Number.isSafeInteger(value.version) || (value.version as number) <= 0) {
+    errors.push('version must be a positive integer');
+  }
+  if (typeof value.manifestHash !== 'string' || !/^[0-9a-f]{64}$/i.test(value.manifestHash)) {
+    errors.push('manifestHash must be a SHA-256 hex digest');
+  }
+  if (!isNonEmptyString(value.createdAt) || Number.isNaN(Date.parse(value.createdAt))) {
+    errors.push('createdAt must be an ISO-compatible date string');
+  }
+
+  if (!Array.isArray(value.operations)) {
+    errors.push('operations must be an array');
+  } else {
+    value.operations.forEach((operation, index) => {
+      const result = validateOperationV1(operation);
+      if (!result.ok) {
+        errors.push(...result.errors.map(error => `operations[${index}]: ${error}`));
+      }
+    });
+  }
+
+  return errors.length === 0
+    ? { ok: true, value: value as PublishedManifestV1 }
+    : { ok: false, errors };
+}
+
+export function parsePublishedManifestV1(value: unknown): PublishedManifestV1 {
+  const result = validatePublishedManifestV1(value);
+
+  if (!result.ok) {
+    throw new Error(`Invalid Lykar manifest: ${result.errors.join('; ')}`);
   }
 
   return result.value;

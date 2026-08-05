@@ -1,7 +1,7 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 
 import { validateOperationV1 } from '@lykar/protocol';
-import type { OperationV1 } from '@lykar/protocol';
+import type { OperationV1, PublishedManifestV1 } from '@lykar/protocol';
 
 export const DEFAULT_ENVIRONMENT = 'production';
 
@@ -88,14 +88,7 @@ export type ActivationResult = {
   releaseId: string;
 };
 
-export type RuntimeManifest = {
-  projectId: string;
-  releaseId: string;
-  version: number;
-  manifestHash: string;
-  operations: OperationV1[];
-  createdAt: string;
-};
+export type RuntimeManifest = PublishedManifestV1;
 
 export interface VersioningRepository {
   createProject(input: {

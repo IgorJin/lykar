@@ -503,6 +503,7 @@ export class PostgresVersioningRepository implements VersioningRepository {
     if (!Array.isArray(release.manifest)) throw new Error('Stored release manifest is not an array');
 
     return {
+      schemaVersion: 1,
       projectId: release.project_id,
       releaseId: release.id,
       version: release.version,

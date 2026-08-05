@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lykar static runtime fixture</title>
+  </head>
+  <body>
+    <main data-lykar-id="content">
+      <h1 data-lykar-id="hero-title">Original heading</h1>
+      <p data-lykar-id="hero-copy">Original copy</p>
+    </main>
+
+    <script src="../../../packages/runtime/dist/runtime.iife.js"></script>
+    <script>
+      // Replace the values below when running the fixture against a local API.
+      Lykar.init('pk_replace_me', { apiBaseUrl: 'http://localhost:3000' })
+        .then(report => console.info('Lykar report', report))
+        .catch(error => console.error('Lykar failed', error));
+    </script>
+  </body>
+</html>

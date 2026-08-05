@@ -4,7 +4,9 @@ import test from 'node:test';
 import {
   OPERATION_SCHEMA_VERSION,
   parseOperationV1,
+  parsePublishedManifestV1,
   validateOperationV1,
+  validatePublishedManifestV1,
 } from '../dist/index.js';
 
 const target = {
@@ -75,5 +77,36 @@ test('rejects unknown schema versions and operation kinds', () => {
       target,
     }),
     /schemaVersion must be 1.*kind is not supported/,
+  );
+});
+
+test('accepts a published manifest containing protocol v1 operations', () => {
+  const result = validatePublishedManifestV1({
+    schemaVersion: 1,
+    projectId: 'project-1',
+    releaseId: 'release-1',
+    version: 3,
+    manifestHash: 'a'.repeat(64),
+    operations: [
+      { schemaVersion: 1, id: 'text', kind: 'setText', target, value: 'Hello' },
+    ],
+    createdAt: '2026-08-06T00:00:00.000Z',
+  });
+
+  assert.equal(result.ok, true, JSON.stringify(result));
+});
+
+test('reports indexed operation failures in malformed manifests', () => {
+  assert.throws(
+    () => parsePublishedManifestV1({
+      schemaVersion: 1,
+      projectId: 'project-1',
+      releaseId: 'release-1',
+      version: 0,
+      manifestHash: 'not-a-hash',
+      operations: [{ schemaVersion: 1, id: 'unsafe', kind: 'executeScript', target }],
+      createdAt: 'not-a-date',
+    }),
+    /version must be a positive integer.*createdAt must be an ISO-compatible date string.*operations\[0\]/,
   );
 });

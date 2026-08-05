@@ -78,6 +78,7 @@ class ApiRepository implements VersioningRepository {
 
   async resolveRuntimeManifest(): Promise<RuntimeManifest> {
     return {
+      schemaVersion: 1,
       projectId: PROJECT_ID,
       releaseId: RELEASE_ID,
       version: 1,
@@ -138,6 +139,7 @@ test('public immutable manifest supports cache validation without admin auth', a
     });
 
     assert.equal(first.statusCode, 200);
+    assert.equal(first.json().manifest.schemaVersion, 1);
     assert.equal(first.headers.etag, `"${MANIFEST_HASH}"`);
     assert.match(first.headers['cache-control'] ?? '', /immutable/);
 

@@ -1,4 +1,53 @@
-# Runtime
+# @lykar/runtime
 
-Framework-independent playback of immutable release manifests on static and
-server-rendered pages.
+Framework-independent playback of immutable Lykar releases on static and
+server-rendered pages. The first implementation deliberately targets pages
+whose DOM is stable after `DOMContentLoaded`; SPA reconciliation is outside
+this MVP.
+
+## Script tag
+
+Build the workspace and serve `dist/runtime.iife.js` from your CDN:
+
+```html
+<script src="https://cdn.example.com/runtime.iife.js"></script>
+<script>
+  Lykar.init('pk_your_public_project_key', {
+    apiBaseUrl: 'https://api.example.com',
+    onReport: report => console.info('Lykar release applied', report),
+  });
+</script>
+```
+
+The IIFE also supports the constructor-shaped integration planned for Lykar:
+
+```js
+const runtime = new Lykar('pk_your_public_project_key', {
+  apiBaseUrl: 'https://api.example.com',
+  // Use `include` when a future protected preview endpoint relies on cookies.
+  credentials: 'include',
+});
+await runtime.start();
+```
+
+When the host page has `?version=3`, runtime requests immutable release 3.
+Without that query parameter it requests the release currently active in the
+selected environment.
+
+## ESM
+
+```js
+import { Lykar } from '@lykar/runtime';
+
+const report = await new Lykar({
+  projectKey: 'pk_your_public_project_key',
+  apiBaseUrl: 'https://api.example.com',
+}).start();
+```
+
+Every operation produces an `applied`, `skipped`, or `error` result. Replay is
+sequential and normally continues after local failures; set `strict: true` to
+stop after the first mutation error.
+
+Inserted markup is intentionally constrained. Script-capable tags, inline
+event handlers, inline styles, `srcdoc`, and unsafe URL schemes are rejected.
