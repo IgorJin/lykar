@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lykar Test Stand</title>
+  <meta name="description" content="Полноценный стенд для тестирования Lykar: карточки, изображения, кнопки, формы, табы, модалки, дропдауны, таблицы, аккордеоны и вложенные скроллы." />
+  <style>
+    /* ====== БАЗА ====== */
+    :root{
+      --bg: #0b1020;
+      --bg-soft: #121733;
+      --panel: #151a3a;
+      --panel-2: #1b214d;
+      --text: #e8ecff;
+      --muted: #a5afd4;
+      --primary: #6ea8fe;
+      --primary-600:#4c87f5;
+      --accent: #59f5c2;
+      --danger: #ff6b6b;
+      --warn: #ffb454;
+      --ok: #2fd07c;
+      --bd: #2a325f;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius-xl: 16px;
+      --radius-lg: 12px;
+      --radius: 10px;
+      --radius-sm: 8px;
+      --z-header: 50;
+      --z-dropdown: 70;
+      --z-modal: 100;
+      --z-toast: 120;
+    }
+    *{ box-sizing: border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0; font: 15px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
+      color:var(--text); background: radial-gradient(1200px 800px at 20% -10%, #1c2557 0%, var(--bg) 55%), radial-gradient(1000px 800px at 120% 10%, #0c153a 0%, transparent 55%) fixed var(--bg);
+    }
+    img{ max-width:100%; height:auto; display:block; border-radius: var(--radius); }
+    a{ color: var(--primary); text-decoration: none; }
+    a:hover{ text-decoration: underline; }
+    .container{ max-width:1200px; margin:0 auto; padding: 0 16px; }
+    .visually-hidden{ position:absolute !important; width:1px; height:1px; margin:-1px; padding:0; border:0; overflow:hidden; clip:rect(0 0 0 0); }
+    .skip-link{ position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden; }
+    .skip-link:focus{ left:16px; top:16px; width:auto; height:auto; background:#000; color:#fff; padding:8px 12px; border-radius:8px; z-index:var(--z-header); }
+
+    /* ====== ХЕДЕР ====== */
+    .site-header{ position: sticky; top:0; z-index: var(--z-header); backdrop-filter: saturate(1.2) blur(8px); background: linear-gradient(180deg, rgba(7,10,28,.75), rgba(7,10,28,.35)); border-bottom:1px solid var(--bd); }
+    .site-header .row{ display:flex; align-items:center; gap:16px; padding:12px 0; }
+    .logo{ display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:.3px; }
+    .logo .dot{ width:10px; height:10px; border-radius:50%; background:linear-gradient(135deg, var(--accent), var(--primary)); box-shadow:0 0 20px rgba(89,245,194,.5); }
+    nav ul{ display:flex; list-style:none; padding:0; margin:0; gap:10px; align-items:center; }
+    nav a, .menu button{ color:var(--text); padding:8px 10px; border-radius:8px; border:1px solid transparent; background:none; }
+    .menu .dropdown{ position:relative; }
+    .dropdown-menu{ position:absolute; inset: calc(100% + 6px) auto auto 0; min-width:220px; background: var(--panel); border:1px solid var(--bd); border-radius: var(--radius-lg); box-shadow: var(--shadow); padding:6px; display:none; z-index:var(--z-dropdown); }
+    .dropdown.open .dropdown-menu{ display:block; }
+    .dropdown-menu a{ display:block; padding:8px 10px; border-radius:8px; }
+    .dropdown-menu a:hover{ background: var(--panel-2); text-decoration:none; }
+
+    .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; border:1px solid var(--bd); background: var(--panel); color:var(--text); padding:10px 14px; border-radius: var(--radius); cursor:pointer; transition: transform .05s ease; }
+    .btn:active{ transform: translateY(1px); }
+    .btn.primary{ background: linear-gradient(180deg, var(--primary), var(--primary-600)); color:#08122b; border:1px solid rgba(255,255,255,.15); font-weight:700; }
+    .btn.ghost{ background: transparent; }
+    .btn.warn{ background: linear-gradient(180deg, var(--warn), #d99230); color:#2c1300; border-color: rgba(0,0,0,.25); }
+
+    /* ====== ХЕРО ====== */
+    .hero{ position:relative; padding: 56px 0 32px; border-bottom:1px solid var(--bd); background:
+        radial-gradient(800px 400px at 75% 10%, rgba(108,156,255,.15), transparent 50%),
+        radial-gradient(400px 300px at 20% 20%, rgba(89,245,194,.1), transparent 50%);
+    }
+    .hero .grid{ display:grid; grid-template-columns: 1.2fr 1fr; gap:24px; align-items:center; }
+    .hero .title{ font-size: clamp(28px, 5vw, 46px); margin:0 0 8px; letter-spacing:.2px; }
+    .hero p{ color: var(--muted); margin:0 0 18px; }
+    .badge{ display:inline-flex; align-items:center; gap:8px; border:1px dashed var(--bd); padding:6px 10px; border-radius:999px; color:var(--muted); margin-bottom:12px; }
+
+    /* ====== СЕТКИ И КАРТОЧКИ ====== */
+    .section{ padding: 28px 0; border-bottom:1px solid var(--bd); }
+    .section h2{ margin: 0 0 14px; font-size: 22px; letter-spacing:.2px; }
+    .grid-cards{ display:grid; grid-template-columns: repeat(3, 1fr); gap:16px; }
+    .card{ background: var(--panel); border:1px solid var(--bd); border-radius: var(--radius-xl); overflow: clip; box-shadow: var(--shadow); display:flex; flex-direction:column; }
+    .card .media{ aspect-ratio: 16/9; background: linear-gradient(135deg, #1f2760, #0d1438); display:flex; align-items:center; justify-content:center; color:#aab3df; font-weight:600; letter-spacing:.3px; }
+    .card .body{ padding:12px; display:grid; gap:8px; }
+    .chip{ display:inline-flex; align-items:center; gap:6px; font-size:12px; color:#d7defc; background: rgba(110,168,254,.12); border:1px solid rgba(110,168,254,.35); padding:4px 8px; border-radius:999px; }
+
+    /* ====== ТАБЫ ====== */
+    .tabs{ display:grid; gap:10px; }
+    .tablist{ display:flex; gap:6px; flex-wrap:wrap; }
+    .tablist [role="tab"]{ background: var(--panel); border:1px solid var(--bd); padding:8px 10px; border-radius: 999px; cursor:pointer; }
+    .tablist [role="tab"][aria-selected="true"]{ background: linear-gradient(180deg, var(--accent), #11d092); color:#052a1f; font-weight:700; }
+    .tabpanel{ background: var(--panel); border:1px solid var(--bd); border-radius: var(--radius); padding:12px; }
+
+    /* ====== ФОРМА ====== */
+    form .row{ display:grid; grid-template-columns: repeat(2, 1fr); gap:12px; }
+    .field{ display:grid; gap:6px; }
+    .field label{ color:#cfd7ff; font-size:14px; }
+    .input, select, textarea{ background: var(--bg-soft); color: var(--text); border:1px solid var(--bd); border-radius: 10px; padding:10px 12px; }
+    textarea{ min-height: 90px; resize: vertical; }
+    .hint{ color: var(--muted); font-size: 12px; }
+    .form-actions{ display:flex; gap:8px; margin-top:10px; }
+
+    /* ====== ТАБЛИЦА ====== */
+    .table-wrap{ overflow:auto; border:1px solid var(--bd); border-radius: var(--radius); }
+    table{ width:100%; border-collapse: collapse; }
+    th, td{ padding:10px; border-bottom:1px solid var(--bd); text-align:left; }
+    tbody tr:hover{ background: rgba(110,168,254,.06); }
+
+    /* ====== АККОРДЕОНЫ / DETAILS ====== */
+    details{ background: var(--panel); border:1px solid var(--bd); border-radius: var(--radius); padding:10px 12px; }
+    details+details{ margin-top:8px; }
+
+    /* ====== ВЛОЖЕННЫЕ СКРОЛЛЫ ====== */
+    .scroll-zone{ display:grid; grid-template-columns: 1fr 320px; gap:14px; }
+    .scroll-box{ height: 220px; overflow:auto; padding:10px; background: var(--panel); border:1px solid var(--bd); border-radius: var(--radius); }
+    .mini-list{ display:grid; gap:8px; }
+
+    /* ====== МОДАЛКИ / ДРОВЕР ====== */
+    .modal-backdrop{ position: fixed; inset:0; background: rgba(3,6,20,.65); display:none; align-items:center; justify-content:center; z-index: var(--z-modal); }
+    .modal-backdrop.open{ display:flex; }
+    .modal{ width:min(680px, 92vw); background: var(--panel); border:1px solid var(--bd); border-radius: 18px; box-shadow: var(--shadow); padding:14px; }
+    .modal-head{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px; }
+    .drawer{ position: fixed; top:0; right:0; height:100vh; width:min(420px, 92vw); transform: translateX(110%); transition: transform .2s ease; background: var(--panel); border-left:1px solid var(--bd); z-index: var(--z-modal); box-shadow: var(--shadow); display:flex; flex-direction:column; }
+    .drawer.open{ transform: translateX(0); }
+
+    /* ====== ТОСТЫ ====== */
+    .toast-area{ position: fixed; bottom: 16px; right:16px; display:grid; gap:8px; z-index: var(--z-toast); }
+    .toast{ background: var(--panel); border:1px solid var(--bd); border-radius: 10px; padding:10px 12px; box-shadow: var(--shadow); }
+
+    /* ====== ФУТЕР ====== */
+    footer{ padding:20px 0 60px; color: var(--muted); }
+
+    /* ====== АДАПТИВ ====== */
+    @media (max-width: 900px){
+      .hero .grid{ grid-template-columns: 1fr; }
+      .grid-cards{ grid-template-columns: 1fr 1fr; }
+      form .row{ grid-template-columns: 1fr; }
+      .scroll-zone{ grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px){
+      .grid-cards{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Пропустить к контенту</a>
+  <header class="site-header" data-lykar-selectable>
+    <div class="container row">
+      <div class="logo" data-lykar-test="logo">
+        <span class="dot" aria-hidden="true"></span>
+        <span>Lykar Test Stand</span>
+      </div>
+      <nav aria-label="Главное меню" class="grow">
+        <ul class="menu">
+          <li class="dropdown" data-dropdown>
+            <button class="btn ghost dropdown-toggle" aria-haspopup="true" aria-expanded="false">Компоненты ▾</button>
+            <ul class="dropdown-menu" role="menu">
+              <li><a role="menuitem" href="#cards">Карточки</a></li>
+              <li><a role="menuitem" href="#tabs">Табы</a></li>
+              <li><a role="menuitem" href="#forms">Формы</a></li>
+              <li><a role="menuitem" href="#tables">Таблица</a></li>
+              <li><a role="menuitem" href="#accordions">Аккордеоны</a></li>
+              <li><a role="menuitem" href="#nested">Вложенные скроллы</a></li>
+              <li><a href="#second" data-route="second">Второй таб</a></li>
+            </ul>
+          </li>
+          <li><a href="#hero">Hero</a></li>
+          <li><a href="#nested">Playground</a></li>
+          <li><a href="#second" data-route="second">Второй таб</a></li>
+        </ul>
+      </nav>
+      <div style="margin-left:auto; display:flex; gap:8px;">
+        <button id="btn-open-modal" class="btn primary">Открыть модалку</button>
+        <button id="btn-open-drawer" class="btn">Открыть панель</button>
+        <button id="btn-toast" class="btn warn">Toast</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+    <div id="view-default">
+    <!-- ====== HERO ====== -->
+    <section id="hero" class="hero section" data-lykar-test="hero">
+      <div class="container">
+        <div class="badge">Стенд для отладки Lykar · Толстый DOM · Разные состояния</div>
+        <div class="grid">
+          <div>
+            <h1 class="title">Полигон для редактирования и DnD</h1>
+            <p>На странице собраны разные типы элементов: изображения, текст, кнопки, формы, табы, модальные окна, выпадающие меню, таблицы и вложенные скроллы. Разметка насыщена стабильными селекторами и <code>data-*</code> атрибутами, чтобы тебе было удобно писать <em>DropPolicy</em> и команды.</p>
+            <div style="display:flex; gap:8px;">
+              <a class="btn primary" href="#cards">Перейти к карточкам</a>
+              <a class="btn" href="#forms">К формам</a>
+            </div>
+          </div>
+          <div>
+            <img src="https://picsum.photos/seed/lykar-hero/1100/600" alt="Абстрактное изображение" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== КАРТОЧКИ ====== -->
+    <section id="cards" class="section">
+      <div class="container">
+        <h2>Карточки с изображениями, текстом и кнопками</h2>
+        <div class="grid-cards" data-lykar-test="cards-grid">
+          <!-- card 1 -->
+          <article class="card" data-lykar-selectable>
+            <div class="media"><span>Изображение 16:9</span></div>
+            <div class="body">
+              <div class="chip">Пример</div>
+              <h3>Карточка №1</h3>
+              <p>Короткий текст описания. Можно менять стили, шрифты и отступы. У карточки есть кнопки действий.</p>
+              <div style="display:flex; gap:8px;">
+                <button class="btn primary">Купить</button>
+                <button class="btn">Подробнее</button>
+              </div>
+            </div>
+          </article>
+          <!-- card 2 -->
+          <article class="card">
+            <img class="media" src="https://picsum.photos/seed/lykar-card-2/800/450" alt="Пример изображения"/>
+            <div class="body">
+              <h3>Карточка №2</h3>
+              <p>Второй вариант с реальным изображением. Проверяй поведение DnD: before/after/inside.</p>
+              <details>
+                <summary>Развернуть доп. информацию</summary>
+                <p class="hint">Этот блок поможет проверить работу с нативным <code>&lt;details&gt;</code>.</p>
+              </details>
+            </div>
+          </article>
+          <!-- card 3 -->
+          <article class="card">
+            <div class="media"><span>Плейсхолдер</span></div>
+            <div class="body">
+              <h3>Карточка №3</h3>
+              <p>Третий вариант. Внутри добавлен мини-набор табов для проверки вложенных интеракций.</p>
+
+              <div class="tabs" data-tabs>
+                <div class="tablist" role="tablist" aria-label="Вложенные табы">
+                  <button role="tab" aria-selected="true" aria-controls="mini-tab-1">Описание</button>
+                  <button role="tab" aria-selected="false" aria-controls="mini-tab-2">Характеристики</button>
+                </div>
+                <div id="mini-tab-1" role="tabpanel" class="tabpanel">
+                  <p>Контент первого мини-таба. Проверь, что навигация стрелками работает, а фокус не теряется.</p>
+                </div>
+                <div id="mini-tab-2" role="tabpanel" class="tabpanel" hidden>
+                  <ul class="mini-list">
+                    <li>Размер: M</li>
+                    <li>Цвет: морская волна</li>
+                    <li>Материал: синтетика</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div style="margin-top:12px; display:flex; gap:8px;">
+          <button id="btn-add-card" class="btn">Добавить карточку (динамически)</button>
+          <button id="btn-shuffle" class="btn">Перемешать карточки</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== ТАБЫ (основные) ====== -->
+    <section id="tabs" class="section">
+      <div class="container">
+        <h2>Табы (семантические ARIA + клавиатура)</h2>
+        <div class="tabs" data-tabs data-lykar-test="main-tabs">
+          <div class="tablist" role="tablist" aria-label="Основные табы">
+            <button role="tab" aria-selected="true" aria-controls="tab-overview">Обзор</button>
+            <button role="tab" aria-selected="false" aria-controls="tab-specs">Спецификации</button>
+            <button role="tab" aria-selected="false" aria-controls="tab-reviews">Отзывы</button>
+          </div>
+          <div id="tab-overview" role="tabpanel" class="tabpanel">
+            <p>Этот таб показывает общий текст с <strong>жирным</strong>, <em>курсивом</em> и <a href="#">ссылкой</a>. Хорошее место, чтобы тестировать inline-редактирование и стили.</p>
+          </div>
+          <div id="tab-specs" role="tabpanel" class="tabpanel" hidden>
+            <ul>
+              <li>Поддержка Undo/Redo сценариев</li>
+              <li>Командный паттерн для изменений</li>
+              <li>DI для сервисов хранения</li>
+            </ul>
+          </div>
+          <div id="tab-reviews" role="tabpanel" class="tabpanel" hidden>
+            <blockquote>«Очень гибкая страница для тестов, можно быстро воспроизвести разные сценарии UI.»</blockquote>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== ФОРМЫ ====== -->
+    <section id="forms" class="section">
+      <div class="container">
+        <h2>Форма с разными контролами</h2>
+        <form data-lykar-test="form" novalidate>
+          <div class="row">
+            <div class="field">
+              <label for="f-name">Имя</label>
+              <input class="input" id="f-name" name="name" placeholder="Иван" required />
+              <span class="hint">Обязательное поле</span>
+            </div>
+            <div class="field">
+              <label for="f-email">Email</label>
+              <input class="input" id="f-email" name="email" type="email" placeholder="user@example.com" />
+            </div>
+            <div class="field">
+              <label for="f-password">Пароль</label>
+              <input class="input" id="f-password" name="password" type="password" />
+            </div>
+            <div class="field">
+              <label for="f-role">Роль</label>
+              <select id="f-role" class="input" name="role">
+                <option value="">Выберите…</option>
+                <option>Администратор</option>
+                <option>Редактор</option>
+                <option>Зритель</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Уведомления</label>
+              <label><input type="checkbox" name="notify" checked /> Email</label>
+              <label><input type="checkbox" name="notify" /> Push</label>
+            </div>
+            <div class="field">
+              <label>Тариф</label>
+              <label><input type="radio" name="plan" value="free" checked /> Free</label>
+              <label><input type="radio" name="plan" value="pro" /> Pro</label>
+            </div>
+            <div class="field">
+              <label for="f-date">Дата</label>
+              <input class="input" id="f-date" name="date" type="date" />
+            </div>
+            <div class="field">
+              <label for="f-color">Цвет</label>
+              <input class="input" id="f-color" name="color" type="color" value="#6ea8fe" />
+            </div>
+            <div class="field">
+              <label for="f-range">Диапазон</label>
+              <input class="input" id="f-range" name="range" type="range" min="0" max="100" value="40" />
+            </div>
+            <div class="field">
+              <label for="f-file">Файл</label>
+              <input class="input" id="f-file" name="file" type="file" />
+            </div>
+            <div class="field" style="grid-column: 1/-1;">
+              <label for="f-message">Сообщение</label>
+              <textarea id="f-message" class="input" name="message" placeholder="Напишите что-нибудь…"></textarea>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn primary">Отправить</button>
+            <button type="reset" class="btn">Сбросить</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ====== ТАБЛИЦА ====== -->
+    <section id="tables" class="section">
+      <div class="container">
+        <h2>Таблица (для проверки before/after вставок строк)</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Название</th>
+                <th>Статус</th>
+                <th>Действия</th>
+              </tr>
+            </thead>
+            <tbody id="table-body">
+              <tr>
+                <td>1</td>
+                <td>Элемент A</td>
+                <td><span class="chip">Черновик</span></td>
+                <td><button class="btn">Edit</button></td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>Элемент B</td>
+                <td><span class="chip">Опубликован</span></td>
+                <td><button class="btn">Edit</button></td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>Элемент C</td>
+                <td><span class="chip">Архив</span></td>
+                <td><button class="btn">Edit</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="margin-top:10px; display:flex; gap:8px;">
+          <button id="btn-add-row" class="btn">Добавить строку</button>
+          <button id="btn-del-row" class="btn">Удалить последнюю</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== ВЛОЖЕННЫЕ СКРОЛЛЫ / ПОЛИГОН ====== -->
+    <section id="nested" class="section">
+      <div class="container">
+        <h2>Playground: вложенные контейнеры, скроллы, sticky и dropdown</h2>
+        <div class="scroll-zone">
+          <div>
+            <div class="scroll-box" id="scroll-box-1" data-lykar-test="scroll-box">
+              <p><strong>Scrollable контейнер №1.</strong> Наведи курсор к верх/низ — пригодится для AutoScrollService. Добавлены разные абзацы, списки и <a href="#">ссылки</a>.</p>
+              <ul>
+                <li>Пункт 1</li>
+                <li>Пункт 2</li>
+                <li>Пункт 3</li>
+                <li>Пункт 4</li>
+                <li>Пункт 5</li>
+                <li>Пункт 6</li>
+                <li>Пункт 7</li>
+                <li>Пункт 8</li>
+                <li>Пункт 9</li>
+                <li>Пункт 10</li>
+              </ul>
+            </div>
+            <div class="tabs" data-tabs style="margin-top:12px;">
+              <div class="tablist" role="tablist" aria-label="Табы в плейграунде">
+                <button role="tab" aria-selected="true" aria-controls="pg-1">Панель 1</button>
+                <button role="tab" aria-selected="false" aria-controls="pg-2">Панель 2</button>
+              </div>
+              <div id="pg-1" role="tabpanel" class="tabpanel">
+                <p>Контент панели 1. Здесь удобно пробовать вставку блоков <em>inside</em>.</p>
+              </div>
+              <div id="pg-2" role="tabpanel" class="tabpanel" hidden>
+                <p>Контент панели 2. Добавь сюда свои тестовые элементы.</p>
+              </div>
+            </div>
+          </div>
+          <aside>
+            <div class="card">
+              <div class="body">
+                <h3 style="margin:0">Сайдбар</h3>
+                <p class="hint">Пара контролов с dropdown.</p>
+                <div class="dropdown" data-dropdown>
+                  <button class="btn ghost dropdown-toggle" aria-expanded="false">Фильтр ▾</button>
+                  <ul class="dropdown-menu" role="menu">
+                    <li><button role="menuitem" class="btn ghost" data-action="filter" data-value="all">Все</button></li>
+                    <li><button role="menuitem" class="btn ghost" data-action="filter" data-value="active">Активные</button></li>
+                    <li><button role="menuitem" class="btn ghost" data-action="filter" data-value="archived">Архив</button></li>
+                  </ul>
+                </div>
+                <div style="margin-top:8px; display:flex; gap:8px;">
+                  <button id="btn-sidebar-action" class="btn">Действие</button>
+                  <button id="btn-sidebar-modal" class="btn">Модалка</button>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====== АККОРДЕОНЫ ====== -->
+    <section id="accordions" class="section">
+      <div class="container">
+        <h2>Аккордеоны / Details</h2>
+        <details open>
+          <summary>Что это за страница?</summary>
+          <p>Один HTML-файл, который покрывает распространённые кейсы редактирования UI на «живом» DOM. Проверь работу DropPolicy и Overlay.</p>
+        </details>
+        <details>
+          <summary>Как лучше навешивать селекторы?</summary>
+          <p>Используй <code>data-lykar-*</code> или устойчивые классы. Для key-патчей храни родителя + соседа + позицию (before/after/inside).</p>
+        </details>
+      </div>
+    </section>
+      </div>
+
+    <section id="view-second" hidden>
+      <div class="container section">
+        <h2>Второй таб</h2>
+        <p>Упрощённый режим для тестирования: только текст и кнопка, которая открывает модальное окно.</p>
+        <button class="btn primary" id="second-open-modal">Открыть модалку</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="container">
+    <div>© 2025 Lykar Test Stand. <a href="#">Политика</a> · <a href="#">Контакты</a></div>
+  </footer>
+
+  <!-- ====== МОДАЛЬНЫЕ ОКНА / ДРОВЕР / ТОСТЫ ====== -->
+  <div class="modal-backdrop" id="backdrop" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-desc">
+      <div class="modal-head">
+        <h3 id="modal-title" style="margin:0;">Модальное окно</h3>
+        <button class="btn" data-close-modal aria-label="Закрыть">✕</button>
+      </div>
+      <p id="modal-desc" class="hint">Проверь фокус-ловушку, Esc, клик по фону и управление через кнопки в хедере/сайдбаре.</p>
+      <div style="display:flex; gap:8px; margin-top:10px;">
+        <button class="btn primary">Ок</button>
+        <button class="btn" data-close-modal>Отмена</button>
+      </div>
+    </div>
+  </div>
+  <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Боковая панель">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; padding:12px; border-bottom:1px solid var(--bd);">
+      <strong>Панель</strong>
+      <button class="btn" id="btn-close-drawer">Закрыть</button>
+    </div>
+    <div style="padding:12px; display:grid; gap:8px;">
+      <p class="hint">Ещё один тип модалки — выезжающий дровер.</p>
+      <button class="btn primary">Сохранить</button>
+      <button class="btn">Отмена</button>
+    </div>
+  </aside>
+  <div class="toast-area" id="toasts" aria-live="polite" aria-atomic="true"></div>
+
+  <script>
+  // ====== Изолированный JS (минимум глобальных привязок) ======
+  (() => {
+    const $ = (sel, root=document) => root.querySelector(sel);
+    const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+
+    // ------- Dropdowns (делегирование)
+    function closeAllDropdowns(except){
+      $$('.dropdown.open').forEach(d => { if(d!==except){ d.classList.remove('open'); d.querySelector('.dropdown-toggle')?.setAttribute('aria-expanded','false'); } });
+    }
+    document.addEventListener('click', (e) => {
+      const dd = e.target.closest('[data-dropdown]');
+      const toggle = e.target.closest('.dropdown-toggle');
+      if(toggle && dd){
+        const isOpen = dd.classList.toggle('open');
+        toggle.setAttribute('aria-expanded', String(isOpen));
+        if(isOpen) closeAllDropdowns(dd);
+        return;
+      }
+      if(!dd) closeAllDropdowns();
+    });
+    document.addEventListener('keydown', (e) => {
+      if(e.key==='Escape') closeAllDropdowns();
+    });
+
+    // ------- Tabs (ARIA + клавиатура)
+    function initTabs(root){
+      const tablists = $$('[role="tablist"]', root);
+      tablists.forEach(list => {
+        const tabs = $$('[role="tab"]', list);
+        const panels = tabs.map(t => document.getElementById(t.getAttribute('aria-controls'))).filter(Boolean);
+        function setActive(idx){
+          tabs.forEach((t,i)=>{
+            t.setAttribute('aria-selected', String(i===idx));
+            t.tabIndex = i===idx? 0 : -1;
+            if(panels[i]) panels[i].hidden = i!==idx;
+          });
+          tabs[idx].focus();
+        }
+        tabs.forEach((tab, i) => {
+          tab.addEventListener('click', () => setActive(i));
+          tab.addEventListener('keydown', (e) => {
+            const current = tabs.indexOf(document.activeElement);
+            if(['ArrowRight','ArrowLeft','Home','End'].includes(e.key)){
+              e.preventDefault();
+              let next = current;
+              if(e.key==='ArrowRight') next = (current + 1) % tabs.length;
+              if(e.key==='ArrowLeft') next = (current - 1 + tabs.length) % tabs.length;
+              if(e.key==='Home') next = 0;
+              if(e.key==='End') next = tabs.length-1;
+              setActive(next);
+            }
+          });
+        });
+        // Инициализация первых состояний
+        const idx = Math.max(0, tabs.findIndex(t=>t.getAttribute('aria-selected')==='true'));
+        setActive(idx);
+      });
+    }
+    initTabs(document);
+
+    // ------- Modal (центр)
+    const backdrop = $('#backdrop');
+    function openModal(){ backdrop.hidden = false; backdrop.classList.add('open');
+      // фокус в модалку
+      const focusable = backdrop.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      focusable[0]?.focus();
+      document.addEventListener('keydown', escClose);
+    }
+    function closeModal(){ backdrop.classList.remove('open'); backdrop.hidden = true; document.removeEventListener('keydown', escClose); }
+    function escClose(e){ if(e.key==='Escape'){ closeModal(); } }
+
+    $('#btn-open-modal')?.addEventListener('click', openModal);
+    $('#btn-sidebar-modal')?.addEventListener('click', openModal);
+    backdrop?.addEventListener('click', (e) => { if(e.target===backdrop) closeModal(); });
+    $$('[data-close-modal]', backdrop).forEach(btn => btn.addEventListener('click', closeModal));
+
+    // ------- Drawer
+    const drawer = $('#drawer');
+    $('#btn-open-drawer')?.addEventListener('click', () => drawer.classList.add('open'));
+    $('#btn-close-drawer')?.addEventListener('click', () => drawer.classList.remove('open'));
+    document.addEventListener('keydown', (e) => { if(e.key==='Escape'){ drawer.classList.remove('open'); }});
+
+    // ------- Toasts
+    const toasts = $('#toasts');
+    function toast(msg, timeout=2500){
+      const el = document.createElement('div');
+      el.className = 'toast';
+      el.textContent = msg;
+      toasts.appendChild(el);
+      setTimeout(()=>{ el.remove(); }, timeout);
+    }
+    $('#btn-toast')?.addEventListener('click', ()=> toast('Всем привет! Это тост.'));
+
+    // ------- Таблица: добавить/удалить
+    $('#btn-add-row')?.addEventListener('click', ()=>{
+      const body = $('#table-body');
+      const idx = body.children.length + 1;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${idx}</td><td>Элемент ${String.fromCharCode(64 + (idx%26||26))}</td><td><span class="chip">Черновик</span></td><td><button class="btn">Edit</button></td>`;
+      body.appendChild(tr);
+    });
+    $('#btn-del-row')?.addEventListener('click', ()=>{
+      const body = $('#table-body');
+      body.lastElementChild?.remove();
+    });
+
+    // ------- Карточки: добавить/перемешать
+    $('#btn-add-card')?.addEventListener('click', ()=>{
+      const grid = $('[data-lykar-test="cards-grid"]');
+      const idx = grid.children.length + 1;
+      const art = document.createElement('article');
+      art.className = 'card';
+      art.innerHTML = `
+        <div class="media"><span>Динамическая ${idx}</span></div>
+        <div class="body">
+          <h3>Карточка #${idx}</h3>
+          <p>Создано скриптом. Отлично для проверки синхронизации патчей.</p>
+          <div style="display:flex; gap:8px;">
+            <button class="btn primary">Действие</button>
+            <button class="btn">Ещё</button>
+          </div>
+        </div>`;
+      grid.appendChild(art);
+    });
+    $('#btn-shuffle')?.addEventListener('click', ()=>{
+      const grid = $('[data-lykar-test="cards-grid"]');
+      const items = Array.from(grid.children);
+      for(let i=items.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        grid.appendChild(items[j]);
+        items.splice(j,1);
+      }
+    });
+
+    // ------- Сайдбар тест: действие
+    $('#btn-sidebar-action')?.addEventListener('click', ()=> toast('Выполнено действие сайдбара'));
+
+    // ------- Форма: простая проверка required
+    $('form[data-lykar-test="form"]').addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const name = $('#f-name').value.trim();
+      if(!name){ toast('Введите имя', 2000); $('#f-name').focus(); return; }
+      toast('Форма отправлена');
+    });
+
+    // ------- Route: Второй таб (хеш-роутер)
+    function updateRoute(){
+      const inSecond = location.hash === '#second';
+      const defaultView = document.getElementById('view-default');
+      const secondView = document.getElementById('view-second');
+      if(!defaultView || !secondView) return;
+      defaultView.hidden = inSecond;
+      secondView.hidden = !inSecond;
+    }
+    window.addEventListener('hashchange', updateRoute);
+    document.getElementById('second-open-modal')?.addEventListener('click', openModal);
+    updateRoute();
+
+    // ------- Self-tests (консоль, не мешают UI)
+    console.groupCollapsed('Lykar Stand: self-tests');
+    console.assert(document.getElementById('view-default'), '#view-default exists');
+    console.assert(document.getElementById('view-second'), '#view-second exists');
+    console.assert(document.querySelector('a[href="#second"]'), 'nav link for #second exists');
+    console.assert(typeof updateRoute === 'function', 'updateRoute defined');
+    console.groupEnd();
+
+  })();
+  </script>
+  <script src="./lykar-lib/dist/editor.umd.js"></script>
+  <script>
+    PageEditor.init({ apiUrl: '...', version: null });
+  </script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+.lykar-colorpicker__wrapper {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 14px;
+}
+.lykar-colorpicker__label {
+  font-size: 14px;
+  color: #444;
+  margin-bottom: 4px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.lykar-colorpicker__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.lykar-colorpicker__swatch {
+  width: 32px;
+  height: 32px;
+  border-radius: 5px;
+  border: 1.5px solid #ccc;
+  cursor: pointer;
+  box-shadow: 0 1px 3px #0001;
+  transition: outline 0.2s;
+}
+.lykar-colorpicker__swatch:focus,
+.lykar-colorpicker__swatch:active {
+  outline: 2px solid #397afe;
+}
+.lykar-colorpicker__native {
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+}
+.lykar-colorpicker__value {
+  font-family: monospace;
+  font-size: 14px;
+  color: #333;
+}

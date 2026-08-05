@@ -1,0 +1,35 @@
+.built-in-button {
+  position: fixed;
+  cursor: pointer;
+  padding: 1rem;
+  background-color: aqua;
+  display: block;
+  left: -4.5rem;
+  bottom: 6rem;
+  transform: rotateZ(90deg);
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  z-index: 10000;
+  opacity: 0.3;
+  transition: cubic-bezier(0.075, 0.82, 0.165, 1) 0.75s;
+}
+
+.built-in-button .inner {
+  display: flex;
+  align-items: center;
+  width: 7rem;
+  margin-bottom: -2rem;
+  padding-top: 2rem;
+  transition: cubic-bezier(0.075, 0.82, 0.165, 1) 0.5s;
+}
+
+.built-in-button .inner:hover {
+  opacity: 1;
+
+  transform: rotateZ(-90deg);
+}
+
+.built-in-button .inner:hover .inner {
+  margin-bottom: 0;
+  padding-top: 0;
+}
