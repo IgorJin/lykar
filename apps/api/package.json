@@ -4,11 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "node --test",
+    "prebuild": "npm run build --workspace @lykar/protocol",
+    "test": "node --test \"dist/**/*.test.js\"",
+    "pretest": "npm run build",
+    "pretypecheck": "npm run build --workspace @lykar/protocol",
     "typecheck": "tsc --noEmit",
     "dev": "ts-node-dev --respawn src/server.ts",
-    "build": "tsc",
-    "start": "node dist/server.js"
+    "build": "npm run clean && tsc",
+    "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
+    "start": "node dist/server.js",
+    "migrate": "npm run build && node dist/db/migrate.js"
   },
   "repository": {
     "type": "git",
@@ -23,15 +28,14 @@
   "dependencies": {
     "@fastify/cors": "^10.1.0",
     "@fastify/postgres": "^6.0.2",
+    "@lykar/protocol": "0.0.0",
     "dotenv": "^16.5.0",
     "fastify": "^5.4.0",
-    "pg": "^8.16.0",
-    "uuid": "^11.1.0"
+    "pg": "^8.16.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.1",
     "@types/pg": "^8.15.4",
-    "@types/uuid": "^10.0.0",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.8.3"
   }

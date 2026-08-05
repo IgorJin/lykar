@@ -1,53 +1,37 @@
-import Fastify from 'fastify';
 import dotenv from 'dotenv';
-import cors from '@fastify/cors'
 
-import dbPlugin from './plugins/db';
-
-// import authRoutes from './routes/auth';
-import patchesRoutes from './routes/patches';
-// import sessionsRoutes from './routes/sessions';
+import { buildApp } from './app';
 
 dotenv.config();
 
-const server = Fastify({ logger: true });
+const port = Number(process.env.PORT ?? 3000);
+const host = process.env.HOST ?? '0.0.0.0';
+const allowedOrigins = (process.env.CORS_ALLOWED_ORIGINS ?? '')
+  .split(',')
+  .map(origin => origin.trim())
+  .filter(Boolean);
 
-server.register(cors, {
-  origin: (origin, cb) => {
-    const allowed = [process.env.CLIENT_ORIGIN];
-
-    if (!origin || origin === 'null' || allowed.includes(origin)) {
-      cb(null, true);
-    } else {
-      cb(new Error('Not allowed'), false);
-    }
-  },
-
-  allowedHeaders: ['Content-Type', 'Authorization'],
+const server = buildApp({
+  connectionString: process.env.DATABASE_URL,
+  adminToken: process.env.LYKAR_ADMIN_TOKEN,
+  allowedOrigins,
+  logger: true,
 });
-
-server.register(dbPlugin);
-
-// server.register(authRoutes);
-server.register(patchesRoutes);
-// server.register(sessionsRoutes);
-
-server.get('/api', async function(req, reply) {
-  const client = await this.pg.connect();
-
-  console.log(await client.query('SELECT 1'));
-
-  reply.send({ hello: 'world' })
-})
 
 const start = async () => {
   try {
-    await server.listen({ port: 3000, host: '0.0.0.0' });
-    console.log('Server listening on http://localhost:3000');
+    await server.listen({ port, host });
   } catch (err) {
     server.log.error(err);
     process.exit(1);
   }
 };
+
+for (const signal of ['SIGINT', 'SIGTERM'] as const) {
+  process.once(signal, async () => {
+    await server.close();
+    process.exit(0);
+  });
+}
 
 start();
