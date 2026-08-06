@@ -52,6 +52,7 @@ export type ProjectRecord = {
   name: string;
   publicKey: string;
   origins: string[];
+  createdBy: string | null;
   createdAt: string;
 };
 
@@ -60,6 +61,7 @@ export type PageRecord = {
   projectId: string;
   name: string;
   pathname: string;
+  createdBy: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -72,6 +74,7 @@ export type DraftRecord = {
   publishedReleaseId: string | null;
   status: 'open' | 'published' | 'abandoned';
   revision: number;
+  createdBy: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -95,6 +98,7 @@ export type ReleaseRecord = {
   baseReleaseId: string | null;
   manifestHash: string;
   operationCount: number;
+  publishedBy: string | null;
   createdAt: string;
 };
 
@@ -110,6 +114,7 @@ export type ActivationResult = {
   environment: string;
   previousReleaseId: string | null;
   releaseId: string;
+  activatedBy: string | null;
 };
 
 export type RuntimeManifest = PublishedManifestV1;

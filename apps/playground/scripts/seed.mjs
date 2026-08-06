@@ -31,14 +31,17 @@ export async function seedPlayground(options) {
       [USER_ID, OWNER_EMAIL],
     );
     await client.query(
-      `INSERT INTO projects (id, name, public_key) VALUES ($1, 'Northstar E2E', $2)
-       ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, public_key = EXCLUDED.public_key, updated_at = NOW()`,
-      [PROJECT_ID, PROJECT_KEY],
+      `INSERT INTO projects (id, name, public_key, created_by) VALUES ($1, 'Northstar E2E', $2, $3)
+       ON CONFLICT (id) DO UPDATE
+       SET name = EXCLUDED.name, public_key = EXCLUDED.public_key,
+           created_by = COALESCE(projects.created_by, EXCLUDED.created_by), updated_at = NOW()`,
+      [PROJECT_ID, PROJECT_KEY, USER_ID],
     );
     await client.query(
       `INSERT INTO project_memberships (id, project_id, user_id, role)
        VALUES ($1, $2, $3, 'owner')
-       ON CONFLICT (project_id, user_id) DO UPDATE SET role = 'owner', revoked_at = NULL`,
+       ON CONFLICT (project_id, user_id) DO UPDATE
+       SET role = 'owner', revoked_at = NULL, updated_at = NOW()`,
       [MEMBERSHIP_ID, PROJECT_ID, USER_ID],
     );
     for (const [id, value] of [
@@ -57,9 +60,11 @@ export async function seedPlayground(options) {
       { id: PRICING_PAGE_ID, name: 'Pricing', pathname: '/pricing', environmentId: '31000000-0000-4000-8000-000000000002' },
     ]) {
       await client.query(
-        `INSERT INTO pages (id, project_id, name, pathname) VALUES ($1, $2, $3, $4)
-         ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, pathname = EXCLUDED.pathname, updated_at = NOW()`,
-        [page.id, PROJECT_ID, page.name, page.pathname],
+        `INSERT INTO pages (id, project_id, name, pathname, created_by) VALUES ($1, $2, $3, $4, $5)
+         ON CONFLICT (id) DO UPDATE
+         SET name = EXCLUDED.name, pathname = EXCLUDED.pathname,
+             created_by = COALESCE(pages.created_by, EXCLUDED.created_by), updated_at = NOW()`,
+        [page.id, PROJECT_ID, page.name, page.pathname, USER_ID],
       );
       await client.query(
         `INSERT INTO environments (id, project_id, page_id, name)
@@ -73,9 +78,9 @@ export async function seedPlayground(options) {
       { id: PRICING_DRAFT_ID, pageId: PRICING_PAGE_ID },
     ]) {
       await client.query(
-        `INSERT INTO drafts (id, project_id, page_id) VALUES ($1, $2, $3)
+        `INSERT INTO drafts (id, project_id, page_id, created_by) VALUES ($1, $2, $3, $4)
          ON CONFLICT (id) DO NOTHING`,
-        [draft.id, PROJECT_ID, draft.pageId],
+        [draft.id, PROJECT_ID, draft.pageId, USER_ID],
       );
     }
     await client.query(

@@ -8,6 +8,11 @@ import { hashToken } from './domain/auth';
 import type { AuthRepository, AuthenticatedSession, MagicLinkSender, UserRecord } from './domain/auth';
 import type { AccessRepository, EditorLaunchTarget, EditorSessionGrant, ShareRecord, ShareTarget } from './domain/access';
 import type {
+  MembershipRepository,
+  ProjectInvitationRecord,
+  ProjectMemberRecord,
+} from './domain/memberships';
+import type {
   ActivationResult, AppendOperationsResult, DraftRecord, PageRecord, ProjectRecord,
   PublishResult, ReleaseRecord, RuntimeManifest, VersioningRepository,
 } from './domain/versioning';
@@ -25,12 +30,12 @@ class ApiRepository implements VersioningRepository {
   async createProject(input: Parameters<VersioningRepository['createProject']>[0]): Promise<ProjectRecord> {
     this.createProjectCalls++;
     assert.equal(input.ownerUserId, USER_ID);
-    return { id: PROJECT_ID, name: input.name, publicKey: input.publicKey, origins: input.origins.map(i=>i.origin), createdAt:new Date().toISOString() };
+    return { id: PROJECT_ID, name: input.name, publicKey: input.publicKey, origins: input.origins.map(i=>i.origin), createdBy:input.ownerUserId, createdAt:new Date().toISOString() };
   }
   async listProjects():Promise<ProjectRecord[]>{return[];}
-  async createPage(input:Parameters<VersioningRepository['createPage']>[0]):Promise<PageRecord>{return{id:PAGE_ID,projectId:input.projectId,name:input.name,pathname:input.pathname,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};}
+  async createPage(input:Parameters<VersioningRepository['createPage']>[0]):Promise<PageRecord>{return{id:PAGE_ID,projectId:input.projectId,name:input.name,pathname:input.pathname,createdBy:input.userId,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};}
   async listPages():Promise<PageRecord[]>{return[];}
-  async createDraft(input:Parameters<VersioningRepository['createDraft']>[0]):Promise<DraftRecord>{return{id:DRAFT_ID,projectId:PROJECT_ID,pageId:input.pageId,baseReleaseId:input.baseReleaseId??null,publishedReleaseId:null,status:'open',revision:0,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};}
+  async createDraft(input:Parameters<VersioningRepository['createDraft']>[0]):Promise<DraftRecord>{return{id:DRAFT_ID,projectId:PROJECT_ID,pageId:input.pageId,baseReleaseId:input.baseReleaseId??null,publishedReleaseId:null,status:'open',revision:0,createdBy:input.userId,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};}
   async listDrafts():Promise<DraftRecord[]>{return[];}
   async getDraft():Promise<{draft:DraftRecord;operations:OperationV1[]}>{throw new Error('unused');}
   async appendOperations(input:Parameters<VersioningRepository['appendOperations']>[0]):Promise<AppendOperationsResult>{return{draftId:input.draftId,revision:input.expectedRevision+1,appended:input.operations.length};}
@@ -43,6 +48,7 @@ class ApiRepository implements VersioningRepository {
 class MemoryAuthRepository implements AuthRepository {
   user:UserRecord|null=null; login=new Map<string,{userId:string;expiresAt:Date;used:boolean}>(); sessions=new Map<string,{id:string;userId:string;expiresAt:Date;revoked:boolean}>();
   async findOrCreateUser(input:{id:string;email:string}){return this.user??=( {id:USER_ID,email:input.email,createdAt:new Date().toISOString()} );}
+  async findUserByEmail(email:string){return this.user?.email===email?this.user:null;}
   async createLoginToken(input:Parameters<AuthRepository['createLoginToken']>[0]){this.login.set(input.tokenHash,{userId:input.userId,expiresAt:input.expiresAt,used:false});}
   async consumeLoginToken(input:Parameters<AuthRepository['consumeLoginToken']>[0]){const item=this.login.get(input.tokenHash);if(!item||item.used||item.expiresAt<=input.now)return null;item.used=true;return this.user;}
   async createSession(input:Parameters<AuthRepository['createSession']>[0]){this.sessions.set(input.tokenHash,{id:input.id,userId:input.userId,expiresAt:input.expiresAt,revoked:false});}
@@ -68,7 +74,18 @@ class ApiAccessRepository implements AccessRepository {
   async authorizeEditorDraft():Promise<string|null>{return null;}
 }
 
-function setup(){const versioningRepository=new ApiRepository();const authRepository=new MemoryAuthRepository();const sender=new CapturingSender();const app=buildApp({logger:false,appOrigin:'http://localhost:3000',ownerEmail:'owner@example.com',versioningRepository,authRepository,accessRepository:new ApiAccessRepository(),magicLinkSender:sender});return{app,versioningRepository,sender};}
+class ApiMembershipRepository implements MembershipRepository {
+  async listProjectAccess():ReturnType<MembershipRepository['listProjectAccess']>{return{actorRole:'owner',members:[],invitations:[]};}
+  async createInvitation():Promise<{invitation:ProjectInvitationRecord;projectName:string}>{throw new Error('unused');}
+  async resendInvitation():Promise<{invitation:ProjectInvitationRecord;projectName:string}>{throw new Error('unused');}
+  async revokeInvitation():Promise<boolean>{return false;}
+  async acceptInvitation():ReturnType<MembershipRepository['acceptInvitation']>{return null;}
+  async updateMemberRole():Promise<ProjectMemberRecord>{throw new Error('unused');}
+  async revokeMember():Promise<boolean>{return false;}
+  async transferOwnership():ReturnType<MembershipRepository['transferOwnership']>{throw new Error('unused');}
+}
+
+function setup(){const versioningRepository=new ApiRepository();const authRepository=new MemoryAuthRepository();const sender=new CapturingSender();const app=buildApp({logger:false,appOrigin:'http://localhost:3000',ownerEmail:'owner@example.com',versioningRepository,authRepository,accessRepository:new ApiAccessRepository(),membershipRepository:new ApiMembershipRepository(),magicLinkSender:sender});return{app,versioningRepository,sender};}
 async function login(app:ReturnType<typeof buildApp>,sender:CapturingSender):Promise<string>{const requested=await app.inject({method:'POST',url:'/api/auth/magic-link',payload:{email:'owner@example.com'}});assert.equal(requested.statusCode,202);const token=new URL(sender.url).searchParams.get('token');assert.ok(token);const verified=await app.inject({method:'GET',url:`/api/auth/verify?token=${token}`});assert.equal(verified.statusCode,302);const cookie=verified.headers['set-cookie'];assert.equal(typeof cookie,'string');return(cookie as string).split(';')[0];}
 
 test('admin endpoints fail closed without a session cookie',async()=>{const{app,versioningRepository}=setup();try{const response=await app.inject({method:'POST',url:'/api/admin/projects',payload:{name:'Site',origins:['https://example.com']}});assert.equal(response.statusCode,401);assert.equal(versioningRepository.createProjectCalls,0);}finally{await app.close();}});

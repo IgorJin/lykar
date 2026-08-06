@@ -25,6 +25,14 @@ export class PostgresAuthRepository implements AuthRepository {
     return mapUser(result.rows[0]);
   }
 
+  async findUserByEmail(email: string): Promise<UserRecord | null> {
+    const result = await this.pool.query<UserRow>(
+      'SELECT id, email, created_at FROM users WHERE email = $1',
+      [email],
+    );
+    return result.rows[0] ? mapUser(result.rows[0]) : null;
+  }
+
   async createLoginToken(input: Parameters<AuthRepository['createLoginToken']>[0]): Promise<void> {
     await this.pool.query(
       `INSERT INTO login_tokens (id, user_id, token_hash, expires_at)

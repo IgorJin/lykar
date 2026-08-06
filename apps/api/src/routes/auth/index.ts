@@ -43,7 +43,7 @@ export function readCookie(header: string | undefined, name: string): string | u
   return undefined;
 }
 
-function sessionCookie(token: string, maxAge: number, secure: boolean): string {
+export function sessionCookie(token: string, maxAge: number, secure: boolean): string {
   return [
     `${SESSION_COOKIE}=${encodeURIComponent(token)}`,
     'Path=/',

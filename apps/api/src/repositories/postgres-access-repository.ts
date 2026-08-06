@@ -1,5 +1,6 @@
 import type { Pool, PoolClient } from 'pg';
 
+import { rolesWithPermission } from '../domain/memberships';
 import { ForbiddenError, NotFoundError } from '../domain/versioning';
 import type {
   AccessPage,
@@ -94,6 +95,7 @@ export class PostgresAccessRepository implements AccessRepository {
        FROM pages pg
        JOIN projects p ON p.id = pg.project_id
        JOIN project_memberships m ON m.project_id = p.id AND m.user_id = $2 AND m.revoked_at IS NULL
+         AND m.role = ANY($4::text[])
        JOIN drafts d ON d.id = $3 AND d.page_id = pg.id AND d.status = 'open'
        JOIN LATERAL (
          SELECT po.origin FROM project_origins po
@@ -102,7 +104,7 @@ export class PostgresAccessRepository implements AccessRepository {
          LIMIT 1
        ) origin ON TRUE
        WHERE pg.id = $1`,
-      [pageId, userId, draftId],
+      [pageId, userId, draftId, rolesWithPermission('edit')],
     );
     const page = result.rows[0];
     if (!page) throw new ForbiddenError();
@@ -125,7 +127,7 @@ export class PostgresAccessRepository implements AccessRepository {
     }>(
       `UPDATE editor_launch_codes c
        SET consumed_at = $3
-       FROM pages pg, projects p, project_origins po, drafts d
+       FROM pages pg, projects p, project_origins po, drafts d, project_memberships m
        WHERE c.token_hash = $1
          AND c.consumed_at IS NULL
          AND c.expires_at > $3
@@ -133,10 +135,12 @@ export class PostgresAccessRepository implements AccessRepository {
          AND p.id = c.project_id
          AND po.project_id = p.id
          AND d.id = c.draft_id AND d.page_id = pg.id AND d.status = 'open'
+         AND m.project_id = c.project_id AND m.user_id = c.user_id
+         AND m.revoked_at IS NULL AND m.role = ANY($4::text[])
          AND po.origin || pg.pathname = $2
        RETURNING p.id AS project_id, pg.id AS page_id, p.public_key, pg.pathname,
                  po.origin, c.user_id, c.expires_at, d.id AS draft_id, d.revision`,
-      [input.tokenHash, input.pageUrl, input.now],
+      [input.tokenHash, input.pageUrl, input.now, rolesWithPermission('edit')],
     );
     const row = result.rows[0];
     return row ? {
@@ -162,13 +166,16 @@ export class PostgresAccessRepository implements AccessRepository {
        SELECT $1, pg.id, r.id, $2, $5, $6
        FROM pages pg
        JOIN project_memberships m ON m.project_id = pg.project_id
-         AND m.user_id = $2 AND m.revoked_at IS NULL
+         AND m.user_id = $2 AND m.revoked_at IS NULL AND m.role = ANY($7::text[])
        JOIN releases r ON r.id = $4 AND r.page_id = pg.id
        WHERE pg.id = $3
        RETURNING id, page_id, release_id,
                  (SELECT version FROM releases WHERE id = release_id) AS version,
                  expires_at, revoked_at, created_at`,
-      [input.id, input.userId, input.pageId, input.releaseId, input.tokenHash, input.expiresAt],
+      [
+        input.id, input.userId, input.pageId, input.releaseId, input.tokenHash, input.expiresAt,
+        rolesWithPermission('publish'),
+      ],
     );
     if (!result.rows[0]) throw new NotFoundError('Release was not found on this page');
     return mapShare(result.rows[0]);
@@ -180,11 +187,11 @@ export class PostgresAccessRepository implements AccessRepository {
        FROM share_links s
        JOIN pages pg ON pg.id = s.page_id
        JOIN project_memberships m ON m.project_id = pg.project_id
-         AND m.user_id = $2 AND m.revoked_at IS NULL
+         AND m.user_id = $2 AND m.revoked_at IS NULL AND m.role = ANY($3::text[])
        JOIN releases r ON r.id = s.release_id
        WHERE s.page_id = $1
        ORDER BY s.created_at DESC`,
-      [pageId, userId],
+      [pageId, userId, rolesWithPermission('view')],
     );
     return result.rows.map(mapShare);
   }
@@ -195,8 +202,9 @@ export class PostgresAccessRepository implements AccessRepository {
        FROM pages pg, project_memberships m
        WHERE s.id = $1 AND s.revoked_at IS NULL
          AND pg.id = s.page_id
-         AND m.project_id = pg.project_id AND m.user_id = $2 AND m.revoked_at IS NULL`,
-      [shareLinkId, userId],
+         AND m.project_id = pg.project_id AND m.user_id = $2 AND m.revoked_at IS NULL
+         AND m.role = ANY($3::text[])`,
+      [shareLinkId, userId, rolesWithPermission('publish')],
     );
     return (result.rowCount ?? 0) > 0;
   }
@@ -260,9 +268,11 @@ export class PostgresAccessRepository implements AccessRepository {
        FROM editor_sessions es
        JOIN projects p ON p.id = es.project_id
        JOIN pages pg ON pg.id = es.page_id
+       JOIN project_memberships m ON m.project_id = es.project_id AND m.user_id = es.user_id
+         AND m.revoked_at IS NULL AND m.role = ANY($5::text[])
        WHERE es.token_hash = $1 AND es.revoked_at IS NULL AND es.expires_at > $4
          AND p.public_key = $2 AND pg.pathname = $3`,
-      [input.tokenHash, input.publicKey, input.pathname, input.now],
+      [input.tokenHash, input.publicKey, input.pathname, input.now, rolesWithPermission('edit')],
     );
     if ((editor.rowCount ?? 0) > 0) return 'editor';
 
@@ -288,9 +298,11 @@ export class PostgresAccessRepository implements AccessRepository {
       `SELECT es.user_id
        FROM editor_sessions es
        JOIN drafts d ON d.id = es.draft_id AND d.page_id = es.page_id
+       JOIN project_memberships m ON m.project_id = es.project_id AND m.user_id = es.user_id
+         AND m.revoked_at IS NULL AND m.role = ANY($4::text[])
        WHERE es.token_hash = $1 AND es.revoked_at IS NULL AND es.expires_at > $3
          AND d.id = $2 AND d.status = 'open'`,
-      [input.tokenHash, input.draftId, input.now],
+      [input.tokenHash, input.draftId, input.now, rolesWithPermission('edit')],
     );
     return result.rows[0]?.user_id ?? null;
   }

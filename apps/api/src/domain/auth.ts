@@ -12,6 +12,7 @@ export type IssuedSession = AuthenticatedSession & { token: string };
 
 export interface AuthRepository {
   findOrCreateUser(input: { id: string; email: string }): Promise<UserRecord>;
+  findUserByEmail(email: string): Promise<UserRecord | null>;
   createLoginToken(input: {
     id: string;
     userId: string;
@@ -61,9 +62,10 @@ export class AuthService {
   async requestMagicLink(emailValue: unknown): Promise<void> {
     const email = normalizeEmail(emailValue);
     // The response remains identical for unknown addresses to avoid account discovery.
-    if (email !== this.ownerEmail) return;
-
-    const user = await this.repository.findOrCreateUser({ id: randomUUID(), email });
+    const user = email === this.ownerEmail
+      ? await this.repository.findOrCreateUser({ id: randomUUID(), email })
+      : await this.repository.findUserByEmail(email);
+    if (!user) return;
     const token = issueOpaqueToken();
     const expiresAt = new Date(this.now().getTime() + this.options.loginTtlMs);
     await this.repository.createLoginToken({
@@ -83,6 +85,10 @@ export class AuthService {
     const user = await this.repository.consumeLoginToken({ tokenHash: hashToken(token), now });
     if (!user) throw new UnauthorizedError('Magic link is invalid, expired, or already used');
 
+    return this.createSessionForUser(user, now);
+  }
+
+  async createSessionForUser(user: UserRecord, now = this.now()): Promise<IssuedSession> {
     const sessionToken = issueOpaqueToken();
     const expiresAt = new Date(now.getTime() + this.options.sessionTtlMs);
     const id = randomUUID();
@@ -126,7 +132,7 @@ function requireToken(value: unknown, label: string): string {
   return value;
 }
 
-function normalizeEmail(value: unknown): string {
+export function normalizeEmail(value: unknown): string {
   if (typeof value !== 'string' || !EMAIL_PATTERN.test(value.trim()) || value.trim().length > 254) {
     throw new ValidationError('email is invalid');
   }

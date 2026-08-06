@@ -31,6 +31,7 @@ class CapturingRepository implements VersioningRepository {
       name: input.name,
       publicKey: input.publicKey,
       origins: input.origins.map(item => item.origin),
+      createdBy: input.ownerUserId,
       createdAt: '2026-01-01T00:00:00.000Z',
     };
   }
@@ -45,6 +46,7 @@ class CapturingRepository implements VersioningRepository {
       projectId: input.projectId,
       name: input.name,
       pathname: input.pathname,
+      createdBy: input.userId,
       createdAt: '2026-01-01T00:00:00.000Z',
       updatedAt: '2026-01-01T00:00:00.000Z',
     };
@@ -61,6 +63,7 @@ class CapturingRepository implements VersioningRepository {
       publishedReleaseId: null,
       status: 'open',
       revision: 0,
+      createdBy: input.userId,
       createdAt: '2026-01-01T00:00:00.000Z',
       updatedAt: '2026-01-01T00:00:00.000Z',
     };

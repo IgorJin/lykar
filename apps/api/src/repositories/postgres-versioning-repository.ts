@@ -4,6 +4,7 @@ import { parseOperationV1 } from '@lykar/protocol';
 import type { OperationV1 } from '@lykar/protocol';
 import type { Pool, PoolClient } from 'pg';
 
+import { rolesWithPermission, type ProjectPermission } from '../domain/memberships';
 import {
   ConflictError,
   DEFAULT_ENVIRONMENT,
@@ -30,6 +31,7 @@ type DraftRow = {
   published_release_id: string | null;
   status: DraftRecord['status'];
   revision: string | number;
+  created_by: string | null;
   created_at: Date | string;
   updated_at: Date | string;
 };
@@ -42,6 +44,7 @@ type ReleaseRow = {
   manifest?: unknown;
   manifest_hash: string;
   operation_count?: number;
+  published_by: string | null;
   created_at: Date | string;
 };
 type PageRow = {
@@ -49,6 +52,7 @@ type PageRow = {
   project_id: string;
   name: string;
   pathname: string;
+  created_by: string | null;
   created_at: Date | string;
   updated_at: Date | string;
 };
@@ -63,6 +67,7 @@ function mapPage(row: PageRow): PageRecord {
     projectId: row.project_id,
     name: row.name,
     pathname: row.pathname,
+    createdBy: row.created_by,
     createdAt: toIso(row.created_at),
     updatedAt: toIso(row.updated_at),
   };
@@ -77,6 +82,7 @@ function mapDraft(row: DraftRow): DraftRecord {
     publishedReleaseId: row.published_release_id,
     status: row.status,
     revision: Number(row.revision),
+    createdBy: row.created_by,
     createdAt: toIso(row.created_at),
     updatedAt: toIso(row.updated_at),
   };
@@ -91,6 +97,7 @@ function mapRelease(row: ReleaseRow): ReleaseRecord {
     baseReleaseId: row.base_release_id,
     manifestHash: row.manifest_hash.trim(),
     operationCount: Number(row.operation_count ?? (Array.isArray(row.manifest) ? row.manifest.length : 0)),
+    publishedBy: row.published_by,
     createdAt: toIso(row.created_at),
   };
 }
@@ -99,38 +106,57 @@ function isUniqueViolation(error: unknown): boolean {
   return typeof error === 'object' && error !== null && 'code' in error && error.code === '23505';
 }
 
-async function requireProjectAccess(database: Queryable, userId: string, projectId: string): Promise<void> {
+async function requireProjectAccess(
+  database: Queryable,
+  userId: string,
+  projectId: string,
+  permission: ProjectPermission = 'view',
+): Promise<void> {
   const result = await database.query(
     `SELECT p.id
      FROM projects p
      JOIN project_memberships m ON m.project_id = p.id
-     WHERE p.id = $1 AND m.user_id = $2 AND m.revoked_at IS NULL`,
-    [projectId, userId],
+     WHERE p.id = $1 AND m.user_id = $2 AND m.revoked_at IS NULL
+       AND m.role = ANY($3::text[])`,
+    [projectId, userId, rolesWithPermission(permission)],
   );
   if (result.rowCount === 0) throw new ForbiddenError();
 }
 
-async function requirePageAccess(database: Queryable, userId: string, pageId: string): Promise<PageRow> {
+async function requirePageAccess(
+  database: Queryable,
+  userId: string,
+  pageId: string,
+  permission: ProjectPermission = 'view',
+): Promise<PageRow> {
   const result = await database.query<PageRow>(
     `SELECT pg.*
      FROM pages pg
      JOIN project_memberships m ON m.project_id = pg.project_id
-     WHERE pg.id = $1 AND m.user_id = $2 AND m.revoked_at IS NULL`,
-    [pageId, userId],
+     WHERE pg.id = $1 AND m.user_id = $2 AND m.revoked_at IS NULL
+       AND m.role = ANY($3::text[])`,
+    [pageId, userId, rolesWithPermission(permission)],
   );
   const page = result.rows[0];
   if (!page) throw new ForbiddenError();
   return page;
 }
 
-async function requireDraftAccess(database: Queryable, userId: string, draftId: string, lock = false): Promise<DraftRow> {
+async function requireDraftAccess(
+  database: Queryable,
+  userId: string,
+  draftId: string,
+  permission: ProjectPermission = 'view',
+  lock = false,
+): Promise<DraftRow> {
   const result = await database.query<DraftRow>(
     `SELECT d.*
      FROM drafts d
      JOIN project_memberships m ON m.project_id = d.project_id
      WHERE d.id = $1 AND m.user_id = $2 AND m.revoked_at IS NULL
+       AND m.role = ANY($3::text[])
      ${lock ? 'FOR UPDATE OF d' : ''}`,
-    [draftId, userId],
+    [draftId, userId, rolesWithPermission(permission)],
   );
   const draft = result.rows[0];
   if (!draft) throw new ForbiddenError();
@@ -159,12 +185,12 @@ export class PostgresVersioningRepository implements VersioningRepository {
     try {
       return await this.transaction(async client => {
         const projectResult = await client.query<{
-          id: string; name: string; public_key: string; created_at: Date | string;
+          id: string; name: string; public_key: string; created_by: string | null; created_at: Date | string;
         }>(
-          `INSERT INTO projects (id, name, public_key)
-           VALUES ($1, $2, $3)
-           RETURNING id, name, public_key, created_at`,
-          [input.id, input.name, input.publicKey],
+          `INSERT INTO projects (id, name, public_key, created_by)
+           VALUES ($1, $2, $3, $4)
+           RETURNING id, name, public_key, created_by, created_at`,
+          [input.id, input.name, input.publicKey, input.ownerUserId],
         );
         for (const origin of input.origins) {
           await client.query(
@@ -178,9 +204,9 @@ export class PostgresVersioningRepository implements VersioningRepository {
           [randomUUID(), input.id, input.ownerUserId],
         );
         await client.query(
-          `INSERT INTO pages (id, project_id, name, pathname)
-           VALUES ($1, $2, $3, $4)`,
-          [input.rootPage.id, input.id, input.rootPage.name, input.rootPage.pathname],
+          `INSERT INTO pages (id, project_id, name, pathname, created_by)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [input.rootPage.id, input.id, input.rootPage.name, input.rootPage.pathname, input.ownerUserId],
         );
         await client.query(
           `INSERT INTO environments (id, project_id, page_id, name)
@@ -193,6 +219,7 @@ export class PostgresVersioningRepository implements VersioningRepository {
           name: project.name,
           publicKey: project.public_key,
           origins: input.origins.map(item => item.origin),
+          createdBy: project.created_by,
           createdAt: toIso(project.created_at),
         };
       });
@@ -204,9 +231,9 @@ export class PostgresVersioningRepository implements VersioningRepository {
 
   async listProjects(userId: string): Promise<ProjectRecord[]> {
     const result = await this.pool.query<{
-      id: string; name: string; public_key: string; origins: string[]; created_at: Date | string;
+      id: string; name: string; public_key: string; origins: string[]; created_by: string | null; created_at: Date | string;
     }>(
-      `SELECT p.id, p.name, p.public_key, p.created_at,
+      `SELECT p.id, p.name, p.public_key, p.created_by, p.created_at,
               COALESCE(json_agg(po.origin ORDER BY po.origin) FILTER (WHERE po.id IS NOT NULL), '[]'::json) AS origins
        FROM projects p
        JOIN project_memberships m ON m.project_id = p.id AND m.user_id = $1 AND m.revoked_at IS NULL
@@ -220,6 +247,7 @@ export class PostgresVersioningRepository implements VersioningRepository {
       name: row.name,
       publicKey: row.public_key,
       origins: row.origins,
+      createdBy: row.created_by,
       createdAt: toIso(row.created_at),
     }));
   }
@@ -227,12 +255,12 @@ export class PostgresVersioningRepository implements VersioningRepository {
   async createPage(input: Parameters<VersioningRepository['createPage']>[0]): Promise<PageRecord> {
     try {
       return await this.transaction(async client => {
-        await requireProjectAccess(client, input.userId, input.projectId);
+        await requireProjectAccess(client, input.userId, input.projectId, 'publish');
         const result = await client.query<PageRow>(
-          `INSERT INTO pages (id, project_id, name, pathname)
-           VALUES ($1, $2, $3, $4)
+          `INSERT INTO pages (id, project_id, name, pathname, created_by)
+           VALUES ($1, $2, $3, $4, $5)
            RETURNING *`,
-          [input.id, input.projectId, input.name, input.pathname],
+          [input.id, input.projectId, input.name, input.pathname, input.userId],
         );
         await client.query(
           `INSERT INTO environments (id, project_id, page_id, name)
@@ -258,7 +286,7 @@ export class PostgresVersioningRepository implements VersioningRepository {
 
   async createDraft(input: Parameters<VersioningRepository['createDraft']>[0]): Promise<DraftRecord> {
     return this.transaction(async client => {
-      const page = await requirePageAccess(client, input.userId, input.pageId);
+      const page = await requirePageAccess(client, input.userId, input.pageId, 'edit');
       let baseReleaseId = input.baseReleaseId ?? null;
       if (baseReleaseId) {
         const release = await client.query('SELECT id FROM releases WHERE id = $1 AND page_id = $2', [baseReleaseId, page.id]);
@@ -271,10 +299,10 @@ export class PostgresVersioningRepository implements VersioningRepository {
         baseReleaseId = environment.rows[0]?.active_release_id ?? null;
       }
       const result = await client.query<DraftRow>(
-        `INSERT INTO drafts (id, project_id, page_id, base_release_id)
-         VALUES ($1, $2, $3, $4)
+        `INSERT INTO drafts (id, project_id, page_id, base_release_id, created_by)
+         VALUES ($1, $2, $3, $4, $5)
          RETURNING *`,
-        [input.id, page.project_id, page.id, baseReleaseId],
+        [input.id, page.project_id, page.id, baseReleaseId, input.userId],
       );
       return mapDraft(result.rows[0]);
     });
@@ -304,7 +332,7 @@ export class PostgresVersioningRepository implements VersioningRepository {
   async appendOperations(input: Parameters<VersioningRepository['appendOperations']>[0]): Promise<AppendOperationsResult> {
     try {
       return await this.transaction(async client => {
-        const draft = await requireDraftAccess(client, input.userId, input.draftId, true);
+        const draft = await requireDraftAccess(client, input.userId, input.draftId, 'edit', true);
         if (draft.status !== 'open') throw new ConflictError('Only an open draft can accept operations');
         const currentRevision = Number(draft.revision);
         if (currentRevision !== input.expectedRevision) {
@@ -321,9 +349,12 @@ export class PostgresVersioningRepository implements VersioningRepository {
         const nextRevision = currentRevision + 1;
         for (const [index, operation] of input.operations.entries()) {
           await client.query(
-            `INSERT INTO operations (id, operation_id, draft_id, ordinal, draft_revision, data)
-             VALUES ($1, $2, $3, $4, $5, $6::jsonb)`,
-            [randomUUID(), operation.id, input.draftId, firstOrdinal + index, nextRevision, JSON.stringify(operation)],
+            `INSERT INTO operations (id, operation_id, draft_id, ordinal, draft_revision, data, created_by)
+             VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7)`,
+            [
+              randomUUID(), operation.id, input.draftId, firstOrdinal + index, nextRevision,
+              JSON.stringify(operation), input.userId,
+            ],
           );
         }
         await client.query('UPDATE drafts SET revision = $2, updated_at = NOW() WHERE id = $1', [input.draftId, nextRevision]);
@@ -337,7 +368,7 @@ export class PostgresVersioningRepository implements VersioningRepository {
 
   async publishDraft(input: Parameters<VersioningRepository['publishDraft']>[0]): Promise<PublishResult> {
     return this.transaction(async client => {
-      const draft = await requireDraftAccess(client, input.userId, input.draftId, true);
+      const draft = await requireDraftAccess(client, input.userId, input.draftId, 'publish', true);
       if (draft.status !== 'open') throw new ConflictError('Only an open draft can be published');
       const currentRevision = Number(draft.revision);
       if (currentRevision !== input.expectedRevision) {
@@ -383,10 +414,14 @@ export class PostgresVersioningRepository implements VersioningRepository {
         operations: manifest,
       })).digest('hex');
       const releaseResult = await client.query<ReleaseRow>(
-        `INSERT INTO releases (id, project_id, page_id, version, base_release_id, manifest, manifest_hash)
-         VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7)
+        `INSERT INTO releases
+          (id, project_id, page_id, version, base_release_id, manifest, manifest_hash, published_by)
+         VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7, $8)
          RETURNING *, jsonb_array_length(manifest) AS operation_count`,
-        [input.releaseId, draft.project_id, draft.page_id, version, draft.base_release_id, JSON.stringify(manifest), manifestHash],
+        [
+          input.releaseId, draft.project_id, draft.page_id, version, draft.base_release_id,
+          JSON.stringify(manifest), manifestHash, input.userId,
+        ],
       );
 
       const previousEnvironment = await client.query<{ id: string; active_release_id: string | null }>(
@@ -404,9 +439,12 @@ export class PostgresVersioningRepository implements VersioningRepository {
       );
       await client.query(
         `INSERT INTO release_activations
-          (id, project_id, page_id, environment_id, previous_release_id, release_id, reason)
-         VALUES ($1, $2, $3, $4, $5, $6, 'publish')`,
-        [input.activationId, draft.project_id, draft.page_id, environmentResult.rows[0].id, previousReleaseId, input.releaseId],
+          (id, project_id, page_id, environment_id, previous_release_id, release_id, reason, created_by)
+         VALUES ($1, $2, $3, $4, $5, $6, 'publish', $7)`,
+        [
+          input.activationId, draft.project_id, draft.page_id, environmentResult.rows[0].id,
+          previousReleaseId, input.releaseId, input.userId,
+        ],
       );
       const publishedDraftResult = await client.query<DraftRow>(
         `UPDATE drafts SET status = 'published', published_release_id = $2, updated_at = NOW()
@@ -423,7 +461,7 @@ export class PostgresVersioningRepository implements VersioningRepository {
 
   async activateRelease(input: Parameters<VersioningRepository['activateRelease']>[0]): Promise<ActivationResult> {
     return this.transaction(async client => {
-      const page = await requirePageAccess(client, input.userId, input.pageId);
+      const page = await requirePageAccess(client, input.userId, input.pageId, 'publish');
       const release = await client.query('SELECT id FROM releases WHERE id = $1 AND page_id = $2', [input.releaseId, page.id]);
       if (release.rowCount === 0) throw new NotFoundError('Release was not found on this page');
       const previousEnvironment = await client.query<{ id: string; active_release_id: string | null }>(
@@ -441,9 +479,12 @@ export class PostgresVersioningRepository implements VersioningRepository {
       );
       await client.query(
         `INSERT INTO release_activations
-          (id, project_id, page_id, environment_id, previous_release_id, release_id, reason)
-         VALUES ($1, $2, $3, $4, $5, $6, 'rollback')`,
-        [input.activationId, page.project_id, page.id, environmentResult.rows[0].id, previousReleaseId, input.releaseId],
+          (id, project_id, page_id, environment_id, previous_release_id, release_id, reason, created_by)
+         VALUES ($1, $2, $3, $4, $5, $6, 'rollback', $7)`,
+        [
+          input.activationId, page.project_id, page.id, environmentResult.rows[0].id,
+          previousReleaseId, input.releaseId, input.userId,
+        ],
       );
       return {
         projectId: page.project_id,
@@ -451,6 +492,7 @@ export class PostgresVersioningRepository implements VersioningRepository {
         environment: input.environment,
         previousReleaseId,
         releaseId: input.releaseId,
+        activatedBy: input.userId,
       };
     });
   }
@@ -458,7 +500,7 @@ export class PostgresVersioningRepository implements VersioningRepository {
   async listReleases(userId: string, pageId: string): Promise<ReleaseRecord[]> {
     await requirePageAccess(this.pool, userId, pageId);
     const result = await this.pool.query<ReleaseRow>(
-      `SELECT id, project_id, page_id, version, base_release_id, manifest_hash, created_at,
+      `SELECT id, project_id, page_id, version, base_release_id, manifest_hash, published_by, created_at,
               jsonb_array_length(manifest) AS operation_count
        FROM releases WHERE page_id = $1 ORDER BY version DESC`,
       [pageId],

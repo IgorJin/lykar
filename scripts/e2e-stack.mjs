@@ -24,7 +24,13 @@ const postgresDirectory = join(temporaryDirectory, 'postgres');
 const postgresLog = join(temporaryDirectory, 'postgres.log');
 const children = [];
 let ownsPostgres = false;
+let postgresStopped = false;
 let cleaning = false;
+
+process.on('SIGINT', () => void shutdown(0));
+process.on('SIGTERM', () => void shutdown(0));
+process.on('SIGHUP', () => void shutdown(0));
+process.on('exit', stopManagedPostgres);
 
 try {
   await mkdir(temporaryDirectory, { recursive: true });
@@ -32,6 +38,9 @@ try {
   run('npm', ['run', 'build', '--workspace', '@lykar/admin']);
   run('npm', ['run', 'build', '--workspace', '@lykar/editor-bridge']);
   run('npm', ['run', 'db:migrate'], { DATABASE_URL: databaseUrl });
+  if (smokeMode) {
+    run('npm', ['test', '--workspace', 'lykar-lib-server'], { LYKAR_TEST_DATABASE_URL: databaseUrl });
+  }
   run('node', ['apps/playground/scripts/seed.mjs'], {
     DATABASE_URL: databaseUrl,
     LYKAR_PLAYGROUND_ORIGIN: playgroundBaseUrl,
@@ -75,8 +84,6 @@ Request a magic link in Admin; it will appear in this terminal.
 Press Ctrl+C to stop API, playground, and the managed PostgreSQL process.
 `);
 
-  process.on('SIGINT', () => void shutdown(0));
-  process.on('SIGTERM', () => void shutdown(0));
   await new Promise((resolve, reject) => {
     for (const child of children) {
       child.once('exit', code => reject(new Error(`A stack process exited unexpectedly with code ${code}`)));
@@ -191,8 +198,12 @@ async function cleanup() {
     if (child.exitCode === null && child.signalCode === null) child.kill('SIGTERM');
   }
   await new Promise(resolve => setTimeout(resolve, 200));
-  if (ownsPostgres) {
-    spawnSync('pg_ctl', ['-D', postgresDirectory, 'stop', '-m', 'fast'], { stdio: 'inherit' });
-  }
+  stopManagedPostgres();
   if (smokeMode) await rm(temporaryDirectory, { recursive: true, force: true });
+}
+
+function stopManagedPostgres() {
+  if (!ownsPostgres || postgresStopped || !existsSync(join(postgresDirectory, 'PG_VERSION'))) return;
+  postgresStopped = true;
+  spawnSync('pg_ctl', ['-D', postgresDirectory, 'stop', '-m', 'fast'], { stdio: 'inherit' });
 }

@@ -1,7 +1,7 @@
 # Lykar API
 
-Fastify/PostgreSQL API for page-scoped drafts, immutable releases, editor
-capabilities, and protected share previews.
+Fastify/PostgreSQL API for project memberships, page-scoped drafts, immutable
+releases, editor capabilities, and protected share previews.
 
 ## Local setup
 
@@ -16,7 +16,8 @@ npm run dev:api
 
 Open `http://localhost:3000/admin/`. Authentication is passwordless. In local
 development the magic link is printed in the API terminal; production email is
-connected through the `MagicLinkSender` adapter.
+connected through the `MagicLinkSender` adapter. Project invitation delivery
+uses the separate `InvitationSender` adapter and is also printed locally.
 
 Admin and API share one origin. The admin session is an HttpOnly, SameSite
 cookie. A one-time page-bound code is used when the admin opens an editor on a
@@ -26,6 +27,13 @@ different site origin; the admin cookie is never copied to that site.
 
 - `POST /api/auth/magic-link`, `GET /api/auth/verify`, `GET /api/auth/session`
 - `POST/GET /api/admin/projects`
+- `GET /api/admin/projects/:projectId/members`
+- `POST /api/admin/projects/:projectId/invitations`
+- `POST /api/admin/invitations/:invitationId/resend`
+- `DELETE /api/admin/invitations/:invitationId`
+- `PATCH/DELETE /api/admin/projects/:projectId/members/:membershipId`
+- `POST /api/admin/projects/:projectId/transfer-ownership`
+- `GET /api/invitations/accept`
 - `POST/GET /api/admin/projects/:projectId/pages`
 - `POST/GET /api/admin/pages/:pageId/drafts`
 - `GET /api/admin/drafts/:draftId`
@@ -42,6 +50,13 @@ different site origin; the admin cookie is never copied to that site.
 Release versions, drafts, environments, and rollback pointers belong to a
 single page. Appending operations and publishing require `expectedRevision`;
 stale writes return `409 CONFLICT`.
+
+Membership belongs to a project. `Owner` and `Admin` can publish, roll back,
+share, and manage members; `Editor` can edit drafts; `Viewer` has read-only
+access. Each project has exactly one active Owner. Ownership transfer promotes
+the target and keeps the previous Owner as Admin. Demoting to Viewer or
+revoking membership immediately invalidates outstanding editor launch codes
+and sessions, while public share links remain independent.
 
 The active production release is public. Explicit `?version=N` requests require
 a page-scoped editor session or a share session pinned to that exact immutable

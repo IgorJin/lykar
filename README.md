@@ -47,7 +47,8 @@ admin, runtime, and playground. Open:
 - independent pricing fixture: <http://127.0.0.1:4173/pricing>
 
 Use `owner@lykar.local` on the login screen. The development magic link is
-printed in the same terminal. The managed database is kept in `.lykar/e2e`
+printed in the same terminal. Invitation links created from the **Участники**
+tab are printed there as well. The managed database is kept in `.lykar/e2e`
 between runs, while Ctrl+C stops all processes.
 
 The command expects the PostgreSQL command-line tools (`initdb`, `pg_ctl`,
@@ -60,9 +61,10 @@ Run the isolated end-to-end smoke test with:
 npm run test:e2e
 ```
 
-Smoke mode uses random ports and a temporary database cluster, exercises login
-state, editor capability exchange, draft persistence, publishing, direct
-version access, page isolation, and share access, then removes its database.
+Smoke mode uses random ports and a temporary database cluster, exercises login,
+project invitations, role boundaries, immediate capability revocation,
+ownership transfer, draft persistence, publishing, direct version access, page
+isolation, and share access, then removes its database.
 
 For focused work, run the standalone static playground with:
 

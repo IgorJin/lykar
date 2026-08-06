@@ -26,8 +26,16 @@ a second page. Migration 002 maps legacy project-level history to `/`.
 ## Authentication and sharing
 
 Magic links are one-use and stored only as token hashes. The admin session is
-an HttpOnly SameSite cookie. The schema supports `owner`, `editor`, and `viewer`
-roles, while the MVP enforces one active project member.
+an HttpOnly SameSite cookie. Membership is project-scoped and supports
+`owner`, `admin`, `editor`, and `viewer`. A database constraint permits exactly
+one active Owner while allowing multiple other members.
+
+Owner and Admin manage invitations and releases, Editor changes drafts, and
+Viewer is read-only. Invitation links are one-use, expire after seven days,
+and create both the user membership and an admin session. Resending revokes the
+previous link. Revoking membership or demoting a user to Viewer immediately
+invalidates that user's editor launch codes and sessions. Ownership transfer
+promotes the target and demotes the previous Owner to Admin.
 
 The active production release is public. An explicit historical version needs
 an editor session or a revocable share session. `/share/<opaque-token>` validates

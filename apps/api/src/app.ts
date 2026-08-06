@@ -3,14 +3,22 @@ import Fastify, { type FastifyInstance } from 'fastify';
 
 import { AccessService, type AccessRepository } from './domain/access';
 import { AuthService, ConsoleMagicLinkSender, type AuthRepository, type MagicLinkSender } from './domain/auth';
+import {
+  ConsoleInvitationSender,
+  MembershipService,
+  type InvitationSender,
+  type MembershipRepository,
+} from './domain/memberships';
 import { VersioningError, VersioningService, type VersioningRepository } from './domain/versioning';
 import dbPlugin from './plugins/db';
 import { PostgresAccessRepository } from './repositories/postgres-access-repository';
 import { PostgresAuthRepository } from './repositories/postgres-auth-repository';
+import { PostgresMembershipRepository } from './repositories/postgres-membership-repository';
 import { PostgresVersioningRepository } from './repositories/postgres-versioning-repository';
 import accessRoutes from './routes/access';
 import adminUiRoutes from './routes/admin-ui';
 import authRoutes from './routes/auth';
+import membershipRoutes from './routes/memberships';
 import versioningRoutes from './routes/versioning';
 
 export type BuildAppOptions = {
@@ -22,9 +30,11 @@ export type BuildAppOptions = {
   secureCookies?: boolean;
   development?: boolean;
   magicLinkSender?: MagicLinkSender;
+  invitationSender?: InvitationSender;
   versioningRepository?: VersioningRepository;
   authRepository?: AuthRepository;
   accessRepository?: AccessRepository;
+  membershipRepository?: MembershipRepository;
 };
 
 export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
@@ -40,6 +50,7 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
         editorSession: 30 * 24 * 60 * 60 * 1000,
         shareCode: 24 * 60 * 60 * 1000,
         shareSession: 7 * 24 * 60 * 60 * 1000,
+        invitation: 7 * 24 * 60 * 60 * 1000,
       }
     : {
         login: 15 * 60 * 1000,
@@ -48,6 +59,7 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
         editorSession: 2 * 60 * 60 * 1000,
         shareCode: 2 * 60 * 1000,
         shareSession: 60 * 60 * 1000,
+        invitation: 7 * 24 * 60 * 60 * 1000,
       };
 
   server.register(cors, {
@@ -95,13 +107,15 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
     let versioningRepository = options.versioningRepository;
     let authRepository = options.authRepository;
     let accessRepository = options.accessRepository;
+    let membershipRepository = options.membershipRepository;
 
-    if (!versioningRepository || !authRepository || !accessRepository) {
+    if (!versioningRepository || !authRepository || !accessRepository || !membershipRepository) {
       if (!options.connectionString) throw new Error('DATABASE_URL is required unless all repositories are provided');
       await scopedServer.register(dbPlugin, { connectionString: options.connectionString });
       versioningRepository ??= new PostgresVersioningRepository(scopedServer.pg.pool);
       authRepository ??= new PostgresAuthRepository(scopedServer.pg.pool);
       accessRepository ??= new PostgresAccessRepository(scopedServer.pg.pool);
+      membershipRepository ??= new PostgresMembershipRepository(scopedServer.pg.pool);
     }
 
     const authService = new AuthService(authRepository, {
@@ -118,11 +132,24 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
       shareCodeTtlMs: ttl.shareCode,
       shareSessionTtlMs: ttl.shareSession,
     });
+    const membershipService = new MembershipService(membershipRepository, {
+      appOrigin,
+      invitationTtlMs: ttl.invitation,
+      sender: options.invitationSender ?? new ConsoleInvitationSender(message => scopedServer.log.info(message)),
+    });
+    const secureCookies = options.secureCookies ?? appOrigin.startsWith('https://');
+    const sessionTtlSeconds = Math.floor(ttl.session / 1000);
 
     await scopedServer.register(authRoutes, {
       service: authService,
-      secureCookies: options.secureCookies ?? appOrigin.startsWith('https://'),
-      sessionTtlSeconds: Math.floor(ttl.session / 1000),
+      secureCookies,
+      sessionTtlSeconds,
+    });
+    await scopedServer.register(membershipRoutes, {
+      service: membershipService,
+      authService,
+      secureCookies,
+      sessionTtlSeconds,
     });
     await scopedServer.register(accessRoutes, { accessService, authService });
     await scopedServer.register(versioningRoutes, {
