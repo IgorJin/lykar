@@ -17,7 +17,7 @@
       <section class="hero compact">
         <div class="eyebrow">Отдельная страница · /pricing</div>
         <h1 data-lykar-id="pricing-title">Простой тариф для первого релиза</h1>
-        <p class="lead">Эта страница создаёт независимый локальный draft и не смешивает операции с главной.</p>
+        <p class="lead">Эта страница имеет независимые backend draft, releases и прямые version-ссылки.</p>
       </section>
 
       <section class="pricing" id="plans">
@@ -28,7 +28,8 @@
     </main>
 
     <footer>Northstar pricing · independent page fixture</footer>
-    <aside class="dev-console" data-lykar-editor-root="playground-console"><strong>Последний локальный draft</strong><pre id="draft-output">Pathname этой страницы: /pricing</pre><button id="restart-editor" type="button">Перезапустить редактор</button></aside>
+    <aside class="dev-console" data-lykar-editor-root="playground-console"><strong>Lykar E2E status</strong><pre id="draft-output">Подключаю runtime для /pricing…</pre><button id="restart-editor" type="button">Перезапустить редактор</button></aside>
+    <script src="/runtime.iife.js"></script>
     <script src="/editor.iife.js"></script>
     <script src="/playground.js"></script>
   </body>

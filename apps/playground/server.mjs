@@ -6,6 +6,8 @@ import { fileURLToPath } from 'node:url';
 const appDirectory = dirname(fileURLToPath(import.meta.url));
 const repositoryDirectory = join(appDirectory, '..', '..');
 const port = Number(process.env.LYKAR_PLAYGROUND_PORT ?? 4173);
+const apiBaseUrl = process.env.LYKAR_API_BASE_URL ?? 'http://127.0.0.1:3000';
+const projectKey = process.env.LYKAR_PLAYGROUND_PROJECT_KEY ?? 'pk_playground_local';
 
 const routes = new Map([
   ['/', { file: join(appDirectory, 'public', 'index.html'), type: 'text/html; charset=utf-8' }],
@@ -18,10 +20,27 @@ const routes = new Map([
     file: join(repositoryDirectory, 'packages', 'editor-bridge', 'dist', 'editor.iife.js'),
     type: 'text/javascript; charset=utf-8',
   }],
+  ['/runtime.iife.js', {
+    file: join(repositoryDirectory, 'packages', 'runtime', 'dist', 'runtime.iife.js'),
+    type: 'text/javascript; charset=utf-8',
+  }],
 ]);
 
 const server = createServer((request, response) => {
   const pathname = new URL(request.url ?? '/', 'http://localhost').pathname;
+  if (pathname === '/lykar-config.json') {
+    response.writeHead(200, {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Cache-Control': 'no-store',
+    });
+    response.end(JSON.stringify({
+      apiBaseUrl,
+      projectKey,
+      adminUrl: `${apiBaseUrl}/admin/`,
+      ownerEmail: process.env.LYKAR_OWNER_EMAIL ?? 'owner@lykar.local',
+    }));
+    return;
+  }
   const route = routes.get(pathname);
   if (!route) {
     response.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });

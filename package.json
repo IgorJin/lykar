@@ -15,7 +15,9 @@
     "dev:api": "npm run dev --workspace lykar-lib-server",
     "dev:admin": "npm run dev --workspace @lykar/admin",
     "dev:editor": "npm run dev --workspace lykar-lib",
-    "dev:playground": "npm run dev --workspace @lykar/playground"
+    "dev:playground": "npm run dev --workspace @lykar/playground",
+    "dev:e2e": "node scripts/e2e-stack.mjs",
+    "test:e2e": "node scripts/e2e-stack.mjs --smoke"
   },
   "engines": {
     "node": ">=20"

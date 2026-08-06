@@ -20,7 +20,7 @@
       <section class="hero">
         <div class="eyebrow">Интерактивный Lykar playground</div>
         <h1 data-lykar-id="hero-title">Редактируйте интерфейс, а не исходный код</h1>
-        <p class="lead" data-lykar-id="hero-copy">Выберите любой элемент. Изменения появятся на странице только после кнопки «Применить».</p>
+        <p class="lead" data-lykar-id="hero-copy">Изменения появляются сразу, а кнопка «Применить» сохраняет цепочку команд в backend draft.</p>
         <div class="hero-actions">
           <a class="button primary" href="#features" data-lykar-id="hero-primary">Посмотреть возможности</a>
           <a class="button ghost" href="/pricing">Открыть тарифы</a>
@@ -36,7 +36,7 @@
         <article class="card">
           <span class="card-number">02</span>
           <h2>Локальный batch</h2>
-          <p>Текст, inline styles, атрибуты и структура применяются одной осознанной командой.</p>
+          <p>Текст, inline styles, атрибуты и структура сохраняются в page-scoped draft.</p>
         </article>
         <article class="card">
           <span class="card-number">03</span>
@@ -53,7 +53,7 @@
         <ul>
           <li>Локальные undo и redo</li>
           <li>Отдельная история для каждого pathname</li>
-          <li>Без backend-запросов в этом MVP</li>
+          <li>Настоящие publish, rollback и share previews</li>
         </ul>
       </section>
     </main>
@@ -61,11 +61,12 @@
     <footer>Northstar demo · Lykar editor fixture</footer>
 
     <aside class="dev-console" data-lykar-editor-root="playground-console">
-      <strong>Последний локальный draft</strong>
-      <pre id="draft-output">Выберите элемент и примените изменение.</pre>
+      <strong>Lykar E2E status</strong>
+      <pre id="draft-output">Подключаю runtime…</pre>
       <button id="restart-editor" type="button">Перезапустить редактор</button>
     </aside>
 
+    <script src="/runtime.iife.js"></script>
     <script src="/editor.iife.js"></script>
     <script src="/playground.js"></script>
   </body>
