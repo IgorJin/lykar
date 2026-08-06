@@ -44,12 +44,17 @@ different site origin; the admin cookie is never copied to that site.
 - `POST/GET /api/admin/pages/:pageId/experiments`
 - `PATCH /api/admin/experiments/:experimentId/variants/:key`
 - `POST /api/admin/experiments/:experimentId/(activate|pause|complete)`
+- `POST /api/admin/experiments/:experimentId/links`
+- `DELETE /api/admin/experiment-links/:linkId`
 - `POST /api/admin/experiments/:experimentId/variants/:key/links`
 - `DELETE /api/admin/variant-links/:linkId`
+- `GET /api/admin/experiments/:experimentId/analytics`
 - `POST /api/admin/pages/:pageId/editor-launch`, `POST /api/editor/exchange`
 - `POST/GET /api/admin/pages/:pageId/shares`, `DELETE /api/admin/shares/:shareId`
 - `GET /share/:token`, `POST /api/share/exchange`
 - `GET /api/runtime/projects/:publicKey/manifest?pathname=/pricing`
+- `POST /api/runtime/projects/:publicKey/experiments/resolve`
+- `POST /api/runtime/analytics/events`
 
 Release versions, drafts, and experiments belong to a single page. Appending
 operations and freezing a release require `expectedRevision`; stale writes
@@ -67,3 +72,9 @@ Without `version` or `variantToken`, the runtime manifest endpoint returns 204
 and the host page stays native. Explicit `?version=N` requests require a
 page-scoped editor/share session. Public experiment tokens resolve only while
 their experiment is active; native variants return a typed null manifest.
+
+Weighted experiment entry links use `lykar_experiment`. The runtime keeps a
+random browser ID for 30 days, while PostgreSQL receives only its SHA-256 hash.
+Analytics ingestion stores no URL, page content, or IP address. Schedule
+`npm run analytics:prune --workspace lykar-lib-server` to enforce the default
+90-day raw-event retention policy.

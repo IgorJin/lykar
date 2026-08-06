@@ -4,6 +4,7 @@ import test from 'node:test';
 import type { OperationV1 } from '@lykar/protocol';
 
 import { buildApp } from './app';
+import type { AnalyticsRepository, ExperimentAnalyticsReport } from './domain/analytics';
 import { hashToken } from './domain/auth';
 import type { AuthRepository, AuthenticatedSession, MagicLinkSender, UserRecord } from './domain/auth';
 import type { AccessRepository, EditorLaunchTarget, EditorSessionGrant, ShareRecord, ShareTarget } from './domain/access';
@@ -50,9 +51,17 @@ class ApiExperimentRepository implements ExperimentRepository {
   async listExperiments():Promise<ExperimentRecord[]>{return[];}
   async updateVariant():Promise<ExperimentRecord>{throw new Error('unused');}
   async transition():Promise<ExperimentRecord>{throw new Error('unused');}
+  async createExperimentLink():ReturnType<ExperimentRepository['createExperimentLink']>{throw new Error('unused');}
+  async revokeExperimentLink():Promise<boolean>{return false;}
   async createVariantLink():ReturnType<ExperimentRepository['createVariantLink']>{throw new Error('unused');}
   async revokeVariantLink():Promise<boolean>{return false;}
   async resolveVariant():Promise<VariantRuntimeResolution|null>{return null;}
+}
+
+class ApiAnalyticsRepository implements AnalyticsRepository {
+  async resolveAssignment():ReturnType<AnalyticsRepository['resolveAssignment']>{return null;}
+  async recordEvent():Promise<{duplicate:boolean}>{return{duplicate:false};}
+  async getReport():Promise<ExperimentAnalyticsReport>{throw new Error('unused');}
 }
 
 class MemoryAuthRepository implements AuthRepository {
@@ -95,7 +104,7 @@ class ApiMembershipRepository implements MembershipRepository {
   async transferOwnership():ReturnType<MembershipRepository['transferOwnership']>{throw new Error('unused');}
 }
 
-function setup(){const versioningRepository=new ApiRepository();const authRepository=new MemoryAuthRepository();const sender=new CapturingSender();const app=buildApp({logger:false,appOrigin:'http://localhost:3000',ownerEmail:'owner@example.com',versioningRepository,authRepository,accessRepository:new ApiAccessRepository(),membershipRepository:new ApiMembershipRepository(),experimentRepository:new ApiExperimentRepository(),magicLinkSender:sender});return{app,versioningRepository,sender};}
+function setup(){const versioningRepository=new ApiRepository();const authRepository=new MemoryAuthRepository();const sender=new CapturingSender();const app=buildApp({logger:false,appOrigin:'http://localhost:3000',ownerEmail:'owner@example.com',versioningRepository,authRepository,accessRepository:new ApiAccessRepository(),membershipRepository:new ApiMembershipRepository(),experimentRepository:new ApiExperimentRepository(),analyticsRepository:new ApiAnalyticsRepository(),magicLinkSender:sender});return{app,versioningRepository,sender};}
 async function login(app:ReturnType<typeof buildApp>,sender:CapturingSender):Promise<string>{const requested=await app.inject({method:'POST',url:'/api/auth/magic-link',payload:{email:'owner@example.com'}});assert.equal(requested.statusCode,202);const token=new URL(sender.url).searchParams.get('token');assert.ok(token);const verified=await app.inject({method:'GET',url:`/api/auth/verify?token=${token}`});assert.equal(verified.statusCode,302);const cookie=verified.headers['set-cookie'];assert.equal(typeof cookie,'string');return(cookie as string).split(';')[0];}
 
 test('admin endpoints fail closed without a session cookie',async()=>{const{app,versioningRepository}=setup();try{const response=await app.inject({method:'POST',url:'/api/admin/projects',payload:{name:'Site',origins:['https://example.com']}});assert.equal(response.statusCode,401);assert.equal(versioningRepository.createProjectCalls,0);}finally{await app.close();}});

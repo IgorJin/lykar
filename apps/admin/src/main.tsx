@@ -5,6 +5,7 @@ import { ApiError, api, del, patch, post } from './api';
 import type {
   Draft,
   Experiment,
+  ExperimentAnalyticsReport,
   ExperimentVariant,
   ExperimentVariantKey,
   Page,
@@ -265,7 +266,10 @@ function ExperimentsPanel({ page, releases, experiments, permissions, reload, sh
   const [name, setName] = useState('Control vs Variant B');
   const [aRelease, setARelease] = useState('native');
   const [bRelease, setBRelease] = useState('');
+  const [aWeight, setAWeight] = useState(50);
   const [freshLinks, setFreshLinks] = useState<Record<string, { id: string; url: string }>>({});
+  const [freshExperimentLinks, setFreshExperimentLinks] = useState<Record<string, { id: string; url: string }>>({});
+  const [reports, setReports] = useState<Record<string, ExperimentAnalyticsReport>>({});
 
   useEffect(() => {
     if (!bRelease && releases[0]) setBRelease(releases[0].id);
@@ -276,16 +280,16 @@ function ExperimentsPanel({ page, releases, experiments, permissions, reload, sh
     await post(`/api/admin/pages/${page.id}/experiments`, {
       name,
       variants: [
-        { key: 'A', releaseId: aRelease === 'native' ? null : aRelease, description: 'Control' },
-        { key: 'B', releaseId: bRelease || null, description: 'Treatment' },
+        { key: 'A', releaseId: aRelease === 'native' ? null : aRelease, description: 'Control', weightBps: aWeight * 100 },
+        { key: 'B', releaseId: bRelease || null, description: 'Treatment', weightBps: (100 - aWeight) * 100 },
       ],
     });
     setName('Control vs Variant B');
     await reload();
   }
 
-  async function transition(id: string, action: 'activate' | 'pause' | 'complete') {
-    await post(`/api/admin/experiments/${id}/${action}`, {});
+  async function transition(id: string, action: 'activate' | 'pause' | 'complete', winnerVariantKey?: ExperimentVariantKey | null) {
+    await post(`/api/admin/experiments/${id}/${action}`, action === 'complete' ? { winnerVariantKey } : {});
     await reload();
   }
 
@@ -293,6 +297,17 @@ function ExperimentsPanel({ page, releases, experiments, permissions, reload, sh
     await patch(`/api/admin/experiments/${experimentId}/variants/${variant.key}`, {
       releaseId: releaseId === 'native' ? null : releaseId,
       description: variant.description,
+      weightBps: variant.weightBps,
+    });
+    await reload();
+  }
+
+  async function updateWeight(experiment: Experiment, percentA: number) {
+    const variant = experiment.variants[0];
+    await patch(`/api/admin/experiments/${experiment.id}/variants/A`, {
+      releaseId: variant.releaseId,
+      description: variant.description,
+      weightBps: percentA * 100,
     });
     await reload();
   }
@@ -316,6 +331,27 @@ function ExperimentsPanel({ page, releases, experiments, permissions, reload, sh
     await reload();
   }
 
+
+  async function createExperimentLink(experimentId: string) {
+    const result = await post<{ link: { id: string }; url: string }>(`/api/admin/experiments/${experimentId}/links`, {});
+    void navigator.clipboard?.writeText(result.url).catch(() => undefined);
+    await reload();
+    setFreshExperimentLinks(current => ({ ...current, [experimentId]: { id: result.link.id, url: result.url } }));
+  }
+
+  async function revokeExperimentLink(linkId: string) {
+    await del(`/api/admin/experiment-links/${linkId}`);
+    setFreshExperimentLinks(current => Object.fromEntries(
+      Object.entries(current).filter(([, link]) => link.id !== linkId),
+    ));
+    await reload();
+  }
+
+  async function loadReport(experimentId: string) {
+    const result = await api<{ report: ExperimentAnalyticsReport }>(`/api/admin/experiments/${experimentId}/analytics`);
+    setReports(current => ({ ...current, [experimentId]: result.report }));
+  }
+
   return <div class="experiments-panel">
     {permissions.edit && releases.length > 0 && <form class="form experiment-create" onSubmit={event => void create(event).catch(showError)}>
       <h3>Новый эксперимент</h3>
@@ -323,18 +359,46 @@ function ExperimentsPanel({ page, releases, experiments, permissions, reload, sh
       <div class="row">
         <label>Variant A <ReleaseSelect releases={releases} value={aRelease} onChange={setARelease} /></label>
         <label>Variant B <ReleaseSelect releases={releases} value={bRelease} onChange={setBRelease} /></label>
-        <button class="primary" disabled={!bRelease}>Создать</button>
+        <label>Трафик A, % <input type="number" min="1" max="99" value={aWeight} onInput={event => setAWeight(Number(event.currentTarget.value))} /></label>
+        <span class="small muted">B: {100 - aWeight}%</span>
+        <button class="primary" disabled={!bRelease || !Number.isInteger(aWeight) || aWeight < 1 || aWeight > 99}>Создать</button>
       </div>
     </form>}
     {releases.length === 0 && <p class="muted">Сначала зафиксируйте хотя бы одну immutable release.</p>}
-    <div class="experiment-list">{experiments.map(experiment => <article class="experiment" key={experiment.id}>
+    <div class="experiment-list">{experiments.map(experiment => {
+      const freshExperimentLink = freshExperimentLinks[experiment.id];
+      const report = reports[experiment.id];
+      return <article class="experiment" key={experiment.id}>
       <div class="row experiment-heading">
-        <div><h3>{experiment.name}</h3><span class={`badge experiment-${experiment.status}`}>{experiment.status}</span></div>
+        <div><h3>{experiment.name}</h3><span class={`badge experiment-${experiment.status}`}>{experiment.status}</span>
+          {experiment.winnerVariantKey && <span class="badge winner">Победитель: {experiment.winnerVariantKey}</span>}
+        </div>
         {permissions.publish && <div class="row">
           {(experiment.status === 'draft' || experiment.status === 'paused') && <button class="primary" onClick={() => void transition(experiment.id, 'activate').catch(showError)}>Запустить</button>}
           {experiment.status === 'active' && <button onClick={() => void transition(experiment.id, 'pause').catch(showError)}>Пауза</button>}
-          {(experiment.status === 'active' || experiment.status === 'paused') && <button class="danger" onClick={() => void transition(experiment.id, 'complete').catch(showError)}>Завершить</button>}
+          {(experiment.status === 'active' || experiment.status === 'paused') && <>
+            <button onClick={() => void transition(experiment.id, 'complete', 'A').catch(showError)}>Завершить · A</button>
+            <button onClick={() => void transition(experiment.id, 'complete', 'B').catch(showError)}>Завершить · B</button>
+            <button class="danger" onClick={() => void transition(experiment.id, 'complete', null).catch(showError)}>Без победителя</button>
+          </>}
         </div>}
+      </div>
+      <div class="experiment-delivery">
+        <b>Распределение: {experiment.variants[0].weightBps / 100}% / {experiment.variants[1].weightBps / 100}%</b>
+        {experiment.status === 'draft' && permissions.edit && <VariantWeightEditor
+          value={experiment.variants[0].weightBps / 100}
+          onSave={value => updateWeight(experiment, value)}
+          showError={showError}
+        />}
+        {experiment.status === 'active' && permissions.publish && <button onClick={() => void createExperimentLink(experiment.id).catch(showError)}>Создать A/B-ссылку</button>}
+        {freshExperimentLink && <div class="row small fresh-variant-link">
+          <a href={freshExperimentLink.url} target="_blank" rel="noreferrer">Открыть A/B-ссылку</a>
+          <button onClick={() => copyFreshLink(freshExperimentLink.url)}>Копировать</button>
+        </div>}
+        {experiment.links.filter(link => !link.revokedAt).map(link => <div class="row small" key={link.id}>
+          <span>A/B token …{link.tokenHint}</span>
+          {permissions.publish && <button class="danger" onClick={() => void revokeExperimentLink(link.id).catch(showError)}>Отозвать</button>}
+        </div>)}
       </div>
       <div class="variant-grid">{experiment.variants.map(variant => {
         const freshLink = freshLinks[`${experiment.id}:${variant.key}`];
@@ -355,8 +419,45 @@ function ExperimentsPanel({ page, releases, experiments, permissions, reload, sh
           </div>)}
         </section>;
       })}</div>
-    </article>)}</div>
+      {permissions.publish && <div class="analytics-report">
+        <button onClick={() => void loadReport(experiment.id).catch(showError)}>{report ? 'Обновить аналитику' : 'Показать аналитику'}</button>
+        {report && <AnalyticsReport report={report} />}
+      </div>}
+    </article>;
+    })}</div>
   </div>;
+}
+
+function VariantWeightEditor({ value, onSave, showError }: {
+  value: number;
+  onSave: (value: number) => Promise<void>;
+  showError: (error: unknown) => void;
+}) {
+  const [percent, setPercent] = useState(value);
+  useEffect(() => setPercent(value), [value]);
+  return <div class="row weight-editor">
+    <label>A <input type="number" min="1" max="99" value={percent} onInput={event => setPercent(Number(event.currentTarget.value))} />%</label>
+    <span class="muted">B {100 - percent}%</span>
+    <button disabled={!Number.isInteger(percent) || percent < 1 || percent > 99 || percent === value} onClick={() => void onSave(percent).catch(showError)}>Сохранить</button>
+  </div>;
+}
+
+function AnalyticsReport({ report }: { report: ExperimentAnalyticsReport }) {
+  return <div class="analytics-table">
+    <div class="analytics-row analytics-head"><span>Вариант</span><span>Посетители</span><span>Показы</span><span>Уник. конверсии</span><span>CVR</span><span>Uplift к A</span></div>
+    {report.variants.map(variant => <div class="analytics-row" key={variant.key}>
+      <b>{variant.key}</b><span>{variant.visitors}</span><span>{variant.views}</span>
+      <span>{variant.uniqueConversions} <span class="muted">({variant.conversions} всего)</span></span>
+      <span>{formatRate(variant.conversionRate)}</span><span>{formatRate(variant.upliftVsA, true)}</span>
+    </div>)}
+    <p class="small muted">Обновлено {new Date(report.generatedAt).toLocaleString()}. Показатели описательные; статистическая значимость пока не рассчитывается.</p>
+  </div>;
+}
+
+function formatRate(value: number | null, signed = false): string {
+  if (value === null) return '—';
+  const percent = `${(value * 100).toFixed(2)}%`;
+  return signed && value > 0 ? `+${percent}` : percent;
 }
 
 function ReleaseSelect({ releases, value, onChange }: { releases: Release[]; value: string; onChange: (value: string) => void }) {

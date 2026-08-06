@@ -344,11 +344,52 @@ describe('manifest loading and runtime lifecycle', () => {
     expect(document.querySelector('h1')?.textContent).toBe('Changed');
   });
 
-  it('exposes a typed analytics placeholder without sending data', () => {
-    expect(track('signup', { plan: 'pro' })).toMatchObject({
-      accepted: false,
-      code: 'EVENT_PIPELINE_NOT_IMPLEMENTED',
-      event: { name: 'signup', properties: { plan: 'pro' } },
+  it('distributes an experiment, persists the browser ID, and gates events on consent', async () => {
+    const token = 'e'.repeat(48);
+    const dom = new JSDOM('<h1>Control</h1>', { url: `https://site.test/page?lykar_experiment=${token}` });
+    const calls: Array<{ url: string; body: Record<string, unknown> }> = [];
+    const fetcher = vi.fn<FetchLike>(async (input, init) => {
+      const url = String(input);
+      const body = init?.body ? JSON.parse(String(init.body)) as Record<string, unknown> : {};
+      calls.push({ url, body });
+      if (url.endsWith('/experiments/resolve')) {
+        return response({
+          selection: {
+            assignmentId: 'assignment-1', experimentId: 'experiment-1', variantKey: 'A',
+            capability: 'signed-capability', capabilityExpiresAt: '2026-09-05T00:00:00.000Z',
+            manifest: null,
+          },
+        });
+      }
+      return response({ accepted: true, duplicate: false }, 202);
+    });
+    const runtime = new Lykar({
+      projectKey: 'pk_public', apiBaseUrl: 'https://api.test', document: dom.window.document,
+      fetch: fetcher, waitForDom: false,
+    });
+
+    const result = await runtime.start();
+    expect(result).toMatchObject({ mode: 'native', reason: 'NATIVE_VARIANT', variantKey: 'A' });
+    expect(calls).toHaveLength(1);
+    expect(calls[0].body).toMatchObject({ pathname: '/page', experimentToken: token });
+    expect(calls[0].body.anonymousId).toMatch(/^[0-9a-f-]{36}$/);
+    expect(dom.window.document.cookie).toContain('lykar_anonymous_id=');
+    await expect(runtime.track('signup', { plan: 'pro' })).resolves.toEqual({
+      accepted: false, code: 'CONSENT_REQUIRED',
+    });
+
+    await runtime.consent('granted');
+    await expect(runtime.track('signup', { plan: 'pro' })).resolves.toEqual({ accepted: true, duplicate: false });
+    expect(calls.slice(1).map(call => call.body.eventType)).toEqual(['exposure', 'conversion']);
+    expect(calls[1].body.name).toBe('$exposure');
+    expect(calls[2].body.name).toBe('signup');
+  });
+
+  it('returns no active experiment from the global tracker when the latest runtime has no assignment', async () => {
+    const dom = new JSDOM('<h1>Native</h1>', { url: 'https://site.test/page' });
+    new Lykar({ projectKey: 'pk_public', document: dom.window.document, waitForDom: false });
+    await expect(track('signup', { plan: 'pro' })).resolves.toEqual({
+      accepted: false, code: 'NO_ACTIVE_EXPERIMENT',
     });
   });
 

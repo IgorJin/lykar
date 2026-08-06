@@ -18,6 +18,7 @@ const server = buildApp({
   ownerEmail: process.env.LYKAR_OWNER_EMAIL ?? 'owner@lykar.local',
   allowedOrigins,
   logger: true,
+  analyticsSigningSecret: process.env.LYKAR_ANALYTICS_SIGNING_SECRET,
 });
 
 const start = async () => {

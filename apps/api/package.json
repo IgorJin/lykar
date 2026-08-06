@@ -13,7 +13,8 @@
     "build": "npm run clean && tsc",
     "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
     "start": "node dist/server.js",
-    "migrate": "npm run build && node dist/db/migrate.js"
+    "migrate": "npm run build && node dist/db/migrate.js",
+    "analytics:prune": "npm run build && node dist/db/prune-analytics.js"
   },
   "repository": {
     "type": "git",

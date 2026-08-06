@@ -16,12 +16,21 @@ export type ExperimentVariantLinkRecord = {
   createdAt: string;
 };
 
+export type ExperimentLinkRecord = {
+  id: string;
+  experimentId: string;
+  tokenHint: string;
+  revokedAt: string | null;
+  createdAt: string;
+};
+
 export type ExperimentVariantRecord = {
   id: string;
   key: ExperimentVariantKey;
   releaseId: string | null;
   releaseVersion: number | null;
   description: string | null;
+  weightBps: number;
   links: ExperimentVariantLinkRecord[];
 };
 
@@ -31,12 +40,14 @@ export type ExperimentRecord = {
   pageId: string;
   name: string;
   status: ExperimentStatus;
+  winnerVariantKey: ExperimentVariantKey | null;
   firstActivatedAt: string | null;
   activatedAt: string | null;
   pausedAt: string | null;
   completedAt: string | null;
   createdAt: string;
   updatedAt: string;
+  links: ExperimentLinkRecord[];
   variants: [ExperimentVariantRecord, ExperimentVariantRecord];
 };
 
@@ -57,6 +68,7 @@ export interface ExperimentRepository {
       key: ExperimentVariantKey;
       releaseId: string | null;
       description: string | null;
+      weightBps: number;
     }>;
   }): Promise<ExperimentRecord>;
   listExperiments(userId: string, pageId: string): Promise<ExperimentRecord[]>;
@@ -66,12 +78,22 @@ export interface ExperimentRepository {
     key: ExperimentVariantKey;
     releaseId: string | null;
     description: string | null;
+    weightBps?: number;
   }): Promise<ExperimentRecord>;
   transition(input: {
     userId: string;
     experimentId: string;
     action: 'activate' | 'pause' | 'complete';
+    winnerVariantKey: ExperimentVariantKey | null;
   }): Promise<ExperimentRecord>;
+  createExperimentLink(input: {
+    id: string;
+    userId: string;
+    experimentId: string;
+    tokenHash: string;
+    tokenHint: string;
+  }): Promise<{ link: ExperimentLinkRecord; origin: string; pathname: string }>;
+  revokeExperimentLink(userId: string, linkId: string): Promise<boolean>;
   createVariantLink(input: {
     id: string;
     userId: string;
@@ -107,6 +129,7 @@ export class ExperimentService {
     if (variants.every(variant => variant.releaseId === null)) {
       throw new ValidationError('At least one experiment variant must reference a release');
     }
+    requireCompleteWeightAllocation(variants);
     return this.repository.createExperiment({
       id: randomUUID(),
       userId: requireUuid(userIdValue, 'userId'),
@@ -129,6 +152,7 @@ export class ExperimentService {
     keyValue: unknown,
     releaseIdValue: unknown,
     descriptionValue: unknown,
+    weightBpsValue: unknown,
   ): Promise<ExperimentRecord> {
     return this.repository.updateVariant({
       userId: requireUuid(userIdValue, 'userId'),
@@ -136,6 +160,7 @@ export class ExperimentService {
       key: requireVariantKey(keyValue),
       releaseId: optionalReleaseId(releaseIdValue),
       description: optionalDescription(descriptionValue),
+      weightBps: optionalWeightBps(weightBpsValue),
     });
   }
 
@@ -143,12 +168,41 @@ export class ExperimentService {
     userIdValue: unknown,
     experimentIdValue: unknown,
     action: 'activate' | 'pause' | 'complete',
+    winnerVariantKeyValue?: unknown,
   ): Promise<ExperimentRecord> {
     return this.repository.transition({
       userId: requireUuid(userIdValue, 'userId'),
       experimentId: requireUuid(experimentIdValue, 'experimentId'),
       action,
+      winnerVariantKey: action === 'complete'
+        ? optionalVariantKey(winnerVariantKeyValue)
+        : null,
     });
+  }
+
+  async createExperimentLink(
+    userIdValue: unknown,
+    experimentIdValue: unknown,
+  ): Promise<{ link: ExperimentLinkRecord; url: string }> {
+    const token = issueOpaqueToken();
+    const result = await this.repository.createExperimentLink({
+      id: randomUUID(),
+      userId: requireUuid(userIdValue, 'userId'),
+      experimentId: requireUuid(experimentIdValue, 'experimentId'),
+      tokenHash: hashToken(token),
+      tokenHint: token.slice(-8),
+    });
+    const url = new URL(result.pathname, result.origin);
+    url.searchParams.set('lykar_experiment', token);
+    return { link: result.link, url: url.toString() };
+  }
+
+  async revokeExperimentLink(userIdValue: unknown, linkIdValue: unknown): Promise<void> {
+    const revoked = await this.repository.revokeExperimentLink(
+      requireUuid(userIdValue, 'userId'),
+      requireUuid(linkIdValue, 'linkId'),
+    );
+    if (!revoked) throw new ValidationError('Active experiment link was not found');
   }
 
   async createVariantLink(
@@ -197,6 +251,7 @@ function parseVariantInput(value: unknown): {
   key: ExperimentVariantKey;
   releaseId: string | null;
   description: string | null;
+  weightBps: number;
 } {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) {
     throw new ValidationError('Every variant must be an object');
@@ -206,12 +261,35 @@ function parseVariantInput(value: unknown): {
     key: requireVariantKey(variant.key),
     releaseId: optionalReleaseId(variant.releaseId),
     description: optionalDescription(variant.description),
+    weightBps: requireWeightBps(variant.weightBps),
   };
 }
 
 function requireVariantKey(value: unknown): ExperimentVariantKey {
   if (value !== 'A' && value !== 'B') throw new ValidationError('variant key must be A or B');
   return value;
+}
+
+function optionalVariantKey(value: unknown): ExperimentVariantKey | null {
+  return value === undefined || value === null || value === '' ? null : requireVariantKey(value);
+}
+
+function requireWeightBps(value: unknown): number {
+  const weight = value === undefined ? 5000 : value;
+  if (!Number.isInteger(weight) || Number(weight) < 1 || Number(weight) > 9999) {
+    throw new ValidationError('variant weightBps must be an integer between 1 and 9999');
+  }
+  return Number(weight);
+}
+
+function optionalWeightBps(value: unknown): number | undefined {
+  return value === undefined ? undefined : requireWeightBps(value);
+}
+
+function requireCompleteWeightAllocation(variants: Array<{ weightBps: number }>): void {
+  if (variants.reduce((sum, variant) => sum + variant.weightBps, 0) !== 10000) {
+    throw new ValidationError('variant weights must add up to 10000 basis points');
+  }
 }
 
 function optionalReleaseId(value: unknown): string | null {

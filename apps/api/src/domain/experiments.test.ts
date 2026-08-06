@@ -23,6 +23,8 @@ class CapturingExperimentRepository implements ExperimentRepository {
   async listExperiments(): Promise<ExperimentRecord[]> { return []; }
   async updateVariant(): Promise<ExperimentRecord> { throw new Error('unused'); }
   async transition(): Promise<ExperimentRecord> { throw new Error('unused'); }
+  async createExperimentLink(): ReturnType<ExperimentRepository['createExperimentLink']> { throw new Error('unused'); }
+  async revokeExperimentLink(): Promise<boolean> { return true; }
   async createVariantLink(input: Parameters<ExperimentRepository['createVariantLink']>[0]) {
     this.linkInput = input;
     return {
@@ -78,11 +80,12 @@ function record(id: string, name: string): ExperimentRecord {
   const now = new Date().toISOString();
   return {
     id, projectId: 'project', pageId: PAGE_ID, name, status: 'draft',
+    winnerVariantKey: null,
     firstActivatedAt: null, activatedAt: null, pausedAt: null, completedAt: null,
-    createdAt: now, updatedAt: now,
+    createdAt: now, updatedAt: now, links: [],
     variants: [
-      { id: 'variant-a', key: 'A', releaseId: null, releaseVersion: null, description: null, links: [] },
-      { id: 'variant-b', key: 'B', releaseId: RELEASE_ID, releaseVersion: 1, description: null, links: [] },
+      { id: 'variant-a', key: 'A', releaseId: null, releaseVersion: null, description: null, weightBps: 5000, links: [] },
+      { id: 'variant-b', key: 'B', releaseId: RELEASE_ID, releaseVersion: 1, description: null, weightBps: 5000, links: [] },
     ],
   };
 }

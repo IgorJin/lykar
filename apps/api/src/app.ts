@@ -2,6 +2,7 @@ import cors from '@fastify/cors';
 import Fastify, { type FastifyInstance } from 'fastify';
 
 import { AccessService, type AccessRepository } from './domain/access';
+import { AnalyticsService, type AnalyticsRepository } from './domain/analytics';
 import { AuthService, ConsoleMagicLinkSender, type AuthRepository, type MagicLinkSender } from './domain/auth';
 import { ExperimentService, type ExperimentRepository } from './domain/experiments';
 import {
@@ -13,11 +14,13 @@ import {
 import { VersioningError, VersioningService, type VersioningRepository } from './domain/versioning';
 import dbPlugin from './plugins/db';
 import { PostgresAccessRepository } from './repositories/postgres-access-repository';
+import { PostgresAnalyticsRepository } from './repositories/postgres-analytics-repository';
 import { PostgresAuthRepository } from './repositories/postgres-auth-repository';
 import { PostgresExperimentRepository } from './repositories/postgres-experiment-repository';
 import { PostgresMembershipRepository } from './repositories/postgres-membership-repository';
 import { PostgresVersioningRepository } from './repositories/postgres-versioning-repository';
 import accessRoutes from './routes/access';
+import analyticsRoutes from './routes/analytics';
 import adminUiRoutes from './routes/admin-ui';
 import authRoutes from './routes/auth';
 import experimentRoutes from './routes/experiments';
@@ -39,6 +42,8 @@ export type BuildAppOptions = {
   accessRepository?: AccessRepository;
   membershipRepository?: MembershipRepository;
   experimentRepository?: ExperimentRepository;
+  analyticsRepository?: AnalyticsRepository;
+  analyticsSigningSecret?: string;
 };
 
 export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
@@ -46,6 +51,11 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
   const appOrigin = new URL(options.appOrigin ?? 'http://localhost:3000').origin;
   const allowedOrigins = new Set([appOrigin, ...(options.allowedOrigins ?? [])]);
   const development = options.development ?? process.env.NODE_ENV !== 'production';
+  const analyticsSigningSecret = options.analyticsSigningSecret
+    ?? (development ? 'lykar-development-analytics-signing-secret' : undefined);
+  if (!analyticsSigningSecret) {
+    throw new Error('LYKAR_ANALYTICS_SIGNING_SECRET is required in production');
+  }
   const ttl = development
     ? {
         login: 7 * 24 * 60 * 60 * 1000,
@@ -113,8 +123,10 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
     let accessRepository = options.accessRepository;
     let membershipRepository = options.membershipRepository;
     let experimentRepository = options.experimentRepository;
+    let analyticsRepository = options.analyticsRepository;
 
-    if (!versioningRepository || !authRepository || !accessRepository || !membershipRepository || !experimentRepository) {
+    if (!versioningRepository || !authRepository || !accessRepository || !membershipRepository
+      || !experimentRepository || !analyticsRepository) {
       if (!options.connectionString) throw new Error('DATABASE_URL is required unless all repositories are provided');
       await scopedServer.register(dbPlugin, { connectionString: options.connectionString });
       versioningRepository ??= new PostgresVersioningRepository(scopedServer.pg.pool);
@@ -122,6 +134,7 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
       accessRepository ??= new PostgresAccessRepository(scopedServer.pg.pool);
       membershipRepository ??= new PostgresMembershipRepository(scopedServer.pg.pool);
       experimentRepository ??= new PostgresExperimentRepository(scopedServer.pg.pool);
+      analyticsRepository ??= new PostgresAnalyticsRepository(scopedServer.pg.pool);
     }
 
     const authService = new AuthService(authRepository, {
@@ -144,6 +157,10 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
       sender: options.invitationSender ?? new ConsoleInvitationSender(message => scopedServer.log.info(message)),
     });
     const experimentService = new ExperimentService(experimentRepository);
+    const analyticsService = new AnalyticsService(analyticsRepository, {
+      signingSecret: analyticsSigningSecret,
+      capabilityTtlMs: 30 * 24 * 60 * 60 * 1000,
+    });
     const secureCookies = options.secureCookies ?? appOrigin.startsWith('https://');
     const sessionTtlSeconds = Math.floor(ttl.session / 1000);
 
@@ -159,6 +176,7 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
       sessionTtlSeconds,
     });
     await scopedServer.register(accessRoutes, { accessService, authService });
+    await scopedServer.register(analyticsRoutes, { analyticsService, authService });
     await scopedServer.register(experimentRoutes, { experimentService, authService });
     await scopedServer.register(versioningRoutes, {
       service: new VersioningService(versioningRepository),

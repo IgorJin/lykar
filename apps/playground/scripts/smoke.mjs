@@ -76,8 +76,8 @@ export async function runSmoke({ apiBaseUrl, playgroundBaseUrl }) {
     body: JSON.stringify({
       name: `Smoke A/B ${randomUUID()}`,
       variants: [
-        { key: 'A', releaseId: null, description: 'Native control' },
-        { key: 'B', releaseId: published.release.id, description: 'Treatment' },
+        { key: 'A', releaseId: null, description: 'Native control', weightBps: 5000 },
+        { key: 'B', releaseId: published.release.id, description: 'Treatment', weightBps: 5000 },
       ],
     }),
   })).experiment;
@@ -97,6 +97,43 @@ export async function runSmoke({ apiBaseUrl, playgroundBaseUrl }) {
   assert.equal((await fetch(`${variantEndpoint}${tokenB}`)).status, 204);
   const replacementB = await admin(`/api/admin/experiments/${experiment.id}/variants/B/links`, { method: 'POST', body: '{}' });
 
+  const experimentLink = await admin(`/api/admin/experiments/${experiment.id}/links`, { method: 'POST', body: '{}' });
+  const experimentToken = new URL(experimentLink.url).searchParams.get('lykar_experiment');
+  assert.ok(experimentToken);
+  const anonymousId = randomUUID();
+  const resolveExperiment = anonymous => request(`${apiBaseUrl}/api/runtime/projects/${PROJECT_KEY}/experiments/resolve`, {
+    method: 'POST',
+    body: JSON.stringify({ pathname: '/', experimentToken, anonymousId: anonymous }),
+  });
+  const assignment = (await resolveExperiment(anonymousId)).selection;
+  const sticky = (await resolveExperiment(anonymousId)).selection;
+  assert.equal(sticky.assignmentId, assignment.assignmentId);
+  assert.equal(sticky.variantKey, assignment.variantKey);
+  const event = (eventType, name) => request(`${apiBaseUrl}/api/runtime/analytics/events`, {
+    method: 'POST',
+    body: JSON.stringify({
+      capability: assignment.capability,
+      clientEventId: randomUUID(),
+      eventType,
+      name,
+      properties: eventType === 'conversion' ? { plan: 'pro' } : {},
+      occurredAt: new Date().toISOString(),
+    }),
+  });
+  assert.equal((await event('exposure', '$exposure')).accepted, true);
+  assert.equal((await event('conversion', 'signup')).accepted, true);
+  const analytics = (await admin(`/api/admin/experiments/${experiment.id}/analytics`)).report;
+  const selectedReport = analytics.variants.find(variant => variant.key === assignment.variantKey);
+  assert.equal(selectedReport.visitors, 1);
+  assert.equal(selectedReport.views, 1);
+  assert.equal(selectedReport.uniqueConversions, 1);
+  await admin(`/api/admin/experiment-links/${experimentLink.link.id}`, { method: 'DELETE' });
+  const revoked = await fetch(`${apiBaseUrl}/api/runtime/projects/${PROJECT_KEY}/experiments/resolve`, {
+    method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ pathname: '/', experimentToken, anonymousId: randomUUID() }),
+  });
+  assert.equal(revoked.status, 204);
+
   const share = await admin(`/api/admin/pages/${ROOT_PAGE_ID}/shares`, {
     method: 'POST',
     body: JSON.stringify({ releaseId: published.release.id, expiresInSeconds: 3600 }),
@@ -111,6 +148,12 @@ export async function runSmoke({ apiBaseUrl, playgroundBaseUrl }) {
   })).access;
   const shared = await request(directUrl, { headers: { authorization: `Bearer ${shareAccess.token}` } });
   assert.equal(shared.manifest.releaseId, published.release.id);
+  await admin(`/api/admin/experiments/${experiment.id}/complete`, {
+    method: 'POST', body: JSON.stringify({ winnerVariantKey: 'B' }),
+  });
+  const afterComplete = await admin(`/api/admin/pages/${ROOT_PAGE_ID}/experiments`);
+  assert.equal(afterComplete.experiments.find(item => item.id === experiment.id).winnerVariantKey, 'B');
+  assert.equal((await fetch(`${apiBaseUrl}/api/runtime/projects/${PROJECT_KEY}/manifest?pathname=%2F`)).status, 204);
 
   return {
     projectKey: PROJECT_KEY,
@@ -121,6 +164,7 @@ export async function runSmoke({ apiBaseUrl, playgroundBaseUrl }) {
     experimentId: experiment.id,
     variantAUrl: variantA.url,
     variantBUrl: replacementB.url,
+    experimentUrl: experimentLink.url,
   };
 }
 

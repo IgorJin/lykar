@@ -64,8 +64,10 @@ npm run test:e2e
 Smoke mode uses random ports and a temporary database cluster, exercises login,
 project invitations, role boundaries, immediate capability revocation,
 ownership transfer, draft persistence, immutable release creation, native-page
-fallback, A/B variant tokens, source fingerprints, direct version access, page
-isolation, and share access, then removes its database.
+fallback, direct A/B variant tokens, weighted sticky experiment assignment,
+exposure/conversion reports, token revocation, winner recording, source
+fingerprints, direct version access, page isolation, and share access, then
+removes its database.
 
 For focused work, run the standalone static playground with:
 

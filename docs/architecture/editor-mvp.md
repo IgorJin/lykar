@@ -52,10 +52,11 @@ be active per page. The lifecycle is `draft -> active <-> paused -> completed`;
 variants become immutable on first activation and completed experiments cannot
 restart.
 
-Active variants are opened with `?lykar_variant=<opaque-token>`. Tokens are
-stored only as hashes and may be revoked. Missing, invalid, revoked, paused, or
-completed tokens leave the native site untouched. Owner/Admin control lifecycle
-and links; Editor may prepare draft experiments; Viewer is read-only.
+Exact QA variants are opened with `?lykar_variant=<opaque-token>`. Weighted A/B
+delivery uses a separate `?lykar_experiment=<opaque-token>`. Tokens are stored
+only as hashes and may be revoked. Missing, invalid, revoked, paused, or
+completed tokens leave the native site untouched. Owner/Admin control lifecycle,
+links, and analytics; Editor may prepare draft experiments; Viewer is read-only.
 
 Every release can store an immutable `lykar-dom-v1` snapshot captured before
 base-release replay. The page-level hash is diagnostic: drift does not block an
@@ -63,9 +64,10 @@ otherwise compatible operation. Target fingerprints and preconditions decide
 which individual commands are applied or reported as skipped. Raw HTML and
 page text are never stored in the snapshot.
 
-`Lykar.track(name, properties)` exists as a typed no-op marked
-`EVENT_PIPELINE_NOT_IMPLEMENTED`. Exposure storage, anonymous assignment,
-conversions, and analytics UI belong to a later phase.
+`Lykar.track(name, properties)` records explicit conversion events for a
+weighted experiment after host consent. Exposure, sticky assignment, privacy
+constraints, report semantics, and retention are specified in
+[`analytics.md`](./analytics.md).
 
 Development TTLs are deliberately long (7-day login link, 180-day admin
 session, 30-day editor session); production defaults are shorter.

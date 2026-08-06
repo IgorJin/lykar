@@ -17,6 +17,9 @@ them only when **Применить** is pressed. **Зафиксировать �
 immutable release without changing the normal playground URL. Use the
 **Experiments** tab to map native/release variants, activate them, and create
 public tokenized links.
+An A/B link uses `lykar_experiment`, keeps the assigned variant in a first-party
+cookie for 30 days, and records exposure/conversion events only after analytics
+consent is granted. The playground grants consent explicitly for test purposes.
 
 The focused standalone server remains available for asset and UI work:
 

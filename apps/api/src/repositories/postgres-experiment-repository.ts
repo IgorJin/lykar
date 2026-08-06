@@ -4,6 +4,7 @@ import type { Pool, PoolClient } from 'pg';
 import type {
   ExperimentRecord,
   ExperimentRepository,
+  ExperimentLinkRecord,
   ExperimentStatus,
   ExperimentVariantKey,
   ExperimentVariantLinkRecord,
@@ -23,6 +24,7 @@ type ExperimentRow = {
   activated_at: Date | string | null;
   paused_at: Date | string | null;
   completed_at: Date | string | null;
+  winner_variant_key: ExperimentVariantKey | null;
   created_at: Date | string;
   updated_at: Date | string;
 };
@@ -33,10 +35,18 @@ type VariantRow = {
   release_id: string | null;
   release_version: number | null;
   description: string | null;
+  weight_bps: number;
 };
 type LinkRow = {
   id: string;
   variant_id: string;
+  token_hint: string;
+  revoked_at: Date | string | null;
+  created_at: Date | string;
+};
+type ExperimentLinkRow = {
+  id: string;
+  experiment_id: string;
   token_hint: string;
   revoked_at: Date | string | null;
   created_at: Date | string;
@@ -58,9 +68,9 @@ export class PostgresExperimentRepository implements ExperimentRepository {
       );
       for (const variant of input.variants) {
         await client.query(
-          `INSERT INTO experiment_variants (id, experiment_id, variant_key, release_id, description)
-           VALUES ($1, $2, $3, $4, $5)`,
-          [variant.id, input.id, variant.key, variant.releaseId, variant.description],
+          `INSERT INTO experiment_variants (id, experiment_id, variant_key, release_id, description, weight_bps)
+           VALUES ($1, $2, $3, $4, $5, $6)`,
+          [variant.id, input.id, variant.key, variant.releaseId, variant.description, variant.weightBps],
         );
       }
       return loadExperiment(client, input.userId, input.id);
@@ -83,11 +93,20 @@ export class PostgresExperimentRepository implements ExperimentRepository {
       if (input.releaseId) await requireReleaseOnPage(client, input.releaseId, experiment.page_id);
       const updated = await client.query(
         `UPDATE experiment_variants
-         SET release_id = $3, description = $4, updated_at = NOW()
+         SET release_id = $3, description = $4,
+             weight_bps = COALESCE($5, weight_bps), updated_at = NOW()
          WHERE experiment_id = $1 AND variant_key = $2`,
-        [input.experimentId, input.key, input.releaseId, input.description],
+        [input.experimentId, input.key, input.releaseId, input.description, input.weightBps],
       );
       if (updated.rowCount === 0) throw new NotFoundError('Experiment variant was not found');
+      if (input.weightBps !== undefined) {
+        await client.query(
+          `UPDATE experiment_variants
+           SET weight_bps = $3, updated_at = NOW()
+           WHERE experiment_id = $1 AND variant_key <> $2`,
+          [input.experimentId, input.key, 10000 - input.weightBps],
+        );
+      }
       const configured = await client.query<{ count: string }>(
         'SELECT COUNT(*) AS count FROM experiment_variants WHERE experiment_id = $1 AND release_id IS NOT NULL',
         [input.experimentId],
@@ -108,13 +127,17 @@ export class PostgresExperimentRepository implements ExperimentRepository {
           if (experiment.status !== 'draft' && experiment.status !== 'paused') {
             throw new ConflictError('Only draft or paused experiments can be activated');
           }
-          const variants = await client.query<{ count: string; configured: string }>(
-            `SELECT COUNT(*) AS count, COUNT(release_id) AS configured
+          const variants = await client.query<{ count: string; configured: string; total_weight: string }>(
+            `SELECT COUNT(*) AS count, COUNT(release_id) AS configured,
+                    SUM(weight_bps)::text AS total_weight
              FROM experiment_variants WHERE experiment_id = $1`,
             [input.experimentId],
           );
           if (Number(variants.rows[0].count) !== 2 || Number(variants.rows[0].configured) === 0) {
             throw new ConflictError('Experiment requires variants A and B and at least one release');
+          }
+          if (Number(variants.rows[0].total_weight) !== 10000) {
+            throw new ConflictError('Variant weights must add up to 10000 basis points');
           }
           await client.query(
             `UPDATE experiments
@@ -137,9 +160,10 @@ export class PostgresExperimentRepository implements ExperimentRepository {
           }
           await client.query(
             `UPDATE experiments
-             SET status = 'completed', completed_by = $2, completed_at = NOW(), updated_at = NOW()
+             SET status = 'completed', completed_by = $2, completed_at = NOW(),
+                 winner_variant_key = $3, updated_at = NOW()
              WHERE id = $1`,
-            [input.experimentId, input.userId],
+            [input.experimentId, input.userId, input.winnerVariantKey],
           );
         }
         return loadExperiment(client, input.userId, input.experimentId);
@@ -148,6 +172,48 @@ export class PostgresExperimentRepository implements ExperimentRepository {
       if (isUniqueViolation(error)) throw new ConflictError('Another experiment is already active on this page');
       throw error;
     }
+  }
+
+  async createExperimentLink(
+    input: Parameters<ExperimentRepository['createExperimentLink']>[0],
+  ): Promise<{ link: ExperimentLinkRecord; origin: string; pathname: string }> {
+    return this.transaction(async client => {
+      const experiment = await requireExperimentAccess(client, input.userId, input.experimentId, 'publish', true);
+      if (experiment.status !== 'active') {
+        throw new ConflictError('Experiment links can only be created for an active experiment');
+      }
+      const link = await client.query<ExperimentLinkRow>(
+        `INSERT INTO experiment_links (id, experiment_id, token_hash, token_hint, created_by)
+         VALUES ($1, $2, $3, $4, $5)
+         RETURNING *`,
+        [input.id, input.experimentId, input.tokenHash, input.tokenHint, input.userId],
+      );
+      const target = await client.query<{ pathname: string; origin: string }>(
+        `SELECT pg.pathname, MIN(po.origin) AS origin
+         FROM pages pg
+         JOIN project_origins po ON po.project_id = pg.project_id
+         WHERE pg.id = $1
+         GROUP BY pg.pathname`,
+        [experiment.page_id],
+      );
+      const row = target.rows[0];
+      if (!row) throw new ConflictError('Experiment page has no configured project origin');
+      return { link: mapExperimentLink(link.rows[0]), origin: row.origin, pathname: row.pathname };
+    });
+  }
+
+  async revokeExperimentLink(userId: string, linkId: string): Promise<boolean> {
+    const result = await this.pool.query(
+      `UPDATE experiment_links link SET revoked_at = NOW()
+       FROM experiments experiment, project_memberships membership
+       WHERE link.id = $1 AND link.revoked_at IS NULL
+         AND experiment.id = link.experiment_id
+         AND membership.project_id = experiment.project_id
+         AND membership.user_id = $2 AND membership.revoked_at IS NULL
+         AND membership.role = ANY($3::text[])`,
+      [linkId, userId, rolesWithPermission('publish')],
+    );
+    return (result.rowCount ?? 0) > 0;
   }
 
   async createVariantLink(
@@ -335,12 +401,19 @@ async function loadExperiment(database: Queryable, userId: string, experimentId:
      ORDER BY link.created_at DESC`,
     [experimentId],
   );
+  const experimentLinks = await database.query<ExperimentLinkRow>(
+    `SELECT * FROM experiment_links
+     WHERE experiment_id = $1
+     ORDER BY created_at DESC`,
+    [experimentId],
+  );
   const mappedVariants = variants.rows.map(variant => ({
     id: variant.id,
     key: variant.variant_key,
     releaseId: variant.release_id,
     releaseVersion: variant.release_version === null ? null : Number(variant.release_version),
     description: variant.description,
+    weightBps: Number(variant.weight_bps),
     links: links.rows.filter(link => link.variant_id === variant.id).map(mapLink),
   })) as [ExperimentRecord['variants'][0], ExperimentRecord['variants'][1]];
   return {
@@ -349,13 +422,25 @@ async function loadExperiment(database: Queryable, userId: string, experimentId:
     pageId: experiment.page_id,
     name: experiment.name,
     status: experiment.status,
+    winnerVariantKey: experiment.winner_variant_key,
     firstActivatedAt: optionalIso(experiment.first_activated_at),
     activatedAt: optionalIso(experiment.activated_at),
     pausedAt: optionalIso(experiment.paused_at),
     completedAt: optionalIso(experiment.completed_at),
     createdAt: toIso(experiment.created_at),
     updatedAt: toIso(experiment.updated_at),
+    links: experimentLinks.rows.map(mapExperimentLink),
     variants: mappedVariants,
+  };
+}
+
+function mapExperimentLink(row: ExperimentLinkRow): ExperimentLinkRecord {
+  return {
+    id: row.id,
+    experimentId: row.experiment_id,
+    tokenHint: row.token_hint,
+    revokedAt: optionalIso(row.revoked_at),
+    createdAt: toIso(row.created_at),
   };
 }
 

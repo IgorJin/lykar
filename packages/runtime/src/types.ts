@@ -50,16 +50,23 @@ export type NativePageReport = {
 export type RuntimeStartResult = ApplyReport | NativePageReport;
 
 export type TrackEventResult = {
+  accepted: true;
+  duplicate: boolean;
+} | {
   accepted: false;
-  code: 'EVENT_PIPELINE_NOT_IMPLEMENTED';
-  event: { name: string; properties: Record<string, unknown>; occurredAt: string };
+  code: 'NO_ACTIVE_EXPERIMENT' | 'CONSENT_REQUIRED' | 'CONSENT_DENIED' | 'EVENT_SEND_FAILED';
 };
+
+export type AnalyticsConsent = 'pending' | 'granted' | 'denied';
+export type AnalyticsProperties = Record<string, string | number | boolean | null>;
 
 export type LykarRuntimeOptions = {
   projectKey: string;
   apiBaseUrl?: string;
   version?: number;
   variantToken?: string;
+  experimentToken?: string;
+  analyticsConsent?: AnalyticsConsent;
   pathname?: string;
   accessToken?: string;
   credentials?: RequestCredentials;
@@ -95,4 +102,14 @@ export type NativeVariantSelection = {
   variantKey: 'A' | 'B';
 };
 
-export type RuntimeSelection = RuntimeManifest | NativeVariantSelection | null;
+export type ExperimentRuntimeSelection = {
+  mode: 'experiment';
+  experimentId: string;
+  variantKey: 'A' | 'B';
+  assignmentId: string;
+  capability: string;
+  capabilityExpiresAt: string;
+  manifest: PublishedManifestV1 | null;
+};
+
+export type RuntimeSelection = RuntimeManifest | NativeVariantSelection | ExperimentRuntimeSelection | null;

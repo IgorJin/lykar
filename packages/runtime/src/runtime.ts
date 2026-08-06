@@ -3,10 +3,14 @@ import type { PublishedManifestV1, SourceSnapshotV1 } from '@lykar/protocol';
 
 import { applyOperation } from './dom-executor.js';
 import { captureSourceSnapshot } from './dom-fingerprint.js';
+import { resolveExperimentSelection, sendAnalyticsEvent } from './analytics-client.js';
 import { fetchManifest } from './manifest-client.js';
 import type {
   ApplyManifestOptions,
   ApplyReport,
+  AnalyticsConsent,
+  AnalyticsProperties,
+  ExperimentRuntimeSelection,
   FetchLike,
   LykarRuntimeConstructorOptions,
   LykarRuntimeOptions,
@@ -18,12 +22,14 @@ import type {
 } from './types.js';
 
 const appliedReleases = new WeakMap<Document, Set<string>>();
+let activeRuntime: Lykar | undefined;
 
 export class Lykar {
   readonly projectKey: string;
   readonly apiBaseUrl: string;
   readonly version?: number;
   readonly variantToken?: string;
+  readonly experimentToken?: string;
   readonly pathname: string;
   readonly accessToken?: string;
   readonly credentials?: RequestCredentials;
@@ -33,6 +39,10 @@ export class Lykar {
   private readonly strict: boolean;
   private readonly waitForDom: boolean;
   private readonly onReport?: (report: ApplyReport) => void;
+  private analyticsConsent: AnalyticsConsent;
+  private analyticsContext?: ExperimentRuntimeSelection;
+  private pendingExposure = false;
+  private exposureSent = false;
 
   constructor(projectKey: string, options?: LykarRuntimeConstructorOptions);
   constructor(options: LykarRuntimeOptions);
@@ -56,6 +66,7 @@ export class Lykar {
     this.apiBaseUrl = options.apiBaseUrl ?? '';
     this.version = options.version ?? versionFromLocation(document);
     this.variantToken = options.variantToken ?? variantTokenFromLocation(document);
+    this.experimentToken = options.experimentToken ?? experimentTokenFromLocation(document);
     this.pathname = normalizePathname(options.pathname ?? document.defaultView?.location.pathname ?? '/');
     this.accessToken = options.accessToken;
     this.credentials = options.credentials;
@@ -64,10 +75,24 @@ export class Lykar {
     this.strict = options.strict ?? false;
     this.waitForDom = options.waitForDom ?? true;
     this.onReport = options.onReport;
+    this.analyticsConsent = options.analyticsConsent ?? 'pending';
+    activeRuntime = this;
   }
 
   async loadManifest(): Promise<RuntimeSelection> {
     if (!this.fetcher) throw new Error('Lykar runtime requires fetch to load a manifest');
+
+    if (this.version === undefined && !this.variantToken && this.experimentToken) {
+      return resolveExperimentSelection({
+        projectKey: this.projectKey,
+        apiBaseUrl: this.apiBaseUrl,
+        pathname: this.pathname,
+        experimentToken: this.experimentToken,
+        document: this.document,
+        credentials: this.credentials,
+        fetch: this.fetcher,
+      });
+    }
 
     return fetchManifest({
       projectKey: this.projectKey,
@@ -114,20 +139,45 @@ export class Lykar {
 
   async start(): Promise<RuntimeStartResult> {
     const startedAt = new Date().toISOString();
-    if (this.version === undefined && !this.variantToken) {
+    if (this.version === undefined && !this.variantToken && !this.experimentToken) {
       return nativePageReport('NO_VARIANT_TOKEN', startedAt);
     }
     if (this.waitForDom) await domReady(this.document);
     const selection = await this.loadManifest();
     if (!selection) return nativePageReport('VARIANT_UNAVAILABLE', startedAt);
+    if (isExperimentSelection(selection)) {
+      this.analyticsContext = selection;
+      let result: RuntimeStartResult;
+      if (selection.manifest) {
+        result = await this.applyManifest(selection.manifest);
+      } else {
+        result = nativePageReport('NATIVE_VARIANT', startedAt, selection);
+      }
+      await this.queueOrSendExposure();
+      return result;
+    }
     if (isNativeVariantSelection(selection)) {
       return nativePageReport('NATIVE_VARIANT', startedAt, selection);
     }
     return this.applyManifest(selection);
   }
 
-  track(name: string, properties: Record<string, unknown> = {}): TrackEventResult {
-    return track(name, properties);
+  async track(name: string, properties: Record<string, unknown> = {}): Promise<TrackEventResult> {
+    const event = requireAnalyticsEvent(name, properties);
+    if (!this.analyticsContext) return { accepted: false, code: 'NO_ACTIVE_EXPERIMENT' };
+    if (this.analyticsConsent === 'pending') return { accepted: false, code: 'CONSENT_REQUIRED' };
+    if (this.analyticsConsent === 'denied') return { accepted: false, code: 'CONSENT_DENIED' };
+    return this.sendEvent('conversion', event.name, event.properties);
+  }
+
+  async consent(value: Exclude<AnalyticsConsent, 'pending'>): Promise<void> {
+    if (value !== 'granted' && value !== 'denied') throw new Error('Lykar consent must be granted or denied');
+    this.analyticsConsent = value;
+    if (value === 'denied') {
+      this.pendingExposure = false;
+      return;
+    }
+    if (this.pendingExposure) await this.queueOrSendExposure();
   }
 
   private finishReport(
@@ -161,6 +211,37 @@ export class Lykar {
     }
     return report;
   }
+
+  private async queueOrSendExposure(): Promise<void> {
+    if (this.exposureSent || !this.analyticsContext) return;
+    if (this.analyticsConsent === 'pending') {
+      this.pendingExposure = true;
+      return;
+    }
+    if (this.analyticsConsent === 'denied') return;
+    const result = await this.sendEvent('exposure', '$exposure', {});
+    if (result.accepted) {
+      this.exposureSent = true;
+      this.pendingExposure = false;
+    }
+  }
+
+  private async sendEvent(
+    eventType: 'exposure' | 'conversion',
+    name: string,
+    properties: AnalyticsProperties,
+  ): Promise<TrackEventResult> {
+    if (!this.analyticsContext || !this.fetcher) return { accepted: false, code: 'NO_ACTIVE_EXPERIMENT' };
+    return sendAnalyticsEvent({
+      apiBaseUrl: this.apiBaseUrl,
+      capability: this.analyticsContext.capability,
+      eventType,
+      name,
+      properties,
+      credentials: this.credentials,
+      fetch: this.fetcher,
+    });
+  }
 }
 
 function normalizePathname(value: string): string {
@@ -184,17 +265,20 @@ export function init(
     : new Lykar(projectKeyOrOptions).start();
 }
 
-export function track(name: string, properties: Record<string, unknown> = {}): TrackEventResult {
-  if (!name.trim() || name.length > 120) throw new Error('Lykar event name must contain between 1 and 120 characters');
-  if (typeof properties !== 'object' || properties === null || Array.isArray(properties)) {
-    throw new Error('Lykar event properties must be an object');
-  }
-  // TODO(analytics): persist exposure and conversion events in the analytics phase.
-  return {
-    accepted: false,
-    code: 'EVENT_PIPELINE_NOT_IMPLEMENTED',
-    event: { name: name.trim(), properties, occurredAt: new Date().toISOString() },
-  };
+export function track(name: string, properties: Record<string, unknown> = {}): Promise<TrackEventResult> {
+  if (!activeRuntime) return Promise.resolve({ accepted: false, code: 'NO_ACTIVE_EXPERIMENT' });
+  return activeRuntime.track(name, properties);
+}
+
+export function consent(value: Exclude<AnalyticsConsent, 'pending'>): Promise<void> {
+  if (!activeRuntime) return Promise.resolve();
+  return activeRuntime.consent(value);
+}
+
+function isExperimentSelection(
+  selection: RuntimeSelection,
+): selection is ExperimentRuntimeSelection {
+  return selection !== null && 'mode' in selection && selection.mode === 'experiment';
 }
 
 function isNativeVariantSelection(
@@ -232,6 +316,42 @@ function variantTokenFromLocation(document: Document): string | undefined {
   return value?.trim() || undefined;
 }
 
+function experimentTokenFromLocation(document: Document): string | undefined {
+  const value = document.defaultView?.location
+    ? new URLSearchParams(document.defaultView.location.search).get('lykar_experiment')
+    : null;
+  return value?.trim() || undefined;
+}
+
+function requireAnalyticsEvent(
+  name: string,
+  properties: Record<string, unknown>,
+): { name: string; properties: AnalyticsProperties } {
+  if (typeof name !== 'string' || !name.trim() || name.trim().length > 120) {
+    throw new Error('Lykar event name must contain between 1 and 120 characters');
+  }
+  if (typeof properties !== 'object' || properties === null || Array.isArray(properties)) {
+    throw new Error('Lykar event properties must be an object');
+  }
+  if (Object.keys(properties).length > 20) throw new Error('Lykar event properties must contain at most 20 keys');
+  const sanitized: AnalyticsProperties = {};
+  for (const [key, value] of Object.entries(properties)) {
+    if (!key.trim() || key.length > 64) throw new Error('Lykar event property names must contain between 1 and 64 characters');
+    if (typeof value === 'string') {
+      if (value.length > 256) throw new Error(`Lykar event property ${key} is too long`);
+      sanitized[key] = value;
+    } else if (typeof value === 'number') {
+      if (!Number.isFinite(value)) throw new Error(`Lykar event property ${key} must be finite`);
+      sanitized[key] = value;
+    } else if (typeof value === 'boolean' || value === null) {
+      sanitized[key] = value;
+    } else {
+      throw new Error(`Lykar event property ${key} must be a scalar value`);
+    }
+  }
+  return { name: name.trim(), properties: sanitized };
+}
+
 async function sourceCompatibilityFor(
   document: Document,
   manifest: PublishedManifestV1,
@@ -257,7 +377,7 @@ async function sourceCompatibilityFor(
 function nativePageReport(
   reason: NativePageReport['reason'],
   startedAt: string,
-  selection?: Extract<RuntimeSelection, { mode: 'native-variant' }>,
+  selection?: Extract<RuntimeSelection, { mode: 'native-variant' | 'experiment' }>,
 ): NativePageReport {
   return {
     mode: 'native',

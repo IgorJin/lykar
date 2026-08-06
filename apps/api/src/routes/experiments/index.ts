@@ -44,6 +44,7 @@ const experimentRoutes: FastifyPluginAsync<ExperimentRoutesOptions> = async (fas
                   key: { type: 'string', enum: ['A', 'B'] },
                   releaseId: { type: ['string', 'null'] },
                   description: { type: ['string', 'null'] },
+                  weightBps: { type: 'integer', minimum: 1, maximum: 9999 },
                 },
               },
             },
@@ -64,7 +65,7 @@ const experimentRoutes: FastifyPluginAsync<ExperimentRoutesOptions> = async (fas
 
   fastify.patch<{
     Params: VariantParams;
-    Body: { releaseId?: unknown; description?: unknown };
+    Body: { releaseId?: unknown; description?: unknown; weightBps?: unknown };
   }>(
     '/api/admin/experiments/:experimentId/variants/:key',
     {
@@ -75,6 +76,7 @@ const experimentRoutes: FastifyPluginAsync<ExperimentRoutesOptions> = async (fas
           properties: {
             releaseId: { type: ['string', 'null'] },
             description: { type: ['string', 'null'] },
+            weightBps: { type: 'integer', minimum: 1, maximum: 9999 },
           },
         },
       },
@@ -86,23 +88,54 @@ const experimentRoutes: FastifyPluginAsync<ExperimentRoutesOptions> = async (fas
         request.params.key,
         request.body.releaseId,
         request.body.description,
+        request.body.weightBps,
       ),
     }),
   );
 
   for (const action of ['activate', 'pause', 'complete'] as const) {
-    fastify.post<{ Params: ExperimentParams }>(
+    fastify.post<{ Params: ExperimentParams; Body: { winnerVariantKey?: unknown } }>(
       `/api/admin/experiments/:experimentId/${action}`,
-      { preHandler: requireSession },
+      {
+        preHandler: requireSession,
+        schema: {
+          body: {
+            type: 'object', additionalProperties: false,
+            properties: { winnerVariantKey: { type: ['string', 'null'], enum: ['A', 'B', null] } },
+          },
+        },
+      },
       async request => ({
         experiment: await options.experimentService.transition(
           authenticatedSession(request).user.id,
           request.params.experimentId,
           action,
+          request.body?.winnerVariantKey,
         ),
       }),
     );
   }
+
+  fastify.post<{ Params: ExperimentParams }>(
+    '/api/admin/experiments/:experimentId/links',
+    { preHandler: requireSession },
+    async (request, reply) => reply.code(201).send(await options.experimentService.createExperimentLink(
+      authenticatedSession(request).user.id,
+      request.params.experimentId,
+    )),
+  );
+
+  fastify.delete<{ Params: LinkParams }>(
+    '/api/admin/experiment-links/:linkId',
+    { preHandler: requireSession },
+    async (request, reply) => {
+      await options.experimentService.revokeExperimentLink(
+        authenticatedSession(request).user.id,
+        request.params.linkId,
+      );
+      return reply.code(204).send();
+    },
+  );
 
   fastify.post<{ Params: VariantParams }>(
     '/api/admin/experiments/:experimentId/variants/:key/links',

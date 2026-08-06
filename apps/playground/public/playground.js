@@ -14,6 +14,7 @@ async function loadRuntime(accessToken, version) {
     apiBaseUrl: config.apiBaseUrl,
     accessToken,
     version,
+    analyticsConsent: 'granted',
     waitForDom: false,
     onReport(report) {
       window.__LYKAR_RUNTIME_REPORT__ = report;

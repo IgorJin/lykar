@@ -33,9 +33,10 @@ await runtime.start();
 Runtime always sends the document pathname, so `/` and `/pricing` have separate
 release numbers. When the host page has `?version=3`, runtime requests immutable
 release 3 and requires page-bound editor/share access. A public
-`?lykar_variant=<opaque-token>` resolves an active A/B variant. Without either
-parameter runtime returns immediately without fetching a manifest or changing
-the host DOM.
+`?lykar_variant=<opaque-token>` resolves one exact QA variant. A public
+`?lykar_experiment=<opaque-token>` performs weighted A/B assignment and keeps it
+stable for 30 days. Without one of these parameters runtime returns immediately
+without fetching a manifest or changing the host DOM.
 
 ## ESM
 
@@ -54,8 +55,19 @@ stop after the first mutation error.
 
 The runtime captures a normalized structural fingerprint before replay. A
 page-level mismatch is reported as drift but does not block compatible targets;
-per-operation target fingerprints decide local skips. `Lykar.track()` is a
-typed placeholder and deliberately does not transmit events yet.
+per-operation target fingerprints decide local skips.
+
+Experiment analytics is consent-gated. Assignment works while consent is
+pending, but no event is transmitted until the host grants consent:
+
+```js
+await runtime.start();
+await runtime.consent('granted'); // sends the pending exposure
+await runtime.track('signup', { plan: 'pro' });
+```
+
+Only bounded scalar properties are accepted. Direct variant and protected
+version links do not collect analytics.
 
 Inserted markup is intentionally constrained. Script-capable tags, inline
 event handlers, inline styles, `srcdoc`, and unsafe URL schemes are rejected.

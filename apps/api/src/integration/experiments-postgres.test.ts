@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { Pool } from 'pg';
 
 import { buildApp } from '../app';
@@ -81,6 +81,7 @@ test(
       });
       assert.equal(activation.statusCode, 200, activation.body);
       assert.equal(activation.json().experiment.status, 'active');
+      assert.deepEqual(activation.json().experiment.variants.map((variant: { weightBps: number }) => variant.weightBps), [5000, 5000]);
 
       const createLink = async (key: 'A' | 'B') => app.inject({
         method: 'POST', url: `/api/admin/experiments/${first.id}/variants/${key}/links`, headers, payload: {},
@@ -100,6 +101,53 @@ test(
       assert.equal(treatmentB.statusCode, 200, treatmentB.body);
       assert.equal(treatmentB.json().manifest.releaseId, release.id);
       assert.equal(treatmentB.json().manifest.sourceSnapshot.pageHash, 'b'.repeat(64));
+
+      const experimentLink = await app.inject({
+        method: 'POST', url: `/api/admin/experiments/${first.id}/links`, headers, payload: {},
+      });
+      assert.equal(experimentLink.statusCode, 201, experimentLink.body);
+      const experimentToken = new URL(experimentLink.json().url).searchParams.get('lykar_experiment');
+      assert.ok(experimentToken);
+      const anonymousId = randomUUID();
+      const resolveExperiment = () => app.inject({
+        method: 'POST', url: `/api/runtime/projects/${project.publicKey}/experiments/resolve`,
+        payload: { pathname: '/', experimentToken, anonymousId },
+      });
+      const selectionResponse = await resolveExperiment();
+      assert.equal(selectionResponse.statusCode, 200, selectionResponse.body);
+      const selection = selectionResponse.json().selection;
+      const stickySelection = (await resolveExperiment()).json().selection;
+      assert.equal(stickySelection.assignmentId, selection.assignmentId);
+      assert.equal(stickySelection.variantKey, selection.variantKey);
+
+      const event = async (eventType: 'exposure' | 'conversion', name: string) => app.inject({
+        method: 'POST', url: '/api/runtime/analytics/events',
+        payload: {
+          capability: selection.capability,
+          clientEventId: randomUUID(),
+          eventType,
+          name,
+          properties: eventType === 'conversion' ? { plan: 'pro' } : {},
+          occurredAt: new Date().toISOString(),
+        },
+      });
+      assert.equal((await event('exposure', '$exposure')).statusCode, 202);
+      assert.equal((await event('conversion', 'signup')).statusCode, 202);
+      const report = await app.inject({
+        method: 'GET', url: `/api/admin/experiments/${first.id}/analytics`, headers,
+      });
+      assert.equal(report.statusCode, 200, report.body);
+      const selectedReport = report.json().report.variants.find(
+        (variant: { key: 'A' | 'B' }) => variant.key === selection.variantKey,
+      );
+      assert.deepEqual(
+        { visitors: selectedReport.visitors, views: selectedReport.views, uniqueConversions: selectedReport.uniqueConversions },
+        { visitors: 1, views: 1, uniqueConversions: 1 },
+      );
+      assert.equal((await app.inject({
+        method: 'DELETE', url: `/api/admin/experiment-links/${experimentLink.json().link.id}`, headers,
+      })).statusCode, 204);
+      assert.equal((await resolveExperiment()).statusCode, 204);
 
       const lockedUpdate = await app.inject({
         method: 'PATCH', url: `/api/admin/experiments/${first.id}/variants/B`, headers,
@@ -126,7 +174,11 @@ test(
       assert.equal((await app.inject({ method: 'GET', url: `${runtimeUrl}${replacementToken}` })).statusCode, 204);
       await app.inject({ method: 'POST', url: `/api/admin/experiments/${first.id}/activate`, headers, payload: {} });
       assert.equal((await app.inject({ method: 'GET', url: `${runtimeUrl}${replacementToken}` })).statusCode, 200);
-      await app.inject({ method: 'POST', url: `/api/admin/experiments/${first.id}/complete`, headers, payload: {} });
+      const completion = await app.inject({
+        method: 'POST', url: `/api/admin/experiments/${first.id}/complete`, headers,
+        payload: { winnerVariantKey: 'B' },
+      });
+      assert.equal(completion.json().experiment.winnerVariantKey, 'B');
       assert.equal((await app.inject({ method: 'GET', url: `${runtimeUrl}${replacementToken}` })).statusCode, 204);
       const cannotRestart = await app.inject({
         method: 'POST', url: `/api/admin/experiments/${first.id}/activate`, headers, payload: {},
@@ -144,6 +196,28 @@ test(
         );
         assert.equal(stored.rows[0].token_hash.trim(), createHash('sha256').update(replacementToken).digest('hex'));
         assert.notEqual(stored.rows[0].token_hash.trim(), replacementToken);
+        const analytics = await pool.query<{ token_hash: string; visitor_hash: string }>(
+          `SELECT link.token_hash, assignment.visitor_hash
+           FROM experiment_links link
+           JOIN experiment_assignments assignment ON assignment.experiment_id = link.experiment_id
+           WHERE link.id = $1 AND assignment.id = $2`,
+          [experimentLink.json().link.id, selection.assignmentId],
+        );
+        assert.equal(analytics.rows[0].token_hash.trim(), createHash('sha256').update(experimentToken).digest('hex'));
+        assert.equal(analytics.rows[0].visitor_hash.trim(), createHash('sha256').update(anonymousId).digest('hex'));
+        assert.notEqual(analytics.rows[0].visitor_hash.trim(), anonymousId);
+        const pruned = await pool.query('DELETE FROM analytics_events WHERE assignment_id = $1', [selection.assignmentId]);
+        assert.equal(pruned.rowCount, 2);
+        const retainedReportResponse = await app.inject({
+          method: 'GET', url: `/api/admin/experiments/${first.id}/analytics`, headers,
+        });
+        const retainedVariant = retainedReportResponse.json().report.variants.find(
+          (variant: { key: 'A' | 'B' }) => variant.key === selection.variantKey,
+        );
+        assert.deepEqual(
+          { visitors: retainedVariant.visitors, views: retainedVariant.views, uniqueConversions: retainedVariant.uniqueConversions },
+          { visitors: 1, views: 1, uniqueConversions: 1 },
+        );
       } finally {
         await pool.end();
       }
