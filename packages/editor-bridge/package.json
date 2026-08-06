@@ -2,5 +2,36 @@
   "name": "@lykar/editor-bridge",
   "version": "0.0.0",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "main": "./dist/editor.js",
+  "module": "./dist/editor.js",
+  "types": "./dist/index.d.ts",
+  "unpkg": "./dist/editor.iife.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/editor.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "prebuild": "npm run build --workspace @lykar/protocol && npm run build --workspace @lykar/runtime",
+    "build": "npm run clean && npm run build:types && esbuild src/index.ts --bundle --platform=browser --format=esm --target=es2018 --sourcemap --outfile=dist/editor.js && esbuild src/global.ts --bundle --platform=browser --format=iife --target=es2018 --minify --sourcemap --outfile=dist/editor.iife.js",
+    "build:types": "tsc --emitDeclarationOnly -p tsconfig.json",
+    "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
+    "pretypecheck": "npm run build --workspace @lykar/protocol && npm run build --workspace @lykar/runtime",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "pretest": "npm run build --workspace @lykar/protocol && npm run build --workspace @lykar/runtime",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@lykar/protocol": "0.0.0",
+    "@lykar/runtime": "0.0.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.1",
+    "jsdom": "^30.0.1",
+    "typescript": "^5.8.3",
+    "vitest": "^4.1.10"
+  }
 }

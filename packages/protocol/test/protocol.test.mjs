@@ -18,6 +18,8 @@ test('accepts every operation kind in schema version 1', () => {
   const operations = [
     { schemaVersion: 1, id: 'text', kind: 'setText', target, value: 'Hello' },
     { schemaVersion: 1, id: 'style', kind: 'setStyle', target, property: 'color', value: 'red' },
+    { schemaVersion: 1, id: 'attribute', kind: 'setAttribute', target, name: 'aria-label', value: 'Hero' },
+    { schemaVersion: 1, id: 'remove-attribute', kind: 'removeAttribute', target, name: 'hidden' },
     {
       schemaVersion: 1,
       id: 'insert',
@@ -41,6 +43,7 @@ test('accepts every operation kind in schema version 1', () => {
   }
 
   assert.equal(OPERATION_SCHEMA_VERSION, 1);
+  assert.equal(operations.length, 7);
 });
 
 test('rejects operations without a stable target locator', () => {

@@ -119,6 +119,8 @@ test('appendOperations accepts the complete static-page operation set', async ()
   const operations: OperationV1[] = [
     { schemaVersion: 1, id: 'text', kind: 'setText', target, value: 'Hello' },
     { schemaVersion: 1, id: 'style', kind: 'setStyle', target, property: 'color', value: 'red' },
+    { schemaVersion: 1, id: 'attribute', kind: 'setAttribute', target, name: 'aria-label', value: 'Hero' },
+    { schemaVersion: 1, id: 'remove-attribute', kind: 'removeAttribute', target, name: 'hidden' },
     {
       schemaVersion: 1,
       id: 'insert',
@@ -133,6 +135,6 @@ test('appendOperations accepts the complete static-page operation set', async ()
 
   const result = await service.appendOperations(DRAFT_ID, 7, operations);
 
-  assert.deepEqual(result, { draftId: DRAFT_ID, revision: 8, appended: 5 });
+  assert.deepEqual(result, { draftId: DRAFT_ID, revision: 8, appended: 7 });
   assert.deepEqual(repository.appendedInput?.operations, operations);
 });

@@ -3,6 +3,8 @@ export const OPERATION_SCHEMA_VERSION = 1 as const;
 export const OPERATION_KINDS = [
   'setText',
   'setStyle',
+  'setAttribute',
+  'removeAttribute',
   'insertNode',
   'removeNode',
   'moveNode',
@@ -77,6 +79,17 @@ export type SetStyleOperationV1 = OperationBaseV1 & {
   value: string;
 };
 
+export type SetAttributeOperationV1 = OperationBaseV1 & {
+  kind: 'setAttribute';
+  name: string;
+  value: string;
+};
+
+export type RemoveAttributeOperationV1 = OperationBaseV1 & {
+  kind: 'removeAttribute';
+  name: string;
+};
+
 export type InsertNodeOperationV1 = OperationBaseV1 & {
   kind: 'insertNode';
   position: InsertPosition;
@@ -96,6 +109,8 @@ export type MoveNodeOperationV1 = OperationBaseV1 & {
 export type OperationV1 =
   | SetTextOperationV1
   | SetStyleOperationV1
+  | SetAttributeOperationV1
+  | RemoveAttributeOperationV1
   | InsertNodeOperationV1
   | RemoveNodeOperationV1
   | MoveNodeOperationV1;
@@ -207,6 +222,13 @@ export function validateOperationV1(value: unknown): OperationValidationResult {
     case 'setStyle':
       if (!isNonEmptyString(value.property)) errors.push('setStyle.property must be a non-empty string');
       if (typeof value.value !== 'string') errors.push('setStyle.value must be a string');
+      break;
+    case 'setAttribute':
+      if (!isNonEmptyString(value.name)) errors.push('setAttribute.name must be a non-empty string');
+      if (typeof value.value !== 'string') errors.push('setAttribute.value must be a string');
+      break;
+    case 'removeAttribute':
+      if (!isNonEmptyString(value.name)) errors.push('removeAttribute.name must be a non-empty string');
       break;
     case 'insertNode':
       if (!isInsertPosition(value.position)) errors.push('insertNode.position is invalid');

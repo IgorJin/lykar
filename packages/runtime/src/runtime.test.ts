@@ -118,6 +118,43 @@ describe('DOM executor', () => {
     expect(report.operations[1].code).toBe('UNSAFE_NODE_URL');
   });
 
+  it('sets and removes safe attributes while rejecting script-capable values', async () => {
+    document.body.innerHTML = '<a data-lykar-id="link" title="Old">Link</a>';
+    const runtime = new Lykar({ projectKey: 'pk_test', document });
+    const report = await runtime.applyManifest(manifest([
+      {
+        schemaVersion: 1,
+        id: 'set-href',
+        kind: 'setAttribute',
+        target: { marker: 'link' },
+        name: 'href',
+        value: '/pricing',
+      },
+      {
+        schemaVersion: 1,
+        id: 'remove-title',
+        kind: 'removeAttribute',
+        target: { marker: 'link' },
+        name: 'title',
+      },
+      {
+        schemaVersion: 1,
+        id: 'unsafe-handler',
+        kind: 'setAttribute',
+        target: { marker: 'link' },
+        name: 'onclick',
+        value: 'alert(1)',
+      },
+    ]));
+
+    const link = document.querySelector('a');
+    expect(link?.getAttribute('href')).toBe('/pricing');
+    expect(link?.hasAttribute('title')).toBe(false);
+    expect(link?.hasAttribute('onclick')).toBe(false);
+    expect(report).toMatchObject({ applied: 2, errors: 1 });
+    expect(report.operations[2].code).toBe('UNSAFE_NODE_ATTRIBUTE');
+  });
+
   it('moves and removes nodes while protecting the document roots', async () => {
     document.body.innerHTML = `
       <section data-lykar-id="left"><span data-lykar-id="item">Item</span></section>

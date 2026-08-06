@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Northstar — Lykar playground</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/" data-lykar-id="brand">Northstar</a>
+      <nav aria-label="Основная навигация">
+        <a href="#features">Возможности</a>
+        <a href="/pricing">Тарифы</a>
+      </nav>
+      <a class="button secondary" href="#contact" data-lykar-id="header-cta">Попробовать</a>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="eyebrow">Интерактивный Lykar playground</div>
+        <h1 data-lykar-id="hero-title">Редактируйте интерфейс, а не исходный код</h1>
+        <p class="lead" data-lykar-id="hero-copy">Выберите любой элемент. Изменения появятся на странице только после кнопки «Применить».</p>
+        <div class="hero-actions">
+          <a class="button primary" href="#features" data-lykar-id="hero-primary">Посмотреть возможности</a>
+          <a class="button ghost" href="/pricing">Открыть тарифы</a>
+        </div>
+      </section>
+
+      <section class="features" id="features">
+        <article class="card">
+          <span class="card-number">01</span>
+          <h2>Точный выбор</h2>
+          <p>Marker, CSS и XPath остаются fallback-цепочкой без служебной мутации страницы.</p>
+        </article>
+        <article class="card">
+          <span class="card-number">02</span>
+          <h2>Локальный batch</h2>
+          <p>Текст, inline styles, атрибуты и структура применяются одной осознанной командой.</p>
+        </article>
+        <article class="card">
+          <span class="card-number">03</span>
+          <h2>Предложения</h2>
+          <p>Dummy provider показывает будущий human-in-the-loop поток без внешнего API.</p>
+        </article>
+      </section>
+
+      <section class="split" id="contact">
+        <div>
+          <div class="eyebrow">Структурные операции</div>
+          <h2>Дублируйте, добавляйте, удаляйте и перемещайте блоки</h2>
+        </div>
+        <ul>
+          <li>Локальные undo и redo</li>
+          <li>Отдельная история для каждого pathname</li>
+          <li>Без backend-запросов в этом MVP</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer>Northstar demo · Lykar editor fixture</footer>
+
+    <aside class="dev-console" data-lykar-editor-root="playground-console">
+      <strong>Последний локальный draft</strong>
+      <pre id="draft-output">Выберите элемент и примените изменение.</pre>
+      <button id="restart-editor" type="button">Перезапустить редактор</button>
+    </aside>
+
+    <script src="/editor.iife.js"></script>
+    <script src="/playground.js"></script>
+  </body>
+</html>

@@ -65,6 +65,12 @@ export async function applyOperation(
       case 'setStyle':
         applySetStyle(document, target, operation.property, operation.value);
         break;
+      case 'setAttribute':
+        setSafeAttribute(target, operation.name, operation.value);
+        break;
+      case 'removeAttribute':
+        removeSafeAttribute(target, operation.name);
+        break;
       case 'insertNode':
         if (hasOperationMarker(document, operation.id)) {
           return result(
@@ -219,6 +225,17 @@ function setSafeAttribute(element: Element, name: string, value: string): void {
   }
 
   element.setAttribute(name, value);
+}
+
+function removeSafeAttribute(element: Element, name: string): void {
+  const normalizedName = name.toLowerCase();
+  if (!/^[a-z_:][a-z0-9_.:-]*$/i.test(name)) {
+    throw new OperationExecutionError('UNSAFE_NODE_ATTRIBUTE', `Attribute ${name} is invalid`);
+  }
+  if (normalizedName === 'data-lykar-operation-id') {
+    throw new OperationExecutionError('UNSAFE_NODE_ATTRIBUTE', `Attribute ${name} is reserved by Lykar`);
+  }
+  element.removeAttribute(name);
 }
 
 function isSafeUrl(value: string): boolean {

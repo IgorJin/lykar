@@ -13,7 +13,8 @@
     "test": "npm run test --workspaces --if-present",
     "db:migrate": "npm run migrate --workspace lykar-lib-server",
     "dev:api": "npm run dev --workspace lykar-lib-server",
-    "dev:editor": "npm run dev --workspace lykar-lib"
+    "dev:editor": "npm run dev --workspace lykar-lib",
+    "dev:playground": "npm run dev --workspace @lykar/playground"
   },
   "engines": {
     "node": ">=20"

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Northstar Pricing — Lykar playground</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/" data-lykar-id="brand">Northstar</a>
+      <nav aria-label="Основная навигация"><a href="/">Главная</a><a href="/pricing">Тарифы</a></nav>
+      <a class="button secondary" href="#plans">Выбрать тариф</a>
+    </header>
+
+    <main>
+      <section class="hero compact">
+        <div class="eyebrow">Отдельная страница · /pricing</div>
+        <h1 data-lykar-id="pricing-title">Простой тариф для первого релиза</h1>
+        <p class="lead">Эта страница создаёт независимый локальный draft и не смешивает операции с главной.</p>
+      </section>
+
+      <section class="pricing" id="plans">
+        <article class="price-card"><h2>Starter</h2><div class="price">€0</div><p>Локальные эксперименты и один проект.</p><button>Начать</button></article>
+        <article class="price-card featured" data-lykar-id="pro-plan"><div class="eyebrow">Популярный</div><h2>Pro</h2><div class="price">€29</div><p>Версии, публикация и share previews.</p><button>Выбрать Pro</button></article>
+        <article class="price-card"><h2>Team</h2><div class="price">Позже</div><p>Совместная работа появится после первого MVP.</p><button disabled>Недоступно</button></article>
+      </section>
+    </main>
+
+    <footer>Northstar pricing · independent page fixture</footer>
+    <aside class="dev-console" data-lykar-editor-root="playground-console"><strong>Последний локальный draft</strong><pre id="draft-output">Pathname этой страницы: /pricing</pre><button id="restart-editor" type="button">Перезапустить редактор</button></aside>
+    <script src="/editor.iife.js"></script>
+    <script src="/playground.js"></script>
+  </body>
+</html>

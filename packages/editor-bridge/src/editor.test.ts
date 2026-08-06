@@ -1,0 +1,193 @@
+import type { OperationV1 } from '@lykar/protocol';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { LykarEditor } from './editor.js';
+import { DummyProposalProvider } from './proposal.js';
+import { EditorSession } from './session.js';
+import { buildTargetDescriptor, serializeEditableElement } from './target-builder.js';
+
+beforeEach(() => {
+  document.body.innerHTML = '';
+  window.history.replaceState({}, '', '/');
+});
+
+describe('target builder', () => {
+  it('uses an existing marker and produces CSS/XPath fallbacks without mutating the page', () => {
+    document.body.innerHTML = `
+      <main><section><p data-lykar-id="hero-copy">Text</p><p>Other</p></section></main>
+    `;
+    const target = document.querySelector('[data-lykar-id="hero-copy"]')!;
+    const before = target.outerHTML;
+    const descriptor = buildTargetDescriptor(target);
+
+    expect(descriptor.marker).toBe('hero-copy');
+    expect(document.querySelector(descriptor.selectors!.css!)).toBe(target);
+    expect(document.evaluate(
+      descriptor.selectors!.xpath!,
+      document,
+      null,
+      XPathResult.FIRST_ORDERED_NODE_TYPE,
+      null,
+    ).singleNodeValue).toBe(target);
+    expect(target.outerHTML).toBe(before);
+  });
+
+  it('creates a unique structural selector when no marker or id exists', () => {
+    document.body.innerHTML = '<main><div><span>One</span><span>Two</span></div></main>';
+    const target = document.querySelectorAll('span')[1];
+    const descriptor = buildTargetDescriptor(target);
+
+    expect(descriptor.marker).toBeUndefined();
+    expect(descriptor.selectors?.css).toContain(':nth-of-type(2)');
+    expect(document.querySelector(descriptor.selectors!.css!)).toBe(target);
+  });
+
+  it('strips unique editor markers and ids when serializing a duplicate', () => {
+    document.body.innerHTML = '<article id="feature" data-lykar-id="feature"><h2 id="title">Title</h2></article>';
+    const serialized = serializeEditableElement(document.querySelector('article')!);
+
+    expect(serialized.attributes).toBeUndefined();
+    expect(serialized.children?.[0]).toMatchObject({ type: 'element', tag: 'h2', children: [{ value: 'Title' }] });
+    expect((serialized.children?.[0] as { attributes?: unknown }).attributes).toBeUndefined();
+  });
+});
+
+describe('local editor session', () => {
+  it('applies a page-scoped batch only on Apply and supports undo/redo', async () => {
+    window.history.replaceState({}, '', '/pricing?version=9');
+    document.body.innerHTML = '<a id="cta" href="/old">Old label</a>';
+    const link = document.querySelector('a')!;
+    const target = buildTargetDescriptor(link);
+    const operations: OperationV1[] = [
+      { schemaVersion: 1, id: 'text', kind: 'setText', target, value: 'New label' },
+      { schemaVersion: 1, id: 'style', kind: 'setStyle', target, property: 'color', value: 'purple' },
+      { schemaVersion: 1, id: 'href', kind: 'setAttribute', target, name: 'href', value: '/new' },
+    ];
+    const session = new EditorSession(document);
+
+    expect(link.textContent).toBe('Old label');
+    const report = await session.apply({ id: 'pricing-edit', operations });
+
+    expect(report).toMatchObject({ applied: 3, skipped: 0, errors: 0 });
+    expect(link.textContent).toBe('New label');
+    expect((link as HTMLElement).style.color).toBe('purple');
+    expect(link.getAttribute('href')).toBe('/new');
+    expect(session.exportDraft()).toMatchObject({
+      page: { pathname: '/pricing', url: 'http://localhost:3000/pricing' },
+      operations,
+    });
+
+    expect(session.undo()).toBe(true);
+    expect(link.textContent).toBe('Old label');
+    expect((link as HTMLElement).style.color).toBe('');
+    expect(link.getAttribute('href')).toBe('/old');
+
+    const redo = await session.redo();
+    expect(redo?.applied).toBe(3);
+    expect(link.textContent).toBe('New label');
+  });
+
+  it('undoes insert, move, and remove operations as one batch', async () => {
+    document.body.innerHTML = `
+      <main id="left"><p id="item">Item</p></main>
+      <main id="right"></main>
+    `;
+    const left = document.querySelector('#left')!;
+    const item = document.querySelector('#item')!;
+    const right = document.querySelector('#right')!;
+    const session = new EditorSession(document);
+    const operations: OperationV1[] = [
+      {
+        schemaVersion: 1,
+        id: 'insert',
+        kind: 'insertNode',
+        target: buildTargetDescriptor(item),
+        position: 'after',
+        node: { type: 'element', tag: 'span', children: [{ type: 'text', value: 'New' }] },
+      },
+      {
+        schemaVersion: 1,
+        id: 'move',
+        kind: 'moveNode',
+        target: buildTargetDescriptor(item),
+        destination: buildTargetDescriptor(right),
+        position: 'append',
+      },
+      {
+        schemaVersion: 1,
+        id: 'remove',
+        kind: 'removeNode',
+        target: buildTargetDescriptor(left),
+      },
+    ];
+
+    const report = await session.apply({ operations });
+    expect(report.applied).toBe(3);
+    expect(document.querySelector('#left')).toBeNull();
+    expect(right.querySelector('#item')).toBe(item);
+
+    session.undo();
+    expect(document.querySelector('#left')).toBe(left);
+    expect(left.querySelector('#item')).toBe(item);
+    expect(left.querySelector('span')).toBeNull();
+  });
+});
+
+describe('editor UI and proposals', () => {
+  it('intercepts page clicks, edits through the side panel, and emits a local draft', async () => {
+    document.body.innerHTML = '<main><h1 id="hero">Before</h1></main>';
+    const onApply = vi.fn();
+    const editor = new LykarEditor({ document, onApply }).start();
+    const heading = document.querySelector('h1')!;
+
+    const pageClick = new MouseEvent('click', { bubbles: true, cancelable: true, composed: true });
+    heading.dispatchEvent(pageClick);
+    expect(pageClick.defaultPrevented).toBe(true);
+
+    const panelHost = document.querySelector<HTMLElement>('[data-lykar-editor-root="panel"]')!;
+    const shadow = panelHost.shadowRoot!;
+    const text = shadow.querySelector<HTMLTextAreaElement>('[data-field="text"]')!;
+    const apply = shadow.querySelector<HTMLButtonElement>('[data-action="apply"]')!;
+    expect(text.value).toBe('Before');
+
+    text.value = 'After';
+    expect(heading.textContent).toBe('Before');
+    apply.click();
+
+    await vi.waitFor(() => expect(heading.textContent).toBe('After'));
+    expect(onApply).toHaveBeenCalledOnce();
+    expect(editor.exportDraft().operations[0]).toMatchObject({ kind: 'setText', value: 'After' });
+    editor.destroy();
+  });
+
+  it('creates deterministic dummy proposals without external API calls', async () => {
+    document.body.innerHTML = '<section id="feature">Feature</section>';
+    const element = document.querySelector('section')!;
+    const proposal = await new DummyProposalProvider().propose(element);
+
+    expect(proposal).toMatchObject({ source: 'dummy', operations: [{ kind: 'setStyle', property: 'outline' }] });
+    expect(proposal.description).toMatch(/Внешний AI API не вызывается/);
+  });
+
+  it('rejects an expired or page-mismatched editing capability', () => {
+    expect(() => new LykarEditor({
+      document,
+      capability: {
+        token: 'one-time-token',
+        expiresAt: '2020-01-01T00:00:00.000Z',
+        projectId: 'project-1',
+        pageUrl: 'http://localhost:3000/',
+      },
+    })).toThrow(/expired/);
+
+    expect(() => new LykarEditor({
+      document,
+      capability: {
+        token: 'one-time-token',
+        expiresAt: '2099-01-01T00:00:00.000Z',
+        projectId: 'project-1',
+        pageUrl: 'https://other.test/',
+      },
+    })).toThrow(/does not match/);
+  });
+});

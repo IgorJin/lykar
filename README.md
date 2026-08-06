@@ -10,6 +10,7 @@ revived here.
 ## Repository layout
 
 - `apps/api` — imported backend service.
+- `apps/playground` — standalone interactive editor fixture.
 - `packages/lykar-lib` — imported browser library and editor.
 - `packages/protocol` — shared, serializable operation protocol.
 - `packages/runtime` — public release playback runtime.
@@ -32,4 +33,10 @@ npm install
 npm run build
 npm run typecheck
 npm test
+```
+
+Run the standalone visual-editor fixture with:
+
+```sh
+npm run dev:playground
 ```
