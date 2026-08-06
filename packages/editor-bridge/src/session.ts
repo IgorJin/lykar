@@ -1,6 +1,6 @@
-import type { OperationV1 } from '@lykar/protocol';
+import type { OperationV1, SourceSnapshotV1 } from '@lykar/protocol';
 import { validateOperationV1 } from '@lykar/protocol';
-import { applyOperation, resolveTarget } from '@lykar/runtime';
+import { applyOperation, captureSourceSnapshot, resolveTarget } from '@lykar/runtime';
 import type { OperationApplyResult } from '@lykar/runtime';
 
 import { createOperationId } from './operation-id.js';
@@ -32,7 +32,7 @@ export type EditorSessionState = {
   operationCount: number;
   pendingOperationCount: number;
 };
-export type EditorSessionOptions = { storage?: Storage | null; storageKey?: string };
+export type EditorSessionOptions = { storage?: Storage | null; storageKey?: string; sourceSnapshot?: SourceSnapshotV1 };
 
 type AppliedRecord = EditorChange & { key?: string; undo: () => void };
 type AppliedBatch = { id: string; records: AppliedRecord[] };
@@ -48,6 +48,7 @@ export class EditorSession {
   private readonly changeListeners = new Set<(changes: EditorChange[]) => void>();
   private readonly storage: Storage | null;
   private readonly storageKey: string;
+  private readonly sourceSnapshotPromise: Promise<SourceSnapshotV1>;
 
   constructor(document: Document, options: EditorSessionOptions = {}) {
     this.document = document;
@@ -55,8 +56,15 @@ export class EditorSession {
     const origin = location?.origin ?? 'null';
     const pathname = location?.pathname || '/';
     this.page = { origin, pathname, url: `${origin}${pathname}` };
+    this.sourceSnapshotPromise = options.sourceSnapshot
+      ? Promise.resolve(options.sourceSnapshot)
+      : captureSourceSnapshot(document);
     this.storage = options.storage ?? null;
     this.storageKey = options.storageKey ?? `lykar:draft:${this.page.url}`;
+  }
+
+  sourceSnapshot(): Promise<SourceSnapshotV1> {
+    return this.sourceSnapshotPromise;
   }
 
   async restore(): Promise<EditorApplyReport | null> {

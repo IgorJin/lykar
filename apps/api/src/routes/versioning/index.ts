@@ -2,6 +2,7 @@ import type { FastifyPluginAsync } from 'fastify';
 
 import type { AccessService } from '../../domain/access';
 import type { AuthService } from '../../domain/auth';
+import type { ExperimentService } from '../../domain/experiments';
 import { VersioningService } from '../../domain/versioning';
 import { bearerToken } from '../access';
 import { authenticatedSession, createSessionGuard } from '../auth';
@@ -10,6 +11,7 @@ type VersioningRoutesOptions = {
   service: VersioningService;
   authService: AuthService;
   accessService: AccessService;
+  experimentService: ExperimentService;
 };
 type ProjectParams = { projectId: string };
 type PageParams = { pageId: string };
@@ -116,7 +118,7 @@ const versioningRoutes: FastifyPluginAsync<VersioningRoutesOptions> = async (fas
     async request => options.service.getDraft(authenticatedSession(request).user.id, request.params.draftId),
   );
 
-  fastify.post<{ Params: DraftParams; Body: { expectedRevision: unknown; operations: unknown } }>(
+  fastify.post<{ Params: DraftParams; Body: { expectedRevision: unknown; operations: unknown; sourceSnapshot?: unknown } }>(
     '/api/admin/drafts/:draftId/operations',
     {
       preHandler: requireSession,
@@ -126,6 +128,7 @@ const versioningRoutes: FastifyPluginAsync<VersioningRoutesOptions> = async (fas
           properties: {
             expectedRevision: { type: 'integer', minimum: 0 },
             operations: { type: 'array', minItems: 1, maxItems: 100, items: { type: 'object' } },
+            sourceSnapshot: { type: 'object' },
           },
         },
       },
@@ -136,11 +139,12 @@ const versioningRoutes: FastifyPluginAsync<VersioningRoutesOptions> = async (fas
         request.params.draftId,
         request.body.expectedRevision,
         request.body.operations,
+        request.body.sourceSnapshot,
       ),
     }),
   );
 
-  fastify.post<{ Params: DraftParams; Body: { expectedRevision: unknown; operations: unknown } }>(
+  fastify.post<{ Params: DraftParams; Body: { expectedRevision: unknown; operations: unknown; sourceSnapshot?: unknown } }>(
     '/api/editor/drafts/:draftId/operations',
     {
       schema: {
@@ -149,6 +153,7 @@ const versioningRoutes: FastifyPluginAsync<VersioningRoutesOptions> = async (fas
           properties: {
             expectedRevision: { type: 'integer', minimum: 0 },
             operations: { type: 'array', minItems: 1, maxItems: 100, items: { type: 'object' } },
+            sourceSnapshot: { type: 'object' },
           },
         },
       },
@@ -164,19 +169,20 @@ const versioningRoutes: FastifyPluginAsync<VersioningRoutesOptions> = async (fas
           request.params.draftId,
           request.body.expectedRevision,
           request.body.operations,
+          request.body.sourceSnapshot,
         ),
       };
     },
   );
 
-  fastify.post<{ Params: DraftParams; Body: { expectedRevision: unknown; environment?: unknown } }>(
+  fastify.post<{ Params: DraftParams; Body: { expectedRevision: unknown } }>(
     '/api/admin/drafts/:draftId/publish',
     {
       preHandler: requireSession,
       schema: {
         body: {
           type: 'object', required: ['expectedRevision'], additionalProperties: false,
-          properties: { expectedRevision: { type: 'integer', minimum: 0 }, environment: { type: 'string' } },
+          properties: { expectedRevision: { type: 'integer', minimum: 0 } },
         },
       },
     },
@@ -185,31 +191,9 @@ const versioningRoutes: FastifyPluginAsync<VersioningRoutesOptions> = async (fas
         authenticatedSession(request).user.id,
         request.params.draftId,
         request.body.expectedRevision,
-        request.body.environment,
       );
       return reply.code(201).send(published);
     },
-  );
-
-  fastify.post<{ Params: PageParams; Body: { releaseId: unknown; environment?: unknown } }>(
-    '/api/admin/pages/:pageId/rollback',
-    {
-      preHandler: requireSession,
-      schema: {
-        body: {
-          type: 'object', required: ['releaseId'], additionalProperties: false,
-          properties: { releaseId: { type: 'string' }, environment: { type: 'string' } },
-        },
-      },
-    },
-    async request => ({
-      activation: await options.service.activateRelease(
-        authenticatedSession(request).user.id,
-        request.params.pageId,
-        request.body.releaseId,
-        request.body.environment,
-      ),
-    }),
   );
 
   fastify.get<{ Params: PageParams }>(
@@ -222,33 +206,49 @@ const versioningRoutes: FastifyPluginAsync<VersioningRoutesOptions> = async (fas
 
   fastify.get<{
     Params: RuntimeParams;
-    Querystring: { pathname?: string; version?: string; environment?: string };
+    Querystring: { pathname?: string; version?: string; variantToken?: string };
   }>(
     '/api/runtime/projects/:publicKey/manifest',
     async (request, reply) => {
       const pathname = request.query.pathname ?? '/';
-      if (request.query.version !== undefined) {
+      let manifest;
+      if (request.query.variantToken !== undefined) {
+        const resolved = await options.experimentService.resolveVariant(
+          request.params.publicKey,
+          pathname,
+          request.query.variantToken,
+        );
+        if (!resolved) {
+          reply.header('Cache-Control', 'no-store');
+          return reply.code(204).send();
+        }
+        if (!resolved.manifest) {
+          reply.header('Cache-Control', 'private, max-age=0, must-revalidate');
+          return { manifest: null, variant: { experimentId: resolved.experimentId, key: resolved.variantKey } };
+        }
+        manifest = resolved.manifest;
+      } else if (request.query.version !== undefined) {
         await options.accessService.authorizeRuntime(
           bearerToken(request.headers.authorization),
           request.params.publicKey,
           pathname,
           request.query.version,
         );
+        manifest = await options.service.resolveRuntimeManifest(
+          request.params.publicKey,
+          pathname,
+          request.query.version,
+        );
+      } else {
+        reply.header('Cache-Control', 'no-store');
+        return reply.code(204).send();
       }
-      const manifest = await options.service.resolveRuntimeManifest(
-        request.params.publicKey,
-        pathname,
-        request.query.version,
-        request.query.environment,
-      );
       const etag = `"${manifest.manifestHash}"`;
       if (request.headers['if-none-match'] === etag) return reply.code(304).send();
       reply.header('ETag', etag);
       reply.header(
         'Cache-Control',
-        request.query.version
-          ? 'private, max-age=0, must-revalidate'
-          : 'public, max-age=30, stale-while-revalidate=60',
+        'private, max-age=0, must-revalidate',
       );
       return { manifest };
     },

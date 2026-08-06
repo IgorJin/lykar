@@ -1,6 +1,6 @@
 import { parsePublishedManifestV1 } from '@lykar/protocol';
 
-import type { ManifestClientOptions, RuntimeManifest } from './types.js';
+import type { ManifestClientOptions, RuntimeSelection } from './types.js';
 
 export class ManifestRequestError extends Error {
   constructor(
@@ -12,7 +12,7 @@ export class ManifestRequestError extends Error {
   }
 }
 
-export async function fetchManifest(options: ManifestClientOptions): Promise<RuntimeManifest> {
+export async function fetchManifest(options: ManifestClientOptions): Promise<RuntimeSelection> {
   if (!options.projectKey.trim()) throw new ManifestRequestError('projectKey must be a non-empty string');
   if (options.version !== undefined && (!Number.isSafeInteger(options.version) || options.version <= 0)) {
     throw new ManifestRequestError('version must be a positive integer');
@@ -24,7 +24,7 @@ export async function fetchManifest(options: ManifestClientOptions): Promise<Run
 
   query.set('pathname', options.pathname);
   if (options.version !== undefined) query.set('version', String(options.version));
-  if (options.environment) query.set('environment', options.environment);
+  if (options.variantToken) query.set('variantToken', options.variantToken);
 
   const url = `${baseUrl}${path}${query.size > 0 ? `?${query}` : ''}`;
   let response: Response;
@@ -40,6 +40,7 @@ export async function fetchManifest(options: ManifestClientOptions): Promise<Run
     throw new ManifestRequestError(`Manifest request failed: ${errorMessage(error)}`);
   }
 
+  if (response.status === 204) return null;
   if (!response.ok) {
     throw new ManifestRequestError(`Manifest request returned HTTP ${response.status}`, response.status);
   }
@@ -53,6 +54,21 @@ export async function fetchManifest(options: ManifestClientOptions): Promise<Run
 
   if (!isRecord(payload) || !('manifest' in payload)) {
     throw new ManifestRequestError('Manifest response must contain a manifest field', response.status);
+  }
+
+  if (payload.manifest === null) {
+    if (
+      !isRecord(payload.variant)
+      || typeof payload.variant.experimentId !== 'string'
+      || (payload.variant.key !== 'A' && payload.variant.key !== 'B')
+    ) {
+      throw new ManifestRequestError('Native variant response is invalid', response.status);
+    }
+    return {
+      mode: 'native-variant',
+      experimentId: payload.variant.experimentId,
+      variantKey: payload.variant.key,
+    };
   }
 
   try {

@@ -1,7 +1,7 @@
 # Lykar API
 
 Fastify/PostgreSQL API for project memberships, page-scoped drafts, immutable
-releases, editor capabilities, and protected share previews.
+releases, A/B experiments, editor capabilities, and protected share previews.
 
 ## Local setup
 
@@ -40,24 +40,30 @@ different site origin; the admin cookie is never copied to that site.
 - `POST /api/admin/drafts/:draftId/operations`
 - `POST /api/editor/drafts/:draftId/operations`
 - `POST /api/admin/drafts/:draftId/publish`
-- `POST /api/admin/pages/:pageId/rollback`
 - `GET /api/admin/pages/:pageId/releases`
+- `POST/GET /api/admin/pages/:pageId/experiments`
+- `PATCH /api/admin/experiments/:experimentId/variants/:key`
+- `POST /api/admin/experiments/:experimentId/(activate|pause|complete)`
+- `POST /api/admin/experiments/:experimentId/variants/:key/links`
+- `DELETE /api/admin/variant-links/:linkId`
 - `POST /api/admin/pages/:pageId/editor-launch`, `POST /api/editor/exchange`
 - `POST/GET /api/admin/pages/:pageId/shares`, `DELETE /api/admin/shares/:shareId`
 - `GET /share/:token`, `POST /api/share/exchange`
 - `GET /api/runtime/projects/:publicKey/manifest?pathname=/pricing`
 
-Release versions, drafts, environments, and rollback pointers belong to a
-single page. Appending operations and publishing require `expectedRevision`;
-stale writes return `409 CONFLICT`.
+Release versions, drafts, and experiments belong to a single page. Appending
+operations and freezing a release require `expectedRevision`; stale writes
+return `409 CONFLICT`.
 
-Membership belongs to a project. `Owner` and `Admin` can publish, roll back,
-share, and manage members; `Editor` can edit drafts; `Viewer` has read-only
-access. Each project has exactly one active Owner. Ownership transfer promotes
+Membership belongs to a project. `Owner` and `Admin` can freeze releases,
+control experiments, share, and manage members; `Editor` can edit drafts and
+prepare draft experiments; `Viewer` has read-only access. Each project has
+exactly one active Owner. Ownership transfer promotes
 the target and keeps the previous Owner as Admin. Demoting to Viewer or
 revoking membership immediately invalidates outstanding editor launch codes
 and sessions, while public share links remain independent.
 
-The active production release is public. Explicit `?version=N` requests require
-a page-scoped editor session or a share session pinned to that exact immutable
-release.
+Without `version` or `variantToken`, the runtime manifest endpoint returns 204
+and the host page stays native. Explicit `?version=N` requests require a
+page-scoped editor/share session. Public experiment tokens resolve only while
+their experiment is active; native variants return a typed null manifest.

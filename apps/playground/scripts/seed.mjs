@@ -56,8 +56,8 @@ export async function seedPlayground(options) {
       );
     }
     for (const page of [
-      { id: ROOT_PAGE_ID, name: 'Home', pathname: '/', environmentId: '31000000-0000-4000-8000-000000000001' },
-      { id: PRICING_PAGE_ID, name: 'Pricing', pathname: '/pricing', environmentId: '31000000-0000-4000-8000-000000000002' },
+      { id: ROOT_PAGE_ID, name: 'Home', pathname: '/' },
+      { id: PRICING_PAGE_ID, name: 'Pricing', pathname: '/pricing' },
     ]) {
       await client.query(
         `INSERT INTO pages (id, project_id, name, pathname, created_by) VALUES ($1, $2, $3, $4, $5)
@@ -65,12 +65,6 @@ export async function seedPlayground(options) {
          SET name = EXCLUDED.name, pathname = EXCLUDED.pathname,
              created_by = COALESCE(pages.created_by, EXCLUDED.created_by), updated_at = NOW()`,
         [page.id, PROJECT_ID, page.name, page.pathname, USER_ID],
-      );
-      await client.query(
-        `INSERT INTO environments (id, project_id, page_id, name)
-         VALUES ($1, $2, $3, 'production')
-         ON CONFLICT (page_id, name) DO NOTHING`,
-        [page.environmentId, PROJECT_ID, page.id],
       );
     }
     for (const draft of [

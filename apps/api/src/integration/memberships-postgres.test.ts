@@ -211,23 +211,20 @@ test(
           project_author: string;
           operation_author: string;
           release_author: string;
-          activation_author: string;
         }>(
           `SELECT p.created_by AS project_author, o.created_by AS operation_author,
-                  r.published_by AS release_author, a.created_by AS activation_author
+                  r.published_by AS release_author
            FROM projects p
            JOIN pages pg ON pg.project_id = p.id
            JOIN drafts d ON d.page_id = pg.id
            JOIN operations o ON o.draft_id = d.id
            JOIN releases r ON r.page_id = pg.id
-           JOIN release_activations a ON a.release_id = r.id
            WHERE p.id = $1 AND o.operation_id = $2`,
           [project.id, operation.id],
         );
         assert.equal(audit.rows[0].project_author, ownerId);
         assert.equal(audit.rows[0].operation_author, editor.userId);
         assert.equal(audit.rows[0].release_author, editor.userId);
-        assert.equal(audit.rows[0].activation_author, editor.userId);
         const owners = await verification.query(
           `SELECT 1 FROM project_memberships
            WHERE project_id = $1 AND role = 'owner' AND revoked_at IS NULL`,

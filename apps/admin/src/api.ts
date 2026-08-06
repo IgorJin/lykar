@@ -1,8 +1,14 @@
 export type Project = { id:string; name:string; publicKey:string; origins:string[]; createdAt:string };
 export type Page = { id:string; projectId:string; name:string; pathname:string; createdAt:string; updatedAt:string };
 export type Draft = { id:string; projectId:string; pageId:string; status:'open'|'published'|'abandoned'; revision:number; baseReleaseId:string|null; publishedReleaseId:string|null; updatedAt:string };
-export type Release = { id:string; pageId:string; version:number; operationCount:number; manifestHash:string; createdAt:string };
+export type SourceSnapshot = { algorithm:'lykar-dom-v1'; pageHash:string; capturedAt:string };
+export type Release = { id:string; pageId:string; version:number; operationCount:number; manifestHash:string; sourceSnapshot:SourceSnapshot|null; createdAt:string };
 export type Share = { id:string; pageId:string; releaseId:string; version:number; expiresAt:string|null; revokedAt:string|null; createdAt:string };
+export type ExperimentStatus = 'draft'|'active'|'paused'|'completed';
+export type ExperimentVariantKey = 'A'|'B';
+export type ExperimentVariantLink = { id:string; variantId:string; tokenHint:string; revokedAt:string|null; createdAt:string };
+export type ExperimentVariant = { id:string; key:ExperimentVariantKey; releaseId:string|null; releaseVersion:number|null; description:string|null; links:ExperimentVariantLink[] };
+export type Experiment = { id:string; projectId:string; pageId:string; name:string; status:ExperimentStatus; firstActivatedAt:string|null; activatedAt:string|null; pausedAt:string|null; completedAt:string|null; createdAt:string; updatedAt:string; variants:[ExperimentVariant,ExperimentVariant] };
 export type ProjectRole = 'owner'|'admin'|'editor'|'viewer';
 export type ProjectPermissions = { view:boolean; edit:boolean; publish:boolean; manageMembers:boolean; transferOwnership:boolean };
 export type ProjectMember = { id:string; projectId:string; userId:string; email:string; role:ProjectRole; createdAt:string; updatedAt:string };

@@ -1,6 +1,7 @@
 let editor;
 let editorCapability;
 let config;
+let runtimeSourceSnapshot;
 
 function writeStatus(value) {
   const output = document.querySelector('#draft-output');
@@ -34,6 +35,7 @@ function startPlaygroundEditor() {
   editor?.destroy();
   editor = window.LykarEditor.start({
     capability: editorCapability,
+    sourceSnapshot: runtimeSourceSnapshot,
     onApply(draft, report) {
       window.__LYKAR_LAST_DRAFT__ = draft;
       window.__LYKAR_LAST_REPORT__ = report;
@@ -58,10 +60,11 @@ async function boot() {
     ? null
     : await window.LykarEditor.exchangeShareAccess({ apiBaseUrl: config.apiBaseUrl });
   const requestedVersion = new URLSearchParams(location.search).get('version');
-  const version = shareAccess?.version ?? (requestedVersion ? Number(requestedVersion) : undefined);
+  const version = shareAccess?.version ?? editorAccess?.baseVersion ?? (requestedVersion ? Number(requestedVersion) : undefined);
   const accessToken = editorAccess?.token ?? shareAccess?.token;
 
   const report = await loadRuntime(accessToken, version);
+  runtimeSourceSnapshot = report?.sourceSnapshot;
   if (shareAccess) {
     document.body.dataset.lykarMode = 'share';
     writeStatus({ mode: 'share', version: shareAccess.version, report });
@@ -75,10 +78,10 @@ async function boot() {
     return;
   }
 
-  document.body.dataset.lykarMode = 'runtime';
-  writeStatus(report
-    ? { mode: 'runtime', version: report.version, report }
-    : `Активного release для ${location.pathname} пока нет. Откройте ${config.adminUrl}.`);
+  document.body.dataset.lykarMode = report?.mode === 'native' ? 'native' : 'runtime';
+  writeStatus(report?.mode === 'native'
+    ? { mode: 'native', reason: report.reason }
+    : { mode: 'runtime', version: report?.version, report });
 }
 
 document.querySelector('#restart-editor')?.addEventListener('click', startPlaygroundEditor);

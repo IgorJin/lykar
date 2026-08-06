@@ -4,6 +4,9 @@ import { useEffect, useState } from 'preact/hooks';
 import { ApiError, api, del, patch, post } from './api';
 import type {
   Draft,
+  Experiment,
+  ExperimentVariant,
+  ExperimentVariantKey,
   Page,
   Project,
   ProjectAccess,
@@ -184,15 +187,19 @@ function PageWorkspace({ page, permissions, showError }: {
   const [drafts, setDrafts] = useState<Draft[]>([]);
   const [releases, setReleases] = useState<Release[]>([]);
   const [shares, setShares] = useState<Share[]>([]);
+  const [experiments, setExperiments] = useState<Experiment[]>([]);
+  const [pageSection, setPageSection] = useState<'versions' | 'experiments'>('versions');
   async function load() {
-    const [draftResult, releaseResult, shareResult] = await Promise.all([
+    const [draftResult, releaseResult, shareResult, experimentResult] = await Promise.all([
       api<{ drafts: Draft[] }>(`/api/admin/pages/${page.id}/drafts`),
       api<{ releases: Release[] }>(`/api/admin/pages/${page.id}/releases`),
       api<{ shares: Share[] }>(`/api/admin/pages/${page.id}/shares`),
+      api<{ experiments: Experiment[] }>(`/api/admin/pages/${page.id}/experiments`),
     ]);
     setDrafts(draftResult.drafts);
     setReleases(releaseResult.releases);
     setShares(shareResult.shares);
+    setExperiments(experimentResult.experiments);
   }
   useEffect(() => { void load().catch(showError); }, [page.id]);
   const open = drafts.find(draft => draft.status === 'open');
@@ -207,7 +214,6 @@ function PageWorkspace({ page, permissions, showError }: {
     await post(`/api/admin/drafts/${open.id}/publish`, { expectedRevision: open.revision });
     await load();
   }
-  async function rollback(releaseId: string) { await post(`/api/admin/pages/${page.id}/rollback`, { releaseId }); await load(); }
   async function share(releaseId: string) {
     const result = await post<{ url: string }>(`/api/admin/pages/${page.id}/shares`, { releaseId, expiresInSeconds: 604800 });
     await navigator.clipboard?.writeText(result.url);
@@ -215,11 +221,16 @@ function PageWorkspace({ page, permissions, showError }: {
     alert(`Share URL скопирован:\n${result.url}`);
   }
   async function revoke(id: string) { await del(`/api/admin/shares/${id}`); await load(); }
-  return <div class="detail-grid">
+  return <div>
+    <div class="tabs page-tabs">
+      <button class={pageSection === 'versions' ? 'active' : ''} onClick={() => setPageSection('versions')}>Версии</button>
+      <button class={pageSection === 'experiments' ? 'active' : ''} onClick={() => setPageSection('experiments')}>Experiments</button>
+    </div>
+    {pageSection === 'versions' && <div class="detail-grid">
     <div><h3>Draft</h3>{open ? <div class="draft">
       <b>Open draft</b><div class="small muted">revision {open.revision}</div>
       {permissions.edit && <div class="row"><button class="primary" onClick={() => void launch().catch(showError)}>Открыть редактор</button>
-        {permissions.publish && <button onClick={() => void publish().catch(showError)}>Publish</button>}
+        {permissions.publish && <button onClick={() => void publish().catch(showError)}>Зафиксировать версию</button>}
       </div>}
     </div> : permissions.edit ? <button onClick={() => void createDraft().catch(showError)}>Создать draft</button> : <p class="muted">Открытого draft нет.</p>}</div>
     <div><h3>Share links</h3>{shares.filter(shareItem => !shareItem.revokedAt).map(item => <div class="share" key={item.id}>
@@ -228,9 +239,131 @@ function PageWorkspace({ page, permissions, showError }: {
     </div>)}</div>
     <div class="wide"><h3>Immutable releases</h3>{releases.length === 0 ? <p class="muted">Публикаций ещё нет.</p> : releases.map(item => <div class="release row" key={item.id}>
       <b>Version {item.version}</b><span class="muted">{item.operationCount} команд</span>
-      {permissions.publish && <><button onClick={() => void rollback(item.id).catch(showError)}>Rollback</button><button onClick={() => void share(item.id).catch(showError)}>Share</button></>}
+      <span class={`small ${item.sourceSnapshot ? 'success' : 'muted'}`}>{item.sourceSnapshot ? `fingerprint ${item.sourceSnapshot.pageHash.slice(0, 8)}` : 'без fingerprint'}</span>
+      {permissions.publish && <button onClick={() => void share(item.id).catch(showError)}>Share</button>}
     </div>)}</div>
+    </div>}
+    {pageSection === 'experiments' && <ExperimentsPanel
+      page={page}
+      releases={releases}
+      experiments={experiments}
+      permissions={permissions}
+      reload={load}
+      showError={showError}
+    />}
   </div>;
+}
+
+function ExperimentsPanel({ page, releases, experiments, permissions, reload, showError }: {
+  page: Page;
+  releases: Release[];
+  experiments: Experiment[];
+  permissions: ProjectPermissions;
+  reload: () => Promise<void>;
+  showError: (error: unknown) => void;
+}) {
+  const [name, setName] = useState('Control vs Variant B');
+  const [aRelease, setARelease] = useState('native');
+  const [bRelease, setBRelease] = useState('');
+  const [freshLinks, setFreshLinks] = useState<Record<string, { id: string; url: string }>>({});
+
+  useEffect(() => {
+    if (!bRelease && releases[0]) setBRelease(releases[0].id);
+  }, [releases]);
+
+  async function create(event: Event) {
+    event.preventDefault();
+    await post(`/api/admin/pages/${page.id}/experiments`, {
+      name,
+      variants: [
+        { key: 'A', releaseId: aRelease === 'native' ? null : aRelease, description: 'Control' },
+        { key: 'B', releaseId: bRelease || null, description: 'Treatment' },
+      ],
+    });
+    setName('Control vs Variant B');
+    await reload();
+  }
+
+  async function transition(id: string, action: 'activate' | 'pause' | 'complete') {
+    await post(`/api/admin/experiments/${id}/${action}`, {});
+    await reload();
+  }
+
+  async function updateVariant(experimentId: string, variant: ExperimentVariant, releaseId: string) {
+    await patch(`/api/admin/experiments/${experimentId}/variants/${variant.key}`, {
+      releaseId: releaseId === 'native' ? null : releaseId,
+      description: variant.description,
+    });
+    await reload();
+  }
+
+  async function createLink(experimentId: string, key: ExperimentVariantKey) {
+    const result = await post<{ link: { id: string }; url: string }>(`/api/admin/experiments/${experimentId}/variants/${key}/links`, {});
+    void navigator.clipboard?.writeText(result.url).catch(() => undefined);
+    await reload();
+    setFreshLinks(current => ({ ...current, [`${experimentId}:${key}`]: { id: result.link.id, url: result.url } }));
+  }
+
+  function copyFreshLink(url: string) {
+    void navigator.clipboard?.writeText(url).catch(showError);
+  }
+
+  async function revokeLink(linkId: string) {
+    await del(`/api/admin/variant-links/${linkId}`);
+    setFreshLinks(current => Object.fromEntries(
+      Object.entries(current).filter(([, link]) => link.id !== linkId),
+    ));
+    await reload();
+  }
+
+  return <div class="experiments-panel">
+    {permissions.edit && releases.length > 0 && <form class="form experiment-create" onSubmit={event => void create(event).catch(showError)}>
+      <h3>Новый эксперимент</h3>
+      <input required value={name} onInput={event => setName(event.currentTarget.value)} placeholder="Название эксперимента" />
+      <div class="row">
+        <label>Variant A <ReleaseSelect releases={releases} value={aRelease} onChange={setARelease} /></label>
+        <label>Variant B <ReleaseSelect releases={releases} value={bRelease} onChange={setBRelease} /></label>
+        <button class="primary" disabled={!bRelease}>Создать</button>
+      </div>
+    </form>}
+    {releases.length === 0 && <p class="muted">Сначала зафиксируйте хотя бы одну immutable release.</p>}
+    <div class="experiment-list">{experiments.map(experiment => <article class="experiment" key={experiment.id}>
+      <div class="row experiment-heading">
+        <div><h3>{experiment.name}</h3><span class={`badge experiment-${experiment.status}`}>{experiment.status}</span></div>
+        {permissions.publish && <div class="row">
+          {(experiment.status === 'draft' || experiment.status === 'paused') && <button class="primary" onClick={() => void transition(experiment.id, 'activate').catch(showError)}>Запустить</button>}
+          {experiment.status === 'active' && <button onClick={() => void transition(experiment.id, 'pause').catch(showError)}>Пауза</button>}
+          {(experiment.status === 'active' || experiment.status === 'paused') && <button class="danger" onClick={() => void transition(experiment.id, 'complete').catch(showError)}>Завершить</button>}
+        </div>}
+      </div>
+      <div class="variant-grid">{experiment.variants.map(variant => {
+        const freshLink = freshLinks[`${experiment.id}:${variant.key}`];
+        return <section class="variant" key={variant.id}>
+          <h4>Variant {variant.key}</h4>
+          {experiment.status === 'draft' && permissions.edit
+            ? <ReleaseSelect releases={releases} value={variant.releaseId ?? 'native'} onChange={value => void updateVariant(experiment.id, variant, value).catch(showError)} />
+            : <p>{variant.releaseVersion === null ? 'Исходная страница' : `Version ${variant.releaseVersion}`}</p>}
+          {variant.description && <p class="small muted">{variant.description}</p>}
+          {experiment.status === 'active' && permissions.publish && <button onClick={() => void createLink(experiment.id, variant.key).catch(showError)}>Создать ссылку</button>}
+          {freshLink && <div class="row small fresh-variant-link">
+            <a href={freshLink.url} target="_blank" rel="noreferrer">Открыть свежую ссылку</a>
+            <button onClick={() => copyFreshLink(freshLink.url)}>Копировать</button>
+          </div>}
+          {variant.links.filter(link => !link.revokedAt).map(link => <div class="row small" key={link.id}>
+            <span>token …{link.tokenHint}</span>
+            {permissions.publish && <button class="danger" onClick={() => void revokeLink(link.id).catch(showError)}>Отозвать</button>}
+          </div>)}
+        </section>;
+      })}</div>
+    </article>)}</div>
+  </div>;
+}
+
+function ReleaseSelect({ releases, value, onChange }: { releases: Release[]; value: string; onChange: (value: string) => void }) {
+  return <select value={value} onChange={event => onChange(event.currentTarget.value)}>
+    <option value="native">Исходная страница</option>
+    {releases.map(release => <option value={release.id} key={release.id}>Version {release.version}</option>)}
+  </select>;
 }
 
 function MembersPanel({ access, currentUserId, projectId, reload, showError }: {

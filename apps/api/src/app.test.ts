@@ -7,13 +7,14 @@ import { buildApp } from './app';
 import { hashToken } from './domain/auth';
 import type { AuthRepository, AuthenticatedSession, MagicLinkSender, UserRecord } from './domain/auth';
 import type { AccessRepository, EditorLaunchTarget, EditorSessionGrant, ShareRecord, ShareTarget } from './domain/access';
+import type { ExperimentRecord, ExperimentRepository, VariantRuntimeResolution } from './domain/experiments';
 import type {
   MembershipRepository,
   ProjectInvitationRecord,
   ProjectMemberRecord,
 } from './domain/memberships';
 import type {
-  ActivationResult, AppendOperationsResult, DraftRecord, PageRecord, ProjectRecord,
+  AppendOperationsResult, DraftRecord, PageRecord, ProjectRecord,
   PublishResult, ReleaseRecord, RuntimeManifest, VersioningRepository,
 } from './domain/versioning';
 
@@ -35,14 +36,23 @@ class ApiRepository implements VersioningRepository {
   async listProjects():Promise<ProjectRecord[]>{return[];}
   async createPage(input:Parameters<VersioningRepository['createPage']>[0]):Promise<PageRecord>{return{id:PAGE_ID,projectId:input.projectId,name:input.name,pathname:input.pathname,createdBy:input.userId,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};}
   async listPages():Promise<PageRecord[]>{return[];}
-  async createDraft(input:Parameters<VersioningRepository['createDraft']>[0]):Promise<DraftRecord>{return{id:DRAFT_ID,projectId:PROJECT_ID,pageId:input.pageId,baseReleaseId:input.baseReleaseId??null,publishedReleaseId:null,status:'open',revision:0,createdBy:input.userId,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};}
+  async createDraft(input:Parameters<VersioningRepository['createDraft']>[0]):Promise<DraftRecord>{return{id:DRAFT_ID,projectId:PROJECT_ID,pageId:input.pageId,baseReleaseId:input.baseReleaseId??null,publishedReleaseId:null,status:'open',revision:0,sourceSnapshot:null,createdBy:input.userId,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};}
   async listDrafts():Promise<DraftRecord[]>{return[];}
   async getDraft():Promise<{draft:DraftRecord;operations:OperationV1[]}>{throw new Error('unused');}
   async appendOperations(input:Parameters<VersioningRepository['appendOperations']>[0]):Promise<AppendOperationsResult>{return{draftId:input.draftId,revision:input.expectedRevision+1,appended:input.operations.length};}
   async publishDraft():Promise<PublishResult>{throw new Error('unused');}
-  async activateRelease():Promise<ActivationResult>{throw new Error('unused');}
   async listReleases():Promise<ReleaseRecord[]>{return[];}
   async resolveRuntimeManifest(input:Parameters<VersioningRepository['resolveRuntimeManifest']>[0]):Promise<RuntimeManifest>{return{schemaVersion:1,projectId:PROJECT_ID,pageId:PAGE_ID,pathname:input.pathname,releaseId:RELEASE_ID,version:input.version??1,manifestHash:MANIFEST_HASH,operations:[],createdAt:new Date().toISOString()};}
+}
+
+class ApiExperimentRepository implements ExperimentRepository {
+  async createExperiment():Promise<ExperimentRecord>{throw new Error('unused');}
+  async listExperiments():Promise<ExperimentRecord[]>{return[];}
+  async updateVariant():Promise<ExperimentRecord>{throw new Error('unused');}
+  async transition():Promise<ExperimentRecord>{throw new Error('unused');}
+  async createVariantLink():ReturnType<ExperimentRepository['createVariantLink']>{throw new Error('unused');}
+  async revokeVariantLink():Promise<boolean>{return false;}
+  async resolveVariant():Promise<VariantRuntimeResolution|null>{return null;}
 }
 
 class MemoryAuthRepository implements AuthRepository {
@@ -85,7 +95,7 @@ class ApiMembershipRepository implements MembershipRepository {
   async transferOwnership():ReturnType<MembershipRepository['transferOwnership']>{throw new Error('unused');}
 }
 
-function setup(){const versioningRepository=new ApiRepository();const authRepository=new MemoryAuthRepository();const sender=new CapturingSender();const app=buildApp({logger:false,appOrigin:'http://localhost:3000',ownerEmail:'owner@example.com',versioningRepository,authRepository,accessRepository:new ApiAccessRepository(),membershipRepository:new ApiMembershipRepository(),magicLinkSender:sender});return{app,versioningRepository,sender};}
+function setup(){const versioningRepository=new ApiRepository();const authRepository=new MemoryAuthRepository();const sender=new CapturingSender();const app=buildApp({logger:false,appOrigin:'http://localhost:3000',ownerEmail:'owner@example.com',versioningRepository,authRepository,accessRepository:new ApiAccessRepository(),membershipRepository:new ApiMembershipRepository(),experimentRepository:new ApiExperimentRepository(),magicLinkSender:sender});return{app,versioningRepository,sender};}
 async function login(app:ReturnType<typeof buildApp>,sender:CapturingSender):Promise<string>{const requested=await app.inject({method:'POST',url:'/api/auth/magic-link',payload:{email:'owner@example.com'}});assert.equal(requested.statusCode,202);const token=new URL(sender.url).searchParams.get('token');assert.ok(token);const verified=await app.inject({method:'GET',url:`/api/auth/verify?token=${token}`});assert.equal(verified.statusCode,302);const cookie=verified.headers['set-cookie'];assert.equal(typeof cookie,'string');return(cookie as string).split(';')[0];}
 
 test('admin endpoints fail closed without a session cookie',async()=>{const{app,versioningRepository}=setup();try{const response=await app.inject({method:'POST',url:'/api/admin/projects',payload:{name:'Site',origins:['https://example.com']}});assert.equal(response.statusCode,401);assert.equal(versioningRepository.createProjectCalls,0);}finally{await app.close();}});
@@ -93,5 +103,7 @@ test('admin endpoints fail closed without a session cookie',async()=>{const{app,
 test('owner signs in through a one-use magic link and creates a project',async()=>{const{app,versioningRepository,sender}=setup();try{const cookie=await login(app,sender);const reused=await app.inject({method:'GET',url:sender.url.replace('http://localhost:3000','')});assert.equal(reused.statusCode,401);const response=await app.inject({method:'POST',url:'/api/admin/projects',headers:{cookie},payload:{name:'Site',origins:['https://Example.com']}});assert.equal(response.statusCode,201);assert.deepEqual(response.json().project.origins,['https://example.com']);assert.equal(versioningRepository.createProjectCalls,1);}finally{await app.close();}});
 
 test('explicit immutable versions require a page-scoped editor or share token',async()=>{const{app}=setup();try{const denied=await app.inject({method:'GET',url:'/api/runtime/projects/pk_public/manifest?pathname=%2Fpricing&version=1'});assert.equal(denied.statusCode,401);const allowed=await app.inject({method:'GET',url:'/api/runtime/projects/pk_public/manifest?pathname=%2Fpricing&version=1',headers:{authorization:`Bearer ${PREVIEW_TOKEN}`}});assert.equal(allowed.statusCode,200);assert.equal(allowed.json().manifest.pathname,'/pricing');assert.equal(allowed.headers.etag,`"${MANIFEST_HASH}"`);assert.match(allowed.headers['cache-control']??'',/private/);}finally{await app.close();}});
+
+test('runtime without an explicit version or variant token leaves the native page untouched',async()=>{const{app}=setup();try{const response=await app.inject({method:'GET',url:'/api/runtime/projects/pk_public/manifest?pathname=%2Fpricing'});assert.equal(response.statusCode,204);}finally{await app.close();}});
 
 test('invalid persisted operation is rejected before repository append',async()=>{const{app,sender}=setup();try{const cookie=await login(app,sender);const response=await app.inject({method:'POST',url:`/api/admin/drafts/${DRAFT_ID}/operations`,headers:{cookie},payload:{expectedRevision:0,operations:[{schemaVersion:1,id:'bad',kind:'executeScript',target:{marker:'hero'}}]}});assert.equal(response.statusCode,400);assert.equal(response.json().error.code,'VALIDATION_ERROR');}finally{await app.close();}});

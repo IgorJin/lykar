@@ -14,7 +14,7 @@ revived here.
 - `apps/playground` — full-stack interactive editor/runtime fixture.
 - `packages/lykar-lib` — imported browser library and editor.
 - `packages/protocol` — shared, serializable operation protocol.
-- `packages/runtime` — public release playback runtime.
+- `packages/runtime` — token-gated variant and protected release playback runtime.
 - `packages/editor-bridge` — DOM inspection and preview bridge.
 - `packages/editor-ui` — editor interface.
 - `packages/sdk` — integration entry points.
@@ -63,7 +63,8 @@ npm run test:e2e
 
 Smoke mode uses random ports and a temporary database cluster, exercises login,
 project invitations, role boundaries, immediate capability revocation,
-ownership transfer, draft persistence, publishing, direct version access, page
+ownership transfer, draft persistence, immutable release creation, native-page
+fallback, A/B variant tokens, source fingerprints, direct version access, page
 isolation, and share access, then removes its database.
 
 For focused work, run the standalone static playground with:

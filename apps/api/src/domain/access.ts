@@ -10,7 +10,7 @@ export type AccessPage = {
   pathname: string;
   origin: string;
 };
-export type EditorLaunchTarget = AccessPage & { draftId: string; expectedRevision: number };
+export type EditorLaunchTarget = AccessPage & { draftId: string; expectedRevision: number; baseVersion: number | null };
 export type EditorSessionGrant = EditorLaunchTarget & { userId: string; expiresAt: string };
 export type ShareTarget = AccessPage & {
   shareLinkId: string;
@@ -98,7 +98,7 @@ export class AccessService {
 
   async exchangeEditor(codeValue: unknown, pageUrlValue: unknown): Promise<{
     token: string; expiresAt: string; projectId: string; pageId: string; pageUrl: string;
-    draftId: string; expectedRevision: number;
+    draftId: string; expectedRevision: number; baseVersion: number | null;
   }> {
     const code = requireOpaque(codeValue, 'Editor launch code');
     const pageUrl = normalizePageUrl(pageUrlValue);
@@ -118,6 +118,7 @@ export class AccessService {
       pageUrl: `${grant.origin}${grant.pathname}`,
       draftId: grant.draftId,
       expectedRevision: grant.expectedRevision,
+      baseVersion: grant.baseVersion,
     };
   }
 

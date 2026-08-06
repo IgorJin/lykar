@@ -22,6 +22,9 @@ describe('target builder', () => {
     const descriptor = buildTargetDescriptor(target);
 
     expect(descriptor.marker).toBe('hero-copy');
+    expect(descriptor.fingerprint).toMatchObject({
+      tag: 'p', attributes: { 'data-lykar-id': 'hero-copy' },
+    });
     expect(document.querySelector(descriptor.selectors!.css!)).toBe(target);
     expect(document.evaluate(
       descriptor.selectors!.xpath!,
@@ -242,7 +245,11 @@ describe('editor UI and proposals', () => {
     expect(fetcher).toHaveBeenCalledOnce();
     const request = fetcher.mock.calls[0][1] as RequestInit;
     expect(request.headers).toMatchObject({ Authorization: 'Bearer editor-capability-token' });
-    expect(JSON.parse(String(request.body))).toMatchObject({ expectedRevision: 3, operations: [{ kind: 'setText', value: 'After' }] });
+    expect(JSON.parse(String(request.body))).toMatchObject({
+      expectedRevision: 3,
+      operations: [{ kind: 'setText', value: 'After' }],
+      sourceSnapshot: { algorithm: 'lykar-dom-v1', pageHash: expect.stringMatching(/^[0-9a-f]{64}$/) },
+    });
     expect(editor.session.getState().pendingOperationCount).toBe(0);
     editor.destroy();
   });

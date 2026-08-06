@@ -1,4 +1,4 @@
-import type { OperationV1 } from '@lykar/protocol';
+import type { OperationV1, SourceSnapshotV1 } from '@lykar/protocol';
 
 import { ElementInspector } from './inspector.js';
 import { OverlayService } from './overlay.js';
@@ -17,6 +17,7 @@ export type EditingCapability = {
   apiBaseUrl?: string;
   draftId?: string;
   expectedRevision?: number;
+  baseVersion?: number | null;
 };
 
 export type EditorDraftPersistence = {
@@ -35,6 +36,7 @@ export type LykarEditorOptions = {
   capability?: EditingCapability;
   persistence?: EditorDraftPersistence;
   storage?: Storage | null;
+  sourceSnapshot?: SourceSnapshotV1;
   onApply?: (draft: EditorPageDraft, report: EditorApplyReport) => void | Promise<void>;
   onCommit?: (result: EditorCommitResult, draft: EditorPageDraft) => void | Promise<void>;
   onSelection?: (element: Element | null) => void;
@@ -64,7 +66,10 @@ export class LykarEditor {
     this.document = document;
     this.persistence = options.persistence ?? persistenceFromCapability(options.capability);
     this.expectedRevision = this.persistence?.expectedRevision ?? 0;
-    this.session = new EditorSession(document, { storage: options.storage ?? safeSessionStorage(document) });
+    this.session = new EditorSession(document, {
+      storage: options.storage ?? safeSessionStorage(document),
+      sourceSnapshot: options.sourceSnapshot,
+    });
     this.overlay = new OverlayService(document);
     this.inspector = new ElementInspector(document, this.overlay, element => {
       this.panel.setSelected(element);
@@ -145,6 +150,7 @@ export class LykarEditor {
         this.expectedRevision,
         operations,
         this.options.capability?.token,
+        await this.session.sourceSnapshot(),
       );
       this.expectedRevision = saved.revision;
       result = { saved: saved.appended, revision: saved.revision };
@@ -198,6 +204,7 @@ async function persistOperations(
   expectedRevision: number,
   operations: OperationV1[],
   capabilityToken?: string,
+  sourceSnapshot?: import('@lykar/protocol').SourceSnapshotV1,
 ): Promise<{ revision: number; appended: number }> {
   const fetcher = persistence.fetch ?? globalThis.fetch;
   if (!fetcher) throw new Error('Editor persistence requires fetch');
@@ -209,7 +216,7 @@ async function persistOperations(
     {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ expectedRevision, operations }),
+      body: JSON.stringify({ expectedRevision, operations, sourceSnapshot }),
     },
   );
   if (!response.ok) {

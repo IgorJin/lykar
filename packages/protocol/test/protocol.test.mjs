@@ -92,6 +92,11 @@ test('accepts a published manifest containing protocol v1 operations', () => {
     releaseId: 'release-1',
     version: 3,
     manifestHash: 'a'.repeat(64),
+    sourceSnapshot: {
+      algorithm: 'lykar-dom-v1',
+      pageHash: 'b'.repeat(64),
+      capturedAt: '2026-08-06T00:00:00.000Z',
+    },
     operations: [
       { schemaVersion: 1, id: 'text', kind: 'setText', target, value: 'Hello' },
     ],
@@ -99,6 +104,24 @@ test('accepts a published manifest containing protocol v1 operations', () => {
   });
 
   assert.equal(result.ok, true, JSON.stringify(result));
+});
+
+test('rejects malformed source compatibility snapshots', () => {
+  const result = validatePublishedManifestV1({
+    schemaVersion: 1,
+    projectId: 'project-1',
+    pageId: 'page-1',
+    pathname: '/pricing',
+    releaseId: 'release-1',
+    version: 1,
+    manifestHash: 'a'.repeat(64),
+    sourceSnapshot: { algorithm: 'unknown', pageHash: 'short', capturedAt: 'never' },
+    operations: [],
+    createdAt: '2026-08-06T00:00:00.000Z',
+  });
+
+  assert.equal(result.ok, false);
+  assert.match(result.errors.join(' '), /sourceSnapshot/);
 });
 
 test('reports indexed operation failures in malformed manifests', () => {

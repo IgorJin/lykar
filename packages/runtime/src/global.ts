@@ -1,6 +1,6 @@
-import { Lykar, init } from './runtime.js';
+import { Lykar, init, track } from './runtime.js';
 
-const globalApi = Object.assign(Lykar, { init });
+const globalApi = Object.assign(Lykar, { init, track });
 
 if (typeof window !== 'undefined') {
   Object.defineProperty(window, 'Lykar', {

@@ -89,14 +89,15 @@ export class PostgresAccessRepository implements AccessRepository {
   }
 
   async getEditorLaunchTarget(userId: string, pageId: string, draftId: string): Promise<EditorLaunchTarget> {
-    const result = await this.pool.query<PageAccessRow & { draft_id: string; revision: string | number }>(
+    const result = await this.pool.query<PageAccessRow & { draft_id: string; revision: string | number; base_version: number | null }>(
       `SELECT p.id AS project_id, pg.id AS page_id, p.public_key, pg.pathname, origin.origin,
-              d.id AS draft_id, d.revision
+              d.id AS draft_id, d.revision, base.version AS base_version
        FROM pages pg
        JOIN projects p ON p.id = pg.project_id
        JOIN project_memberships m ON m.project_id = p.id AND m.user_id = $2 AND m.revoked_at IS NULL
          AND m.role = ANY($4::text[])
        JOIN drafts d ON d.id = $3 AND d.page_id = pg.id AND d.status = 'open'
+       LEFT JOIN releases base ON base.id = d.base_release_id
        JOIN LATERAL (
          SELECT po.origin FROM project_origins po
          WHERE po.project_id = p.id
@@ -108,7 +109,12 @@ export class PostgresAccessRepository implements AccessRepository {
     );
     const page = result.rows[0];
     if (!page) throw new ForbiddenError();
-    return { ...mapPage(page), draftId: page.draft_id, expectedRevision: Number(page.revision) };
+    return {
+      ...mapPage(page),
+      draftId: page.draft_id,
+      expectedRevision: Number(page.revision),
+      baseVersion: page.base_version === null ? null : Number(page.base_version),
+    };
   }
 
   async createEditorLaunchCode(input: Parameters<AccessRepository['createEditorLaunchCode']>[0]): Promise<void> {
@@ -123,7 +129,7 @@ export class PostgresAccessRepository implements AccessRepository {
     input: Parameters<AccessRepository['consumeEditorLaunchCode']>[0],
   ): Promise<EditorSessionGrant | null> {
     const result = await this.pool.query<PageAccessRow & {
-      user_id: string; expires_at: Date | string; draft_id: string; revision: string | number;
+      user_id: string; expires_at: Date | string; draft_id: string; revision: string | number; base_version: number | null;
     }>(
       `UPDATE editor_launch_codes c
        SET consumed_at = $3
@@ -139,7 +145,8 @@ export class PostgresAccessRepository implements AccessRepository {
          AND m.revoked_at IS NULL AND m.role = ANY($4::text[])
          AND po.origin || pg.pathname = $2
        RETURNING p.id AS project_id, pg.id AS page_id, p.public_key, pg.pathname,
-                 po.origin, c.user_id, c.expires_at, d.id AS draft_id, d.revision`,
+                 po.origin, c.user_id, c.expires_at, d.id AS draft_id, d.revision,
+                 (SELECT version FROM releases WHERE id = d.base_release_id) AS base_version`,
       [input.tokenHash, input.pageUrl, input.now, rolesWithPermission('edit')],
     );
     const row = result.rows[0];
@@ -149,6 +156,7 @@ export class PostgresAccessRepository implements AccessRepository {
       expiresAt: toIso(row.expires_at),
       draftId: row.draft_id,
       expectedRevision: Number(row.revision),
+      baseVersion: row.base_version === null ? null : Number(row.base_version),
     } : null;
   }
 

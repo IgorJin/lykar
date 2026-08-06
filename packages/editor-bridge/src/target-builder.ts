@@ -19,11 +19,23 @@ export function buildTargetDescriptor(element: Element): TargetDescriptor {
       css: buildCssSelector(element),
       xpath: buildXPath(element),
     },
-    fingerprint: { tag: element.tagName.toLowerCase() },
+    fingerprint: {
+      tag: element.tagName.toLowerCase(),
+      ...stableAttributes(element),
+    },
   };
 
   if (marker) target.marker = marker;
   return target;
+}
+
+function stableAttributes(element: Element): { attributes?: Record<string, string> } {
+  const attributes: Record<string, string> = {};
+  for (const name of ['id', 'name', 'role', 'type', 'data-lykar-id', 'data-testid', 'aria-label']) {
+    const value = element.getAttribute(name)?.trim();
+    if (value) attributes[name] = value;
+  }
+  return Object.keys(attributes).length > 0 ? { attributes } : {};
 }
 
 export function buildCssSelector(element: Element): string {

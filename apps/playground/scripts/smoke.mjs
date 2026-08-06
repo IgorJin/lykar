@@ -49,20 +49,53 @@ export async function runSmoke({ apiBaseUrl, playgroundBaseUrl }) {
   const appended = await request(`${apiBaseUrl}/api/editor/drafts/${draft.id}/operations`, {
     method: 'POST',
     headers: { authorization: `Bearer ${capability.token}` },
-    body: JSON.stringify({ expectedRevision: capability.expectedRevision, operations: [operation] }),
+    body: JSON.stringify({
+      expectedRevision: capability.expectedRevision,
+      sourceSnapshot: {
+        algorithm: 'lykar-dom-v1',
+        pageHash: 'c'.repeat(64),
+        capturedAt: '2026-08-06T00:00:00.000Z',
+      },
+      operations: [operation],
+    }),
   });
   const published = await admin(`/api/admin/drafts/${draft.id}/publish`, {
     method: 'POST', body: JSON.stringify({ expectedRevision: appended.draft.revision }),
   });
 
-  const active = await request(`${apiBaseUrl}/api/runtime/projects/${PROJECT_KEY}/manifest?pathname=%2F`);
-  assert.equal(active.manifest.releaseId, published.release.id);
-  assert.equal(active.manifest.operations.at(-1).value, operation.value);
+  const native = await fetch(`${apiBaseUrl}/api/runtime/projects/${PROJECT_KEY}/manifest?pathname=%2F`);
+  assert.equal(native.status, 204);
   const directUrl = `${apiBaseUrl}/api/runtime/projects/${PROJECT_KEY}/manifest?pathname=%2F&version=${published.release.version}`;
   assert.equal((await fetch(directUrl)).status, 401);
   const direct = await request(directUrl, { headers: { authorization: `Bearer ${capability.token}` } });
   assert.equal(direct.manifest.version, published.release.version);
-  assert.equal((await fetch(`${apiBaseUrl}/api/runtime/projects/${PROJECT_KEY}/manifest?pathname=%2Fpricing`)).status, 404);
+  assert.equal((await fetch(`${apiBaseUrl}/api/runtime/projects/${PROJECT_KEY}/manifest?pathname=%2Fpricing`)).status, 204);
+
+  const experiment = (await admin(`/api/admin/pages/${ROOT_PAGE_ID}/experiments`, {
+    method: 'POST',
+    body: JSON.stringify({
+      name: `Smoke A/B ${randomUUID()}`,
+      variants: [
+        { key: 'A', releaseId: null, description: 'Native control' },
+        { key: 'B', releaseId: published.release.id, description: 'Treatment' },
+      ],
+    }),
+  })).experiment;
+  await admin(`/api/admin/experiments/${experiment.id}/activate`, { method: 'POST', body: '{}' });
+  const variantA = await admin(`/api/admin/experiments/${experiment.id}/variants/A/links`, { method: 'POST', body: '{}' });
+  const variantB = await admin(`/api/admin/experiments/${experiment.id}/variants/B/links`, { method: 'POST', body: '{}' });
+  const tokenA = new URL(variantA.url).searchParams.get('lykar_variant');
+  const tokenB = new URL(variantB.url).searchParams.get('lykar_variant');
+  assert.ok(tokenA && tokenB);
+  const variantEndpoint = `${apiBaseUrl}/api/runtime/projects/${PROJECT_KEY}/manifest?pathname=%2F&variantToken=`;
+  const control = await request(`${variantEndpoint}${tokenA}`);
+  assert.equal(control.manifest, null);
+  assert.equal(control.variant.key, 'A');
+  const treatment = await request(`${variantEndpoint}${tokenB}`);
+  assert.equal(treatment.manifest.releaseId, published.release.id);
+  await admin(`/api/admin/variant-links/${variantB.link.id}`, { method: 'DELETE' });
+  assert.equal((await fetch(`${variantEndpoint}${tokenB}`)).status, 204);
+  const replacementB = await admin(`/api/admin/experiments/${experiment.id}/variants/B/links`, { method: 'POST', body: '{}' });
 
   const share = await admin(`/api/admin/pages/${ROOT_PAGE_ID}/shares`, {
     method: 'POST',
@@ -85,6 +118,9 @@ export async function runSmoke({ apiBaseUrl, playgroundBaseUrl }) {
     releaseId: published.release.id,
     version: published.release.version,
     operationId: operation.id,
+    experimentId: experiment.id,
+    variantAUrl: variantA.url,
+    variantBUrl: replacementB.url,
   };
 }
 
@@ -94,5 +130,6 @@ async function request(url, init = {}) {
     headers: { ...(init.body ? { 'content-type': 'application/json' } : {}), ...init.headers },
   });
   if (!response.ok) throw new Error(`${init.method ?? 'GET'} ${url} returned ${response.status}: ${await response.text()}`);
+  if (response.status === 204) return null;
   return response.json();
 }

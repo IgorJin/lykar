@@ -7,7 +7,7 @@ import { buildApp } from '../app';
 const databaseUrl = process.env.LYKAR_TEST_DATABASE_URL;
 
 test(
-  'PostgreSQL workflow publishes immutable versions and rolls the environment back',
+  'PostgreSQL workflow freezes immutable versions without changing the native page',
   { skip: databaseUrl ? false : 'LYKAR_TEST_DATABASE_URL is not configured' },
   async () => {
     let magicLink = '';
@@ -56,6 +56,11 @@ test(
         headers: adminHeaders,
         payload: {
           expectedRevision: 0,
+          sourceSnapshot: {
+            algorithm: 'lykar-dom-v1',
+            pageHash: 'a'.repeat(64),
+            capturedAt: '2026-08-06T00:00:00.000Z',
+          },
           operations: [{
             schemaVersion: 1,
             id: `set-title-${project.id}`,
@@ -103,6 +108,7 @@ test(
       assert.equal(publishV1Response.statusCode, 201, publishV1Response.body);
       const releaseV1 = publishV1Response.json().release;
       assert.equal(releaseV1.version, 1);
+      assert.equal(releaseV1.sourceSnapshot.pageHash, 'a'.repeat(64));
 
       const draftV2Response = await app.inject({
         method: 'POST',
@@ -131,6 +137,7 @@ test(
       assert.equal(editorExchange.statusCode, 200, editorExchange.body);
       assert.equal(editorExchange.json().capability.draftId, draftV2.id);
       assert.equal(editorExchange.json().capability.expectedRevision, 0);
+      assert.equal(editorExchange.json().capability.baseVersion, 1);
 
       const appendV2Response = await app.inject({
         method: 'POST',
@@ -138,6 +145,11 @@ test(
         headers: { authorization: `Bearer ${editorExchange.json().capability.token}` },
         payload: {
           expectedRevision: 0,
+          sourceSnapshot: {
+            algorithm: 'lykar-dom-v1',
+            pageHash: 'a'.repeat(64),
+            capturedAt: '2026-08-06T00:00:00.000Z',
+          },
           operations: [{
             schemaVersion: 1,
             id: `set-color-${project.id}`,
@@ -160,22 +172,11 @@ test(
       assert.equal(releaseV2.version, 2);
       assert.equal(releaseV2.operationCount, 2);
 
-      const rollbackResponse = await app.inject({
-        method: 'POST',
-        url: `/api/admin/pages/${page.id}/rollback`,
-        headers: adminHeaders,
-        payload: { releaseId: releaseV1.id },
-      });
-      assert.equal(rollbackResponse.statusCode, 200, rollbackResponse.body);
-      assert.equal(rollbackResponse.json().activation.previousReleaseId, releaseV2.id);
-
-      const activeManifest = await app.inject({
+      const nativeManifest = await app.inject({
         method: 'GET',
         url: `/api/runtime/projects/${project.publicKey}/manifest?pathname=%2F`,
       });
-      assert.equal(activeManifest.statusCode, 200, activeManifest.body);
-      assert.equal(activeManifest.json().manifest.releaseId, releaseV1.id);
-      assert.equal(activeManifest.json().manifest.operations.length, 1);
+      assert.equal(nativeManifest.statusCode, 204, nativeManifest.body);
 
       const shareResponse = await app.inject({
         method: 'POST',
@@ -212,6 +213,11 @@ test(
             && error.code === 'P0001'
           ),
         );
+        const snapshot = await verificationPool.query<{ source_snapshot: { pageHash: string } }>(
+          'SELECT source_snapshot FROM releases WHERE id = $1',
+          [releaseV2.id],
+        );
+        assert.equal(snapshot.rows[0].source_snapshot.pageHash, 'a'.repeat(64));
       } finally {
         await verificationPool.end();
       }

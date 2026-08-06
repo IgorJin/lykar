@@ -3,6 +3,7 @@ import Fastify, { type FastifyInstance } from 'fastify';
 
 import { AccessService, type AccessRepository } from './domain/access';
 import { AuthService, ConsoleMagicLinkSender, type AuthRepository, type MagicLinkSender } from './domain/auth';
+import { ExperimentService, type ExperimentRepository } from './domain/experiments';
 import {
   ConsoleInvitationSender,
   MembershipService,
@@ -13,11 +14,13 @@ import { VersioningError, VersioningService, type VersioningRepository } from '.
 import dbPlugin from './plugins/db';
 import { PostgresAccessRepository } from './repositories/postgres-access-repository';
 import { PostgresAuthRepository } from './repositories/postgres-auth-repository';
+import { PostgresExperimentRepository } from './repositories/postgres-experiment-repository';
 import { PostgresMembershipRepository } from './repositories/postgres-membership-repository';
 import { PostgresVersioningRepository } from './repositories/postgres-versioning-repository';
 import accessRoutes from './routes/access';
 import adminUiRoutes from './routes/admin-ui';
 import authRoutes from './routes/auth';
+import experimentRoutes from './routes/experiments';
 import membershipRoutes from './routes/memberships';
 import versioningRoutes from './routes/versioning';
 
@@ -35,6 +38,7 @@ export type BuildAppOptions = {
   authRepository?: AuthRepository;
   accessRepository?: AccessRepository;
   membershipRepository?: MembershipRepository;
+  experimentRepository?: ExperimentRepository;
 };
 
 export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
@@ -108,14 +112,16 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
     let authRepository = options.authRepository;
     let accessRepository = options.accessRepository;
     let membershipRepository = options.membershipRepository;
+    let experimentRepository = options.experimentRepository;
 
-    if (!versioningRepository || !authRepository || !accessRepository || !membershipRepository) {
+    if (!versioningRepository || !authRepository || !accessRepository || !membershipRepository || !experimentRepository) {
       if (!options.connectionString) throw new Error('DATABASE_URL is required unless all repositories are provided');
       await scopedServer.register(dbPlugin, { connectionString: options.connectionString });
       versioningRepository ??= new PostgresVersioningRepository(scopedServer.pg.pool);
       authRepository ??= new PostgresAuthRepository(scopedServer.pg.pool);
       accessRepository ??= new PostgresAccessRepository(scopedServer.pg.pool);
       membershipRepository ??= new PostgresMembershipRepository(scopedServer.pg.pool);
+      experimentRepository ??= new PostgresExperimentRepository(scopedServer.pg.pool);
     }
 
     const authService = new AuthService(authRepository, {
@@ -137,6 +143,7 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
       invitationTtlMs: ttl.invitation,
       sender: options.invitationSender ?? new ConsoleInvitationSender(message => scopedServer.log.info(message)),
     });
+    const experimentService = new ExperimentService(experimentRepository);
     const secureCookies = options.secureCookies ?? appOrigin.startsWith('https://');
     const sessionTtlSeconds = Math.floor(ttl.session / 1000);
 
@@ -152,10 +159,12 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
       sessionTtlSeconds,
     });
     await scopedServer.register(accessRoutes, { accessService, authService });
+    await scopedServer.register(experimentRoutes, { experimentService, authService });
     await scopedServer.register(versioningRoutes, {
       service: new VersioningService(versioningRepository),
       authService,
       accessService,
+      experimentService,
     });
   });
 

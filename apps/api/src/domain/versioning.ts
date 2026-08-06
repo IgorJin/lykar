@@ -1,9 +1,7 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 
-import { validateOperationV1 } from '@lykar/protocol';
-import type { OperationV1, PublishedManifestV1 } from '@lykar/protocol';
-
-export const DEFAULT_ENVIRONMENT = 'production';
+import { isSourceSnapshotV1, validateOperationV1 } from '@lykar/protocol';
+import type { OperationV1, PublishedManifestV1, SourceSnapshotV1 } from '@lykar/protocol';
 
 export class VersioningError extends Error {
   constructor(
@@ -74,6 +72,7 @@ export type DraftRecord = {
   publishedReleaseId: string | null;
   status: 'open' | 'published' | 'abandoned';
   revision: number;
+  sourceSnapshot: SourceSnapshotV1 | null;
   createdBy: string | null;
   createdAt: string;
   updatedAt: string;
@@ -97,6 +96,7 @@ export type ReleaseRecord = {
   version: number;
   baseReleaseId: string | null;
   manifestHash: string;
+  sourceSnapshot: SourceSnapshotV1 | null;
   operationCount: number;
   publishedBy: string | null;
   createdAt: string;
@@ -105,16 +105,6 @@ export type ReleaseRecord = {
 export type PublishResult = {
   draft: DraftRecord;
   release: ReleaseRecord;
-  environment: string;
-};
-
-export type ActivationResult = {
-  projectId: string;
-  pageId: string;
-  environment: string;
-  previousReleaseId: string | null;
-  releaseId: string;
-  activatedBy: string | null;
 };
 
 export type RuntimeManifest = PublishedManifestV1;
@@ -126,7 +116,7 @@ export interface VersioningRepository {
     name: string;
     publicKey: string;
     origins: Array<{ id: string; origin: string }>;
-    rootPage: { id: string; name: string; pathname: '/'; environmentId: string };
+    rootPage: { id: string; name: string; pathname: '/' };
   }): Promise<ProjectRecord>;
   listProjects(userId: string): Promise<ProjectRecord[]>;
   createPage(input: {
@@ -135,7 +125,6 @@ export interface VersioningRepository {
     projectId: string;
     name: string;
     pathname: string;
-    environmentId: string;
   }): Promise<PageRecord>;
   listPages(userId: string, projectId: string): Promise<PageRecord[]>;
   createDraft(input: { id: string; userId: string; pageId: string; baseReleaseId?: string }): Promise<DraftRecord>;
@@ -146,35 +135,23 @@ export interface VersioningRepository {
     draftId: string;
     expectedRevision: number;
     operations: OperationV1[];
+    sourceSnapshot?: SourceSnapshotV1;
   }): Promise<AppendOperationsResult>;
   publishDraft(input: {
     userId: string;
     draftId: string;
     expectedRevision: number;
-    environment: string;
     releaseId: string;
-    environmentId: string;
-    activationId: string;
   }): Promise<PublishResult>;
-  activateRelease(input: {
-    userId: string;
-    pageId: string;
-    releaseId: string;
-    environment: string;
-    environmentId: string;
-    activationId: string;
-  }): Promise<ActivationResult>;
   listReleases(userId: string, pageId: string): Promise<ReleaseRecord[]>;
   resolveRuntimeManifest(input: {
     publicKey: string;
     pathname: string;
-    version?: number;
-    environment: string;
+    version: number;
   }): Promise<RuntimeManifest>;
 }
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const ENVIRONMENT_PATTERN = /^[a-z][a-z0-9-]{0,31}$/;
 
 export function requireUuid(value: unknown, field: string): string {
   if (typeof value !== 'string' || !UUID_PATTERN.test(value)) {
@@ -195,14 +172,6 @@ function requireRevision(value: unknown): number {
     throw new ValidationError('expectedRevision must be a non-negative integer');
   }
   return value as number;
-}
-
-function requireEnvironment(value: unknown): string {
-  const environment = value === undefined ? DEFAULT_ENVIRONMENT : value;
-  if (typeof environment !== 'string' || !ENVIRONMENT_PATTERN.test(environment)) {
-    throw new ValidationError('environment must start with a letter and contain only lowercase letters, digits, or hyphens');
-  }
-  return environment;
 }
 
 export function normalizePathname(value: unknown): string {
@@ -252,7 +221,7 @@ export class VersioningService {
       name,
       publicKey: `pk_${randomBytes(18).toString('base64url')}`,
       origins: origins.map(origin => ({ id: randomUUID(), origin })),
-      rootPage: { id: randomUUID(), name: 'Home', pathname: '/', environmentId: randomUUID() },
+      rootPage: { id: randomUUID(), name: 'Home', pathname: '/' },
     });
   }
 
@@ -267,7 +236,6 @@ export class VersioningService {
       projectId: requireUuid(projectIdValue, 'projectId'),
       name: requireName(nameValue),
       pathname: normalizePathname(pathnameValue),
-      environmentId: randomUUID(),
     });
   }
 
@@ -317,6 +285,7 @@ export class VersioningService {
     draftIdValue: unknown,
     expectedRevisionValue: unknown,
     operationsValue: unknown,
+    sourceSnapshotValue?: unknown,
   ): Promise<AppendOperationsResult> {
     const operations: OperationV1[] = [];
     const operationIds = new Set<string>();
@@ -338,6 +307,9 @@ export class VersioningService {
       draftId: requireUuid(draftIdValue, 'draftId'),
       expectedRevision: requireRevision(expectedRevisionValue),
       operations,
+      ...(sourceSnapshotValue === undefined
+        ? {}
+        : { sourceSnapshot: requireSourceSnapshot(sourceSnapshotValue) }),
     });
   }
 
@@ -345,32 +317,12 @@ export class VersioningService {
     userIdValue: unknown,
     draftIdValue: unknown,
     expectedRevisionValue: unknown,
-    environmentValue?: unknown,
   ): Promise<PublishResult> {
     return this.repository.publishDraft({
       userId: requireUuid(userIdValue, 'userId'),
       draftId: requireUuid(draftIdValue, 'draftId'),
       expectedRevision: requireRevision(expectedRevisionValue),
-      environment: requireEnvironment(environmentValue),
       releaseId: randomUUID(),
-      environmentId: randomUUID(),
-      activationId: randomUUID(),
-    });
-  }
-
-  activateRelease(
-    userIdValue: unknown,
-    pageIdValue: unknown,
-    releaseIdValue: unknown,
-    environmentValue?: unknown,
-  ): Promise<ActivationResult> {
-    return this.repository.activateRelease({
-      userId: requireUuid(userIdValue, 'userId'),
-      pageId: requireUuid(pageIdValue, 'pageId'),
-      releaseId: requireUuid(releaseIdValue, 'releaseId'),
-      environment: requireEnvironment(environmentValue),
-      environmentId: randomUUID(),
-      activationId: randomUUID(),
     });
   }
 
@@ -385,24 +337,23 @@ export class VersioningService {
     publicKeyValue: unknown,
     pathnameValue: unknown,
     versionValue?: unknown,
-    environmentValue?: unknown,
   ): Promise<RuntimeManifest> {
     if (typeof publicKeyValue !== 'string' || !publicKeyValue.startsWith('pk_')) {
       throw new ValidationError('publicKey is invalid');
     }
-    let version: number | undefined;
-    if (versionValue !== undefined) {
-      const parsed = typeof versionValue === 'string' ? Number(versionValue) : versionValue;
-      if (!Number.isSafeInteger(parsed) || (parsed as number) <= 0) {
-        throw new ValidationError('version must be a positive integer');
-      }
-      version = parsed as number;
+    const parsed = typeof versionValue === 'string' ? Number(versionValue) : versionValue;
+    if (!Number.isSafeInteger(parsed) || (parsed as number) <= 0) {
+      throw new ValidationError('version must be a positive integer');
     }
     return this.repository.resolveRuntimeManifest({
       publicKey: publicKeyValue,
       pathname: normalizePathname(pathnameValue),
-      version,
-      environment: requireEnvironment(environmentValue),
+      version: parsed as number,
     });
   }
+}
+
+function requireSourceSnapshot(value: unknown): SourceSnapshotV1 {
+  if (!isSourceSnapshotV1(value)) throw new ValidationError('sourceSnapshot is invalid');
+  return value;
 }

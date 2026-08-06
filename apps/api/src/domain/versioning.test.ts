@@ -5,7 +5,6 @@ import type { OperationV1 } from '@lykar/protocol';
 
 import {
   VersioningService,
-  type ActivationResult,
   type AppendOperationsResult,
   type DraftRecord,
   type PageRecord,
@@ -63,6 +62,7 @@ class CapturingRepository implements VersioningRepository {
       publishedReleaseId: null,
       status: 'open',
       revision: 0,
+      sourceSnapshot: null,
       createdBy: input.userId,
       createdAt: '2026-01-01T00:00:00.000Z',
       updatedAt: '2026-01-01T00:00:00.000Z',
@@ -85,10 +85,6 @@ class CapturingRepository implements VersioningRepository {
   }
 
   async publishDraft(): Promise<PublishResult> {
-    throw new Error('Not used in this test');
-  }
-
-  async activateRelease(): Promise<ActivationResult> {
     throw new Error('Not used in this test');
   }
 

@@ -1,16 +1,14 @@
 import { createHash, randomUUID } from 'node:crypto';
 
-import { parseOperationV1 } from '@lykar/protocol';
-import type { OperationV1 } from '@lykar/protocol';
+import { isSourceSnapshotV1, parseOperationV1 } from '@lykar/protocol';
+import type { OperationV1, SourceSnapshotV1 } from '@lykar/protocol';
 import type { Pool, PoolClient } from 'pg';
 
 import { rolesWithPermission, type ProjectPermission } from '../domain/memberships';
 import {
   ConflictError,
-  DEFAULT_ENVIRONMENT,
   ForbiddenError,
   NotFoundError,
-  type ActivationResult,
   type AppendOperationsResult,
   type DraftDetails,
   type DraftRecord,
@@ -31,6 +29,7 @@ type DraftRow = {
   published_release_id: string | null;
   status: DraftRecord['status'];
   revision: string | number;
+  source_snapshot: unknown | null;
   created_by: string | null;
   created_at: Date | string;
   updated_at: Date | string;
@@ -43,6 +42,7 @@ type ReleaseRow = {
   base_release_id: string | null;
   manifest?: unknown;
   manifest_hash: string;
+  source_snapshot?: unknown | null;
   operation_count?: number;
   published_by: string | null;
   created_at: Date | string;
@@ -82,6 +82,7 @@ function mapDraft(row: DraftRow): DraftRecord {
     publishedReleaseId: row.published_release_id,
     status: row.status,
     revision: Number(row.revision),
+    sourceSnapshot: parseSourceSnapshot(row.source_snapshot),
     createdBy: row.created_by,
     createdAt: toIso(row.created_at),
     updatedAt: toIso(row.updated_at),
@@ -96,6 +97,7 @@ function mapRelease(row: ReleaseRow): ReleaseRecord {
     version: Number(row.version),
     baseReleaseId: row.base_release_id,
     manifestHash: row.manifest_hash.trim(),
+    sourceSnapshot: parseSourceSnapshot(row.source_snapshot),
     operationCount: Number(row.operation_count ?? (Array.isArray(row.manifest) ? row.manifest.length : 0)),
     publishedBy: row.published_by,
     createdAt: toIso(row.created_at),
@@ -104,6 +106,12 @@ function mapRelease(row: ReleaseRow): ReleaseRecord {
 
 function isUniqueViolation(error: unknown): boolean {
   return typeof error === 'object' && error !== null && 'code' in error && error.code === '23505';
+}
+
+function parseSourceSnapshot(value: unknown): SourceSnapshotV1 | null {
+  if (value === null || value === undefined) return null;
+  if (!isSourceSnapshotV1(value)) throw new Error('Stored source snapshot is invalid');
+  return value;
 }
 
 async function requireProjectAccess(
@@ -208,11 +216,6 @@ export class PostgresVersioningRepository implements VersioningRepository {
            VALUES ($1, $2, $3, $4, $5)`,
           [input.rootPage.id, input.id, input.rootPage.name, input.rootPage.pathname, input.ownerUserId],
         );
-        await client.query(
-          `INSERT INTO environments (id, project_id, page_id, name)
-           VALUES ($1, $2, $3, $4)`,
-          [input.rootPage.environmentId, input.id, input.rootPage.id, DEFAULT_ENVIRONMENT],
-        );
         const project = projectResult.rows[0];
         return {
           id: project.id,
@@ -262,11 +265,6 @@ export class PostgresVersioningRepository implements VersioningRepository {
            RETURNING *`,
           [input.id, input.projectId, input.name, input.pathname, input.userId],
         );
-        await client.query(
-          `INSERT INTO environments (id, project_id, page_id, name)
-           VALUES ($1, $2, $3, $4)`,
-          [input.environmentId, input.projectId, input.id, DEFAULT_ENVIRONMENT],
-        );
         return mapPage(result.rows[0]);
       });
     } catch (error) {
@@ -292,11 +290,11 @@ export class PostgresVersioningRepository implements VersioningRepository {
         const release = await client.query('SELECT id FROM releases WHERE id = $1 AND page_id = $2', [baseReleaseId, page.id]);
         if (release.rowCount === 0) throw new NotFoundError('Base release was not found on this page');
       } else {
-        const environment = await client.query<{ active_release_id: string | null }>(
-          'SELECT active_release_id FROM environments WHERE page_id = $1 AND name = $2',
-          [page.id, DEFAULT_ENVIRONMENT],
+        const latestRelease = await client.query<{ id: string }>(
+          'SELECT id FROM releases WHERE page_id = $1 ORDER BY version DESC LIMIT 1',
+          [page.id],
         );
-        baseReleaseId = environment.rows[0]?.active_release_id ?? null;
+        baseReleaseId = latestRelease.rows[0]?.id ?? null;
       }
       const result = await client.query<DraftRow>(
         `INSERT INTO drafts (id, project_id, page_id, base_release_id, created_by)
@@ -341,6 +339,20 @@ export class PostgresVersioningRepository implements VersioningRepository {
             actualRevision: currentRevision,
           });
         }
+        const storedSnapshot = parseSourceSnapshot(draft.source_snapshot);
+        if (
+          storedSnapshot
+          && input.sourceSnapshot
+          && (
+            storedSnapshot.algorithm !== input.sourceSnapshot.algorithm
+            || storedSnapshot.pageHash !== input.sourceSnapshot.pageHash
+          )
+        ) {
+          throw new ConflictError('The source page changed while this draft was open', {
+            expectedPageHash: storedSnapshot.pageHash,
+            actualPageHash: input.sourceSnapshot.pageHash,
+          });
+        }
         const ordinalResult = await client.query<{ ordinal: string | number }>(
           'SELECT COALESCE(MAX(ordinal), 0) AS ordinal FROM operations WHERE draft_id = $1',
           [input.draftId],
@@ -357,7 +369,14 @@ export class PostgresVersioningRepository implements VersioningRepository {
             ],
           );
         }
-        await client.query('UPDATE drafts SET revision = $2, updated_at = NOW() WHERE id = $1', [input.draftId, nextRevision]);
+        await client.query(
+          `UPDATE drafts
+           SET revision = $2,
+               source_snapshot = COALESCE(source_snapshot, $3::jsonb),
+               updated_at = NOW()
+           WHERE id = $1`,
+          [input.draftId, nextRevision, input.sourceSnapshot ? JSON.stringify(input.sourceSnapshot) : null],
+        );
         return { draftId: input.draftId, revision: nextRevision, appended: input.operations.length };
       });
     } catch (error) {
@@ -412,38 +431,18 @@ export class PostgresVersioningRepository implements VersioningRepository {
         releaseId: input.releaseId,
         version,
         operations: manifest,
+        sourceSnapshot: parseSourceSnapshot(draft.source_snapshot),
       })).digest('hex');
       const releaseResult = await client.query<ReleaseRow>(
         `INSERT INTO releases
-          (id, project_id, page_id, version, base_release_id, manifest, manifest_hash, published_by)
-         VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7, $8)
+          (id, project_id, page_id, version, base_release_id, manifest, manifest_hash, source_snapshot, published_by)
+         VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7, $8::jsonb, $9)
          RETURNING *, jsonb_array_length(manifest) AS operation_count`,
         [
           input.releaseId, draft.project_id, draft.page_id, version, draft.base_release_id,
-          JSON.stringify(manifest), manifestHash, input.userId,
-        ],
-      );
-
-      const previousEnvironment = await client.query<{ id: string; active_release_id: string | null }>(
-        'SELECT id, active_release_id FROM environments WHERE page_id = $1 AND name = $2 FOR UPDATE',
-        [draft.page_id, input.environment],
-      );
-      const previousReleaseId = previousEnvironment.rows[0]?.active_release_id ?? null;
-      const environmentResult = await client.query<{ id: string }>(
-        `INSERT INTO environments (id, project_id, page_id, name, active_release_id)
-         VALUES ($1, $2, $3, $4, $5)
-         ON CONFLICT (page_id, name)
-         DO UPDATE SET active_release_id = EXCLUDED.active_release_id, updated_at = NOW()
-         RETURNING id`,
-        [input.environmentId, draft.project_id, draft.page_id, input.environment, input.releaseId],
-      );
-      await client.query(
-        `INSERT INTO release_activations
-          (id, project_id, page_id, environment_id, previous_release_id, release_id, reason, created_by)
-         VALUES ($1, $2, $3, $4, $5, $6, 'publish', $7)`,
-        [
-          input.activationId, draft.project_id, draft.page_id, environmentResult.rows[0].id,
-          previousReleaseId, input.releaseId, input.userId,
+          JSON.stringify(manifest), manifestHash,
+          draft.source_snapshot ? JSON.stringify(parseSourceSnapshot(draft.source_snapshot)) : null,
+          input.userId,
         ],
       );
       const publishedDraftResult = await client.query<DraftRow>(
@@ -454,45 +453,6 @@ export class PostgresVersioningRepository implements VersioningRepository {
       return {
         draft: mapDraft(publishedDraftResult.rows[0]),
         release: mapRelease(releaseResult.rows[0]),
-        environment: input.environment,
-      };
-    });
-  }
-
-  async activateRelease(input: Parameters<VersioningRepository['activateRelease']>[0]): Promise<ActivationResult> {
-    return this.transaction(async client => {
-      const page = await requirePageAccess(client, input.userId, input.pageId, 'publish');
-      const release = await client.query('SELECT id FROM releases WHERE id = $1 AND page_id = $2', [input.releaseId, page.id]);
-      if (release.rowCount === 0) throw new NotFoundError('Release was not found on this page');
-      const previousEnvironment = await client.query<{ id: string; active_release_id: string | null }>(
-        'SELECT id, active_release_id FROM environments WHERE page_id = $1 AND name = $2 FOR UPDATE',
-        [page.id, input.environment],
-      );
-      const previousReleaseId = previousEnvironment.rows[0]?.active_release_id ?? null;
-      const environmentResult = await client.query<{ id: string }>(
-        `INSERT INTO environments (id, project_id, page_id, name, active_release_id)
-         VALUES ($1, $2, $3, $4, $5)
-         ON CONFLICT (page_id, name)
-         DO UPDATE SET active_release_id = EXCLUDED.active_release_id, updated_at = NOW()
-         RETURNING id`,
-        [input.environmentId, page.project_id, page.id, input.environment, input.releaseId],
-      );
-      await client.query(
-        `INSERT INTO release_activations
-          (id, project_id, page_id, environment_id, previous_release_id, release_id, reason, created_by)
-         VALUES ($1, $2, $3, $4, $5, $6, 'rollback', $7)`,
-        [
-          input.activationId, page.project_id, page.id, environmentResult.rows[0].id,
-          previousReleaseId, input.releaseId, input.userId,
-        ],
-      );
-      return {
-        projectId: page.project_id,
-        pageId: page.id,
-        environment: input.environment,
-        previousReleaseId,
-        releaseId: input.releaseId,
-        activatedBy: input.userId,
       };
     });
   }
@@ -500,7 +460,7 @@ export class PostgresVersioningRepository implements VersioningRepository {
   async listReleases(userId: string, pageId: string): Promise<ReleaseRecord[]> {
     await requirePageAccess(this.pool, userId, pageId);
     const result = await this.pool.query<ReleaseRow>(
-      `SELECT id, project_id, page_id, version, base_release_id, manifest_hash, published_by, created_at,
+      `SELECT id, project_id, page_id, version, base_release_id, manifest_hash, source_snapshot, published_by, created_at,
               jsonb_array_length(manifest) AS operation_count
        FROM releases WHERE page_id = $1 ORDER BY version DESC`,
       [pageId],
@@ -509,27 +469,14 @@ export class PostgresVersioningRepository implements VersioningRepository {
   }
 
   async resolveRuntimeManifest(input: Parameters<VersioningRepository['resolveRuntimeManifest']>[0]): Promise<RuntimeManifest> {
-    const parameters: unknown[] = [input.publicKey, input.pathname];
-    let sql: string;
-    if (input.version !== undefined) {
-      parameters.push(input.version);
-      sql = `
-        SELECT p.id AS project_id, pg.pathname, r.*
-        FROM projects p
-        JOIN pages pg ON pg.project_id = p.id AND pg.pathname = $2
-        JOIN releases r ON r.page_id = pg.id AND r.version = $3
-        WHERE p.public_key = $1`;
-    } else {
-      parameters.push(input.environment);
-      sql = `
-        SELECT p.id AS project_id, pg.pathname, r.*
-        FROM projects p
-        JOIN pages pg ON pg.project_id = p.id AND pg.pathname = $2
-        JOIN environments e ON e.page_id = pg.id AND e.name = $3
-        JOIN releases r ON r.id = e.active_release_id
-        WHERE p.public_key = $1`;
-    }
-    const result = await this.pool.query<ReleaseRow & { pathname: string }>(sql, parameters);
+    const result = await this.pool.query<ReleaseRow & { pathname: string }>(
+      `SELECT p.id AS project_id, pg.pathname, r.*
+       FROM projects p
+       JOIN pages pg ON pg.project_id = p.id AND pg.pathname = $2
+       JOIN releases r ON r.page_id = pg.id AND r.version = $3
+       WHERE p.public_key = $1`,
+      [input.publicKey, input.pathname, input.version],
+    );
     const release = result.rows[0];
     if (!release) throw new NotFoundError('Published release was not found for this page');
     if (!Array.isArray(release.manifest)) throw new Error('Stored release manifest is not an array');
@@ -541,6 +488,9 @@ export class PostgresVersioningRepository implements VersioningRepository {
       releaseId: release.id,
       version: Number(release.version),
       manifestHash: release.manifest_hash.trim(),
+      ...(parseSourceSnapshot(release.source_snapshot)
+        ? { sourceSnapshot: parseSourceSnapshot(release.source_snapshot)! }
+        : {}),
       operations: release.manifest.map(parseOperationV1),
       createdAt: toIso(release.created_at),
     };

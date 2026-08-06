@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { applyOperation } from './dom-executor.js';
 import { sha256Text } from './hash.js';
 import { fetchManifest, ManifestRequestError } from './manifest-client.js';
-import { Lykar } from './runtime.js';
+import { Lykar, track } from './runtime.js';
 import type { FetchLike } from './types.js';
 
 const textOperation = (
@@ -236,6 +236,52 @@ describe('DOM executor', () => {
 });
 
 describe('manifest loading and runtime lifecycle', () => {
+  it('leaves the native page untouched and skips the API without a variant or preview version', async () => {
+    const dom = new JSDOM('<h1>Native</h1>', { url: 'https://site.test/page' });
+    const fetcher = vi.fn<FetchLike>();
+    const result = await new Lykar({
+      projectKey: 'pk_public', document: dom.window.document, fetch: fetcher, waitForDom: false,
+    }).start();
+
+    expect(result).toMatchObject({ mode: 'native', reason: 'NO_VARIANT_TOKEN' });
+    expect(fetcher).not.toHaveBeenCalled();
+    expect(dom.window.document.querySelector('h1')?.textContent).toBe('Native');
+  });
+
+  it('treats unavailable variant tokens as the native page', async () => {
+    const token = 'v'.repeat(48);
+    const dom = new JSDOM('<h1>Native</h1>', { url: `https://site.test/page?lykar_variant=${token}` });
+    const fetcher = vi.fn<FetchLike>(async () => response(undefined, 204));
+    const result = await new Lykar({
+      projectKey: 'pk_public', apiBaseUrl: 'https://api.test', document: dom.window.document,
+      fetch: fetcher, waitForDom: false,
+    }).start();
+
+    expect(fetcher).toHaveBeenCalledWith(
+      `https://api.test/api/runtime/projects/pk_public/manifest?pathname=%2Fpage&variantToken=${token}`,
+      { headers: { Accept: 'application/json' } },
+    );
+    expect(result).toMatchObject({ mode: 'native', reason: 'VARIANT_UNAVAILABLE' });
+  });
+
+  it('identifies a valid native control variant without applying a release', async () => {
+    const token = 'a'.repeat(48);
+    const dom = new JSDOM('<h1>Control</h1>', { url: `https://site.test/page?lykar_variant=${token}` });
+    const fetcher = vi.fn<FetchLike>(async () => response({
+      manifest: null,
+      variant: { experimentId: 'experiment-1', key: 'A' },
+    }));
+    const result = await new Lykar({
+      projectKey: 'pk_public', apiBaseUrl: 'https://api.test', document: dom.window.document,
+      fetch: fetcher, waitForDom: false,
+    }).start();
+
+    expect(result).toMatchObject({
+      mode: 'native', reason: 'NATIVE_VARIANT', experimentId: 'experiment-1', variantKey: 'A',
+    });
+    expect(dom.window.document.querySelector('h1')?.textContent).toBe('Control');
+  });
+
   it('loads a validated versioned manifest and applies it to a static document', async () => {
     const dom = new JSDOM('<h1 data-lykar-id="hero">Old</h1>', {
       url: 'https://site.test/page?version=7',
@@ -280,6 +326,30 @@ describe('manifest loading and runtime lifecycle', () => {
     expect(first.applied).toBe(1);
     expect(second).toMatchObject({ alreadyApplied: true, applied: 0, skipped: 1 });
     expect(document.querySelectorAll('span')).toHaveLength(1);
+  });
+
+  it('reports page drift without blocking compatible target-level operations', async () => {
+    document.body.innerHTML = '<h1 data-lykar-id="hero">Native</h1>';
+    const runtime = new Lykar({ projectKey: 'pk_test', document });
+    const report = await runtime.applyManifest(manifest([textOperation('drift', 'hero', 'Changed')], {
+      sourceSnapshot: {
+        algorithm: 'lykar-dom-v1',
+        pageHash: 'f'.repeat(64),
+        capturedAt: '2026-08-06T00:00:00.000Z',
+      },
+    }));
+
+    expect(report.compatibility.status).toBe('drifted');
+    expect(report.applied).toBe(1);
+    expect(document.querySelector('h1')?.textContent).toBe('Changed');
+  });
+
+  it('exposes a typed analytics placeholder without sending data', () => {
+    expect(track('signup', { plan: 'pro' })).toMatchObject({
+      accepted: false,
+      code: 'EVENT_PIPELINE_NOT_IMPLEMENTED',
+      event: { name: 'signup', properties: { plan: 'pro' } },
+    });
   });
 
   it('rejects malformed API manifests before touching the DOM', async () => {

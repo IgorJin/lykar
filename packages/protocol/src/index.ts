@@ -115,6 +115,14 @@ export type OperationV1 =
   | RemoveNodeOperationV1
   | MoveNodeOperationV1;
 
+export const SOURCE_SNAPSHOT_ALGORITHM = 'lykar-dom-v1' as const;
+
+export type SourceSnapshotV1 = {
+  algorithm: typeof SOURCE_SNAPSHOT_ALGORITHM;
+  pageHash: string;
+  capturedAt: string;
+};
+
 export type OperationValidationResult =
   | { ok: true; value: OperationV1 }
   | { ok: false; errors: string[] };
@@ -127,6 +135,7 @@ export type PublishedManifestV1 = {
   releaseId: string;
   version: number;
   manifestHash: string;
+  sourceSnapshot?: SourceSnapshotV1;
   operations: OperationV1[];
   createdAt: string;
 };
@@ -145,6 +154,15 @@ function isNonEmptyString(value: unknown): value is string {
 
 function isStringRecord(value: unknown): value is Record<string, string> {
   return isRecord(value) && Object.values(value).every(item => typeof item === 'string');
+}
+
+export function isSourceSnapshotV1(value: unknown): value is SourceSnapshotV1 {
+  return isRecord(value)
+    && value.algorithm === SOURCE_SNAPSHOT_ALGORITHM
+    && typeof value.pageHash === 'string'
+    && /^[0-9a-f]{64}$/i.test(value.pageHash)
+    && isNonEmptyString(value.capturedAt)
+    && !Number.isNaN(Date.parse(value.capturedAt));
 }
 
 function hasTargetLocator(target: Record<string, unknown>): boolean {
@@ -277,6 +295,9 @@ export function validatePublishedManifestV1(value: unknown): PublishedManifestVa
   }
   if (typeof value.manifestHash !== 'string' || !/^[0-9a-f]{64}$/i.test(value.manifestHash)) {
     errors.push('manifestHash must be a SHA-256 hex digest');
+  }
+  if (value.sourceSnapshot !== undefined && !isSourceSnapshotV1(value.sourceSnapshot)) {
+    errors.push('sourceSnapshot is invalid');
   }
   if (!isNonEmptyString(value.createdAt) || Number.isNaN(Date.parse(value.createdAt))) {
     errors.push('createdAt must be an ISO-compatible date string');

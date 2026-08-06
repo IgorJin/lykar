@@ -13,8 +13,10 @@ npm run dev:e2e
 Open <http://127.0.0.1:3000/admin/>, sign in as `owner@lykar.local`, select a
 page, and click **Открыть редактор**. The playground exchanges the one-time
 launch code, shows the overlay editor, previews commands locally, and persists
-them only when **Применить** is pressed. After publishing in admin, a normal
-playground load replays the active release.
+them only when **Применить** is pressed. **Зафиксировать версию** creates an
+immutable release without changing the normal playground URL. Use the
+**Experiments** tab to map native/release variants, activate them, and create
+public tokenized links.
 
 The focused standalone server remains available for asset and UI work:
 
