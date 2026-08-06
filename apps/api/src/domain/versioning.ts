@@ -23,6 +23,18 @@ export class ValidationError extends VersioningError {
   }
 }
 
+export class UnauthorizedError extends VersioningError {
+  constructor(message = 'Authentication is required') {
+    super(message, 'UNAUTHORIZED', 401);
+  }
+}
+
+export class ForbiddenError extends VersioningError {
+  constructor(message = 'This account cannot access the requested resource') {
+    super(message, 'FORBIDDEN', 403);
+  }
+}
+
 export class NotFoundError extends VersioningError {
   constructor(message: string) {
     super(message, 'NOT_FOUND', 404);
@@ -43,9 +55,19 @@ export type ProjectRecord = {
   createdAt: string;
 };
 
+export type PageRecord = {
+  id: string;
+  projectId: string;
+  name: string;
+  pathname: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type DraftRecord = {
   id: string;
   projectId: string;
+  pageId: string;
   baseReleaseId: string | null;
   publishedReleaseId: string | null;
   status: 'open' | 'published' | 'abandoned';
@@ -68,6 +90,7 @@ export type DraftDetails = {
 export type ReleaseRecord = {
   id: string;
   projectId: string;
+  pageId: string;
   version: number;
   baseReleaseId: string | null;
   manifestHash: string;
@@ -83,6 +106,7 @@ export type PublishResult = {
 
 export type ActivationResult = {
   projectId: string;
+  pageId: string;
   environment: string;
   previousReleaseId: string | null;
   releaseId: string;
@@ -93,31 +117,33 @@ export type RuntimeManifest = PublishedManifestV1;
 export interface VersioningRepository {
   createProject(input: {
     id: string;
+    ownerUserId: string;
     name: string;
     publicKey: string;
     origins: Array<{ id: string; origin: string }>;
-    environmentId: string;
+    rootPage: { id: string; name: string; pathname: '/'; environmentId: string };
   }): Promise<ProjectRecord>;
-
-  listProjects(): Promise<ProjectRecord[]>;
-
-  createDraft(input: {
+  listProjects(userId: string): Promise<ProjectRecord[]>;
+  createPage(input: {
     id: string;
+    userId: string;
     projectId: string;
-    baseReleaseId?: string;
-  }): Promise<DraftRecord>;
-
-  listDrafts(projectId: string, status?: DraftRecord['status']): Promise<DraftRecord[]>;
-
-  getDraft(draftId: string): Promise<DraftDetails>;
-
+    name: string;
+    pathname: string;
+    environmentId: string;
+  }): Promise<PageRecord>;
+  listPages(userId: string, projectId: string): Promise<PageRecord[]>;
+  createDraft(input: { id: string; userId: string; pageId: string; baseReleaseId?: string }): Promise<DraftRecord>;
+  listDrafts(userId: string, pageId: string, status?: DraftRecord['status']): Promise<DraftRecord[]>;
+  getDraft(userId: string, draftId: string): Promise<DraftDetails>;
   appendOperations(input: {
+    userId: string;
     draftId: string;
     expectedRevision: number;
     operations: OperationV1[];
   }): Promise<AppendOperationsResult>;
-
   publishDraft(input: {
+    userId: string;
     draftId: string;
     expectedRevision: number;
     environment: string;
@@ -125,19 +151,18 @@ export interface VersioningRepository {
     environmentId: string;
     activationId: string;
   }): Promise<PublishResult>;
-
   activateRelease(input: {
-    projectId: string;
+    userId: string;
+    pageId: string;
     releaseId: string;
     environment: string;
     environmentId: string;
     activationId: string;
   }): Promise<ActivationResult>;
-
-  listReleases(projectId: string): Promise<ReleaseRecord[]>;
-
+  listReleases(userId: string, pageId: string): Promise<ReleaseRecord[]>;
   resolveRuntimeManifest(input: {
     publicKey: string;
+    pathname: string;
     version?: number;
     environment: string;
   }): Promise<RuntimeManifest>;
@@ -146,11 +171,18 @@ export interface VersioningRepository {
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const ENVIRONMENT_PATTERN = /^[a-z][a-z0-9-]{0,31}$/;
 
-function requireUuid(value: unknown, field: string): string {
+export function requireUuid(value: unknown, field: string): string {
   if (typeof value !== 'string' || !UUID_PATTERN.test(value)) {
     throw new ValidationError(`${field} must be a UUID`);
   }
   return value;
+}
+
+function requireName(value: unknown, field = 'name'): string {
+  if (typeof value !== 'string' || !value.trim() || value.trim().length > 120) {
+    throw new ValidationError(`${field} must contain between 1 and 120 characters`);
+  }
+  return value.trim();
 }
 
 function requireRevision(value: unknown): number {
@@ -168,10 +200,19 @@ function requireEnvironment(value: unknown): string {
   return environment;
 }
 
-export function normalizeProjectOrigin(value: unknown): string {
-  if (typeof value !== 'string') {
-    throw new ValidationError('Every project origin must be a string');
+export function normalizePathname(value: unknown): string {
+  if (typeof value !== 'string' || !value.startsWith('/')) {
+    throw new ValidationError('pathname must start with /');
   }
+  if (value.includes('?') || value.includes('#') || value.includes('\\')) {
+    throw new ValidationError('pathname must not contain query, hash, or backslashes');
+  }
+  const normalized = value.replace(/\/{2,}/g, '/');
+  return normalized.length > 1 ? normalized.replace(/\/+$/, '') : '/';
+}
+
+export function normalizeProjectOrigin(value: unknown): string {
+  if (typeof value !== 'string') throw new ValidationError('Every project origin must be a string');
 
   let url: URL;
   try {
@@ -186,83 +227,100 @@ export function normalizeProjectOrigin(value: unknown): string {
   if (url.username || url.password || url.pathname !== '/' || url.search || url.hash) {
     throw new ValidationError(`Project origin must not contain credentials, path, query, or hash: ${value}`);
   }
-
   return url.origin;
 }
 
 export class VersioningService {
   constructor(private readonly repository: VersioningRepository) {}
 
-  async createProject(nameValue: unknown, originsValue: unknown): Promise<ProjectRecord> {
-    if (typeof nameValue !== 'string' || !nameValue.trim() || nameValue.trim().length > 120) {
-      throw new ValidationError('name must contain between 1 and 120 characters');
-    }
+  async createProject(userIdValue: unknown, nameValue: unknown, originsValue: unknown): Promise<ProjectRecord> {
+    const ownerUserId = requireUuid(userIdValue, 'userId');
+    const name = requireName(nameValue);
     if (!Array.isArray(originsValue) || originsValue.length === 0 || originsValue.length > 20) {
       throw new ValidationError('origins must contain between 1 and 20 entries');
     }
-
     const origins = [...new Set(originsValue.map(normalizeProjectOrigin))];
 
     return this.repository.createProject({
       id: randomUUID(),
-      name: nameValue.trim(),
+      ownerUserId,
+      name,
       publicKey: `pk_${randomBytes(18).toString('base64url')}`,
       origins: origins.map(origin => ({ id: randomUUID(), origin })),
+      rootPage: { id: randomUUID(), name: 'Home', pathname: '/', environmentId: randomUUID() },
+    });
+  }
+
+  listProjects(userIdValue: unknown): Promise<ProjectRecord[]> {
+    return this.repository.listProjects(requireUuid(userIdValue, 'userId'));
+  }
+
+  createPage(userIdValue: unknown, projectIdValue: unknown, nameValue: unknown, pathnameValue: unknown): Promise<PageRecord> {
+    return this.repository.createPage({
+      id: randomUUID(),
+      userId: requireUuid(userIdValue, 'userId'),
+      projectId: requireUuid(projectIdValue, 'projectId'),
+      name: requireName(nameValue),
+      pathname: normalizePathname(pathnameValue),
       environmentId: randomUUID(),
     });
   }
 
-  listProjects(): Promise<ProjectRecord[]> {
-    return this.repository.listProjects();
+  listPages(userIdValue: unknown, projectIdValue: unknown): Promise<PageRecord[]> {
+    return this.repository.listPages(
+      requireUuid(userIdValue, 'userId'),
+      requireUuid(projectIdValue, 'projectId'),
+    );
   }
 
-  createDraft(projectIdValue: unknown, baseReleaseIdValue?: unknown): Promise<DraftRecord> {
-    const projectId = requireUuid(projectIdValue, 'projectId');
+  createDraft(userIdValue: unknown, pageIdValue: unknown, baseReleaseIdValue?: unknown): Promise<DraftRecord> {
     const baseReleaseId = baseReleaseIdValue === undefined || baseReleaseIdValue === null
       ? undefined
       : requireUuid(baseReleaseIdValue, 'baseReleaseId');
-
-    return this.repository.createDraft({ id: randomUUID(), projectId, baseReleaseId });
+    return this.repository.createDraft({
+      id: randomUUID(),
+      userId: requireUuid(userIdValue, 'userId'),
+      pageId: requireUuid(pageIdValue, 'pageId'),
+      baseReleaseId,
+    });
   }
 
-  listDrafts(projectIdValue: unknown, statusValue?: unknown): Promise<DraftRecord[]> {
-    const projectId = requireUuid(projectIdValue, 'projectId');
+  listDrafts(userIdValue: unknown, pageIdValue: unknown, statusValue?: unknown): Promise<DraftRecord[]> {
     let status: DraftRecord['status'] | undefined;
-
     if (statusValue !== undefined) {
       if (statusValue !== 'open' && statusValue !== 'published' && statusValue !== 'abandoned') {
         throw new ValidationError('status must be open, published, or abandoned');
       }
       status = statusValue;
     }
-
-    return this.repository.listDrafts(projectId, status);
+    return this.repository.listDrafts(
+      requireUuid(userIdValue, 'userId'),
+      requireUuid(pageIdValue, 'pageId'),
+      status,
+    );
   }
 
-  getDraft(draftIdValue: unknown): Promise<DraftDetails> {
-    return this.repository.getDraft(requireUuid(draftIdValue, 'draftId'));
+  getDraft(userIdValue: unknown, draftIdValue: unknown): Promise<DraftDetails> {
+    return this.repository.getDraft(
+      requireUuid(userIdValue, 'userId'),
+      requireUuid(draftIdValue, 'draftId'),
+    );
   }
 
   appendOperations(
+    userIdValue: unknown,
     draftIdValue: unknown,
     expectedRevisionValue: unknown,
     operationsValue: unknown,
   ): Promise<AppendOperationsResult> {
-    const draftId = requireUuid(draftIdValue, 'draftId');
-    const expectedRevision = requireRevision(expectedRevisionValue);
-
+    const operations: OperationV1[] = [];
+    const operationIds = new Set<string>();
     if (!Array.isArray(operationsValue) || operationsValue.length === 0 || operationsValue.length > 100) {
       throw new ValidationError('operations must contain between 1 and 100 entries');
     }
-
-    const operations: OperationV1[] = [];
-    const operationIds = new Set<string>();
-
     operationsValue.forEach((operation, index) => {
       const result = validateOperationV1(operation);
-      if (!result.ok) {
-        throw new ValidationError(`operations[${index}] is invalid`, result.errors);
-      }
+      if (!result.ok) throw new ValidationError(`operations[${index}] is invalid`, result.errors);
       if (operationIds.has(result.value.id)) {
         throw new ValidationError(`Duplicate operation id in request: ${result.value.id}`);
       }
@@ -270,15 +328,22 @@ export class VersioningService {
       operations.push(result.value);
     });
 
-    return this.repository.appendOperations({ draftId, expectedRevision, operations });
+    return this.repository.appendOperations({
+      userId: requireUuid(userIdValue, 'userId'),
+      draftId: requireUuid(draftIdValue, 'draftId'),
+      expectedRevision: requireRevision(expectedRevisionValue),
+      operations,
+    });
   }
 
   publishDraft(
+    userIdValue: unknown,
     draftIdValue: unknown,
     expectedRevisionValue: unknown,
     environmentValue?: unknown,
   ): Promise<PublishResult> {
     return this.repository.publishDraft({
+      userId: requireUuid(userIdValue, 'userId'),
       draftId: requireUuid(draftIdValue, 'draftId'),
       expectedRevision: requireRevision(expectedRevisionValue),
       environment: requireEnvironment(environmentValue),
@@ -289,12 +354,14 @@ export class VersioningService {
   }
 
   activateRelease(
-    projectIdValue: unknown,
+    userIdValue: unknown,
+    pageIdValue: unknown,
     releaseIdValue: unknown,
     environmentValue?: unknown,
   ): Promise<ActivationResult> {
     return this.repository.activateRelease({
-      projectId: requireUuid(projectIdValue, 'projectId'),
+      userId: requireUuid(userIdValue, 'userId'),
+      pageId: requireUuid(pageIdValue, 'pageId'),
       releaseId: requireUuid(releaseIdValue, 'releaseId'),
       environment: requireEnvironment(environmentValue),
       environmentId: randomUUID(),
@@ -302,19 +369,22 @@ export class VersioningService {
     });
   }
 
-  listReleases(projectIdValue: unknown): Promise<ReleaseRecord[]> {
-    return this.repository.listReleases(requireUuid(projectIdValue, 'projectId'));
+  listReleases(userIdValue: unknown, pageIdValue: unknown): Promise<ReleaseRecord[]> {
+    return this.repository.listReleases(
+      requireUuid(userIdValue, 'userId'),
+      requireUuid(pageIdValue, 'pageId'),
+    );
   }
 
   resolveRuntimeManifest(
     publicKeyValue: unknown,
+    pathnameValue: unknown,
     versionValue?: unknown,
     environmentValue?: unknown,
   ): Promise<RuntimeManifest> {
     if (typeof publicKeyValue !== 'string' || !publicKeyValue.startsWith('pk_')) {
       throw new ValidationError('publicKey is invalid');
     }
-
     let version: number | undefined;
     if (versionValue !== undefined) {
       const parsed = typeof versionValue === 'string' ? Number(versionValue) : versionValue;
@@ -323,9 +393,9 @@ export class VersioningService {
       }
       version = parsed as number;
     }
-
     return this.repository.resolveRuntimeManifest({
       publicKey: publicKeyValue,
+      pathname: normalizePathname(pathnameValue),
       version,
       environment: requireEnvironment(environmentValue),
     });

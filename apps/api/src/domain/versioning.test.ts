@@ -8,6 +8,7 @@ import {
   type ActivationResult,
   type AppendOperationsResult,
   type DraftRecord,
+  type PageRecord,
   type ProjectRecord,
   type PublishResult,
   type ReleaseRecord,
@@ -16,6 +17,8 @@ import {
 } from './versioning';
 
 const DRAFT_ID = '11111111-1111-4111-8111-111111111111';
+const USER_ID = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+const PAGE_ID = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 
 class CapturingRepository implements VersioningRepository {
   createdProjectInput: Parameters<VersioningRepository['createProject']>[0] | undefined;
@@ -36,10 +39,24 @@ class CapturingRepository implements VersioningRepository {
     return [];
   }
 
-  async createDraft(input: Parameters<VersioningRepository['createDraft']>[0]): Promise<DraftRecord> {
+  async createPage(input: Parameters<VersioningRepository['createPage']>[0]): Promise<PageRecord> {
     return {
       id: input.id,
       projectId: input.projectId,
+      name: input.name,
+      pathname: input.pathname,
+      createdAt: '2026-01-01T00:00:00.000Z',
+      updatedAt: '2026-01-01T00:00:00.000Z',
+    };
+  }
+
+  async listPages(): Promise<PageRecord[]> { return []; }
+
+  async createDraft(input: Parameters<VersioningRepository['createDraft']>[0]): Promise<DraftRecord> {
+    return {
+      id: input.id,
+      projectId: '22222222-2222-4222-8222-222222222222',
+      pageId: input.pageId,
       baseReleaseId: input.baseReleaseId ?? null,
       publishedReleaseId: null,
       status: 'open',
@@ -85,7 +102,7 @@ test('createProject normalizes and deduplicates origins', async () => {
   const repository = new CapturingRepository();
   const service = new VersioningService(repository);
 
-  const project = await service.createProject('  Marketing site  ', [
+  const project = await service.createProject(USER_ID, '  Marketing site  ', [
     'https://Example.com',
     'https://example.com/',
   ]);
@@ -101,7 +118,7 @@ test('appendOperations validates protocol v1 before touching the repository', ()
   const service = new VersioningService(repository);
 
   assert.throws(
-    () => service.appendOperations(DRAFT_ID, 0, [{
+    () => service.appendOperations(USER_ID, DRAFT_ID, 0, [{
       schemaVersion: 1,
       id: 'unsafe',
       kind: 'executeScript',
@@ -133,7 +150,7 @@ test('appendOperations accepts the complete static-page operation set', async ()
     { schemaVersion: 1, id: 'move', kind: 'moveNode', target, destination: target, position: 'after' },
   ];
 
-  const result = await service.appendOperations(DRAFT_ID, 7, operations);
+  const result = await service.appendOperations(USER_ID, DRAFT_ID, 7, operations);
 
   assert.deepEqual(result, { draftId: DRAFT_ID, revision: 8, appended: 7 });
   assert.deepEqual(repository.appendedInput?.operations, operations);

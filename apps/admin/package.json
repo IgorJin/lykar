@@ -2,5 +2,18 @@
   "name": "@lykar/admin",
   "version": "0.0.0",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "scripts": {
+    "build": "npm run clean && esbuild src/main.tsx --bundle --format=esm --target=es2022 --outfile=dist/app.js && node scripts/copy-static.mjs",
+    "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
+    "typecheck": "tsc --noEmit",
+    "dev": "npm run build && esbuild src/main.tsx --bundle --format=esm --target=es2022 --outfile=dist/app.js --watch"
+  },
+  "dependencies": {
+    "preact": "^10.26.8"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.1",
+    "typescript": "^5.8.3"
+  }
 }

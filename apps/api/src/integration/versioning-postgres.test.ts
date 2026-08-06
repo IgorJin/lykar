@@ -5,19 +5,27 @@ import { Pool } from 'pg';
 import { buildApp } from '../app';
 
 const databaseUrl = process.env.LYKAR_TEST_DATABASE_URL;
-const adminHeaders = { 'x-lykar-admin-token': 'integration-admin-token' };
 
 test(
   'PostgreSQL workflow publishes immutable versions and rolls the environment back',
   { skip: databaseUrl ? false : 'LYKAR_TEST_DATABASE_URL is not configured' },
   async () => {
+    let magicLink = '';
     const app = buildApp({
       logger: false,
       connectionString: databaseUrl,
-      adminToken: 'integration-admin-token',
+      appOrigin: 'http://localhost:3000',
+      ownerEmail: 'integration@example.com',
+      magicLinkSender: { async send(input) { magicLink = input.url; } },
     });
 
     try {
+      await app.inject({ method: 'POST', url: '/api/auth/magic-link', payload: { email: 'integration@example.com' } });
+      const loginToken = new URL(magicLink).searchParams.get('token');
+      assert.ok(loginToken);
+      const loginResponse = await app.inject({ method: 'GET', url: `/api/auth/verify?token=${loginToken}` });
+      const cookie = String(loginResponse.headers['set-cookie']).split(';')[0];
+      const adminHeaders = { cookie };
       const projectResponse = await app.inject({
         method: 'POST',
         url: '/api/admin/projects',
@@ -27,9 +35,15 @@ test(
       assert.equal(projectResponse.statusCode, 201, projectResponse.body);
       const project = projectResponse.json().project;
 
+      const pagesResponse = await app.inject({
+        method: 'GET', url: `/api/admin/projects/${project.id}/pages`, headers: adminHeaders,
+      });
+      const page = pagesResponse.json().pages[0];
+      assert.equal(page.pathname, '/');
+
       const draftResponse = await app.inject({
         method: 'POST',
-        url: `/api/admin/projects/${project.id}/drafts`,
+        url: `/api/admin/pages/${page.id}/drafts`,
         headers: adminHeaders,
         payload: {},
       });
@@ -92,17 +106,36 @@ test(
 
       const draftV2Response = await app.inject({
         method: 'POST',
-        url: `/api/admin/projects/${project.id}/drafts`,
+        url: `/api/admin/pages/${page.id}/drafts`,
         headers: adminHeaders,
         payload: {},
       });
       const draftV2 = draftV2Response.json().draft;
       assert.equal(draftV2.baseReleaseId, releaseV1.id);
 
+      const editorLaunch = await app.inject({
+        method: 'POST',
+        url: `/api/admin/pages/${page.id}/editor-launch`,
+        headers: adminHeaders,
+        payload: { draftId: draftV2.id },
+      });
+      const editorTarget = new URL(editorLaunch.json().launchUrl);
+      const editorExchange = await app.inject({
+        method: 'POST',
+        url: '/api/editor/exchange',
+        payload: {
+          code: new URLSearchParams(editorTarget.hash.slice(1)).get('lykar_edit'),
+          pageUrl: `${editorTarget.origin}${editorTarget.pathname}`,
+        },
+      });
+      assert.equal(editorExchange.statusCode, 200, editorExchange.body);
+      assert.equal(editorExchange.json().capability.draftId, draftV2.id);
+      assert.equal(editorExchange.json().capability.expectedRevision, 0);
+
       const appendV2Response = await app.inject({
         method: 'POST',
-        url: `/api/admin/drafts/${draftV2.id}/operations`,
-        headers: adminHeaders,
+        url: `/api/editor/drafts/${draftV2.id}/operations`,
+        headers: { authorization: `Bearer ${editorExchange.json().capability.token}` },
         payload: {
           expectedRevision: 0,
           operations: [{
@@ -129,7 +162,7 @@ test(
 
       const rollbackResponse = await app.inject({
         method: 'POST',
-        url: `/api/admin/projects/${project.id}/rollback`,
+        url: `/api/admin/pages/${page.id}/rollback`,
         headers: adminHeaders,
         payload: { releaseId: releaseV1.id },
       });
@@ -138,15 +171,31 @@ test(
 
       const activeManifest = await app.inject({
         method: 'GET',
-        url: `/api/runtime/projects/${project.publicKey}/manifest`,
+        url: `/api/runtime/projects/${project.publicKey}/manifest?pathname=%2F`,
       });
       assert.equal(activeManifest.statusCode, 200, activeManifest.body);
       assert.equal(activeManifest.json().manifest.releaseId, releaseV1.id);
       assert.equal(activeManifest.json().manifest.operations.length, 1);
 
+      const shareResponse = await app.inject({
+        method: 'POST',
+        url: `/api/admin/pages/${page.id}/shares`,
+        headers: adminHeaders,
+        payload: { releaseId: releaseV2.id, expiresInSeconds: 3600 },
+      });
+      const sharePath = new URL(shareResponse.json().url).pathname;
+      const shareRedirect = await app.inject({ method: 'GET', url: sharePath });
+      const target = new URL(String(shareRedirect.headers.location));
+      const shareCode = new URLSearchParams(target.hash.slice(1)).get('lykar_share');
+      const shareExchange = await app.inject({
+        method: 'POST',
+        url: '/api/share/exchange',
+        payload: { code: shareCode, pageUrl: `${target.origin}${target.pathname}` },
+      });
       const immutableV2Manifest = await app.inject({
         method: 'GET',
-        url: `/api/runtime/projects/${project.publicKey}/manifest?version=2`,
+        url: `/api/runtime/projects/${project.publicKey}/manifest?pathname=%2F&version=2`,
+        headers: { authorization: `Bearer ${shareExchange.json().access.token}` },
       });
       assert.equal(immutableV2Manifest.statusCode, 200, immutableV2Manifest.body);
       assert.equal(immutableV2Manifest.json().manifest.releaseId, releaseV2.id);

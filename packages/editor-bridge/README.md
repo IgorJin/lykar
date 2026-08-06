@@ -1,31 +1,30 @@
 # @lykar/editor-bridge
 
-Browser-side visual editor for a single page. The bridge intercepts pointer
-movement and page clicks, renders isolated overlay layers, and edits the
-selected element through a Shadow DOM side panel.
+Browser visual editor for one exact page. Pointer selection and overlay layers
+are isolated from the host page; text, inline styles, attributes, insert,
+duplicate, move, and delete are represented by protocol commands.
 
-```html
-<script src="/editor.iife.js"></script>
-<script>
-  const editor = LykarEditor.start({
-    onApply(draft, report) {
-      // Local MVP: inspect or export. No backend request is made by the bridge.
-      console.log(draft.page.pathname, draft.operations, report);
-    },
-  });
-</script>
+Panel input updates the DOM immediately as a safe local preview. **Применить**
+does not mutate the page again: it sends only pending commands to the open
+backend draft. Pending commands are recoverable from `sessionStorage`.
+
+```js
+const capability = await exchangeEditorLaunch({ apiBaseUrl: 'http://localhost:3000' });
+
+const editor = startEditor({
+  capability,
+  persistence: {
+    apiBaseUrl: 'http://localhost:3000',
+    draftId: 'draft-uuid-from-admin',
+    expectedRevision: 0,
+  },
+});
 ```
 
-Changes in form fields do not touch the host page until **Применить** is
-pressed. Applied batches support local undo and redo. `exportDraft()` returns
-the exact `origin` and `pathname`, so every page has an independent operation
-history.
+The change tree keeps one block per command with its ID, replay result, and a
+live `nodeElement` reference. Failed or skipped operations remain in the chain,
+are highlighted in the UI, and expose their diagnostic reason. Hovering a
+change highlights its target when that DOM node still exists.
 
 The built-in proposal provider is deterministic and never calls an AI API.
-Real agent providers will be server-side integrations; API keys must not be
-embedded into the browser bundle.
-
-`EditingCapability` is the client contract for the future admin-to-site
-handshake. When supplied, its expiry and exact page URL are validated locally;
-issuance and one-time exchange will be implemented on the API in the auth
-phase.
+Real agent providers remain server-side so API keys never enter the browser.

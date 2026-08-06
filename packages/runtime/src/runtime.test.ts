@@ -27,6 +27,8 @@ function manifest(
   return {
     schemaVersion: 1,
     projectId: 'project-1',
+    pageId: 'page-1',
+    pathname: '/page',
     releaseId: `release-${Math.random()}`,
     version: 1,
     manifestHash: 'a'.repeat(64),
@@ -253,7 +255,7 @@ describe('manifest loading and runtime lifecycle', () => {
     const report = await runtime.start();
 
     expect(fetcher).toHaveBeenCalledWith(
-      'https://api.test/api/runtime/projects/pk_public/manifest?version=7',
+      'https://api.test/api/runtime/projects/pk_public/manifest?pathname=%2Fpage&version=7',
       { headers: { Accept: 'application/json' } },
     );
     expect(dom.window.document.querySelector('h1')?.textContent).toBe('Published');
@@ -285,6 +287,8 @@ describe('manifest loading and runtime lifecycle', () => {
       manifest: {
         schemaVersion: 2,
         projectId: 'project-1',
+        pageId: 'page-1',
+        pathname: '/',
         releaseId: 'release-1',
         version: 1,
         manifestHash: 'invalid',
@@ -293,7 +297,7 @@ describe('manifest loading and runtime lifecycle', () => {
       },
     });
 
-    await expect(fetchManifest({ projectKey: 'pk_test', fetch: fetcher }))
+    await expect(fetchManifest({ projectKey: 'pk_test', pathname: '/', fetch: fetcher }))
       .rejects.toBeInstanceOf(ManifestRequestError);
   });
 });

@@ -8,6 +8,7 @@ import { buildTargetDescriptor, serializeEditableElement } from './target-builde
 
 beforeEach(() => {
   document.body.innerHTML = '';
+  window.sessionStorage.clear();
   window.history.replaceState({}, '', '/');
 });
 
@@ -131,10 +132,41 @@ describe('local editor session', () => {
     expect(left.querySelector('#item')).toBe(item);
     expect(left.querySelector('span')).toBeNull();
   });
+
+  it('compacts repeated live field previews and persists pending changes locally', async () => {
+    document.body.innerHTML = '<h1 id="hero">Before</h1>';
+    const heading = document.querySelector('h1')!;
+    const session = new EditorSession(document, { storage: window.sessionStorage });
+    const target = buildTargetDescriptor(heading);
+
+    await session.preview({ schemaVersion: 1, id: 'first', kind: 'setText', target, value: 'A' }, 'hero:text', heading);
+    await session.preview({ schemaVersion: 1, id: 'second', kind: 'setText', target, value: 'After' }, 'hero:text', heading);
+
+    expect(heading.textContent).toBe('After');
+    expect(session.exportDraft().operations).toHaveLength(1);
+    expect(session.exportDraft().operations[0].id).toBe('second');
+    expect(JSON.parse(window.sessionStorage.getItem('lykar:draft:http://localhost:3000/')!).operations).toHaveLength(1);
+  });
+
+  it('keeps skipped changes in the diagnostics tree model', async () => {
+    document.body.innerHTML = '<main></main>';
+    const session = new EditorSession(document);
+    const report = await session.preview({
+      schemaVersion: 1,
+      id: 'missing',
+      kind: 'setText',
+      target: { marker: 'absent' },
+      value: 'Never',
+    });
+
+    expect(report.skipped).toBe(1);
+    expect(session.getChanges()[0]).toMatchObject({ id: 'missing', status: 'skipped', code: 'TARGET_NOT_FOUND' });
+    expect(session.exportDraft().operations).toHaveLength(1);
+  });
 });
 
 describe('editor UI and proposals', () => {
-  it('intercepts page clicks, edits through the side panel, and emits a local draft', async () => {
+  it('previews panel input immediately and commits the local draft on Apply', async () => {
     document.body.innerHTML = '<main><h1 id="hero">Before</h1></main>';
     const onApply = vi.fn();
     const editor = new LykarEditor({ document, onApply }).start();
@@ -151,11 +183,12 @@ describe('editor UI and proposals', () => {
     expect(text.value).toBe('Before');
 
     text.value = 'After';
-    expect(heading.textContent).toBe('Before');
+    text.dispatchEvent(new InputEvent('input', { bubbles: true }));
+    await vi.waitFor(() => expect(heading.textContent).toBe('After'));
+    expect(onApply).not.toHaveBeenCalled();
     apply.click();
 
-    await vi.waitFor(() => expect(heading.textContent).toBe('After'));
-    expect(onApply).toHaveBeenCalledOnce();
+    await vi.waitFor(() => expect(onApply).toHaveBeenCalledOnce());
     expect(editor.exportDraft().operations[0]).toMatchObject({ kind: 'setText', value: 'After' });
     editor.destroy();
   });
@@ -167,6 +200,51 @@ describe('editor UI and proposals', () => {
 
     expect(proposal).toMatchObject({ source: 'dummy', operations: [{ kind: 'setStyle', property: 'outline' }] });
     expect(proposal.description).toMatch(/Внешний AI API не вызывается/);
+  });
+
+  it('saves only pending operations through the editor capability on Apply', async () => {
+    document.body.innerHTML = '<h1 id="hero">Before</h1>';
+    const fetcher = vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({ draft: { revision: 4, appended: 1 } }),
+    } as Response));
+    const onCommit = vi.fn();
+    const editor = new LykarEditor({
+      document,
+      capability: {
+        token: 'editor-capability-token',
+        expiresAt: '2099-01-01T00:00:00.000Z',
+        projectId: 'project-1',
+        pageId: 'page-1',
+        pageUrl: 'http://localhost:3000/',
+      },
+      persistence: {
+        apiBaseUrl: 'http://localhost:3000',
+        draftId: '22222222-2222-4222-8222-222222222222',
+        expectedRevision: 3,
+        fetch: fetcher as typeof fetch,
+      },
+      onCommit,
+    }).start();
+    editor.select(document.querySelector('h1'));
+    const shadow = document.querySelector<HTMLElement>('[data-lykar-editor-root="panel"]')!.shadowRoot!;
+    const text = shadow.querySelector<HTMLTextAreaElement>('[data-field="text"]')!;
+    text.value = 'After';
+    text.dispatchEvent(new InputEvent('input', { bubbles: true }));
+    await vi.waitFor(() => expect(document.querySelector('h1')?.textContent).toBe('After'));
+    shadow.querySelector<HTMLButtonElement>('[data-action="apply"]')!.click();
+
+    await vi.waitFor(() => expect(onCommit).toHaveBeenCalledWith(
+      { saved: 1, revision: 4 },
+      expect.any(Object),
+    ));
+    expect(fetcher).toHaveBeenCalledOnce();
+    const request = fetcher.mock.calls[0][1] as RequestInit;
+    expect(request.headers).toMatchObject({ Authorization: 'Bearer editor-capability-token' });
+    expect(JSON.parse(String(request.body))).toMatchObject({ expectedRevision: 3, operations: [{ kind: 'setText', value: 'After' }] });
+    expect(editor.session.getState().pendingOperationCount).toBe(0);
+    editor.destroy();
   });
 
   it('rejects an expired or page-mismatched editing capability', () => {

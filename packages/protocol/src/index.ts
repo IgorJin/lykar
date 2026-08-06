@@ -122,6 +122,8 @@ export type OperationValidationResult =
 export type PublishedManifestV1 = {
   schemaVersion: typeof OPERATION_SCHEMA_VERSION;
   projectId: string;
+  pageId: string;
+  pathname: string;
   releaseId: string;
   version: number;
   manifestHash: string;
@@ -265,6 +267,10 @@ export function validatePublishedManifestV1(value: unknown): PublishedManifestVa
   const errors: string[] = [];
   if (value.schemaVersion !== OPERATION_SCHEMA_VERSION) errors.push('schemaVersion must be 1');
   if (!isNonEmptyString(value.projectId)) errors.push('projectId must be a non-empty string');
+  if (!isNonEmptyString(value.pageId)) errors.push('pageId must be a non-empty string');
+  if (!isNonEmptyString(value.pathname) || !(value.pathname as string).startsWith('/')) {
+    errors.push('pathname must start with /');
+  }
   if (!isNonEmptyString(value.releaseId)) errors.push('releaseId must be a non-empty string');
   if (!Number.isSafeInteger(value.version) || (value.version as number) <= 0) {
     errors.push('version must be a positive integer');

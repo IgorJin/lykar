@@ -9,7 +9,8 @@ revived here.
 
 ## Repository layout
 
-- `apps/api` — imported backend service.
+- `apps/api` — Fastify/PostgreSQL backend and same-origin admin host.
+- `apps/admin` — Preact administration UI.
 - `apps/playground` — standalone interactive editor fixture.
 - `packages/lykar-lib` — imported browser library and editor.
 - `packages/protocol` — shared, serializable operation protocol.
@@ -40,3 +41,14 @@ Run the standalone visual-editor fixture with:
 ```sh
 npm run dev:playground
 ```
+
+Run the local platform after configuring `apps/api/.env`:
+
+```sh
+npm run db:migrate
+npm run build --workspace @lykar/admin
+npm run dev:api
+```
+
+Then open `http://localhost:3000/admin/`; the development magic link appears in
+the API terminal.

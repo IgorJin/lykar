@@ -1,59 +1,35 @@
-import { timingSafeEqual } from 'node:crypto';
+import type { FastifyPluginAsync } from 'fastify';
 
-import type { FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify';
-
+import type { AccessService } from '../../domain/access';
+import type { AuthService } from '../../domain/auth';
 import { VersioningService } from '../../domain/versioning';
+import { bearerToken } from '../access';
+import { authenticatedSession, createSessionGuard } from '../auth';
 
 type VersioningRoutesOptions = {
   service: VersioningService;
-  adminToken?: string;
+  authService: AuthService;
+  accessService: AccessService;
 };
-
 type ProjectParams = { projectId: string };
+type PageParams = { pageId: string };
 type DraftParams = { draftId: string };
 type RuntimeParams = { publicKey: string };
 
-function isAuthorized(provided: string | undefined, expected: string): boolean {
-  if (!provided) return false;
-  const providedBuffer = Buffer.from(provided);
-  const expectedBuffer = Buffer.from(expected);
-  return providedBuffer.length === expectedBuffer.length && timingSafeEqual(providedBuffer, expectedBuffer);
-}
-
-function createAdminGuard(adminToken?: string) {
-  return async function adminGuard(request: FastifyRequest, reply: FastifyReply) {
-    if (!adminToken) {
-      return reply.code(503).send({
-        error: { code: 'ADMIN_AUTH_NOT_CONFIGURED', message: 'LYKAR_ADMIN_TOKEN is not configured' },
-      });
-    }
-
-    const header = request.headers['x-lykar-admin-token'];
-    const provided = Array.isArray(header) ? header[0] : header;
-    if (!isAuthorized(provided, adminToken)) {
-      return reply.code(401).send({ error: { code: 'UNAUTHORIZED', message: 'Admin token is invalid' } });
-    }
-  };
-}
-
 const versioningRoutes: FastifyPluginAsync<VersioningRoutesOptions> = async (fastify, options) => {
-  const requireAdmin = createAdminGuard(options.adminToken);
+  const requireSession = createSessionGuard(options.authService);
 
-  fastify.get(
-    '/api/admin/projects',
-    { preHandler: requireAdmin },
-    async () => ({ projects: await options.service.listProjects() }),
-  );
+  fastify.get('/api/admin/projects', { preHandler: requireSession }, async request => ({
+    projects: await options.service.listProjects(authenticatedSession(request).user.id),
+  }));
 
   fastify.post<{ Body: { name: unknown; origins: unknown } }>(
     '/api/admin/projects',
     {
-      preHandler: requireAdmin,
+      preHandler: requireSession,
       schema: {
         body: {
-          type: 'object',
-          required: ['name', 'origins'],
-          additionalProperties: false,
+          type: 'object', required: ['name', 'origins'], additionalProperties: false,
           properties: {
             name: { type: 'string' },
             origins: { type: 'array', items: { type: 'string' } },
@@ -62,52 +38,91 @@ const versioningRoutes: FastifyPluginAsync<VersioningRoutesOptions> = async (fas
       },
     },
     async (request, reply) => {
-      const project = await options.service.createProject(request.body.name, request.body.origins);
+      const project = await options.service.createProject(
+        authenticatedSession(request).user.id,
+        request.body.name,
+        request.body.origins,
+      );
       return reply.code(201).send({ project });
     },
   );
 
-  fastify.post<{ Params: ProjectParams; Body: { baseReleaseId?: unknown } }>(
-    '/api/admin/projects/:projectId/drafts',
+  fastify.post<{ Params: ProjectParams; Body: { name: unknown; pathname: unknown } }>(
+    '/api/admin/projects/:projectId/pages',
     {
-      preHandler: requireAdmin,
+      preHandler: requireSession,
       schema: {
         body: {
-          type: 'object',
-          additionalProperties: false,
+          type: 'object', required: ['name', 'pathname'], additionalProperties: false,
+          properties: { name: { type: 'string' }, pathname: { type: 'string' } },
+        },
+      },
+    },
+    async (request, reply) => {
+      const page = await options.service.createPage(
+        authenticatedSession(request).user.id,
+        request.params.projectId,
+        request.body.name,
+        request.body.pathname,
+      );
+      return reply.code(201).send({ page });
+    },
+  );
+
+  fastify.get<{ Params: ProjectParams }>(
+    '/api/admin/projects/:projectId/pages',
+    { preHandler: requireSession },
+    async request => ({
+      pages: await options.service.listPages(authenticatedSession(request).user.id, request.params.projectId),
+    }),
+  );
+
+  fastify.post<{ Params: PageParams; Body: { baseReleaseId?: unknown } }>(
+    '/api/admin/pages/:pageId/drafts',
+    {
+      preHandler: requireSession,
+      schema: {
+        body: {
+          type: 'object', additionalProperties: false,
           properties: { baseReleaseId: { type: ['string', 'null'] } },
         },
       },
     },
     async (request, reply) => {
-      const draft = await options.service.createDraft(request.params.projectId, request.body.baseReleaseId);
+      const draft = await options.service.createDraft(
+        authenticatedSession(request).user.id,
+        request.params.pageId,
+        request.body.baseReleaseId,
+      );
       return reply.code(201).send({ draft });
     },
   );
 
-  fastify.get<{ Params: ProjectParams; Querystring: { status?: string } }>(
-    '/api/admin/projects/:projectId/drafts',
-    { preHandler: requireAdmin },
+  fastify.get<{ Params: PageParams; Querystring: { status?: string } }>(
+    '/api/admin/pages/:pageId/drafts',
+    { preHandler: requireSession },
     async request => ({
-      drafts: await options.service.listDrafts(request.params.projectId, request.query.status),
+      drafts: await options.service.listDrafts(
+        authenticatedSession(request).user.id,
+        request.params.pageId,
+        request.query.status,
+      ),
     }),
   );
 
   fastify.get<{ Params: DraftParams }>(
     '/api/admin/drafts/:draftId',
-    { preHandler: requireAdmin },
-    async request => options.service.getDraft(request.params.draftId),
+    { preHandler: requireSession },
+    async request => options.service.getDraft(authenticatedSession(request).user.id, request.params.draftId),
   );
 
   fastify.post<{ Params: DraftParams; Body: { expectedRevision: unknown; operations: unknown } }>(
     '/api/admin/drafts/:draftId/operations',
     {
-      preHandler: requireAdmin,
+      preHandler: requireSession,
       schema: {
         body: {
-          type: 'object',
-          required: ['expectedRevision', 'operations'],
-          additionalProperties: false,
+          type: 'object', required: ['expectedRevision', 'operations'], additionalProperties: false,
           properties: {
             expectedRevision: { type: 'integer', minimum: 0 },
             operations: { type: 'array', minItems: 1, maxItems: 100, items: { type: 'object' } },
@@ -117,6 +132,7 @@ const versioningRoutes: FastifyPluginAsync<VersioningRoutesOptions> = async (fas
     },
     async request => ({
       draft: await options.service.appendOperations(
+        authenticatedSession(request).user.id,
         request.params.draftId,
         request.body.expectedRevision,
         request.body.operations,
@@ -124,24 +140,49 @@ const versioningRoutes: FastifyPluginAsync<VersioningRoutesOptions> = async (fas
     }),
   );
 
+  fastify.post<{ Params: DraftParams; Body: { expectedRevision: unknown; operations: unknown } }>(
+    '/api/editor/drafts/:draftId/operations',
+    {
+      schema: {
+        body: {
+          type: 'object', required: ['expectedRevision', 'operations'], additionalProperties: false,
+          properties: {
+            expectedRevision: { type: 'integer', minimum: 0 },
+            operations: { type: 'array', minItems: 1, maxItems: 100, items: { type: 'object' } },
+          },
+        },
+      },
+    },
+    async request => {
+      const userId = await options.accessService.authorizeEditorDraft(
+        bearerToken(request.headers.authorization),
+        request.params.draftId,
+      );
+      return {
+        draft: await options.service.appendOperations(
+          userId,
+          request.params.draftId,
+          request.body.expectedRevision,
+          request.body.operations,
+        ),
+      };
+    },
+  );
+
   fastify.post<{ Params: DraftParams; Body: { expectedRevision: unknown; environment?: unknown } }>(
     '/api/admin/drafts/:draftId/publish',
     {
-      preHandler: requireAdmin,
+      preHandler: requireSession,
       schema: {
         body: {
-          type: 'object',
-          required: ['expectedRevision'],
-          additionalProperties: false,
-          properties: {
-            expectedRevision: { type: 'integer', minimum: 0 },
-            environment: { type: 'string' },
-          },
+          type: 'object', required: ['expectedRevision'], additionalProperties: false,
+          properties: { expectedRevision: { type: 'integer', minimum: 0 }, environment: { type: 'string' } },
         },
       },
     },
     async (request, reply) => {
       const published = await options.service.publishDraft(
+        authenticatedSession(request).user.id,
         request.params.draftId,
         request.body.expectedRevision,
         request.body.environment,
@@ -150,62 +191,63 @@ const versioningRoutes: FastifyPluginAsync<VersioningRoutesOptions> = async (fas
     },
   );
 
-  fastify.post<{
-    Params: ProjectParams;
-    Body: { releaseId: unknown; environment?: unknown };
-  }>(
-    '/api/admin/projects/:projectId/rollback',
+  fastify.post<{ Params: PageParams; Body: { releaseId: unknown; environment?: unknown } }>(
+    '/api/admin/pages/:pageId/rollback',
     {
-      preHandler: requireAdmin,
+      preHandler: requireSession,
       schema: {
         body: {
-          type: 'object',
-          required: ['releaseId'],
-          additionalProperties: false,
-          properties: {
-            releaseId: { type: 'string' },
-            environment: { type: 'string' },
-          },
+          type: 'object', required: ['releaseId'], additionalProperties: false,
+          properties: { releaseId: { type: 'string' }, environment: { type: 'string' } },
         },
       },
     },
     async request => ({
       activation: await options.service.activateRelease(
-        request.params.projectId,
+        authenticatedSession(request).user.id,
+        request.params.pageId,
         request.body.releaseId,
         request.body.environment,
       ),
     }),
   );
 
-  fastify.get<{ Params: ProjectParams }>(
-    '/api/admin/projects/:projectId/releases',
-    { preHandler: requireAdmin },
-    async request => ({ releases: await options.service.listReleases(request.params.projectId) }),
+  fastify.get<{ Params: PageParams }>(
+    '/api/admin/pages/:pageId/releases',
+    { preHandler: requireSession },
+    async request => ({
+      releases: await options.service.listReleases(authenticatedSession(request).user.id, request.params.pageId),
+    }),
   );
 
   fastify.get<{
     Params: RuntimeParams;
-    Querystring: { version?: string; environment?: string };
+    Querystring: { pathname?: string; version?: string; environment?: string };
   }>(
     '/api/runtime/projects/:publicKey/manifest',
     async (request, reply) => {
+      const pathname = request.query.pathname ?? '/';
+      if (request.query.version !== undefined) {
+        await options.accessService.authorizeRuntime(
+          bearerToken(request.headers.authorization),
+          request.params.publicKey,
+          pathname,
+          request.query.version,
+        );
+      }
       const manifest = await options.service.resolveRuntimeManifest(
         request.params.publicKey,
+        pathname,
         request.query.version,
         request.query.environment,
       );
       const etag = `"${manifest.manifestHash}"`;
-
-      if (request.headers['if-none-match'] === etag) {
-        return reply.code(304).send();
-      }
-
+      if (request.headers['if-none-match'] === etag) return reply.code(304).send();
       reply.header('ETag', etag);
       reply.header(
         'Cache-Control',
         request.query.version
-          ? 'public, max-age=31536000, immutable'
+          ? 'private, max-age=0, must-revalidate'
           : 'public, max-age=30, stale-while-revalidate=60',
       );
       return { manifest };

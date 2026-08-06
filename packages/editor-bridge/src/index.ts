@@ -1,5 +1,7 @@
 export { LykarEditor, startEditor } from './editor.js';
-export type { EditingCapability, LykarEditorOptions } from './editor.js';
+export type { EditingCapability, EditorCommitResult, EditorDraftPersistence, LykarEditorOptions } from './editor.js';
+export { exchangeEditorLaunch, exchangeShareAccess } from './access-client.js';
+export type { ShareRuntimeAccess } from './access-client.js';
 export { ElementInspector } from './inspector.js';
 export { OverlayService } from './overlay.js';
 export type { OverlayLayerName } from './overlay.js';
@@ -9,6 +11,7 @@ export { EditorSession } from './session.js';
 export type {
   EditorApplyBatch,
   EditorApplyReport,
+  EditorChange,
   EditorPageDraft,
   EditorPageRef,
   EditorSessionState,

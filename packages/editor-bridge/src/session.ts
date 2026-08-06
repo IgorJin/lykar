@@ -5,22 +5,9 @@ import type { OperationApplyResult } from '@lykar/runtime';
 
 import { createOperationId } from './operation-id.js';
 
-export type EditorPageRef = {
-  origin: string;
-  pathname: string;
-  url: string;
-};
-
-export type EditorPageDraft = {
-  page: EditorPageRef;
-  operations: OperationV1[];
-};
-
-export type EditorApplyBatch = {
-  id?: string;
-  operations: OperationV1[];
-};
-
+export type EditorPageRef = { origin: string; pathname: string; url: string };
+export type EditorPageDraft = { page: EditorPageRef; operations: OperationV1[] };
+export type EditorApplyBatch = { id?: string; operations: OperationV1[] };
 export type EditorApplyReport = {
   batchId: string;
   page: EditorPageRef;
@@ -29,27 +16,27 @@ export type EditorApplyReport = {
   errors: number;
   operations: OperationApplyResult[];
 };
-
+export type EditorChange = {
+  id: string;
+  operation: OperationV1;
+  nodeElement: Element | null;
+  status: OperationApplyResult['status'];
+  code?: string;
+  message?: string;
+  committed: boolean;
+};
 export type EditorSessionState = {
   canUndo: boolean;
   canRedo: boolean;
   appliedBatches: number;
   operationCount: number;
+  pendingOperationCount: number;
 };
+export type EditorSessionOptions = { storage?: Storage | null; storageKey?: string };
 
-type AppliedRecord = {
-  operation: OperationV1;
-  undo: () => void;
-};
-
-type AppliedBatch = {
-  id: string;
-  records: AppliedRecord[];
-};
-
-type UndoCapture = {
-  finalize: () => (() => void);
-};
+type AppliedRecord = EditorChange & { key?: string; undo: () => void };
+type AppliedBatch = { id: string; records: AppliedRecord[] };
+type UndoCapture = { element: Element | null; finalize: () => (() => void) };
 
 export class EditorSession {
   readonly page: EditorPageRef;
@@ -58,13 +45,41 @@ export class EditorSession {
   private readonly history: AppliedBatch[] = [];
   private readonly redoStack: AppliedBatch[] = [];
   private readonly listeners = new Set<(state: EditorSessionState) => void>();
+  private readonly changeListeners = new Set<(changes: EditorChange[]) => void>();
+  private readonly storage: Storage | null;
+  private readonly storageKey: string;
 
-  constructor(document: Document) {
+  constructor(document: Document, options: EditorSessionOptions = {}) {
     this.document = document;
     const location = document.defaultView?.location;
     const origin = location?.origin ?? 'null';
     const pathname = location?.pathname || '/';
     this.page = { origin, pathname, url: `${origin}${pathname}` };
+    this.storage = options.storage ?? null;
+    this.storageKey = options.storageKey ?? `lykar:draft:${this.page.url}`;
+  }
+
+  async restore(): Promise<EditorApplyReport | null> {
+    const raw = this.storage?.getItem(this.storageKey);
+    if (!raw) return null;
+    try {
+      const value = JSON.parse(raw) as { operations?: unknown };
+      if (!Array.isArray(value.operations) || value.operations.length === 0) return null;
+      return this.apply({ id: createOperationId('restore'), operations: value.operations as OperationV1[] });
+    } catch {
+      this.storage?.removeItem(this.storageKey);
+      return null;
+    }
+  }
+
+  async preview(operation: OperationV1, key?: string, nodeElement?: Element | null): Promise<EditorApplyReport> {
+    if (key) this.removeReplaceableChange(key);
+    const batchId = createOperationId('change');
+    const appliedBatch = await this.runBatch(batchId, [operation], key, nodeElement);
+    this.history.push(appliedBatch);
+    this.redoStack.length = 0;
+    this.changed();
+    return reportFor(batchId, this.page, appliedBatch.records.map(record => resultFrom(record)));
   }
 
   async apply(batch: EditorApplyBatch): Promise<EditorApplyReport> {
@@ -74,43 +89,61 @@ export class EditorSession {
       this.history.push(appliedBatch);
       this.redoStack.length = 0;
     }
-    this.notify();
-    return reportFor(batchId, this.page, appliedBatch.results);
+    this.changed();
+    return reportFor(batchId, this.page, appliedBatch.records.map(record => resultFrom(record)));
   }
 
   undo(): boolean {
-    const batch = this.history.pop();
-    if (!batch) return false;
-
-    for (const record of [...batch.records].reverse()) record.undo();
+    const batch = this.history.at(-1);
+    if (!batch || batch.records.every(record => record.committed)) return false;
+    this.history.pop();
+    for (const record of [...batch.records].reverse()) {
+      if (record.status === 'applied') record.undo();
+    }
     this.redoStack.push(batch);
-    this.notify();
+    this.changed();
     return true;
   }
 
   async redo(): Promise<EditorApplyReport | null> {
     const batch = this.redoStack.pop();
     if (!batch) return null;
-
     const replayed = await this.runBatch(batch.id, batch.records.map(record => record.operation));
     if (replayed.records.length > 0) this.history.push(replayed);
-    this.notify();
-    return reportFor(batch.id, this.page, replayed.results);
+    this.changed();
+    return reportFor(batch.id, this.page, replayed.records.map(record => resultFrom(record)));
   }
 
   exportDraft(): EditorPageDraft {
-    return {
-      page: this.page,
-      operations: this.history.flatMap(batch => batch.records.map(record => record.operation)),
-    };
+    return { page: this.page, operations: this.history.flatMap(batch => batch.records.map(record => record.operation)) };
+  }
+
+  pendingOperations(): OperationV1[] {
+    return this.history.flatMap(batch => batch.records.filter(record => !record.committed).map(record => record.operation));
+  }
+
+  markCommitted(operationIds: Iterable<string>): void {
+    const ids = new Set(operationIds);
+    for (const batch of this.history) {
+      for (const record of batch.records) {
+        if (ids.has(record.operation.id)) record.committed = true;
+      }
+    }
+    this.changed();
+  }
+
+  getChanges(): EditorChange[] {
+    return this.history.flatMap(batch => batch.records.map(({ undo: _undo, key: _key, ...change }) => change));
   }
 
   getState(): EditorSessionState {
+    const changes = this.getChanges();
     return {
-      canUndo: this.history.length > 0,
+      canUndo: this.history.some(batch => batch.records.some(record => !record.committed)),
       canRedo: this.redoStack.length > 0,
       appliedBatches: this.history.length,
-      operationCount: this.history.reduce((total, batch) => total + batch.records.length, 0),
+      operationCount: changes.length,
+      pendingOperationCount: changes.filter(change => !change.committed).length,
     };
   }
 
@@ -120,46 +153,85 @@ export class EditorSession {
     return () => this.listeners.delete(listener);
   }
 
+  subscribeChanges(listener: (changes: EditorChange[]) => void): () => void {
+    this.changeListeners.add(listener);
+    listener(this.getChanges());
+    return () => this.changeListeners.delete(listener);
+  }
+
   clear(): void {
     this.history.length = 0;
     this.redoStack.length = 0;
+    this.storage?.removeItem(this.storageKey);
     this.notify();
+  }
+
+  private removeReplaceableChange(key: string): void {
+    for (let batchIndex = this.history.length - 1; batchIndex >= 0; batchIndex--) {
+      const batch = this.history[batchIndex];
+      const recordIndex = batch.records.findIndex(record => record.key === key && !record.committed);
+      if (recordIndex < 0) continue;
+      const [record] = batch.records.splice(recordIndex, 1);
+      if (record.status === 'applied') record.undo();
+      if (batch.records.length === 0) this.history.splice(batchIndex, 1);
+      return;
+    }
   }
 
   private async runBatch(
     id: string,
     operations: OperationV1[],
-  ): Promise<AppliedBatch & { results: OperationApplyResult[] }> {
+    key?: string,
+    nodeElement?: Element | null,
+  ): Promise<AppliedBatch> {
     const records: AppliedRecord[] = [];
-    const results: OperationApplyResult[] = [];
-
     for (const operation of operations) {
       const validation = validateOperationV1(operation);
       if (!validation.ok) {
-        results.push({
-          operationId: typeof operation.id === 'string' ? operation.id : 'invalid',
-          kind: operation.kind,
+        records.push({
+          id: operation.id || 'invalid',
+          operation,
+          nodeElement: nodeElement ?? null,
           status: 'error',
           code: 'INVALID_OPERATION',
           message: validation.errors.join('; '),
+          committed: false,
+          key,
+          undo: () => undefined,
         });
         continue;
       }
-
       const capture = await captureUndo(this.document, operation);
       const result = await applyOperation(this.document, operation);
-      results.push(result);
-      if (result.status === 'applied') {
-        records.push({ operation, undo: capture.finalize() });
-      }
+      records.push({
+        id: operation.id,
+        operation,
+        nodeElement: nodeElement ?? capture.element,
+        status: result.status,
+        code: result.code,
+        message: result.message,
+        committed: false,
+        key,
+        undo: result.status === 'applied' ? capture.finalize() : () => undefined,
+      });
     }
+    return { id, records };
+  }
 
-    return { id, records, results };
+  private changed(): void {
+    const operations = this.pendingOperations();
+    if (this.storage) {
+      if (operations.length > 0) this.storage.setItem(this.storageKey, JSON.stringify({ operations }));
+      else this.storage.removeItem(this.storageKey);
+    }
+    this.notify();
   }
 
   private notify(): void {
     const state = this.getState();
     for (const listener of this.listeners) listener(state);
+    const changes = this.getChanges();
+    for (const listener of this.changeListeners) listener(changes);
   }
 }
 
@@ -171,71 +243,57 @@ async function captureUndo(document: Document, operation: OperationV1): Promise<
   switch (operation.kind) {
     case 'setText': {
       const previous = target.textContent;
-      return fixedUndo(() => { target.textContent = previous; });
+      return fixedUndo(target, () => { target.textContent = previous; });
     }
     case 'setStyle': {
       const styled = target as HTMLElement;
       const property = normalizeStyleProperty(operation.property);
       const previous = styled.style?.getPropertyValue(property) ?? '';
       const priority = styled.style?.getPropertyPriority(property) ?? '';
-      return fixedUndo(() => {
+      return fixedUndo(target, () => {
         if (!styled.style) return;
         if (previous) styled.style.setProperty(property, previous, priority);
         else styled.style.removeProperty(property);
       });
     }
-    case 'setAttribute': {
-      const existed = target.hasAttribute(operation.name);
-      const previous = target.getAttribute(operation.name);
-      return fixedUndo(() => {
-        if (existed) target.setAttribute(operation.name, previous ?? '');
-        else target.removeAttribute(operation.name);
-      });
-    }
+    case 'setAttribute':
     case 'removeAttribute': {
       const existed = target.hasAttribute(operation.name);
       const previous = target.getAttribute(operation.name);
-      return fixedUndo(() => {
+      return fixedUndo(target, () => {
         if (existed) target.setAttribute(operation.name, previous ?? '');
         else target.removeAttribute(operation.name);
       });
     }
     case 'insertNode': {
-      const container = operation.position === 'before' || operation.position === 'after'
-        ? target.parentNode
-        : target;
+      const container = operation.position === 'before' || operation.position === 'after' ? target.parentNode : target;
       const before = new Set(container ? Array.from(container.childNodes) : []);
       let inserted: Node | null = null;
       return {
+        element: target,
         finalize: () => {
           if (container) inserted = Array.from(container.childNodes).find(node => !before.has(node)) ?? null;
           return () => inserted?.parentNode?.removeChild(inserted);
         },
       };
     }
-    case 'removeNode': {
-      const parent = target.parentNode;
-      const next = target.nextSibling;
-      return fixedUndo(() => {
-        if (parent) parent.insertBefore(target, next?.parentNode === parent ? next : null);
-      });
-    }
+    case 'removeNode':
     case 'moveNode': {
       const parent = target.parentNode;
       const next = target.nextSibling;
-      return fixedUndo(() => {
+      return fixedUndo(target, () => {
         if (parent) parent.insertBefore(target, next?.parentNode === parent ? next : null);
       });
     }
   }
 }
 
-function fixedUndo(undo: () => void): UndoCapture {
-  return { finalize: () => undo };
+function fixedUndo(element: Element, undo: () => void): UndoCapture {
+  return { element, finalize: () => undo };
 }
 
 function noUndo(): UndoCapture {
-  return fixedUndo(() => undefined);
+  return { element: null, finalize: () => () => undefined };
 }
 
 function normalizeStyleProperty(property: string): string {
@@ -243,11 +301,17 @@ function normalizeStyleProperty(property: string): string {
   return trimmed.startsWith('--') ? trimmed : trimmed.replace(/([A-Z])/g, '-$1').toLowerCase();
 }
 
-function reportFor(
-  batchId: string,
-  page: EditorPageRef,
-  operations: OperationApplyResult[],
-): EditorApplyReport {
+function resultFrom(record: AppliedRecord): OperationApplyResult {
+  return {
+    operationId: record.operation.id,
+    kind: record.operation.kind,
+    status: record.status,
+    code: record.code,
+    message: record.message,
+  };
+}
+
+function reportFor(batchId: string, page: EditorPageRef, operations: OperationApplyResult[]): EditorApplyReport {
   return {
     batchId,
     page,

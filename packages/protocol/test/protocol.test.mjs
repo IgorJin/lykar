@@ -87,6 +87,8 @@ test('accepts a published manifest containing protocol v1 operations', () => {
   const result = validatePublishedManifestV1({
     schemaVersion: 1,
     projectId: 'project-1',
+    pageId: 'page-1',
+    pathname: '/pricing',
     releaseId: 'release-1',
     version: 3,
     manifestHash: 'a'.repeat(64),
@@ -104,6 +106,8 @@ test('reports indexed operation failures in malformed manifests', () => {
     () => parsePublishedManifestV1({
       schemaVersion: 1,
       projectId: 'project-1',
+      pageId: 'page-1',
+      pathname: '/pricing',
       releaseId: 'release-1',
       version: 0,
       manifestHash: 'not-a-hash',

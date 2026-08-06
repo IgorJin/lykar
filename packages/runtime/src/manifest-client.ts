@@ -22,6 +22,7 @@ export async function fetchManifest(options: ManifestClientOptions): Promise<Run
   const path = `/api/runtime/projects/${encodeURIComponent(options.projectKey)}/manifest`;
   const query = new URLSearchParams();
 
+  query.set('pathname', options.pathname);
   if (options.version !== undefined) query.set('version', String(options.version));
   if (options.environment) query.set('environment', options.environment);
 
@@ -29,7 +30,10 @@ export async function fetchManifest(options: ManifestClientOptions): Promise<Run
   let response: Response;
   try {
     response = await options.fetch(url, {
-      headers: { Accept: 'application/json' },
+      headers: {
+        Accept: 'application/json',
+        ...(options.accessToken ? { Authorization: `Bearer ${options.accessToken}` } : {}),
+      },
       ...(options.credentials ? { credentials: options.credentials } : {}),
     });
   } catch (error) {

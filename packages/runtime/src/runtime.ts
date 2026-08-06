@@ -20,6 +20,8 @@ export class Lykar {
   readonly apiBaseUrl: string;
   readonly version?: number;
   readonly environment?: string;
+  readonly pathname: string;
+  readonly accessToken?: string;
   readonly credentials?: RequestCredentials;
 
   private readonly document: Document;
@@ -54,6 +56,8 @@ export class Lykar {
     this.apiBaseUrl = options.apiBaseUrl ?? '';
     this.version = options.version ?? versionFromLocation(document);
     this.environment = options.environment;
+    this.pathname = normalizePathname(options.pathname ?? document.defaultView?.location.pathname ?? '/');
+    this.accessToken = options.accessToken;
     this.credentials = options.credentials;
     this.document = document;
     this.fetcher = options.fetch ?? (globalFetch ? globalFetch.bind(globalThis) : undefined);
@@ -70,6 +74,8 @@ export class Lykar {
       apiBaseUrl: this.apiBaseUrl,
       version: this.version,
       environment: this.environment,
+      pathname: this.pathname,
+      accessToken: this.accessToken,
       credentials: this.credentials,
       fetch: this.fetcher,
     });
@@ -119,6 +125,7 @@ export class Lykar {
   ): ApplyReport {
     const report: ApplyReport = {
       projectId: manifest.projectId,
+      pageId: manifest.pageId,
       releaseId: manifest.releaseId,
       version: manifest.version,
       startedAt,
@@ -137,6 +144,11 @@ export class Lykar {
     }
     return report;
   }
+}
+
+function normalizePathname(value: string): string {
+  if (!value.startsWith('/')) throw new Error('Lykar pathname must start with /');
+  return value.length > 1 ? value.replace(/\/+$/, '') : value;
 }
 
 export { Lykar as LykarRuntime };

@@ -1,40 +1,48 @@
 # Lykar API
 
-Fastify/PostgreSQL API for projects, drafts, immutable releases, rollback, and
-public runtime manifests.
+Fastify/PostgreSQL API for page-scoped drafts, immutable releases, editor
+capabilities, and protected share previews.
 
 ## Local setup
 
-Copy `.env.example` to `.env`, provide a PostgreSQL connection string and a
-long random `LYKAR_ADMIN_TOKEN`, then run from the monorepo root:
+Copy `.env.example` to `.env`, set `DATABASE_URL` and `LYKAR_OWNER_EMAIL`, then
+run from the monorepo root:
 
 ```sh
 npm run db:migrate
+npm run build --workspace @lykar/admin
 npm run dev:api
 ```
 
-All admin requests currently require the temporary
-`X-Lykar-Admin-Token` header. It is a fail-closed bootstrap mechanism, not the
-final browser authentication design. Public manifest reads require only the
-read-only project key.
+Open `http://localhost:3000/admin/`. Authentication is passwordless. In local
+development the magic link is printed in the API terminal; production email is
+connected through the `MagicLinkSender` adapter.
 
-## Versioning endpoints
+Admin and API share one origin. The admin session is an HttpOnly, SameSite
+cookie. A one-time page-bound code is used when the admin opens an editor on a
+different site origin; the admin cookie is never copied to that site.
 
-- `POST /api/admin/projects`
-- `GET /api/admin/projects`
-- `POST /api/admin/projects/:projectId/drafts`
-- `GET /api/admin/projects/:projectId/drafts`
+## Main endpoints
+
+- `POST /api/auth/magic-link`, `GET /api/auth/verify`, `GET /api/auth/session`
+- `POST/GET /api/admin/projects`
+- `POST/GET /api/admin/projects/:projectId/pages`
+- `POST/GET /api/admin/pages/:pageId/drafts`
 - `GET /api/admin/drafts/:draftId`
 - `POST /api/admin/drafts/:draftId/operations`
+- `POST /api/editor/drafts/:draftId/operations`
 - `POST /api/admin/drafts/:draftId/publish`
-- `POST /api/admin/projects/:projectId/rollback`
-- `GET /api/admin/projects/:projectId/releases`
-- `GET /api/runtime/projects/:publicKey/manifest`
+- `POST /api/admin/pages/:pageId/rollback`
+- `GET /api/admin/pages/:pageId/releases`
+- `POST /api/admin/pages/:pageId/editor-launch`, `POST /api/editor/exchange`
+- `POST/GET /api/admin/pages/:pageId/shares`, `DELETE /api/admin/shares/:shareId`
+- `GET /share/:token`, `POST /api/share/exchange`
+- `GET /api/runtime/projects/:publicKey/manifest?pathname=/pricing`
 
-Appending operations and publishing require `expectedRevision`. A stale
-revision returns `409 CONFLICT`; this prevents two editor tabs from silently
-overwriting the same draft.
+Release versions, drafts, environments, and rollback pointers belong to a
+single page. Appending operations and publishing require `expectedRevision`;
+stale writes return `409 CONFLICT`.
 
-Publishing creates a complete immutable manifest and advances the selected
-environment. Rollback only changes the environment pointer and records an
-activation event; it never mutates a release.
+The active production release is public. Explicit `?version=N` requests require
+a page-scoped editor session or a share session pinned to that exact immutable
+release.

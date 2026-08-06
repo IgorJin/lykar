@@ -6,6 +6,7 @@ dotenv.config();
 
 const port = Number(process.env.PORT ?? 3000);
 const host = process.env.HOST ?? '0.0.0.0';
+const appOrigin = process.env.LYKAR_APP_ORIGIN ?? `http://localhost:${port}`;
 const allowedOrigins = (process.env.CORS_ALLOWED_ORIGINS ?? '')
   .split(',')
   .map(origin => origin.trim())
@@ -13,7 +14,8 @@ const allowedOrigins = (process.env.CORS_ALLOWED_ORIGINS ?? '')
 
 const server = buildApp({
   connectionString: process.env.DATABASE_URL,
-  adminToken: process.env.LYKAR_ADMIN_TOKEN,
+  appOrigin,
+  ownerEmail: process.env.LYKAR_OWNER_EMAIL ?? 'owner@lykar.local',
   allowedOrigins,
   logger: true,
 });

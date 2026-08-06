@@ -24,15 +24,16 @@ The IIFE also supports the constructor-shaped integration planned for Lykar:
 ```js
 const runtime = new Lykar('pk_your_public_project_key', {
   apiBaseUrl: 'https://api.example.com',
-  // Use `include` when a future protected preview endpoint relies on cookies.
-  credentials: 'include',
+  // Explicit versions use an editor/share token returned by a one-time exchange.
+  accessToken: previewAccess.token,
 });
 await runtime.start();
 ```
 
-When the host page has `?version=3`, runtime requests immutable release 3.
-Without that query parameter it requests the release currently active in the
-selected environment.
+Runtime always sends the document pathname, so `/` and `/pricing` have separate
+release numbers. When the host page has `?version=3`, runtime requests immutable
+release 3 and requires page-bound editor/share access. Without that query
+parameter it requests the public release active for this page and environment.
 
 ## ESM
 

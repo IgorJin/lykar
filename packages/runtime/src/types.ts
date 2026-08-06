@@ -20,6 +20,7 @@ export type OperationApplyResult = {
 
 export type ApplyReport = {
   projectId: string;
+  pageId: string;
   releaseId: string;
   version: number;
   startedAt: string;
@@ -36,6 +37,8 @@ export type LykarRuntimeOptions = {
   apiBaseUrl?: string;
   version?: number;
   environment?: string;
+  pathname?: string;
+  accessToken?: string;
   credentials?: RequestCredentials;
   document?: Document;
   fetch?: FetchLike;
@@ -55,6 +58,8 @@ export type ManifestClientOptions = {
   apiBaseUrl?: string;
   version?: number;
   environment?: string;
+  pathname: string;
+  accessToken?: string;
   credentials?: RequestCredentials;
   fetch: FetchLike;
 };
