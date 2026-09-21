@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lykar S1 — performance</title>
+  <style>
+    :root { color-scheme: light; --ink:#17202a; --muted:#5c6873; --line:#dce3e8; --bg:#f5f7f9; --card:#fff; --ok:#087f5b; --blue:#2457a6; }
+    * { box-sizing:border-box; } body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { max-width:1080px; margin:0 auto; padding:32px 20px 56px; } header { display:flex; justify-content:space-between; gap:20px; align-items:flex-start; margin-bottom:28px; }
+    h1 { margin:0 0 6px; font-size:30px; } h2 { margin:24px 0 12px; font-size:19px; } .muted { color:var(--muted); } .badge { background:#d9f4e9; color:var(--ok); border:1px solid #9ed9c2; border-radius:999px; padding:5px 12px; font-weight:700; white-space:nowrap; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; } .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px; margin:14px 0; }
+    .metric { font-size:27px; font-weight:750; } .label { color:var(--muted); font-size:13px; } code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; color:var(--blue); }
+    table { width:100%; border-collapse:collapse; background:var(--card); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin:10px 0 24px; }
+    th,td { text-align:left; vertical-align:top; padding:10px 12px; border-bottom:1px solid var(--line); } th { background:#eef2f5; font-size:13px; } tr:last-child td { border-bottom:0; }
+    .ok { color:var(--ok); font-weight:700; } ul { margin:8px 0; padding-left:20px; } a { color:var(--blue); } footer { color:var(--muted); border-top:1px solid var(--line); padding-top:14px; margin-top:28px; font-size:13px; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1>S1 — performance baseline</h1>
+      <p class="muted">Групповой отчёт по S1-02.5 · Node v22.23.1 · macOS arm64 · 21 сентября 2026</p>
+    </div>
+    <div class="badge">PASS · 1/1 task</div>
+  </header>
+
+  <h2>Delivery size</h2>
+  <div class="grid">
+    <div class="card"><div class="metric">69.4 KB</div><div class="label">SDK IIFE raw</div></div>
+    <div class="card"><div class="metric">15.1 KB</div><div class="label">SDK IIFE gzip-9</div></div>
+    <div class="card"><div class="metric">57.5 KB</div><div class="label">Editor IIFE raw</div></div>
+    <div class="card"><div class="metric">14.7 KB</div><div class="label">ESM gzip-9</div></div>
+  </div>
+  <table>
+    <thead><tr><th>Budget</th><th>Порог</th><th>Факт</th><th>Результат</th></tr></thead>
+    <tbody>
+      <tr><td>Visitor IIFE raw</td><td>80,000 bytes</td><td>69,370</td><td class="ok">PASS</td></tr>
+      <tr><td>Visitor IIFE gzip</td><td>25,000 bytes</td><td>15,072</td><td class="ok">PASS</td></tr>
+      <tr><td>Editor IIFE raw</td><td>100,000 bytes</td><td>57,534</td><td class="ok">PASS</td></tr>
+      <tr><td>Replay p95</td><td>250 ms</td><td>58.362 ms</td><td class="ok">PASS</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Replay fixture</h2>
+  <table>
+    <thead><tr><th>Fixture</th><th>Runs</th><th>p50</th><th>p95</th><th>Max</th></tr></thead>
+    <tbody>
+      <tr><td>100 nodes / 25 operations</td><td>7</td><td>7.364 ms</td><td>15.722 ms</td><td>15.722 ms</td></tr>
+      <tr><td>500 nodes / 100 operations</td><td>7</td><td>57.133 ms</td><td>58.362 ms</td><td>58.362 ms</td></tr>
+    </tbody>
+  </table>
+  <p class="muted">Метод: последовательный runtime applyOperation на свежем
+    jsdom document; размеры посчитаны для built dist с gzip level 9 и Brotli.</p>
+
+  <h2>Network и host safety</h2>
+  <div class="card">
+    <ul>
+      <li>Обычный native links-only visit не делает network request и не загружает editor.</li>
+      <li>Явные visitor/editor/share requests ограничены network timeout 5 секунд по умолчанию.</li>
+      <li>Timeout, 401/403/404 и lazy-load failure дают native/error result, не скрывая host page.</li>
+      <li>Browser E2E: <strong>6/6</strong>; HTTP E2E: <strong>21 API tests + smoke</strong>.</li>
+    </ul>
+  </div>
+
+  <h2>Границы измерения</h2>
+  <div class="card">
+    <p>Baseline не заменяет device-level Lighthouse или framework matrix. Реальный
+      React/SPA cooperative adapter, строгий PageSession и target/replay lifecycle
+      остаются задачами S2/S4.</p>
+  </div>
+
+  <footer>
+    Машинный artifact: <a href="../../artifacts/s1-performance.json">s1-performance.json</a>.
+    S1 index: <a href="../../../../tasks/S1/README.md">tasks/S1/README.md</a>.
+  </footer>
+</main>
+</body>
+</html>

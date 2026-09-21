@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-21T15:50:46.157Z",
+  "environment": {
+    "node": "v22.23.1",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "method": {
+    "runs": 7,
+    "size": "raw bytes plus gzip level 9 and brotli bytes from built dist artifacts",
+    "replay": "sequential runtime applyOperation calls against fresh jsdom documents"
+  },
+  "sizes": {
+    "sdk.iife.js": {
+      "rawBytes": 76138,
+      "gzipBytes": 16456,
+      "brotliBytes": 14131
+    },
+    "index.js": {
+      "rawBytes": 71372,
+      "gzipBytes": 16081,
+      "brotliBytes": 13838
+    },
+    "editor.iife.js": {
+      "rawBytes": 57534,
+      "gzipBytes": 16053,
+      "brotliBytes": 14124
+    }
+  },
+  "replay": [
+    {
+      "nodes": 100,
+      "operations": 25,
+      "runs": 7,
+      "minMs": 5.936,
+      "p50Ms": 7.182,
+      "p95Ms": 15.466,
+      "maxMs": 15.466
+    },
+    {
+      "nodes": 500,
+      "operations": 100,
+      "runs": 7,
+      "minMs": 54.923,
+      "p50Ms": 57.567,
+      "p95Ms": 60.063,
+      "maxMs": 60.063
+    }
+  ],
+  "budgets": {
+    "visitorIifeRawBytes": 80000,
+    "visitorIifeGzipBytes": 25000,
+    "editorIifeRawBytes": 100000,
+    "replayP95Ms": 250
+  },
+  "status": "PASS",
+  "failures": []
+}

@@ -20,7 +20,7 @@ export async function runSmoke({ apiBaseUrl, playgroundBaseUrl }) {
   const site = await fetch(`${playgroundBaseUrl}/`);
   assert.equal(site.status, 200);
   assert.match(await site.text(), /Northstar/);
-  assert.equal((await fetch(`${playgroundBaseUrl}/runtime.iife.js`)).status, 200);
+  assert.equal((await fetch(`${playgroundBaseUrl}/sdk.iife.js`)).status, 200);
   assert.equal((await fetch(`${playgroundBaseUrl}/editor.iife.js`)).status, 200);
 
   const projects = await admin('/api/admin/projects');

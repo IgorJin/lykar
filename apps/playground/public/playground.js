@@ -1,7 +1,6 @@
-let editor;
-let editorCapability;
 let config;
-let runtimeSourceSnapshot;
+let sdk;
+let editor;
 
 function writeStatus(value) {
   const output = document.querySelector('#draft-output');
@@ -25,40 +24,50 @@ function writeMissingEditorStatus() {
   output.append(link);
 }
 
-async function loadRuntime(accessToken, version) {
-  const runtime = new window.Lykar({
+function handleSdkResult(result) {
+  window.__LYKAR_SDK_RESULT__ = result;
+  window.__LYKAR_RUNTIME_REPORT__ = result.runtime;
+
+  if (result.mode === 'share') {
+    document.body.dataset.lykarMode = 'share';
+    writeStatus({ mode: 'share', version: result.shareAccess?.version, report: result.runtime });
+    return;
+  }
+
+  if (result.mode === 'editor') {
+    document.body.dataset.lykarMode = 'editor';
+    editor = result.editor;
+    window.__LYKAR_EDITOR__ = editor;
+    window.__LYKAR_EDITOR_CAPABILITY__ = result.capability;
+    return;
+  }
+
+  document.body.dataset.lykarMode = result.mode === 'native' ? 'native' : 'runtime';
+  if (result.mode === 'error') {
+    writeStatus({error: result.error, reason: result.reason});
+    return;
+  }
+  writeMissingEditorStatus();
+}
+
+async function boot() {
+  config = await fetch('/lykar-config.json', {cache: 'no-store'}).then(response => response.json());
+  sdk = new window.Lykar({
     projectKey: config.projectKey,
     apiBaseUrl: config.apiBaseUrl,
-    accessToken,
-    version,
+    delivery: 'links-only',
     analyticsConsent: 'granted',
     waitForDom: false,
+    editorAssetUrl: new URL('/editor.iife.js', location.origin).toString(),
+    editorAssetOrigin: location.origin,
     onReport(report) {
       window.__LYKAR_RUNTIME_REPORT__ = report;
     },
-  });
-  try {
-    return await runtime.start();
-  } catch (error) {
-    if (error?.status === 404) return null;
-    throw error;
-  }
-}
-
-function startPlaygroundEditor() {
-  if (!editorCapability) {
-    writeMissingEditorStatus();
-    return;
-  }
-  editor?.destroy();
-  editor = window.LykarEditor.start({
-    capability: editorCapability,
-    sourceSnapshot: runtimeSourceSnapshot,
-    onApply(draft, report) {
+    onEditorApply(draft, report) {
       window.__LYKAR_LAST_DRAFT__ = draft;
       window.__LYKAR_LAST_REPORT__ = report;
     },
-    onCommit(result, draft) {
+    onEditorCommit(result, draft) {
       writeStatus({
         saved: result.saved,
         revision: result.revision,
@@ -68,40 +77,23 @@ function startPlaygroundEditor() {
       });
     },
   });
-  window.__LYKAR_EDITOR__ = editor;
+  window.__LYKAR_SDK__ = sdk;
+  handleSdkResult(await sdk.start());
 }
 
-async function boot() {
-  config = await fetch('/lykar-config.json', { cache: 'no-store' }).then(response => response.json());
-  const editorAccess = await window.LykarEditor.exchangeEditorLaunch({ apiBaseUrl: config.apiBaseUrl });
-  const shareAccess = editorAccess
-    ? null
-    : await window.LykarEditor.exchangeShareAccess({ apiBaseUrl: config.apiBaseUrl });
-  const requestedVersion = new URLSearchParams(location.search).get('version');
-  const version = shareAccess?.version ?? editorAccess?.baseVersion ?? (requestedVersion ? Number(requestedVersion) : undefined);
-  const accessToken = editorAccess?.token ?? shareAccess?.token;
-
-  const report = await loadRuntime(accessToken, version);
-  runtimeSourceSnapshot = report?.sourceSnapshot;
-  if (shareAccess) {
-    document.body.dataset.lykarMode = 'share';
-    writeStatus({ mode: 'share', version: shareAccess.version, report });
-    return;
-  }
-
-  if (editorAccess) {
-    document.body.dataset.lykarMode = 'editor';
-    editorCapability = editorAccess;
-    startPlaygroundEditor();
-    return;
-  }
-
-  document.body.dataset.lykarMode = report?.mode === 'native' ? 'native' : 'runtime';
-  writeMissingEditorStatus();
+async function restartEditor() {
+  if (!sdk) return;
+  handleSdkResult(await sdk.refresh());
 }
 
-document.querySelector('#restart-editor')?.addEventListener('click', startPlaygroundEditor);
+document.querySelector('#restart-editor')?.addEventListener('click', () => {
+  restartEditor().catch(error => {
+    console.error(error);
+    writeStatus({error: error instanceof Error ? error.message : String(error)});
+  });
+});
+
 boot().catch(error => {
   console.error(error);
-  writeStatus({ error: error instanceof Error ? error.message : String(error) });
+  writeStatus({error: error instanceof Error ? error.message : String(error)});
 });

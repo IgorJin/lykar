@@ -11,8 +11,8 @@ The current requirements register and implementation stages are in
 and SPA lifecycle are described in
 [Technical vision](./docs/architecture/technical-vision.md).
 
-The S0 implementation tasks and the ordered follow-up technical work are in
-[TASKS.md](./TASKS.md).
+The short task index is in [TASKS.md](./TASKS.md). Detailed sprint plans and
+task records are in [tasks/](./tasks/), organized by sprint.
 
 The planned visual change request and source acceptance prototype is evaluated
 in the [Visual Spec RFC](./docs/architecture/visual-spec-review.md).

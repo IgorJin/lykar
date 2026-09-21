@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lykar S1 — distribution</title>
+  <style>
+    :root { color-scheme: light; --ink:#17202a; --muted:#5c6873; --line:#dce3e8; --bg:#f5f7f9; --card:#fff; --ok:#087f5b; --blue:#2457a6; --warn:#8a5a00; }
+    * { box-sizing:border-box; } body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { max-width:1080px; margin:0 auto; padding:32px 20px 56px; } header { display:flex; justify-content:space-between; gap:20px; align-items:flex-start; margin-bottom:28px; }
+    h1 { margin:0 0 6px; font-size:30px; } h2 { margin:24px 0 12px; font-size:19px; } .muted { color:var(--muted); } .badge { background:#d9f4e9; color:var(--ok); border:1px solid #9ed9c2; border-radius:999px; padding:5px 12px; font-weight:700; white-space:nowrap; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px; margin:14px 0; } code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; color:var(--blue); }
+    table { width:100%; border-collapse:collapse; background:var(--card); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin:10px 0 24px; }
+    th,td { text-align:left; vertical-align:top; padding:10px 12px; border-bottom:1px solid var(--line); } th { background:#eef2f5; font-size:13px; } tr:last-child td { border-bottom:0; }
+    .ok { color:var(--ok); font-weight:700; } .warn { color:var(--warn); font-weight:700; } ul { margin:8px 0; padding-left:20px; } a { color:var(--blue); }
+    footer { color:var(--muted); border-top:1px solid var(--line); padding-top:14px; margin-top:28px; font-size:13px; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1>S1 — distribution</h1>
+      <p class="muted">Групповой отчёт по S1-02.1…S1-02.4 · 21 сентября 2026</p>
+    </div>
+    <div class="badge">PASS · 4/4 tasks</div>
+  </header>
+
+  <section class="card">
+    <h2>Новая граница поставки</h2>
+    <p><code>@lykar/sdk</code> теперь является самостоятельным package artifact.
+      Rollup собирает публичный ESM и IIFE entry, declarations и source maps.
+      Editor bridge копируется в отдельный lazy asset и не входит в visitor
+      orchestration.</p>
+  </section>
+
+  <h2>Artifact set</h2>
+  <table>
+    <thead><tr><th>Артефакт</th><th>Назначение</th><th>Статус</th></tr></thead>
+    <tbody>
+      <tr><td><code>dist/index.js</code></td><td>ESM import для npm/SSR</td><td class="ok">built</td></tr>
+      <tr><td><code>dist/sdk.iife.js</code></td><td>one-script browser entry</td><td class="ok">built</td></tr>
+      <tr><td><code>dist/editor.iife.js</code></td><td>lazy editor asset</td><td class="ok">separate</td></tr>
+      <tr><td><code>dist/index.d.ts</code></td><td>TypeScript declarations</td><td class="ok">built</td></tr>
+      <tr><td><code>dist/asset-manifest.json</code></td><td>compatibility metadata, bytes, SHA-256/SRI и immutable versioned paths</td><td class="ok">PASS</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Versioning model</h2>
+  <div class="card">
+    <ul>
+      <li>SDK/package version: <code>0.0.0</code>.</li>
+      <li>Runtime, editor и protocol versions записываются отдельно.</li>
+      <li>Stable names получают versioned copies: <code>sdk-0.0.0.esm.js</code>,
+        <code>sdk-0.0.0.iife.js</code>, <code>editor-0.0.0.iife.js</code>.</li>
+      <li>Page Release version остаётся внешним измерением и не смешивается с
+        package/protocol version.</li>
+    </ul>
+  </div>
+
+  <h2>Independent consumer and audit</h2>
+  <table>
+    <thead><tr><th>Проверка</th><th>Результат</th><th>Структурный смысл</th></tr></thead>
+    <tbody>
+      <tr><td><code>scripts/verify-sdk-consumer.mjs</code></td><td class="ok">PASS</td><td>Временный consumer устанавливает local tarballs без workspace aliases, проверяет declarations, SSR, manifest hashes/SRI и one-script editor workflow.</td></tr>
+      <tr><td><code>npm run test:e2e:browser</code></td><td class="ok">6/6 PASS</td><td>Playground обслуживает SDK/editor/manifest из установленного tarball после clean build.</td></tr>
+      <tr><td>Static script fixture</td><td class="ok">PASS</td><td>One-script installation вынесена в <code>tests/fixtures/sdk-consumer</code>.</td></tr>
+      <tr><td><code>npm audit --offline --json</code></td><td class="ok">0 findings</td><td>Снимок сохранён в <code>s1-dependency-audit.json</code>.</td></tr>
+    </tbody>
+  </table>
+  <div class="card">
+    <p class="warn">Ограничение audit: результат использует локальный npm advisory
+      cache. Перед публикацией нужен повторный network-backed audit.</p>
+  </div>
+
+  <footer>
+    Артефакт manifest: <a href="../../artifacts/s1-dependency-audit.json">audit snapshot</a>.
+    Package docs: <a href="../../../../packages/sdk/README.md">packages/sdk/README.md</a>.
+    S1 index: <a href="../../../../tasks/S1/README.md">tasks/S1/README.md</a>.
+  </footer>
+</main>
+</body>
+</html>

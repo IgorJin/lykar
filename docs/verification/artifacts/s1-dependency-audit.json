@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-21T14:59:57+03:00",
+  "command": "npm audit --offline --json",
+  "advisorySource": "npm offline advisory cache",
+  "status": "PASS",
+  "vulnerabilities": {
+    "info": 0,
+    "low": 0,
+    "moderate": 0,
+    "high": 0,
+    "critical": 0,
+    "total": 0
+  },
+  "dependencyCounts": {
+    "prod": 90,
+    "dev": 368,
+    "optional": 85,
+    "peer": 32,
+    "total": 458
+  },
+  "limitations": [
+    "This is an offline audit; it reflects the local npm advisory cache.",
+    "A network-backed audit should be repeated before publishing a package."
+  ]
+}

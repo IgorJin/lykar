@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lykar S1 — SDK structure</title>
+  <style>
+    :root { color-scheme: light; --ink:#17202a; --muted:#5c6873; --line:#dce3e8; --bg:#f5f7f9; --card:#fff; --ok:#087f5b; --blue:#2457a6; }
+    * { box-sizing:border-box; } body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { max-width:1080px; margin:0 auto; padding:32px 20px 56px; } header { display:flex; justify-content:space-between; gap:20px; align-items:flex-start; margin-bottom:28px; }
+    h1 { margin:0 0 6px; font-size:30px; } h2 { margin:0 0 12px; font-size:19px; } h3 { margin:0 0 6px; font-size:16px; }
+    p { margin:6px 0 12px; } .muted { color:var(--muted); } .badge { background:#d9f4e9; color:var(--ok); border:1px solid #9ed9c2; border-radius:999px; padding:5px 12px; font-weight:700; white-space:nowrap; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:14px; margin:14px 0 24px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px; box-shadow:0 2px 8px rgba(24,39,55,.04); }
+    code, pre { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; } code { color:var(--blue); } pre { overflow:auto; background:#17202a; color:#e8f0f6; border-radius:10px; padding:16px; margin:10px 0 22px; }
+    table { width:100%; border-collapse:collapse; background:var(--card); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin:10px 0 24px; }
+    th,td { text-align:left; vertical-align:top; padding:10px 12px; border-bottom:1px solid var(--line); } th { background:#eef2f5; font-size:13px; } tr:last-child td { border-bottom:0; }
+    .ok { color:var(--ok); font-weight:700; } ul { margin:8px 0 0; padding-left:20px; } a { color:var(--blue); }
+    footer { color:var(--muted); border-top:1px solid var(--line); padding-top:14px; margin-top:28px; font-size:13px; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1>S1 — SDK structure</h1>
+      <p class="muted">Групповой отчёт по S1-01.1…S1-01.4 · 21 сентября 2026</p>
+    </div>
+    <div class="badge">PASS · 4/4 tasks</div>
+  </header>
+
+  <section class="card">
+    <h2>Главное структурное изменение</h2>
+    <p>Оркестрация доступа больше не живёт в playground. Страница подключает
+      публичный SDK, а SDK выбирает режим и загружает editor только после
+      успешного capability exchange.</p>
+    <pre>script / npm
+      │
+      ▼
+@lykar/sdk ── access selector ──┬── native (без network)
+                                ├── visitor / variant / experiment → runtime
+                                ├── share → runtime (read-only)
+                                └── editor → capability → lazy editor bridge</pre>
+  </section>
+
+  <h2>Что добавилось и что переместилось</h2>
+  <div class="grid">
+    <article class="card">
+      <h3>Новый публичный слой</h3>
+      <ul>
+        <li><code>packages/sdk/src/index.ts</code> — exports и facade.</li>
+        <li><code>packages/sdk/src/sdk.ts</code> — lifecycle start/refresh/navigate/destroy.</li>
+        <li><code>packages/sdk/src/access.ts</code> — access exchange, selectors, URL cleanup.</li>
+        <li><code>packages/sdk/src/types.ts</code> — public modes, diagnostics и callbacks.</li>
+      </ul>
+    </article>
+    <article class="card">
+      <h3>Script entry</h3>
+      <ul>
+        <li><code>packages/sdk/src/global.ts</code> выставляет <code>window.Lykar</code>.</li>
+        <li>Обычный script в <code>links-only</code> не делает manifest request.</li>
+        <li>Конструктор безопасен для SSR: нет DOM mutation и network request.</li>
+      </ul>
+    </article>
+    <article class="card">
+      <h3>Playground boundary</h3>
+      <ul>
+        <li><code>playground.js</code> оставлен UI/config adapter.</li>
+        <li>Launch/share orchestration удалена из host fixture.</li>
+        <li>Editor asset приходит через SDK по lazy path.</li>
+      </ul>
+    </article>
+  </div>
+
+  <h2>Поведение по режимам</h2>
+  <table>
+    <thead><tr><th>Режим</th><th>Условие</th><th>Что загружается</th></tr></thead>
+    <tbody>
+      <tr><td>native</td><td>обычный links-only URL</td><td>ничего дополнительного</td></tr>
+      <tr><td>visitor / variant / experiment</td><td>явный selector/version</td><td>runtime после network deadline</td></tr>
+      <tr><td>share</td><td>share code, включая share + version</td><td>runtime, без editor panel</td></tr>
+      <tr><td>editor</td><td>валидная page-bound capability</td><td>runtime и затем editor bridge</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Проверки</h2>
+  <table>
+    <thead><tr><th>Проверка</th><th>Результат</th><th>Что подтверждено</th></tr></thead>
+    <tbody>
+      <tr><td><code>npm run typecheck</code> и <code>npm test</code></td><td class="ok">PASS</td><td>types, SSR-safe constructor, selectors и fail-open regression.</td></tr>
+      <tr><td><code>npm run test:e2e:http</code></td><td class="ok">PASS</td><td>21 API tests и playground smoke.</td></tr>
+      <tr><td><code>npm run test:e2e:browser</code></td><td class="ok">6/6</td><td>editor, save/reload, release/share и access failures.</td></tr>
+    </tbody>
+  </table>
+
+  <footer>
+    Детальный индекс: <a href="../../../../tasks/S1/README.md">tasks/S1/README.md</a>.
+    Compatibility boundary: <a href="../../../../packages/sdk/COMPATIBILITY.md">packages/sdk/COMPATIBILITY.md</a>.
+    Полный TargetRegistry/PageSession остаётся в S2.
+  </footer>
+</main>
+</body>
+</html>

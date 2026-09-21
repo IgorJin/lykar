@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { OWNER_EMAIL, PROJECT_KEY } from '../apps/playground/scripts/fixture.mjs';
 import { runSmoke } from '../apps/playground/scripts/smoke.mjs';
 import { databaseUrlForRun, stopChild } from './e2e-process.mjs';
+import { installSdkConsumer } from './sdk-consumer-fixture.mjs';
 
 const repositoryDirectory = fileURLToPath(new URL('..', import.meta.url));
 const smokeMode = process.argv.includes('--smoke');
@@ -46,9 +47,11 @@ try {
   await assertPortAvailable(playgroundPort, 'playground');
   if (magicApiPort) await assertPortAvailable(magicApiPort, 'magic API');
   await mkdir(temporaryDirectory, { recursive: true });
+  const sdkConsumerDirectory = await mkdtemp(join(temporaryDirectory, 'sdk-consumer-'));
   const databaseUrl = await databaseUrlForRun({ isolated: isolatedMode, environment: process.env, startLocalPostgres });
   await run('npm', ['run', 'build', '--workspace', '@lykar/admin']);
-  await run('npm', ['run', 'build', '--workspace', '@lykar/editor-bridge']);
+  await run('npm', ['run', 'build', '--workspace', '@lykar/sdk']);
+  const { sdkDistDirectory } = await installSdkConsumer(repositoryDirectory, sdkConsumerDirectory);
   await run('npm', ['run', 'db:migrate'], { DATABASE_URL: databaseUrl });
   if (smokeMode) {
     await run('npm', ['test', '--workspace', 'lykar-lib-server'], { LYKAR_TEST_DATABASE_URL: databaseUrl });
@@ -74,6 +77,7 @@ try {
     LYKAR_API_BASE_URL: apiBaseUrl,
     LYKAR_PLAYGROUND_PROJECT_KEY: PROJECT_KEY,
     LYKAR_OWNER_EMAIL: OWNER_EMAIL,
+    LYKAR_SDK_DIST_DIR: sdkDistDirectory,
   }));
   if (magicApiPort && magicApiBaseUrl) {
     children.push(start('magic-api', 'node', ['apps/api/dist/server.js'], {
@@ -91,7 +95,7 @@ try {
     waitFor(`${apiBaseUrl}/api/health`),
     ...['/admin', '/admin/', '/admin/app.js', '/admin/styles.css'].map(path => waitFor(`${apiBaseUrl}${path}`)),
     waitFor(`${playgroundBaseUrl}/lykar-config.json`),
-    ...['/', '/pricing', '/runtime.iife.js', '/editor.iife.js'].map(path => waitFor(`${playgroundBaseUrl}${path}`)),
+    ...['/', '/pricing', '/sdk.iife.js', '/editor.iife.js', '/asset-manifest.json'].map(path => waitFor(`${playgroundBaseUrl}${path}`)),
   ];
   if (magicApiBaseUrl) ready.push(waitFor(`${magicApiBaseUrl}/api/health`));
   await Promise.all(ready);

@@ -1,6 +1,6 @@
 import { createReadStream } from 'node:fs';
 import { createServer } from 'node:http';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const appDirectory = dirname(fileURLToPath(import.meta.url));
@@ -8,6 +8,9 @@ const repositoryDirectory = join(appDirectory, '..', '..');
 const port = Number(process.env.LYKAR_PLAYGROUND_PORT ?? 4173);
 const apiBaseUrl = process.env.LYKAR_API_BASE_URL ?? 'http://127.0.0.1:3000';
 const projectKey = process.env.LYKAR_PLAYGROUND_PROJECT_KEY ?? 'pk_playground_local';
+const sdkDistDirectory = process.env.LYKAR_SDK_DIST_DIR
+  ? resolve(process.env.LYKAR_SDK_DIST_DIR)
+  : join(repositoryDirectory, 'packages', 'sdk', 'dist');
 
 const routes = new Map([
   ['/', { file: join(appDirectory, 'public', 'index.html'), type: 'text/html; charset=utf-8' }],
@@ -16,13 +19,17 @@ const routes = new Map([
   ['/pricing.html', { file: join(appDirectory, 'public', 'pricing.html'), type: 'text/html; charset=utf-8' }],
   ['/styles.css', { file: join(appDirectory, 'public', 'styles.css'), type: 'text/css; charset=utf-8' }],
   ['/playground.js', { file: join(appDirectory, 'public', 'playground.js'), type: 'text/javascript; charset=utf-8' }],
-  ['/editor.iife.js', {
-    file: join(repositoryDirectory, 'packages', 'editor-bridge', 'dist', 'editor.iife.js'),
+  ['/sdk.iife.js', {
+    file: join(sdkDistDirectory, 'sdk.iife.js'),
     type: 'text/javascript; charset=utf-8',
   }],
-  ['/runtime.iife.js', {
-    file: join(repositoryDirectory, 'packages', 'runtime', 'dist', 'runtime.iife.js'),
+  ['/editor.iife.js', {
+    file: join(sdkDistDirectory, 'editor.iife.js'),
     type: 'text/javascript; charset=utf-8',
+  }],
+  ['/asset-manifest.json', {
+    file: join(sdkDistDirectory, 'asset-manifest.json'),
+    type: 'application/json; charset=utf-8',
   }],
 ]);
 

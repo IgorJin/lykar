@@ -65,15 +65,15 @@ V1. Новые маркетинговые идеи имеют отдельный
 
 | ID | Требование | Состояние | Этап |
 | --- | --- | --- | --- |
-| INT-01 | Один script + публичный project key; static/SSR playback | Есть код runtime, общая инициализация частична | S1 |
-| INT-02 | Единый SDK выбирает visitor/editor/share режим и загружает editor по требованию | План; orchestration пока в playground | S1 |
-| INT-03 | npm ESM + TypeScript declarations; совместимость script/npm на одних manifests | Частично: ESM есть, пакеты private, SDK пустой | S1 |
-| INT-04 | Rollup dist, отдельные runtime/editor bundles, immutable versioned assets | Частично: legacy Rollup, новое ядро esbuild | S1 |
-| INT-05 | `start`, `navigate`, `refresh`, `destroy`; отмена устаревших запросов | Частично: runtime имеет `start`, но нет PageSession | S1 контракт, S2.2 ядро, S4 adapter |
+| INT-01 | Один script + публичный project key; static/SSR playback | Готово в SDK; static и SSR consumer checks PASS | S1 |
+| INT-02 | Единый SDK выбирает visitor/editor/share режим и загружает editor по требованию | Готово: selector/access bootstrap и lazy editor в SDK | S1 |
+| INT-03 | npm ESM + TypeScript declarations; совместимость script/npm на одних manifests | Готово: @lykar/sdk ESM, IIFE, declarations и manifest | S1 |
+| INT-04 | Rollup dist, отдельные runtime/editor bundles, immutable versioned assets | Готово: Rollup entries, separate editor asset и versioned manifest | S1 |
+| INT-05 | `start`, `navigate`, `refresh`, `destroy`; отмена устаревших запросов | Контракт SDK готов; PageSession и строгая отмена остаются в S2.2 | S1 контракт, S2.2 ядро, S4 adapter |
 | INT-06 | SPA navigation, mount/unmount, re-render и hydration без нарушения host UI | План | S4 |
 | INT-07 | SSR-safe import и framework adapters; React первым как технический выбор | План | S4 |
-| INT-08 | Installation wizard, health check, проверка origin и CSP | Частично: origin/access проверки есть | S1, S6 |
-| INT-09 | Два уровня интеграции: script для стабильного DOM и cooperative npm adapter | План | S1 контракт, S4 |
+| INT-08 | Installation wizard, health check, проверка origin и CSP | S1: origin/access и fail-open checks; wizard/health остаются S6 | S1, S6 |
+| INT-09 | Два уровня интеграции: script для стабильного DOM и cooperative npm adapter | S1 script/npm contract готов; cooperative adapter остаётся S4 | S1 контракт, S4 |
 | INT-10 | Зарегистрированные targets/roots и ограниченные overrides через props/store | План; минимальный React-срез | S4 |
 
 ### Редактор и command core
@@ -90,6 +90,14 @@ V1. Новые маркетинговые идеи имеют отдельный
 | EDT-08 | Совместимость стилей панели с host, keyboard navigation, responsive preview | Частично: Shadow DOM есть | S2 |
 | EDT-09 | Dummy proposals без запросов к AI и без API key | Есть код | S2 |
 | EDT-10 | Copy/add описывают представление; UI не обещает копирование handlers и бизнес-логики | План проверки и обозначения ограничений | S2.4 |
+| EDT-11 | P0: Style Manager как в GrapesJS, все legacy styles и любое поддерживаемое CSS-свойство через специализированные controls/raw fallback | План; требование владельца 2026-09-21 | S2-06.1…06.8 |
+| EDT-12 | P0: отдельный styles-config.ts, select/input/color/number-unit/composite/stack; самописный TS/DOM UI без внешнего UI kit/runtime | План; lazy editor only, измеримый бюджет веса | S2-06.1, 06.2, 06.7 |
+| EDT-13 | P0: значения/каскад, reset/priority, составные стили, единая история и preview → save → reload | План; включено в итоговую приёмку S2 | S2-06.3…06.6, 06.8 |
+
+EDT-11 означает открытый набор CSS-деклараций, а не только заданные пресеты.
+Неподдерживаемые браузером значения объясняются; отсутствие специального
+контрола не запрещает raw edit. Class selectors, pseudo/media rules и создание
+@keyframes требуют отдельной модели правил; FUT-06 и framework scope сохраняются.
 
 `nodeElement` существует только в памяти editor. В БД сериализуется descriptor,
 а после reload/re-render DOM reference разрешается заново. Undo уже сохранённого
@@ -106,7 +114,7 @@ V1. Новые маркетинговые идеи имеют отдельный
 | VER-04 | Publish создаёт immutable Release с manifest hash; новые правки — новый Draft | Есть код | S3 |
 | VER-05 | Без токена и без явного deployment показывается исходная страница | Есть код | S1, S5 |
 | VER-06 | Защищённый `?version=N`; share expiry/revoke, без editor capability | Есть код | S3 |
-| VER-07 | Share URL на Lykar origin; one-time code exchange на host | Есть код, общий bootstrap ещё нужен | S1, S3 |
+| VER-07 | Share URL на Lykar origin; one-time code exchange на host | Общий bootstrap и share/version flow готовы; release lifecycle остаётся S3 | S1, S3 |
 | VER-08 | Source fingerprint до Lykar replay, hash без хранения raw page DOM | Есть код | S2 |
 | VER-09 | Operation report; missing target пропускается, остальные независимые команды продолжаются | Есть код; нужны проверки цепочек | S2 |
 | VER-10 | Ручной rebind target через новый Draft/Release | План | S2 |
@@ -123,8 +131,8 @@ V1. Новые маркетинговые идеи имеют отдельный
 | COR-04 | Operation ledger, стабильные IDs всех создаваемых nodes, зависимости и защита от повторов | Частично: insert marker есть; общей модели нет | S2.3 |
 | COR-05 | Before/after journal, компенсация частичной операции, compare-and-restore | Частично: editor undo есть; общей гарантии нет | S2.3 |
 | COR-06 | Structural fingerprint отделён от visual/requirement checks; CSS-only drift не скрыт обещанием hash | Структурный hash есть; диагностику уточнить | S2.1, X2 |
-| COR-07 | Read/write batching, bounded observer/retry, лимиты manifest/replay и сетевой deadline | План | S1 baseline, S2.3, S4 |
-| COR-08 | Версии protocol/SDK/Release различимы; переход на новые targets/dependencies совместим со старыми manifests | Частично: версии есть; migration contract нужен | S1, S2.1–S2.3 |
+| COR-07 | Read/write batching, bounded observer/retry, лимиты manifest/replay и сетевой deadline | S1: delivery/replay/network baseline; lifecycle limits остаются S2.3/S4 | S1 baseline, S2.3, S4 |
+| COR-08 | Версии protocol/SDK/Release различимы; переход на новые targets/dependencies совместим со старыми manifests | S1 version dimensions и asset manifest готовы; migration contract остаётся S2 | S1, S2.1–S2.3 |
 
 Стабильные host markers/test IDs — предпочтительный opt-in. Семантические
 признаки и structural selectors дополняют их. Автоматический fuzzy rebind
@@ -181,15 +189,15 @@ conflict, а не скрытым last-write-wins.
 | QLT-02 | Browser E2E через реальные клики, reload, две страницы, share и reports | Static Chromium baseline 6/6 PASS; SPA и расширенная matrix остаются S4 | S0 baseline, S4 |
 | QLT-03 | Один локальный запуск БД/API/Admin/runtime/fixtures | S0 PASS: `dev:e2e`, restart, Ctrl+C и port preflight | S0 завершён |
 | QLT-04 | Static, React SPA и Vue compatibility fixtures; cold start документация | Static есть, остальные план | S4 |
-| QLT-05 | Бюджеты JS size/replay duration, bounded observer и network timeout | План | S1, S4, S6 |
+| QLT-05 | Бюджеты JS size/replay duration, bounded observer и network timeout | S1 size/replay/network baseline готов; observer budgets остаются S4/S6 | S1, S4, S6 |
 | QLT-06 | Adversarial browser fixtures: дубликаты targets, поздние nodes, route races, lost save response, CSS drift, rerender | План; добавляются с каждой реализацией | S0 harness, S2–S4, X2 |
 | SEC-01 | Валидация каждой команды; запрет JS/handlers/unsafe HTML/URL | Есть код | S2 |
 | SEC-02 | Project key публичный, secrets server-side, tokens hash/scoped/revocable | Есть код | S1, S3 |
-| SEC-03 | Fail-open, ошибки не ломают host и не оставляют страницу скрытой | Частично; проверить post-mutation failures | S2, S5 |
+| SEC-03 | Fail-open, ошибки не ломают host и не оставляют страницу скрытой | S1 access/network/lazy-load fail-open проверен; post-mutation failures остаются S2/S5 | S2, S5 |
 | OPS-01 | CI, staging, versioned CDN dist, compatibility policy | План | S6 |
 | OPS-02 | Email delivery adapter, jobs/retention, retry и rate limits | Частично: local auth/prune есть | S6 |
 | OPS-03 | Backup/restore drill, metrics, redacted logs, audit, data deletion | Частично: health/logging/migrations есть | S6 |
-| OPS-04 | Delivery budgets, bounded anti-flicker и документированная задержка deployment/cache invalidation | План | S1 baseline, S5 |
+| OPS-04 | Delivery budgets, bounded anti-flicker и документированная задержка deployment/cache invalidation | S1 delivery budgets готовы; deployment/cache semantics остаются S5 | S1 baseline, S5 |
 
 ## 5. Согласованные будущие направления
 
@@ -263,9 +271,13 @@ integration tests. Запустить `dev:e2e` и `test:e2e`, зафиксир�
 Выход подтверждён: стенд воспроизводится по инструкции; найденные ошибки имеют
 regression cases; HTTP smoke и browser tests называются различимо; ручной Chrome
 проход подтвердил UI login → editor → edit → save → reload → Release → share.
-Следующая реализация — S1 SDK bootstrap и затем Rollup/npm distribution.
+Следующая реализация — S2 TargetRegistry/PageSession и надёжное сохранение.
 
 ### S1 — Единая библиотека, Rollup dist и npm
+
+Детальные задачи S1-01/S1-02, зависимости и критерии приёмки:
+[план S1 в tasks](./tasks/S1/README.md). Статус: DONE; 9/9 task records
+подтверждены групповой verification evidence.
 
 Реализовать публичный SDK поверх текущих protocol/runtime/editor. Перенести
 playground-specific launch/share bootstrap в библиотеку. Собрать независимый
@@ -282,6 +294,15 @@ artifact — проходят один сценарий без копирова�
 Native visit не скачивает editor; public key не даёт редакторские права.
 
 ### S2 — Полный редактор и надёжное сохранение
+
+Детальные задачи S2-01…S2-06, зависимости и критерии приёмки:
+[план S2 в tasks](./tasks/S2/README.md). Статус: план, реализация не начата.
+
+**Приоритет владельца 2026-09-21: EDT-11…13 / S2-06 — P0.** Конфигурацию
+стилей и native UI kit начать первыми (S2-06.1/06.2), интеграцию — сразу после
+необходимых core dependencies. Восемь style tasks входят в обязательный scope
+S2; финальная S2-05.4 зависит от style acceptance S2-06.8. Технический setStyle
+и единственная пара property/value не закрывают это требование.
 
 Внутренний порядок обязателен: `S2.1 → S2.2 → S2.3 → S2.4`. Значимые unit/browser
 regression cases добавляются в том же срезе; отдельного отложенного этапа

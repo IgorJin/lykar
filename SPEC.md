@@ -405,6 +405,31 @@ Admin cookie MUST NOT копироваться на host origin.
 - `Применить` сохраняет pending operations на backend.
 - Publish выполняется отдельно в Admin.
 
+#### 10.2.1 Полноценный Style Manager — Planned, P0
+
+Требование владельца от 2026-09-21, обязательное для приёмки S2:
+
+- Editor MUST предоставлять визуальную панель стилей по образцу GrapesJS с
+  секциями Layout, Size, Space, Position, Typography, Background, Borders, Effects.
+- Каталог свойств/секций MUST находиться в отдельном `styles-config.ts`.
+  Поля генерируются из конфигурации: select, input, color, number-unit,
+  composite и stack; все стили прежнего lykar-lib получают явное соответствие.
+- Каталог MUST NOT ограничивать допустимые CSS-свойства. Любая поддерживаемая
+  браузером декларация и CSS custom property MUST быть доступны через raw input,
+  в том числе значения вне preset options и выражения var()/calc()/clamp().
+- UI MUST различать computed value и собственный override, поддерживать reset
+  и единый preview → undo/redo → save → reload; чтение панели не создаёт правок.
+- UI SHOULD состоять из самописных TypeScript/DOM controls с native HTML inputs
+  и собственным CSS в Shadow DOM. Внешний UI kit/framework runtime не входит
+  в выбранный план; controls/config/codecs поставляются только в lazy editor.
+- Покрытие деклараций не означает поддержку всех CSS-rule contexts: общие
+  классы, псевдосостояния, media rules и создание @keyframes требуют отдельных
+  контрактов; недоступные targets/неподдерживаемые значения объясняются в UI.
+
+Задачи, зависимости, budgets и acceptance:
+[S2-06.1…S2-06.8](./tasks/S2/README.md). Конфигурация и controls начинаются
+приоритетно в начале S2; запись в host DOM зависит от готовности core contracts.
+
 ### 10.3 Change Tree — MVP
 
 Change Tree MUST показывать ordered operations как отдельные сущности с ID,

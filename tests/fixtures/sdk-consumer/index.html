@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Lykar SDK script consumer</title>
+  </head>
+  <body>
+    <main data-lykar-id="content">
+      <h1 data-lykar-id="hero-title">Native fixture</h1>
+    </main>
+
+    <!-- This fixture intentionally uses only the built script artifact. -->
+    <script
+      src="../../../packages/sdk/dist/sdk.iife.js"
+      data-lykar-project="pk_consumer_fixture"
+      data-lykar-delivery="links-only"
+    ></script>
+    <script>
+      window.__SDK_FIXTURE_READY__ = Boolean(window.Lykar && window.__LYKAR_SDK__);
+    </script>
+  </body>
+</html>

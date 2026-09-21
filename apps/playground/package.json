@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "predev": "npm run build --workspace @lykar/editor-bridge",
+    "predev": "npm run build --workspace @lykar/sdk",
     "dev": "node server.mjs",
-    "build": "npm run build --workspace @lykar/editor-bridge",
+    "build": "npm run build --workspace @lykar/sdk",
     "typecheck": "node --check server.mjs && node --check public/playground.js && node --check scripts/seed.mjs && node --check scripts/smoke.mjs"
   },
   "dependencies": {

@@ -1,387 +1,129 @@
-# Tasks — S0: проверенный baseline и следующая техническая очередь
+# Lykar tasks
 
-Детальные задачи и подтверждённые результаты S0 сохранены ниже. Раздел «После
-S0» добавляет следующие технические реализации с зависимостями. Все новые пункты
-открыты; изменение плана не означает выполнение реализации или проверок.
+Это короткий индекс спринтов. Подробные task records, зависимости, критерии,
+проверки и evidence policy находятся в папке [`tasks/`](./tasks/). Для S1/S2
+36 task records объединены в 8 групповых HTML reports. Исторические S0
+доказательства сохранены; S1 закрыт после реализации и проверки, S2 остаётся
+планом.
 
-Дата планирования и ревизии: 2026-09-20/21. S0-01…S0-07 подтверждены после
-исправлений. S0-08 закрыта после ручного прохода в обычном Chrome.
-Текущий сводный отчёт: [S0 review](./docs/verification/reports/s0-review.html).
+## Порядок спринтов
 
-Основание: [ROADMAP, этап S0](./ROADMAP.md#s0--проверенный-baseline),
-[SPEC, критерии приёмки](./SPEC.md#22-mvp-acceptance-criteria),
-[техническое видение, проверяемость](./docs/architecture/technical-vision.md#8-проверяемость).
+**S0 → S1 → S2 → S3 → S4 → S5 → S6**
 
-## Результат этапа
-
-Из воспроизводимого состояния исходников разработчик поднимает локальный стенд
-и проходит в настоящем браузере путь: вход → открытие редактора → изменение
-текста → сохранение → reload → Release → share в отдельном контексте посетителя.
-Для сборки, unit-тестов, PostgreSQL integration, HTTP smoke и browser E2E
-сохраняются отдельные результаты с указанием проверенной версии исходников.
-
-S0 закрывает QLT-01, QLT-03 и первый срез QLT-02. Полный набор команд и recovery
-развиваются на S2; приёмка всех экранов, ролей, A/B и отчётов — на S3. SDK/npm,
-Rollup и SPA остаются в своих этапах. Исходная браузерная матрица S0 — Chromium
-на локальном macOS; точные версии фиксируются при прогоне.
-
-## Что уже есть и какие доказательства доступны
-
-- `dev:e2e` собирает Admin/editor, поднимает PostgreSQL и API, применяет миграции
-  и создаёт fixture `Northstar E2E` с `/` и `/pricing`.
-- Добавлены локальный вход владельцем, обслуживание `/admin` и `/admin/`,
-  открытие окна редактора до async-запроса и кнопка админки в playground.
-- В ревизии 2026-09-20/21 build и typecheck завершились успешно; unit,
-  component и lifecycle suites дали 69 PASS, PostgreSQL API — 21/21 PASS,
-  HTTP smoke — PASS, Chromium browser — 6/6 PASS.
-- `npm run test:e2e` остаётся совместимым HTTP alias. `npm run test:e2e:http`
-  запускает API/PostgreSQL и HTTP smoke, `npm run test:e2e:browser` — шесть
-  реальных Chromium-сценариев. Изолированные прогоны игнорируют унаследованные
-  database URL.
-- Чистый `npm ci --offline` установил 376 пакетов; lockfile не изменился,
-  `npm audit --offline` сообщил 0 уязвимостей. Старые результаты в исторических
-  HTML-отчётах не заменяют этот свежий snapshot.
-
-При выполнении S0-01 повторно запускалась только чистая установка. Состояния
-остальных задач ниже не изменялись до выполнения их критериев готовности.
-
-## Очередь задач
-
-| ID | Задача | Зависимости | Статус |
+| Спринт | Статус | Назначение | Подробный план |
 | --- | --- | --- | --- |
-| S0-01 | Зафиксировать исходники и проверить чистую установку | — | Готова |
-| S0-02 | Получить baseline всех workspaces | S0-01 | Готова |
-| S0-03 | Проверить запуск, PostgreSQL и HTTP smoke | S0-02 | Готова |
-| S0-04 | Добавить запуск browser E2E | S0-03 | Готова |
-| S0-05 | Проверить вход и открытие редактора в браузере | S0-04 | Готова |
-| S0-06 | Пройти edit → save → reload → release → share | S0-05 | Готова |
-| S0-07 | Устранить найденные блокирующие дефекты | По мере обнаружения в S0-01…S0-06 | Готова |
-| S0-08 | Завершить инструкции, отчёт и приёмку S0 | S0-01…S0-07 | Готова после ревизии |
-
-Основной порядок: **S0-01 → S0-02 → S0-03 → S0-04 → S0-05 → S0-06 → S0-08**.
-S0-07 выполняется сразу при обнаружении блокера и возвращает работу к упавшей
-проверке. Ожидать завершения всех остальных задач для исправления не требуется.
-Календарные оценки уточняются после S0-01…S0-03, когда известны реальные ошибки.
-
-## S0-01 — Исходники и чистая установка — выполнена
+| S0 | DONE | Проверенный baseline и первый browser flow | [tasks/S0](./tasks/S0/README.md) |
+| S1 | DONE | Единый SDK, script/npm delivery и библиотечные артефакты | [tasks/S1](./tasks/S1/README.md) |
+| S2 | PLANNED | P0 Style Manager, надёжные targets, replay, save/recovery | [tasks/S2](./tasks/S2/README.md) |
+| S3 | PLANNED | Admin → release → share → experiment → report | [ROADMAP § S3](./ROADMAP.md) |
+| S4 | PLANNED | React/SPA adapter и cooperative integration | [ROADMAP § S4](./ROADMAP.md) |
+| S5 | PLANNED | Deploy/Disable/Rollback и delivery semantics | [ROADMAP § S5](./ROADMAP.md) |
+| S6 | PLANNED | Production operations и public SaaS baseline | [ROADMAP § S6](./ROADMAP.md) |
 
-**Требования:** QLT-01, QLT-03. **Зависимости:** нет.
-
-**Работа:** зафиксировать проверяемый snapshot исходников и точные версии ОС,
-Node.js, npm и PostgreSQL CLI. Сейчас есть незакоммиченные изменения, включая
-dev login; проверка одного HEAD не включает их. Для чистой установки использовать
-отдельную рабочую копию этого snapshot без готовых `node_modules` и `dist`.
-Запустить `npm ci` из корня с существующим lockfile.
-
-**Область:** `package.json`, `package-lock.json`, `README.md`;
-будущий отчёт `docs/verification/s0-baseline.md`.
-
-**Результат:** доказательства и команды записаны в
-[docs/verification/s0-baseline.md](./docs/verification/s0-baseline.md).
-
-**Критерии:**
-
-- [x] В отчёте есть commit и идентификатор snapshot незакоммиченных исходников,
-  если они использованы, а также версии инструментов и точная команда установки.
-- [x] `npm ci` проходит без зависимости от глобальных JS-пакетов и старых bundles.
-- [x] Lockfile не меняется от установки. Необходимые изменения зависимостей
-  имеют описанную причину и проходят повторную чистую установку.
-- [x] Доступны `initdb`, `pg_ctl`, `psql`, `createdb`; место для prerequisites и
-  установки будущего тестового браузера явно закреплено в S0-04.
-
-## S0-02 — Baseline всех workspaces — выполнена
-
-**Требования:** QLT-01. **Зависимость:** S0-01.
-
-**Работа:** последовательно выполнить корневые `npm run build`,
-`npm run typecheck`, `npm test`. Учесть protocol, runtime, editor-bridge,
-API, Admin, playground и legacy `lykar-lib`; отдельно отметить workspaces,
-у которых пока нет соответствующего script. Составить список сбоев с командой,
-пакетом и воспроизводящим примером.
-
-**Область:** workspace scripts/configs, существующие unit-тесты;
-`docs/verification/s0-baseline.md`.
-
-**Готово, когда:**
-
-- [x] Все три корневые команды завершились успешно на snapshot из S0-01.
-- [x] Для каждого набора записаны pass/fail/skip и причина пропусков.
-  Отсутствие script при `--if-present` не записано как прошедший тест.
-- [x] PostgreSQL tests, пропущенные без `LYKAR_TEST_DATABASE_URL`, явно
-  направлены на проверку в S0-03.
-- [x] Ошибки не скрыты исключением workspace, отключением теста или ослаблением
-  проверки; исправления и их regression cases учтены в S0-07.
-
-## S0-03 — Локальный стек, PostgreSQL и HTTP smoke — выполнена
-
-**Требования:** QLT-01, QLT-03. **Зависимость:** S0-02.
-
-**Работа:** проверить обычный `npm run dev:e2e` и изолированный
-`npm run test:e2e`. Подтвердить доступность Admin, его assets, API, playground
-и seeded pages. Для автоматических прогонов использовать временную БД и порты;
-сохранённый рабочий стенд разработчика не должен быть тестовой fixture.
-Проверить Ctrl+C, повторный запуск и обработку ошибки старта.
-
-**Область:** `scripts/e2e-stack.mjs`, `apps/playground/server.mjs`,
-`apps/playground/scripts/{fixture,seed,smoke}.mjs`,
-`apps/api/src/integration`, `apps/api/src/routes/admin-ui.ts`.
-
-**Готово, когда:**
-
-- [x] Стенд из одного запуска открывает `/admin` и `/admin/` с JS/CSS,
-  а также `/` и `/pricing`. Готовность означает доступность нужных сервисов
-  и данных, а не только ответ `/api/health`.
-- [x] API/PostgreSQL tests проходят без пропусков из-за отсутствующей БД;
-  HTTP smoke имеет собственный результат в отчёте.
-- [x] Повторный seed сохраняет пользовательские drafts/releases и позволяет
-  повторно открыть стенд; старый фиксированный dev session удаляется.
-- [x] Успех, ошибка старта, падение дочернего сервиса и Ctrl+C корректно завершают
-  принадлежащие запуску процессы. Занятый порт даёт понятную ошибку и не приводит
-  к завершению чужого процесса.
-- [x] При очистке временной БД сохраняется результат проверки; тестовый прогон
-  не использует случайно унаследованный URL рабочей БД.
-
-## S0-04 — Инфраструктура browser E2E — выполнена
-
-**Требования:** QLT-02, QLT-03. **Зависимость:** S0-03.
-
-**Работа:** добавить Playwright и Chromium, конфигурацию и fixture запуска
-настоящих API/Admin/playground/PostgreSQL. Переиспользовать lifecycle существующего
-стенда с минимальным выделением общего кода. Передавать порты, origins и режим
-auth из fixture. Версию Playwright закрепить в lockfile при реализации.
-
-Запланированные команды:
-
-- `npm run test:e2e:browser` — новый browser suite с автоматическим стартом
-  и завершением изолированного стенда;
-- `npm run test:e2e:http` — понятное имя для существующей проверки API/HTTP;
-- `npm run test:e2e` — сохранить как совместимую команду текущего API/HTTP smoke.
-
-Новые имена команд появятся при выполнении этой задачи; сейчас их нет.
-
-**Область:** `package.json`, `package-lock.json`, `.gitignore`,
-будущий `playwright.config.ts`, `tests/e2e`, `scripts/e2e-stack.mjs`.
-
-**Готово, когда:**
-
-- [x] Browser-команда запускается без заранее работающих сервисов, ручной
-  авторизации, скопированных cookies или пользовательского browser profile.
-- [x] Проверка использует настоящие HTTP endpoints и browser events;
-  startup ожидает готовность сервисов, тесты — наблюдаемый результат действий.
-- [x] Тесты изолированы по данным; параллельные workers не делят изменяемый Draft.
-  Для первого среза допустим один worker.
-- [x] Есть отдельные чистые browser contexts владельца и посетителя,
-  возможность запуска с dev auth и с обычным magic-link входом.
-- [x] Ошибка сохраняет screenshot, диагностический отчёт и при необходимости
-  локальный trace; артефакты исключены из Git, секреты не попадают в итоговый отчёт.
-- [x] Результат тестов и освобождение ресурсов корректны при успехе и падении.
-  Retries не скрывают нестабильное прохождение основного сценария.
-
-## S0-05 — Вход и открытие редактора — выполнена
-
-**Требования:** QLT-02, ADM-01, ADM-02, ADM-04.
-**Зависимость:** S0-04.
-
-**Работа:** закрепить реальные пользовательские проблемы regression-тестами:
-доступ к Admin, быстрый локальный вход, открытие окна редактора и переход из
-playground в админку. Обычный magic-link вход проверить отдельным браузерным
-сценарием при выключенном dev auth.
-
-Для magic link использовать тестовый получатель через существующий
-`MagicLinkSender`: браузер запрашивает письмо через UI, тест получает доставленную
-ссылку и открывает её в том же context. Сбор ссылки автоматизирован в тестовой
-fixture; публичный endpoint выдачи токенов для этого не нужен.
-
-**Область:** `tests/e2e`, `apps/admin/src/main.tsx`,
-`apps/api/src/routes/{admin-ui.ts,auth/index.ts}`,
-`apps/api/src/domain/auth.ts`, `apps/playground/public/playground.js`.
-
-**Готово, когда:**
-
-- [x] В свежем context кнопка «Войти как локальный владелец» открывает dashboard
-  без ввода credentials; сессия сохраняется после reload.
-- [x] При выключенном dev auth быстрая кнопка отсутствует, magic link
-  действительно создаёт рабочую сессию. Повторное использование ссылки
-  отклоняется; существующие API-проверки ограничения dev mode сохраняются.
-- [x] Клик «Открыть редактор» в Admin открывает host page и видимую панель.
-  Тест не подменяет клик прямым вызовом editor-launch API; настройка браузера
-  не маскирует проблему потери разрешения на popup после async-запроса.
-- [x] При отсутствии editor capability кнопка адреса админки в playground
-  ведёт на рабочую страницу входа; `/admin` и `/admin/` проходят проверку.
-- [x] Неожиданные ошибки страницы или загрузки assets завершают тест ошибкой,
-  а наличие одного заголовка «Lykar» не считается успешным запуском редактора.
-
-## S0-06 — Изменение, сохранение, reload и share — выполнена
-
-**Требования:** QLT-02; первый браузерный срез EDT-01, EDT-02, EDT-04,
-VER-02, VER-03, VER-04, VER-05, VER-07.
-**Зависимость:** S0-05.
-
-**Работа:** добавить один сквозной сценарий на static fixture. Владелец входит
-через UI, выбирает `Northstar E2E` / Home и открывает редактор. Реальными действиями
-выбирает `[data-lykar-id="hero-title"]`, изменяет текст и нажимает «Применить».
-Далее проверяются сохранение, reload, создание Release и share через Admin.
-
-Исходные точки для locators уже есть: `data-lykar-id` у элементов страницы,
-`data-lykar-editor-root="panel"` у редактора, `data-field="text"` и
-`data-action="apply"` в его Shadow DOM. Предпочитать доступные роли/названия
-и стабильные маркеры; не вызывать методы редактора из `window.__LYKAR_*`.
-
-**Область:** `tests/e2e`, `apps/playground/public`, `apps/admin/src/main.tsx`,
-`packages/editor-bridge/src/{editor,access-client}.ts`, `packages/runtime`.
-
-**Готово, когда:**
-
-- [x] Изменённый текст виден сразу после ввода. «Применить» сохраняет изменение
-  в backend и показывает успешный результат; сохранённый Draft имеет ожидаемую
-  revision и операцию. Read-only API-проверка допустима как дополнительное
-  доказательство, основной путь выполняется через UI.
-- [x] Reload вкладки редактора восстанавливает доступ и сохранённый результат.
-  Повторное открытие этого Draft в новой вкладке подтверждает сохранность
-  независимо от локальных pending operations прежней вкладки.
-- [x] Через Admin создаётся immutable Release и его share-ссылка.
-  Создание Release само по себе не изменяет обычную страницу посетителя.
-- [x] В отдельном context без cookies/storage владельца share воспроизводит
-  изменённый текст, панель редактора отсутствует. Простое открытие новой вкладки
-  владельца не считается проверкой гостевого доступа.
-- [x] В чистом context обычный `/` сохраняет исходный текст, `/pricing`
-  сохраняет свой заголовок: версии двух Page не смешиваются.
-- [x] Сценарий проходит повторный независимый запуск с новой тестовой БД;
-  каждый запуск использует собственные данные и не зависит от порядка старых тестов.
-
-**Проверенный результат:** capability восстанавливается из sessionStorage только
-для прежних API и страницы. Backend-команды восстанавливаются до pending edits,
-которые читаются перед replay. Browser flow подтверждает reload сохранённой
-операции и повторное открытие draft из Admin; unit test отдельно подтверждает,
-что локальная pending правка не теряется и Undo возвращает сохранённый текст.
-
-## S0-07 — Блокирующие дефекты и regression cases — выполнена
-
-**Требования:** QLT-01…QLT-03 и требования затронутого дефектом сценария.
-**Зависимость:** воспроизводимое падение в S0-01…S0-06.
-
-**Работа:** заводить в отчёте дефекты `S0-BUG-001`, `S0-BUG-002` и далее:
-шаги, ожидание, фактический результат, источник, влияние на S0 и regression case.
-Исправлять причину в соответствующем пакете. Для старых проблем Admin/popup
-учитывать уже внесённые исправления и добавить недостающие проверки.
-
-**Область:** определяется конкретным дефектом; реестр в
-`docs/verification/s0-baseline.md`.
-
-**Готово, когда:**
-
-- [x] Нет открытых ошибок, мешающих установке, сборке, старту, входу,
-  редактированию, сохранению, reload или share в принятом сценарии S0.
-- [x] Для каждого исправленного дефекта есть значимый воспроизводящий тест
-  на подходящем уровне и результат после исправления.
-- [x] После исправления повторены затронутые проверки. Изменения
-  auth/persistence/runtime подтверждены также основным сквозным сценарием.
-- [x] Остальные обнаруженные ограничения имеют ссылку на задачу своего этапа
-  и объяснение, почему они не блокируют S0.
-
-## S0-08 — Инструкции, доказательства и закрытие этапа — выполнена после ревизии
-
-**Требования:** QLT-01…QLT-03. **Зависимости:** S0-01…S0-07.
-
-**Работа:** завершить cold-start инструкцию для Ghostty/терминала, обновить
-`tests/e2e/README.md`, сохранить отчёт и перенести подтверждённые статусы в roadmap.
-Вручную пройти основной сценарий в обычном браузере и записать точную версию.
-Приёмка относится к финальному snapshot исходников с выполненными исправлениями.
-
-**Область:** `README.md`, `tests/e2e/README.md`, `ROADMAP.md`, этот файл,
-новый `docs/verification/s0-baseline.md`.
-
-**Готово, когда:**
-
-- [x] Инструкция от чистой рабочей копии содержит prerequisites, установку,
-  запуск, адреса, локальный вход, остановку и действия при занятом порте.
-- [x] Команды unit, PostgreSQL integration, HTTP smoke и browser E2E названы
-  и объяснены отдельно; указано, какие suites включает каждая команда.
-- [x] Отчёт содержит дату, версии среды/браузера, snapshot, команды, exit codes,
-  pass/fail/skip, ссылки на доступные артефакты и известные ограничения.
-- [x] Автоматический browser workflow и ручной проход подтверждены в Chromium
-  и обычном Chrome; ручной путь записан в сводном отчёте.
-- [x] Критерии S0-01…S0-07 выполнены, статусы задач обновлены по доказательствам;
-  переход к S1 описан через оставшиеся SDK/distribution задачи.
-
-## Условие завершения S0
-
-- [x] Установка, build, typecheck и unit suites воспроизводимы на зафиксированных исходниках.
-- [x] PostgreSQL integration и HTTP smoke проходят на изолированной БД.
-- [x] Одна команда поднимает локальный стенд, остановка и повторный запуск работают.
-- [x] Browser E2E и ручной проход подтверждают вход → edit → save → reload →
-  Release → share. Share в ручной проверке открылся в новой вкладке без панели
-  редактора и показал `mode: share`, `version: 3`, `errors: 0`.
-- [x] Исправления имеют regression cases; открытых блокеров нет.
-- [x] Инструкция и отчёт позволяют другому разработчику повторить результат.
-
-Следующая задача для выполнения: **S1-01**.
-
-## После S0 — очередь технических реализаций
-
-Основание: ROADMAP, обновление 2026-09-20. Порядок строк — рабочий приоритет;
-колонка зависимостей показывает минимальные технические prerequisites.
-Browser regression cases выполняются вместе с каждой задачей, используя S0-04.
-
-| ID | Реализация / этап roadmap | Зависимости | Критерий готовности | Статус |
-| --- | --- | --- | --- | --- |
-| S1-01 | SDK bootstrap, public contracts и compatibility bridge / S1 | S0-08 | Script/npm проходят один flow; контракты TargetRegistry/PageSession описаны, native не грузит editor | Открыта |
-| S1-02 | Rollup artifacts, consumer fixtures и performance baseline / S1 | S1-01 | npm pack/SSR import и IIFE проверены; dependency audit классифицирован и обновления выполнены; зафиксированы size/replay budgets и deadline | Открыта |
-| S2-01 | TargetRegistry и строгий resolver / S2.1 | S1-02 | Unique/missing/ambiguous/invalid; два похожих CTA не получают случайную мутацию; old manifests совместимы | Открыта |
-| S2-02 | PageSession, generations, abort и cleanup / S2.2 | S2-01 | Поздний ответ A не меняет B; повторные start/destroy не плодят resources | Открыта |
-| S2-03 | Executor, dependencies, ledger и journal / S2.3 | S2-02 | Цепочка structural commands, повтор replay, partial failure и compare-and-restore проходят regression cases | Открыта |
-| S2-04 | Идемпотентный save, revisions и recovery / S2.4 | S2-03 | Потерянный ответ и две вкладки не дублируют commands и не теряют pending changes | Открыта |
-| S2-05 | Полный editor, repair, overlay и поведение copy / S2.4 | S2-04 | Все команды/дерево/undo/reload работают; UI объясняет отсутствие host handlers; scroll/keyboard проверены | Открыта |
-| S3-01 | Admin→release→share→experiment→report / S3 | S2-05 | Сквозной browser workflow, page/role isolation и контрольные числа analytics подтверждены | Открыта |
-| S4-01 | React adapter и SPA regression matrix / S4 | S3-01 | Hydration, route race, back/forward, late mount, rerender и unmount безопасны; exposure не дублируется | Открыта |
-| S4-02 | Cooperative integration и registered overrides / S4 | S4-01 | Host регистрирует targets/roots, разрешённые значения отображаются через props/store; structural limits проверены | Открыта |
-| X1-01 | Visual Spec contract и handoff / X1 | S2-01, S2-05, S3-01 | Frozen requirements/context, JSON/Markdown и preview; Operation отделена от Requirement | Открыта |
-| X2-01 | Read-only acceptance runner / X2 | X1-01, S0-04; S4-02 для SPA contexts | Чистый source mode, PASS/FAIL/BLOCKED/MANUAL; overlay и соседняя похожая кнопка не дают false PASS | Открыта |
-| S5-01 | Deployment, cache boundaries и fail-open / S5 | S4-02 | Deploy/Disable/Rollback отдельно от Publish; timeout не оставляет страницу скрытой; задержка смены pointer измерена | Открыта |
-| S6-01 | Production operations / S6 | S5-01 | Domain/email/CDN/jobs/audit/backup/data deletion проходят приёмку S6 | Открыта |
-| S7-01 | Host-approved component/action registry / FUT-08 | S4-02; в рабочей очереди после S6 | Зарегистрированный компонент сохраняет действие; неизвестные actions и serialized JS отклоняются | Открыта |
-
-X2-01 имеет рабочий приоритет после первого SPA adapter. Для static-only
-прототипа S4 не техническая зависимость. Разделение приоритета и зависимости
-позволяет проверить static Visual Spec, если работа над adapter временно ждёт
-внешнего решения. S5/S6 не зависят от успешности продуктового пилота.
-
-Отдельная ветка после X2-01: **X3-01 — пилот Visual Spec**. Статус: открыта.
-Пять пар «автор + исполнитель», 20 заданий; измеряются уточнения, ручной repair,
-повторное использование и false PASS на размеченных случаях. Эти пороги —
-гипотезы проверки полезности, а не обещание точности. Контакт с участниками и
-внешний запуск пилота требуют отдельной организации; сейчас планируются задачи.
-
-### Требования, которые нельзя потерять при декомпозиции
-
-- S2-01: COR-01/COR-02/COR-06/COR-08; logical identity не подменяется одним CSS selector.
-- S2-02: COR-03/INT-05; каждая async task проверяет актуальную generation перед mutation.
-- S2-03: COR-04/COR-05/COR-07; text insertions тоже имеют identity; host changes сохраняются при undo.
-- S2-04: VER-03; idempotency key связан с actor/project/draft и hash payload;
-  тот же key с другим payload даёт conflict, а не повторяет старый success.
-- S2-05: EDT-01…EDT-10; DOM copy не считается переносом listeners/state приложения.
-- S4-01/S4-02: INT-06/INT-07/INT-09/INT-10/ANA-05; framework rendering не конкурирует с blind force replay.
-- X1-01/X2-01: VS-01…VS-09; missing/ambiguous и обязательные manual checks входят в report denominator.
-- S5-01: VER-11/SEC-03/OPS-04; pointer rollback, in-memory undo и SDK asset rollback различаются.
-- S7-01: FUT-08; registry — отдельная явная интеграция host, не обход запрета JavaScript в protocol.
-
-### Общий контрольный набор
-
-Каждый случай добавляется с реализацией, которая за него отвечает:
-
-1. Два одинаковых CTA в разных блоках; ambiguous locator не выбирает первый.
-2. Исходный текст изменился на требуемый; locator не требует прежнего текста.
-3. Изменился только CSS; structural fingerprint не обещает visual compatibility.
-4. DOM root сменился, ответ старого маршрута пришёл позднее.
-5. Node появился после API-ответа; ожидание ограничено и отменяемо.
-6. Insert→edit→move→copy→delete и повторный replay, включая text nodes.
-7. Host изменил поле после Lykar; undo не затирает значение host.
-8. Сервер сохранил Draft, ответ потерян; повтор запроса не добавил вторую операцию.
-9. Две вкладки сохраняют разные правки к одной revision.
-10. React hydration/re-render/mount/unmount не ломают UI и не дублируют analytics.
-11. Runtime timeout и медленный manifest не оставляют скрытый body.
-12. Source не изменён, но Lykar preview выглядит правильно; source validator не выдаёт PASS.
-
-Полная продуктовая очередь остаётся в ROADMAP; здесь перечислены исполнимые
-срезы технического разбора. Новые tasks для AI, billing, дополнительных CMS и
-guides детализируются в своих этапах после выполнения их prerequisites.
+## S0 — Проверенный baseline
+
+S0 завершён после ревизии 2026-09-21. Он подтверждает воспроизводимую установку,
+локальный стек и основной flow в Chromium/Chrome. Подробные архивные записи:
+[tasks/S0](./tasks/S0/README.md), evidence — в
+[docs/verification/reports](./docs/verification/reports/).
+
+### S0-01 — Чистая установка
+
+Зафиксировать snapshot и подтвердить `npm ci` без глобальных зависимостей.
+
+### S0-02 — Baseline workspaces
+
+Проверить build, typecheck и unit suites всех доступных workspaces.
+
+### S0-03 — Локальный стек и HTTP smoke
+
+Подтвердить PostgreSQL/API/Admin/playground, seed, restart, Ctrl+C и smoke.
+
+### S0-04 — Browser E2E harness
+
+Запустить изолированный Chromium suite с реальными HTTP endpoints и diagnostics.
+
+### S0-05 — Login и открытие editor
+
+Проверить local login, magic link, Admin click и recovery без capability.
+
+### S0-06 — Edit → save → reload → Release → share
+
+Подтвердить сохранение изменения, reload, immutable Release и visitor share.
+
+### S0-07 — Regression fixes
+
+Устранить блокирующие дефекты S0 и добавить regression cases.
+
+### S0-08 — Документация и приёмка
+
+Закрыть инструкции, отчёты и ручной проход основного сценария.
+
+## S1 — Единый SDK и поставка библиотеки
+
+S1 собирает общий bootstrap для script/npm, отделяет editor asset, фиксирует
+public API/compatibility и измеряет размер, replay и network deadline. Внутри S1
+9 отдельных task records; полный TargetRegistry и PageSession реализуются в S2.
+
+Подробный план: [tasks/S1/README.md](./tasks/S1/README.md).
+
+### S1-01 — SDK bootstrap и compatibility bridge
+
+Перенести launch/share orchestration из playground в публичный SDK и сохранить
+совместимость текущих entry points, modes и access boundaries.
+
+### S1-02 — Rollup artifacts и performance baseline
+
+Собрать IIFE/ESM/declarations/lazy editor, проверить npm tarball/SSR consumer и
+зафиксировать проверяемые delivery budgets.
+
+## S2 — Надёжное ядро и полный editor workflow
+
+S2 устраняет неоднозначный replay, устаревшие async mutations, дубли save и
+необъяснимые editor failures. Внутри S2 27 отдельных task records; зависимости
+обязательны. Требование владельца от 2026-09-21: **полный редактор любого
+поддерживаемого CSS-стиля как в GrapesJS — P0 и условие приёмки S2**.
+Сначала S2-06.1/06.2 (конфигурация и лёгкие controls), интеграция — по готовности
+необходимых core contracts. Все 8 style tasks имеют P0.
+
+Подробный план: [tasks/S2/README.md](./tasks/S2/README.md).
+
+### S2-01 — TargetRegistry и строгий resolver
+
+Ввести logical targets, versioned bindings и результаты unique/missing/ambiguous/invalid.
+
+### S2-02 — PageSession и lifecycle cleanup
+
+Связать lifecycle с generation, abort, root ownership и безопасным destroy.
+
+### S2-03 — Executor, dependencies, ledger и journal
+
+Обеспечить identity новых nodes, dependency-aware replay, partial failure и compensation.
+
+### S2-04 — Идемпотентный save и recovery
+
+Сделать сохранение Draft атомарным и восстановимым при lost response, reload и conflict.
+
+### S2-05 — Editor workflow, repair и acceptance
+
+Связать ядро с Change Tree, undo/redo, ручным repair, overlay и полным browser flow.
+
+### S2-06 — P0: полноценный редактор стилей и минимальный UI kit
+
+Отдельная конфигурация `styles-config.ts`; самописные TypeScript/DOM controls:
+select, text input, color input, number+unit, composite/stack. Все legacy styles
+получают поля, любое дополнительное поддерживаемое CSS-свойство доступно через
+Advanced. Единые preview/reset/undo/redo/save/reload, без новой UI runtime
+зависимости; controls/config загружаются только в lazy editor.
+
+Начать с [S2-06.1: конфигурация](./tasks/S2/20-style-schema.md), затем
+[S2-06.2: самописный UI kit](./tasks/S2/21-native-style-controls.md).
+Полный порядок, budgets и критерии: [план S2](./tasks/S2/README.md).
+
+## Правила статусов
+
+`PLANNED` — запланировано; `IN_PROGRESS` — выполняется; `BLOCKED` — заблокировано;
+`DONE` — подтверждено evidence; `CANCELLED` — отменено.
+
+Для выполнения задачи использовать task file соответствующего спринта. После
+изменения кода обновлять status только вместе с критериями и verification report.

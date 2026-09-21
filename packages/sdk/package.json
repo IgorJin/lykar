@@ -2,5 +2,40 @@
   "name": "@lykar/sdk",
   "version": "0.0.0",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "unpkg": "./dist/sdk.iife.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "README.md", "COMPATIBILITY.md"],
+  "scripts": {
+    "prebuild": "npm run build --workspace @lykar/runtime && npm run build --workspace @lykar/editor-bridge",
+    "pretypecheck": "npm run build --workspace @lykar/runtime",
+    "build": "npm run clean && npm run build:types && rollup -c && node scripts/build-assets.mjs",
+    "build:types": "tsc --emitDeclarationOnly -p tsconfig.json",
+    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "pretest": "npm run build --workspace @lykar/runtime",
+    "test": "vitest run",
+    "verify:consumer": "node ../../scripts/verify-sdk-consumer.mjs",
+    "verify:performance": "npm run build && node scripts/measure-performance.mjs"
+  },
+  "dependencies": {
+    "@lykar/runtime": "0.0.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.3",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "jsdom": "^30.0.1",
+    "rollup": "^4.62.4",
+    "rollup-plugin-esbuild": "^6.2.1",
+    "typescript": "^5.8.3",
+    "vitest": "^4.1.10"
+  }
 }
