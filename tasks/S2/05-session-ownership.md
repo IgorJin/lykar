@@ -1,6 +1,6 @@
 # S2-02.1 — PageSession ownership
 
-Status: PLANNED
+Status: DONE
 Priority: P0
 Depends on: S2-01.4
 Evidence: report
@@ -19,10 +19,10 @@ Report group: S2-target-lifecycle
 
 ## Acceptance criteria
 
-- [ ] Session хранит project/page/root/generation.
-- [ ] В одном root нет пересекающихся replay.
-- [ ] Повторный start не создаёт вторую session или overlay.
-- [ ] Lifecycle methods имеют описанную idempotent semantics.
+- [x] Session хранит project/page/root/generation.
+- [x] В одном root нет пересекающихся replay.
+- [x] Повторный start не создаёт вторую session или overlay.
+- [x] Lifecycle methods имеют описанную idempotent semantics.
 
 ## Checks
 
@@ -42,3 +42,11 @@ Report: `docs/verification/reports/S2/s2-target-lifecycle.html`
 ## Notes
 
 Компенсация partial DOM changes подключается в S2-03.
+
+Результат: публичный `PageSession` владеет scope, generation,
+`AbortController`, serialized replay и cleanup registry. SDK `start` разделяет
+один in-flight replay; `refresh`, `navigate`, `destroy` имеют идемпотентную
+generation semantics. Добавлен journal cleanup hook для S2-03.
+
+Проверено 2026-09-22: lifecycle unit fixtures, repeated/concurrent start,
+start/destroy/start, полный workspace и Chromium lifecycle matrix 8/8.

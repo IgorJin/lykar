@@ -1,6 +1,7 @@
 import {
   Lykar as RuntimeLykar,
   ManifestRequestError,
+  type ApplyReport,
   type FetchLike,
   type RuntimeStartResult,
 } from '@lykar/runtime';
@@ -13,6 +14,11 @@ import {
   validateAssetManifest,
   type SdkAssetManifest,
 } from './compatibility.js';
+import {
+  PageSession,
+  isPageSessionStale,
+  type PageSessionContext,
+} from './page-session.js';
 import {
   LykarSdkError,
   type EditorHandle,
@@ -78,10 +84,20 @@ function modeForRuntime(options: RuntimeRunOptions): 'visitor' | 'variant' | 'ex
   return 'visitor';
 }
 
-async function waitForBody(document: Document): Promise<void> {
+async function waitForBody(document: Document, signal?: AbortSignal): Promise<void> {
   if (document.body) return;
-  await new Promise<void>(resolve => {
-    document.addEventListener('DOMContentLoaded', () => resolve(), {once: true});
+  await new Promise<void>((resolve, reject) => {
+    const ready = () => {
+      signal?.removeEventListener('abort', aborted);
+      resolve();
+    };
+    const aborted = () => {
+      document.removeEventListener('DOMContentLoaded', ready);
+      reject(abortError());
+    };
+    document.addEventListener('DOMContentLoaded', ready, {once: true, signal});
+    if (signal?.aborted) aborted();
+    else signal?.addEventListener('abort', aborted, {once: true});
   });
 }
 
@@ -90,9 +106,12 @@ export class Lykar {
   readonly options: LykarSdkOptions;
 
   private startPromise?: Promise<LykarSdkResult>;
+  private pageSession?: PageSession;
   private editor?: EditorHandle;
   private runtime?: RuntimeLykar;
   private pathnameOverride?: string;
+  private rootOverride?: Element;
+  private rotateSession = false;
   private destroyed = false;
 
   constructor(projectKey: string, options?: LykarSdkConstructorOptions);
@@ -117,12 +136,25 @@ export class Lykar {
   async start(): Promise<LykarSdkResult> {
     if (this.startPromise) return this.startPromise;
     this.destroyed = false;
-    this.startPromise = this.startInternal();
+    let document: Document;
+    try {
+      document = getBrowserDocument(this.options.document);
+    } catch (error) {
+      return this.fail(error);
+    }
+    const context = this.startPageSession(document, this.rotateSession);
+    this.rotateSession = false;
+    this.startPromise = context
+      ? this.pageSession!.runReplay(context, () => this.startInternal(context))
+        .catch(error => this.lifecycleResult(error, context))
+      : Promise.resolve(this.fail(new LykarSdkError('ROOT_DOCUMENT_MISMATCH', 'Lykar SDK root belongs to another document.')));
     return this.startPromise;
   }
 
   async refresh(): Promise<LykarSdkResult> {
-    await this.destroy();
+    this.cleanupActiveHandles();
+    this.startPromise = undefined;
+    this.rotateSession = true;
     this.destroyed = false;
     return this.start();
   }
@@ -142,14 +174,15 @@ export class Lykar {
       );
     }
     this.pathnameOverride = options.pathname;
+    this.rootOverride = options.root;
     return this.refresh();
   }
 
   async destroy(): Promise<void> {
-    this.editor?.destroy?.();
-    this.editor = undefined;
-    this.runtime = undefined;
+    this.pageSession?.destroy();
+    this.cleanupActiveHandles();
     this.startPromise = undefined;
+    this.rotateSession = false;
     this.destroyed = true;
   }
 
@@ -168,7 +201,7 @@ export class Lykar {
     void this.runtime?.consent(value);
   }
 
-  private async startInternal(): Promise<LykarSdkResult> {
+  private async startInternal(context: PageSessionContext): Promise<LykarSdkResult> {
     if (this.destroyed) {
       this.destroyed = false;
     }
@@ -179,6 +212,7 @@ export class Lykar {
     } catch (error) {
       return this.fail(error);
     }
+    context.assertCurrent();
 
     const location = resolveLocation(document);
     const configuredMode = normalizeMode(this.options.mode);
@@ -207,16 +241,22 @@ export class Lykar {
       const accessOptions = {
         apiBaseUrl: this.options.apiBaseUrl,
         document,
-        fetch: this.networkFetch(),
+        fetch: this.networkFetch(context.signal),
+        isCurrent: context.isCurrent,
       };
 
       let editorCapability: SdkEditorCapability | null = null;
       if (configuredMode === 'auto' || selectedMode === 'editor') {
         editorCapability = await exchangeEditorLaunch(accessOptions);
+        context.assertCurrent();
       }
 
       if (editorCapability) {
-        return await this.startEditor(document, editorCapability);
+        this.pageSession?.updateScope(context, {
+          pageId: editorCapability.pageId,
+          draftId: editorCapability.draftId,
+        });
+        return await this.startEditor(document, editorCapability, context);
       }
       if (selectedMode === 'editor') {
         return this.fail(
@@ -230,9 +270,10 @@ export class Lykar {
       let shareAccess: SdkShareAccess | null = null;
       if (selectedMode === 'auto' || selectedMode === 'share') {
         shareAccess = await exchangeShareAccess(accessOptions);
+        context.assertCurrent();
       }
       if (shareAccess) {
-        const runtime = await this.runRuntime({
+        const runtime = await this.runRuntime(context, {
           accessToken: shareAccess.token,
           version: shareAccess.version,
         });
@@ -281,7 +322,7 @@ export class Lykar {
         return {mode: 'native', reason: 'LINKS_ONLY_NATIVE'};
       }
 
-      const runtime = await this.runRuntime({
+      const runtime = await this.runRuntime(context, {
         accessToken: this.options.accessToken,
         version,
         variantToken,
@@ -289,6 +330,7 @@ export class Lykar {
       });
       return runtime;
     } catch (error) {
+      if (!context.isCurrent() || isPageSessionStale(error)) throw error;
       return this.fail(error);
     }
   }
@@ -318,9 +360,12 @@ export class Lykar {
     return configuredMode;
   }
 
-  private async runRuntime(options: RuntimeRunOptions): Promise<LykarSdkResult> {
+  private async runRuntime(
+    context: PageSessionContext,
+    options: RuntimeRunOptions,
+  ): Promise<LykarSdkResult> {
     try {
-      this.runtime = new RuntimeLykar({
+      const runtimeInstance = new RuntimeLykar({
         projectKey: this.projectKey,
         apiBaseUrl: this.options.apiBaseUrl,
         version: options.version,
@@ -330,13 +375,23 @@ export class Lykar {
         pathname: this.pathnameOverride ?? this.options.pathname,
         accessToken: options.accessToken ?? this.options.accessToken,
         credentials: this.options.credentials,
-        document: this.options.document,
+        document: getBrowserDocument(this.options.document),
+        root: context.root,
         strict: this.options.strict,
         waitForDom: this.options.waitForDom,
-        onReport: this.options.onReport,
-        fetch: this.networkFetch(),
+        signal: context.signal,
+        isCurrent: context.isCurrent,
+        targetRetryMs: this.options.targetRetryMs,
+        targetRetryIntervalMs: this.options.targetRetryIntervalMs,
+        onReport: (report: ApplyReport) => {
+          context.assertCurrent();
+          this.options.onReport?.(report);
+        },
+        fetch: this.networkFetch(context.signal),
       });
-      const runtime = await this.runtime.start();
+      const runtime = await runtimeInstance.start();
+      context.assertCurrent();
+      this.runtime = runtimeInstance;
       return {
         mode: modeForRuntime(options),
         reason: defaultReason(runtime),
@@ -357,18 +412,26 @@ export class Lykar {
     }
   }
 
-  private networkFetch(): FetchLike | undefined {
+  private networkFetch(sessionSignal?: AbortSignal): FetchLike | undefined {
     const base = this.options.fetch ?? globalThis.fetch?.bind(globalThis);
     if (!base) return undefined;
     const timeoutMs = this.options.networkTimeoutMs ?? 5_000;
-    if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) return base;
     return async (input, init = {}) => {
       const controller = new AbortController();
-      const upstreamSignal = init.signal;
-      const abortFromUpstream = () => controller.abort(upstreamSignal?.reason);
-      if (upstreamSignal?.aborted) abortFromUpstream();
-      else upstreamSignal?.addEventListener('abort', abortFromUpstream, {once: true});
-      const timer = globalThis.setTimeout(() => controller.abort(), timeoutMs);
+      const upstreamSignals = [init.signal, sessionSignal].filter(Boolean) as AbortSignal[];
+      const abortFromUpstream = (signal: AbortSignal) => controller.abort(signal.reason);
+      const abortHandlers = new Map<AbortSignal, () => void>();
+      for (const signal of upstreamSignals) {
+        if (signal.aborted) abortFromUpstream(signal);
+        else {
+          const handler = () => abortFromUpstream(signal);
+          abortHandlers.set(signal, handler);
+          signal.addEventListener('abort', handler, {once: true});
+        }
+      }
+      const timer = Number.isFinite(timeoutMs) && timeoutMs > 0
+        ? globalThis.setTimeout(() => controller.abort(), timeoutMs)
+        : undefined;
       try {
         const response = await base(input, {...init, signal: controller.signal});
         if (response.body === null || response.body === undefined) return response;
@@ -379,8 +442,8 @@ export class Lykar {
           headers: response.headers,
         });
       } finally {
-        globalThis.clearTimeout(timer);
-        upstreamSignal?.removeEventListener('abort', abortFromUpstream);
+        if (timer !== undefined) globalThis.clearTimeout(timer);
+        for (const [signal, handler] of abortHandlers) signal.removeEventListener('abort', handler);
       }
     };
   }
@@ -388,16 +451,23 @@ export class Lykar {
   private async startEditor(
     document: Document,
     capability: SdkEditorCapability,
+    context: PageSessionContext,
   ): Promise<LykarSdkResult> {
-    await waitForBody(document);
-    const editorAsset = await this.resolveEditorAsset(document);
-    const runtime = await this.runRuntime({
+    await waitForBody(document, context.signal);
+    context.assertCurrent();
+    const editorAsset = await this.resolveEditorAsset(document, context);
+    context.assertCurrent();
+    const runtime = await this.runRuntime(context, {
       accessToken: capability.token,
       version: capability.baseVersion ?? undefined,
     });
-    const editorApi = await this.loadEditorApi(document, editorAsset);
+    context.assertCurrent();
+    const editorApi = await this.loadEditorApi(document, editorAsset, context);
+    context.assertCurrent();
     const editor = editorApi.start({
       capability,
+      document,
+      root: context.root,
       sourceSnapshot:
         runtime.runtime && 'sourceSnapshot' in runtime.runtime
           ? runtime.runtime.sourceSnapshot
@@ -405,7 +475,9 @@ export class Lykar {
       onApply: this.options.onEditorApply,
       onCommit: this.options.onEditorCommit,
     });
+    context.assertCurrent();
     this.editor = editor;
+    context.registerCleanup(() => editor.destroy?.());
     return {
       mode: 'editor',
       capability,
@@ -417,6 +489,7 @@ export class Lykar {
   private async loadEditorApi(
     document: Document,
     editorAsset: EditorAsset,
+    context: PageSessionContext,
   ): Promise<GlobalEditorApi> {
     const editorWindow = document.defaultView as EditorWindow | null;
     const existing = editorWindow?.LykarEditor;
@@ -428,6 +501,7 @@ export class Lykar {
     script.crossOrigin = 'anonymous';
     script.async = true;
     script.dataset.lykarEditorAsset = 'true';
+    const unregisterScript = context.registerCleanup(() => script.remove());
     const timeoutMs = this.options.editorAssetTimeoutMs ?? 10_000;
     await new Promise<void>((resolve, reject) => {
       let settled = false;
@@ -442,21 +516,33 @@ export class Lykar {
           ),
         );
       }, timeoutMs);
+      const aborted = () => {
+        if (settled) return;
+        settled = true;
+        globalThis.clearTimeout(timer);
+        script.remove();
+        reject(abortError());
+      };
+      context.signal.addEventListener('abort', aborted, {once: true});
       script.addEventListener('load', () => {
         if (settled) return;
         settled = true;
         globalThis.clearTimeout(timer);
+        context.signal.removeEventListener('abort', aborted);
         resolve();
       });
       script.addEventListener('error', () => {
         if (settled) return;
         settled = true;
         globalThis.clearTimeout(timer);
+        context.signal.removeEventListener('abort', aborted);
         script.remove();
         reject(new LykarSdkError('EDITOR_ASSET_LOAD_FAILED', 'Editor asset failed to load.'));
       });
       (document.head ?? document.documentElement).appendChild(script);
     });
+    unregisterScript();
+    context.assertCurrent();
 
     const loaded = editorWindow?.LykarEditor;
     if (!loaded?.start) {
@@ -473,7 +559,10 @@ export class Lykar {
     return loaded;
   }
 
-  private async resolveEditorAsset(document: Document): Promise<EditorAsset> {
+  private async resolveEditorAsset(
+    document: Document,
+    context: PageSessionContext,
+  ): Promise<EditorAsset> {
     const assetUrl = new URL(this.editorAssetUrl(document), document.location.href);
     const pageOrigin = new URL(document.location.href).origin;
     const allowedOrigin = this.options.editorAssetOrigin
@@ -496,7 +585,7 @@ export class Lykar {
         'Asset manifest origin is not allowed by the SDK configuration.',
       );
     }
-    const request = this.networkFetch();
+    const request = this.networkFetch(context.signal);
     if (!request) {
       throw new LykarSdkError(
         'NO_FETCH',
@@ -509,6 +598,7 @@ export class Lykar {
       response = await request(manifestUrl.toString(), {
         headers: {Accept: 'application/json'},
       });
+      context.assertCurrent();
     } catch (error) {
       throw new LykarSdkError(
         'ASSET_MANIFEST_REQUEST_FAILED',
@@ -526,6 +616,7 @@ export class Lykar {
     let manifest: SdkAssetManifest;
     try {
       manifest = validateAssetManifest(await response.json());
+      context.assertCurrent();
     } catch (error) {
       if (error instanceof LykarSdkError) throw error;
       throw new LykarSdkError(
@@ -574,6 +665,30 @@ export class Lykar {
     return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
   }
 
+  private startPageSession(document: Document, rotate: boolean): PageSessionContext | undefined {
+    const root = this.rootOverride ?? this.options.root ?? document;
+    if (root.nodeType === 1 && root.ownerDocument !== document) return undefined;
+    const scope = {
+      pathname: this.pathnameOverride ?? this.options.pathname ?? document.location?.pathname ?? '/',
+      root,
+    };
+    this.pageSession ??= new PageSession(this.projectKey);
+    return rotate ? this.pageSession.refresh(scope) : this.pageSession.start(scope);
+  }
+
+  private cleanupActiveHandles(): void {
+    this.editor?.destroy?.();
+    this.editor = undefined;
+    this.runtime = undefined;
+  }
+
+  private lifecycleResult(error: unknown, context: PageSessionContext): LykarSdkResult {
+    if (!context.isCurrent() || isPageSessionStale(error)) {
+      return {mode: 'native', reason: 'PAGE_SESSION_STALE'};
+    }
+    return this.fail(error);
+  }
+
   private fail(error: unknown): LykarSdkResult {
     const sdkError =
       error instanceof LykarSdkError
@@ -586,4 +701,10 @@ export class Lykar {
     this.options.onError?.(sdkError);
     return {mode: 'error', reason: sdkError.code, error: sdkError.message};
   }
+}
+
+function abortError(): Error {
+  const error = new Error('Lykar SDK lifecycle was aborted.');
+  error.name = 'AbortError';
+  return error;
 }

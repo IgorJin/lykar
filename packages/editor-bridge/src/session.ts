@@ -23,6 +23,8 @@ export type EditorChange = {
   status: OperationApplyResult['status'];
   code?: string;
   message?: string;
+  targetResolution?: OperationApplyResult['targetResolution'];
+  resolutionEvidence?: OperationApplyResult['resolutionEvidence'];
   committed: boolean;
 };
 export type EditorSessionState = {
@@ -32,7 +34,12 @@ export type EditorSessionState = {
   operationCount: number;
   pendingOperationCount: number;
 };
-export type EditorSessionOptions = { storage?: Storage | null; storageKey?: string; sourceSnapshot?: SourceSnapshotV1 };
+export type EditorSessionOptions = {
+  storage?: Storage | null;
+  storageKey?: string;
+  sourceSnapshot?: SourceSnapshotV1;
+  root?: Document | Element;
+};
 
 type AppliedRecord = EditorChange & { key?: string; undo: () => void };
 type AppliedBatch = { id: string; records: AppliedRecord[] };
@@ -42,6 +49,7 @@ export class EditorSession {
   readonly page: EditorPageRef;
 
   private readonly document: Document;
+  private readonly root: Document | Element;
   private readonly history: AppliedBatch[] = [];
   private readonly redoStack: AppliedBatch[] = [];
   private readonly listeners = new Set<(state: EditorSessionState) => void>();
@@ -52,13 +60,14 @@ export class EditorSession {
 
   constructor(document: Document, options: EditorSessionOptions = {}) {
     this.document = document;
+    this.root = options.root ?? document;
     const location = document.defaultView?.location;
     const origin = location?.origin ?? 'null';
     const pathname = location?.pathname || '/';
     this.page = { origin, pathname, url: `${origin}${pathname}` };
     this.sourceSnapshotPromise = options.sourceSnapshot
       ? Promise.resolve(options.sourceSnapshot)
-      : captureSourceSnapshot(document);
+      : captureSourceSnapshot(document, this.root);
     this.storage = options.storage ?? null;
     this.storageKey = options.storageKey ?? `lykar:draft:${this.page.url}`;
   }
@@ -225,9 +234,9 @@ export class EditorSession {
         });
         continue;
       }
-      const capture = await captureUndo(this.document, operation);
+      const capture = await captureUndo(this.document, operation, this.root);
       signal?.throwIfAborted();
-      const result = await applyOperation(this.document, operation);
+      const result = await applyOperation(this.document, operation, {root: this.root, signal});
       records.push({
         id: operation.id,
         operation,
@@ -235,6 +244,8 @@ export class EditorSession {
         status: result.status,
         code: result.code,
         message: result.message,
+        targetResolution: result.targetResolution,
+        resolutionEvidence: result.resolutionEvidence,
         committed: false,
         key,
         undo: result.status === 'applied' ? capture.finalize() : () => undefined,
@@ -260,8 +271,12 @@ export class EditorSession {
   }
 }
 
-async function captureUndo(document: Document, operation: OperationV1): Promise<UndoCapture> {
-  const resolution = await resolveTarget(document, operation.target);
+async function captureUndo(
+  document: Document,
+  operation: OperationV1,
+  root: Document | Element = document,
+): Promise<UndoCapture> {
+  const resolution = await resolveTarget(document, operation.target, {root});
   const target = resolution.element;
   if (!target) return noUndo();
 
@@ -330,9 +345,12 @@ function resultFrom(record: AppliedRecord): OperationApplyResult {
   return {
     operationId: record.operation.id,
     kind: record.operation.kind,
+    target: record.operation.target,
     status: record.status,
     code: record.code,
     message: record.message,
+    targetResolution: record.targetResolution,
+    resolutionEvidence: record.resolutionEvidence,
   };
 }
 

@@ -25,5 +25,7 @@ Version dimensions are intentionally separate:
 - The browser SDK rejects a mixed manifest before editor code or DOM mutations,
   then enforces the manifest SHA-256 through the script `integrity` attribute.
 
-S1 supports links-only delivery. Full deployment/session lifecycle behavior is
-completed in S2; S4 remains responsible for broader framework integration.
+S2 adds the PageSession lifecycle for static/SSR and host-controlled route/root
+replacement: generation checks, abortable work, bounded target retry, cleanup,
+and page/draft isolation. S4 remains responsible for framework adapters and
+framework-specific remount behavior.

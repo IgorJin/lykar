@@ -7,6 +7,7 @@ export type SelectionListener = (element: Element | null) => void;
 export class ElementInspector {
   private readonly document: Document;
   private readonly overlay: OverlayService;
+  private readonly root: Document | Element;
   private readonly onSelection: SelectionListener;
   private controller: AbortController | null = null;
   private hovered: Element | null = null;
@@ -15,9 +16,15 @@ export class ElementInspector {
   private pointerFrame: number | null = null;
   private pointerTarget: Element | null = null;
 
-  constructor(document: Document, overlay: OverlayService, onSelection: SelectionListener) {
+  constructor(
+    document: Document,
+    overlay: OverlayService,
+    onSelection: SelectionListener,
+    root: Document | Element = document,
+  ) {
     this.document = document;
     this.overlay = overlay;
+    this.root = root;
     this.onSelection = onSelection;
   }
 
@@ -53,6 +60,14 @@ export class ElementInspector {
   destroy(): void {
     this.controller?.abort();
     this.controller = null;
+    if (this.pointerFrame !== null) {
+      this.document.defaultView?.cancelAnimationFrame?.(this.pointerFrame);
+      this.document.defaultView?.clearTimeout(this.pointerFrame);
+      this.pointerFrame = null;
+    }
+    this.pointerTarget = null;
+    this.hovered = null;
+    this.selected = null;
     this.cancelCapture();
     this.overlay.hide('hover');
     this.overlay.hide('selection');
@@ -60,7 +75,7 @@ export class ElementInspector {
 
   private onPointerMove = (event: Event): void => {
     if (isEditorEvent(event)) return;
-    const element = editableElement(event.target);
+    const element = editableElement(event.target, this.root);
     this.pointerTarget = element;
     if (this.pointerFrame !== null) return;
 
@@ -83,7 +98,7 @@ export class ElementInspector {
 
   private onClick = (event: MouseEvent): void => {
     if (isEditorEvent(event)) return;
-    const element = editableElement(event.target);
+    const element = editableElement(event.target, this.root);
     if (!element) return;
 
     event.preventDefault();
@@ -108,9 +123,10 @@ export class ElementInspector {
   private onViewportChange = (): void => this.overlay.refresh();
 }
 
-function editableElement(target: EventTarget | null): Element | null {
+function editableElement(target: EventTarget | null, root: Document | Element): Element | null {
   const element = target instanceof Element ? target : null;
   if (!element || BLOCKED_TAGS.has(element.tagName)) return null;
+  if (root.nodeType === 1 && root !== element && !root.contains(element)) return null;
   return element.closest('[data-lykar-editor-root]') ? null : element;
 }
 

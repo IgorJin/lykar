@@ -1,6 +1,6 @@
 # S2-02.2 — Async cancellation и generation checks
 
-Status: PLANNED
+Status: DONE
 Priority: P0
 Depends on: S2-02.1
 Evidence: report
@@ -20,10 +20,10 @@ Report group: S2-target-lifecycle
 
 ## Acceptance criteria
 
-- [ ] Поздний ответ Page A после перехода на B не меняет B и не отправляет report.
-- [ ] Capability Page A не используется для Page B.
-- [ ] Readiness/retry завершаются abort или bounded diagnostic.
-- [ ] Late completion с устаревшей generation не вызывает mutation/event.
+- [x] Поздний ответ Page A после перехода на B не меняет B и не отправляет report.
+- [x] Capability Page A не используется для Page B.
+- [x] Readiness/retry завершаются abort или bounded diagnostic.
+- [x] Late completion с устаревшей generation не вызывает mutation/event.
 
 ## Checks
 
@@ -43,3 +43,11 @@ Report: `docs/verification/reports/S2/s2-target-lifecycle.html`
 ## Notes
 
 Каждая async task проверяет актуальность непосредственно перед side effect.
+
+Результат: signal/generation проходят через access exchange, manifest,
+readiness, target retry, runtime report/analytics и editor bootstrap. Guard стоит
+непосредственно перед DOM/storage/URL/report/event side effects; transport,
+игнорирующий abort, не получает право на mutation.
+
+Проверено 2026-09-22: controlled A→B ordering, late editor capability,
+abort/readiness/retry fixtures, HTTP smoke 21/21 и Chromium 8/8.

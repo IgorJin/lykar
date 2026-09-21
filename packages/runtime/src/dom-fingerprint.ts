@@ -9,8 +9,14 @@ const STABLE_ATTRIBUTES = new Set([
   'aria-label', 'aria-labelledby', 'aria-describedby',
 ]);
 
-export async function captureSourceSnapshot(document: Document): Promise<SourceSnapshotV1> {
-  const canonical = canonicalElement(document.body ?? document.documentElement);
+export async function captureSourceSnapshot(
+  document: Document,
+  root: Document | Element = document,
+): Promise<SourceSnapshotV1> {
+  const source = root.nodeType === 9
+    ? document.body ?? document.documentElement
+    : root as Element;
+  const canonical = canonicalElement(source);
   return {
     algorithm: SOURCE_SNAPSHOT_ALGORITHM,
     pageHash: await sha256Text(canonical),
@@ -19,7 +25,10 @@ export async function captureSourceSnapshot(document: Document): Promise<SourceS
 }
 
 function canonicalElement(element: Element): string {
-  if (element.hasAttribute('data-lykar-editor-root')) return '';
+  if (
+    element.hasAttribute('data-lykar-editor-root')
+    || element.hasAttribute('data-lykar-operation-id')
+  ) return '';
   const tag = element.tagName.toLowerCase();
   if (IGNORED_TAGS.has(tag)) return '';
 

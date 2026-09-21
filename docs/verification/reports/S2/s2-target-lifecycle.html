@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lykar S2 — Target lifecycle</title>
+  <style>
+    :root { color-scheme:light; --ink:#17202a; --muted:#5c6873; --line:#dce3e8; --bg:#f5f7f9; --card:#fff; --ok:#087f5b; --blue:#2457a6; }
+    * { box-sizing:border-box; } body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { max-width:1080px; margin:0 auto; padding:32px 20px 56px; } header { display:flex; justify-content:space-between; gap:20px; align-items:flex-start; margin-bottom:28px; }
+    h1 { margin:0 0 6px; font-size:30px; } h2 { margin:0 0 12px; font-size:19px; } h3 { margin:0 0 6px; font-size:16px; } p { margin:6px 0 12px; }
+    .muted { color:var(--muted); } .badge { background:#d9f4e9; color:var(--ok); border:1px solid #9ed9c2; border-radius:999px; padding:5px 12px; font-weight:700; white-space:nowrap; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:14px; margin:14px 0 24px; } .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px; box-shadow:0 2px 8px rgba(24,39,55,.04); }
+    code,pre { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; } code { color:var(--blue); } pre { overflow:auto; background:#17202a; color:#e8f0f6; border-radius:10px; padding:16px; margin:10px 0 22px; }
+    table { width:100%; border-collapse:collapse; background:var(--card); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin:10px 0 24px; } th,td { text-align:left; vertical-align:top; padding:10px 12px; border-bottom:1px solid var(--line); } th { background:#eef2f5; font-size:13px; } tr:last-child td { border-bottom:0; }
+    .ok { color:var(--ok); font-weight:700; } ul { margin:8px 0 0; padding-left:20px; } a { color:var(--blue); } footer { color:var(--muted); border-top:1px solid var(--line); padding-top:14px; margin-top:28px; font-size:13px; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1>S2 — Target lifecycle</h1>
+      <p class="muted">Групповой отчёт по S2-01.1…S2-02.3 · 22 сентября 2026</p>
+    </div>
+    <div class="badge">PASS · 7/7 tasks</div>
+  </header>
+
+  <section class="card">
+    <h2>Итоговый контракт</h2>
+    <p>Release адресует immutable logical targets, strict resolver допускает
+      мутацию только при одном кандидате, а PageSession выдаёт право на side
+      effects только текущему поколению страницы и root.</p>
+    <pre>Release → frozen binding → strict target resolution
+                              │
+PageSession(project/page/root/generation)
+  ├─ AbortController → fetch / readiness / retry / editor
+  ├─ guard → mutation / storage / URL / report / event
+  └─ cleanup → listeners / RAF / overlay / pending work / journal hook</pre>
+  </section>
+
+  <div class="grid">
+    <article class="card"><h3>Target identity</h3><ul>
+      <li>Stable project/page/root scope.</li><li>Versioned environment bindings.</li>
+      <li>Legacy descriptor replay без переписывания Release.</li>
+    </ul></article>
+    <article class="card"><h3>Strict replay</h3><ul>
+      <li><code>unique / missing / ambiguous / invalid</code>.</li>
+      <li>Before/desired state и structural drift policy.</li>
+      <li>Bounded repair evidence без DOM references.</li>
+    </ul></article>
+    <article class="card"><h3>Async ownership</h3><ul>
+      <li>Concurrent start объединён; replay сериализован.</li>
+      <li>A→B late transport не мутирует и не сообщает report.</li>
+      <li>Root/draft isolation и idempotent cleanup.</li>
+    </ul></article>
+  </div>
+
+  <h2>Lifecycle regression matrix</h2>
+  <table>
+    <thead><tr><th>Сценарий</th><th>Ожидаемый барьер</th><th>Результат</th></tr></thead>
+    <tbody>
+      <tr><td>Duplicate/reordered CTA</td><td>ambiguous, без first-match mutation</td><td class="ok">PASS</td></tr>
+      <tr><td>Page A response после navigate B</td><td>stale generation, без mutation/report</td><td class="ok">PASS</td></tr>
+      <tr><td>Transport игнорирует abort</td><td>post-await generation guard</td><td class="ok">PASS</td></tr>
+      <tr><td>Поздняя editor capability</td><td>без storage/URL/script side effects</td><td class="ok">PASS</td></tr>
+      <tr><td>Root replacement</td><td>поиск и baseline только в active root</td><td class="ok">PASS</td></tr>
+      <tr><td>Late target / missing target</td><td>abortable bounded retry / diagnostic</td><td class="ok">PASS</td></tr>
+      <tr><td>destroy и start/destroy/start</td><td>cleanup once, новое поколение работает</td><td class="ok">PASS</td></tr>
+      <tr><td>Pending draft другой страницы</td><td>не переносится в новую session</td><td class="ok">PASS</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Проверки</h2>
+  <table>
+    <thead><tr><th>Проверка</th><th>Результат</th><th>Подтверждение</th></tr></thead>
+    <tbody>
+      <tr><td><code>npm run typecheck</code></td><td class="ok">PASS</td><td>workspace и Playwright types.</td></tr>
+      <tr><td><code>npm test</code></td><td class="ok">PASS</td><td>protocol/runtime/editor/SDK и server regressions.</td></tr>
+      <tr><td><code>npm run build</code></td><td class="ok">PASS</td><td>все workspace artifacts.</td></tr>
+      <tr><td><code>npm run test:e2e:http</code></td><td class="ok">21/21 + smoke</td><td>реальная временная PostgreSQL и HTTP workflow.</td></tr>
+      <tr><td><code>npm run test:e2e:browser</code></td><td class="ok">8/8</td><td>реальный Chromium, включая target и PageSession races.</td></tr>
+    </tbody>
+  </table>
+
+  <footer>
+    Индекс задач: <a href="../../../../tasks/S2/README.md">tasks/S2/README.md</a>.
+    Lifecycle contract: <a href="../../../../packages/sdk/README.md">packages/sdk/README.md</a>.
+    Следующий dependency block: S2-03 replay safety и mutation journal.
+  </footer>
+</main>
+</body>
+</html>

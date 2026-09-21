@@ -66,9 +66,12 @@ export type LykarSdkOptions = {
   credentials?: RequestCredentials;
   networkTimeoutMs?: number;
   document?: Document;
+  root?: Element;
   fetch?: FetchLike;
   strict?: boolean;
   waitForDom?: boolean;
+  targetRetryMs?: number;
+  targetRetryIntervalMs?: number;
   editorAssetUrl?: string;
   assetManifestUrl?: string;
   editorAssetOrigin?: string;

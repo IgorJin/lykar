@@ -1,8 +1,10 @@
 import type { OperationV1, PublishedManifestV1 } from '@lykar/protocol';
+import { readFileSync } from 'node:fs';
 import { JSDOM } from 'jsdom';
 import { describe, expect, it, vi } from 'vitest';
 
 import { applyOperation } from './dom-executor.js';
+import { captureSourceSnapshot } from './dom-fingerprint.js';
 import { sha256Text } from './hash.js';
 import { fetchManifest, ManifestRequestError } from './manifest-client.js';
 import { Lykar, track } from './runtime.js';
@@ -47,6 +49,71 @@ function response(payload: unknown, status = 200): Response {
 }
 
 describe('DOM executor', () => {
+  it('confines target resolution and source ownership to the supplied root', async () => {
+    document.body.innerHTML = `
+      <main id="outside"><p data-lykar-id="copy">Outside</p></main>
+      <main id="session"><p data-lykar-id="copy">Inside</p></main>
+    `;
+    const root = document.querySelector('#session')!;
+    const runtime = new Lykar({projectKey: 'pk_test', document, root});
+
+    const report = await runtime.applyManifest(manifest([
+      textOperation('root-only', 'copy', 'Changed'),
+    ]));
+
+    expect(document.querySelector('#outside p')?.textContent).toBe('Outside');
+    expect(document.querySelector('#session p')?.textContent).toBe('Changed');
+    expect(report.applied).toBe(1);
+  });
+
+  it('drops a late manifest response after lifecycle cancellation without mutation or report', async () => {
+    document.body.innerHTML = '<p data-lykar-id="copy">Page B</p>';
+    const controller = new AbortController();
+    const onReport = vi.fn();
+    let resolveResponse!: (value: Response) => void;
+    const fetch = vi.fn<FetchLike>(() => new Promise(resolve => { resolveResponse = resolve; }));
+    const runtime = new Lykar({
+      projectKey: 'pk_test', document, version: 1, fetch, waitForDom: false,
+      signal: controller.signal, isCurrent: () => !controller.signal.aborted, onReport,
+    });
+    const started = runtime.start();
+    await vi.waitFor(() => expect(fetch).toHaveBeenCalledOnce());
+    controller.abort();
+    resolveResponse(response({manifest: manifest([textOperation('late', 'copy', 'Page A')])}));
+
+    await expect(started).rejects.toMatchObject({name: 'AbortError'});
+    expect(document.querySelector('p')?.textContent).toBe('Page B');
+    expect(onReport).not.toHaveBeenCalled();
+  });
+
+  it('retries missing targets within a bound and applies a late node', async () => {
+    document.body.innerHTML = '<main id="root"></main>';
+    const root = document.querySelector('#root')!;
+    const runtime = new Lykar({
+      projectKey: 'pk_test', document, root, targetRetryMs: 100, targetRetryIntervalMs: 5,
+    });
+    globalThis.setTimeout(() => {
+      root.innerHTML = '<p data-lykar-id="late">Before</p>';
+    }, 10);
+
+    const report = await runtime.applyManifest(manifest([textOperation('late-node', 'late', 'After')]));
+
+    expect(root.textContent).toBe('After');
+    expect(report).toMatchObject({applied: 1, skipped: 0});
+  });
+
+  it('ends target retry with a bounded diagnostic when the node never arrives', async () => {
+    const startedAt = Date.now();
+    const runtime = new Lykar({
+      projectKey: 'pk_test', document, targetRetryMs: 20, targetRetryIntervalMs: 5,
+    });
+
+    const report = await runtime.applyManifest(manifest([textOperation('bounded', 'never', 'After')]));
+
+    expect(Date.now() - startedAt).toBeLessThan(250);
+    expect(report.operations[0]).toMatchObject({status: 'skipped', code: 'TARGET_NOT_FOUND'});
+  });
+
   it('applies marker and CSS-targeted text and style operations in order', async () => {
     document.body.innerHTML = '<h1 data-lykar-id="hero">Old</h1>';
     const runtime = new Lykar({ projectKey: 'pk_test', document });
@@ -80,6 +147,26 @@ describe('DOM executor', () => {
     expect(document.querySelector('p')?.textContent).toBe('After');
     expect(report).toMatchObject({ applied: 1, skipped: 1, errors: 0 });
     expect(report.operations[0]).toMatchObject({ status: 'skipped', code: 'TARGET_NOT_FOUND' });
+  });
+
+  it('does not mutate the first candidate when strict resolution is ambiguous', async () => {
+    document.body.innerHTML = '<button class="cta">First</button><button class="cta">Second</button>';
+    const runtime = new Lykar({ projectKey: 'pk_test', document });
+    const report = await runtime.applyManifest(manifest([{
+      schemaVersion: 1,
+      id: 'ambiguous',
+      kind: 'setText',
+      target: { selectors: { css: '.cta' }, fingerprint: { tag: 'button' } },
+      value: 'Changed',
+    }]));
+
+    expect([...document.querySelectorAll('.cta')].map(element => element.textContent)).toEqual(['First', 'Second']);
+    expect(report.operations[0]).toMatchObject({
+      status: 'skipped',
+      code: 'TARGET_AMBIGUOUS',
+      targetResolution: 'ambiguous',
+      resolutionEvidence: { reason: 'MULTIPLE_CANDIDATES', candidateCount: 2 },
+    });
   });
 
   it('inserts safe trees and rejects executable attributes without partial insertion', async () => {
@@ -213,6 +300,55 @@ describe('DOM executor', () => {
     expect(document.querySelector('p')?.textContent).toBe('Changed');
   });
 
+  it('separates mutable before-state from locator identity after setText', async () => {
+    document.body.innerHTML = '<h1 data-lykar-id="hero">Before</h1>';
+    const beforeHash = await sha256Text('Before');
+    const target = { marker: 'hero', fingerprint: { tag: 'h1' } };
+    const first = await applyOperation(document, {
+      schemaVersion: 1,
+      id: 'stateful-text',
+      kind: 'setText',
+      target,
+      precondition: { before: { textHash: beforeHash } },
+      desiredState: { textHash: await sha256Text('After') },
+      value: 'After',
+    });
+    const second = await applyOperation(document, {
+      schemaVersion: 1,
+      id: 'after-text-style',
+      kind: 'setStyle',
+      target,
+      property: 'color',
+      value: 'blue',
+    });
+
+    expect(first.status).toBe('applied');
+    expect(second.status).toBe('applied');
+    expect(document.querySelector('h1')?.textContent).toBe('After');
+  });
+
+  it('returns repair candidates and the original target for ambiguity', async () => {
+    document.body.innerHTML = '<button id="first" class="cta">A</button><button id="second" class="cta">B</button>';
+    const operation: OperationV1 = {
+      schemaVersion: 1,
+      id: 'repair-data',
+      kind: 'setText',
+      target: { selectors: { css: '.cta' } },
+      value: 'Never',
+    };
+    const result = await applyOperation(document, operation);
+
+    expect(result.target).toEqual(operation.target);
+    expect(result.resolutionEvidence).toMatchObject({
+      reason: 'MULTIPLE_CANDIDATES',
+      candidateCount: 2,
+      candidates: [
+        { index: 0, tag: 'button', attributes: { id: 'first' } },
+        { index: 1, tag: 'button', attributes: { id: 'second' } },
+      ],
+    });
+  });
+
   it('uses selector fallbacks when an earlier locator is invalid or stale', async () => {
     document.body.innerHTML = '<p id="fallback">Found</p>';
     const operation: OperationV1 = {
@@ -233,9 +369,71 @@ describe('DOM executor', () => {
     expect(result).toMatchObject({ status: 'applied', targetStrategy: 'xpath' });
     expect((document.querySelector('p') as HTMLElement).style.color).toBe('red');
   });
+
+  it('applies the exact binding snapshot frozen into a release', async () => {
+    document.body.innerHTML = '<main data-lykar-id="root"><h1 class="current">Old</h1></main><h1 class="current">Outside</h1>';
+    const runtime = new Lykar({ projectKey: 'pk_test', document });
+    const published = manifest([{
+      schemaVersion: 1,
+      id: 'logical-target',
+      kind: 'setText',
+      target: { binding: { targetId: 'hero', bindingVersion: 1, environment: 'preview' } },
+      value: 'Pinned',
+    }], {
+      targetEnvironment: 'preview',
+      targetRegistry: {
+        schemaVersion: 1,
+        targets: [{
+          id: 'hero',
+          scope: {
+            projectId: 'project-1',
+            pageId: 'page-1',
+            root: { id: 'root', kind: 'element', descriptor: { marker: 'root' } },
+          },
+          createdAt: '2026-09-21T00:00:00.000Z',
+        }],
+        bindings: [{
+          schemaVersion: 1,
+          targetId: 'hero',
+          bindingVersion: 1,
+          environment: 'preview',
+          descriptor: { selectors: { css: '.current' }, fingerprint: { tag: 'h1' } },
+          createdAt: '2026-09-21T00:00:00.000Z',
+        }],
+      },
+    });
+
+    const report = await runtime.applyManifest(published);
+
+    expect(document.querySelector('[data-lykar-id="root"] h1')?.textContent).toBe('Pinned');
+    expect(document.querySelector('body > h1')?.textContent).toBe('Outside');
+    expect(report.operations[0]).toMatchObject({ status: 'applied', targetResolution: 'unique' });
+  });
 });
 
 describe('manifest loading and runtime lifecycle', () => {
+  it('replays the frozen legacy descriptor fixture without a registry', async () => {
+    document.body.innerHTML = '<h1 data-lykar-id="legacy-hero">Native</h1>';
+    const fixture = JSON.parse(readFileSync(
+      'test/fixtures/legacy-manifest-v1.json',
+      'utf8',
+    )) as PublishedManifestV1;
+    const report = await new Lykar({ projectKey: 'pk_legacy', document }).applyManifest(fixture);
+
+    expect(report.applied).toBe(1);
+    expect(document.querySelector('h1')?.textContent).toBe('Legacy replayed');
+  });
+
+  it('rejects an incompatible manifest before the first mutation', async () => {
+    document.body.innerHTML = '<h1 data-lykar-id="hero">Native</h1>';
+    const runtime = new Lykar({ projectKey: 'pk_test', document });
+    const incompatible = manifest([textOperation('never', 'hero', 'Changed')]) as unknown as Record<string, unknown>;
+    incompatible.schemaVersion = 2;
+
+    await expect(runtime.applyManifest(incompatible as unknown as PublishedManifestV1)).rejects.toThrow(/schemaVersion/);
+    expect(document.querySelector('h1')?.textContent).toBe('Native');
+  });
+
   it('leaves the native page untouched and skips the API without a variant or preview version', async () => {
     const dom = new JSDOM('<h1>Native</h1>', { url: 'https://site.test/page' });
     const fetcher = vi.fn<FetchLike>();
@@ -342,6 +540,76 @@ describe('manifest loading and runtime lifecycle', () => {
     expect(report.compatibility.status).toBe('drifted');
     expect(report.applied).toBe(1);
     expect(document.querySelector('h1')?.textContent).toBe('Changed');
+  });
+
+  it('keeps text, CSS, and service DOM out of structural visual claims', async () => {
+    const localDocument = new JSDOM('<h1 class="hero">Native</h1>', { url: 'https://site.test/' }).window.document;
+    const before = await captureSourceSnapshot(localDocument);
+    const heading = localDocument.querySelector('h1') as HTMLElement;
+    heading.textContent = 'Changed text is not copied into the snapshot';
+    heading.style.color = 'red';
+    localDocument.body.insertAdjacentHTML('beforeend', `
+      <aside data-lykar-editor-root="panel">Editor</aside>
+      <p data-lykar-operation-id="service-node">Inserted by Lykar</p>
+    `);
+    const after = await captureSourceSnapshot(localDocument);
+    localDocument.querySelector('[data-lykar-editor-root]')?.remove();
+    localDocument.querySelector('[data-lykar-operation-id]')?.remove();
+    const report = await new Lykar({ projectKey: 'pk_test', document: localDocument }).applyManifest(manifest([], {
+      sourceSnapshot: before,
+    }));
+
+    expect(after.pageHash).toBe(before.pageHash);
+    expect(report.compatibility).toMatchObject({
+      status: 'compatible',
+      basis: 'structural',
+      visualStatus: 'unknown',
+      baseline: 'clean',
+    });
+  });
+
+  it('reuses the clean pre-replay baseline instead of fingerprinting Lykar-mutated DOM', async () => {
+    const localDocument = new JSDOM('<main data-lykar-id="root"></main>', { url: 'https://site.test/' }).window.document;
+    const baseline = await captureSourceSnapshot(localDocument);
+    const runtime = new Lykar({ projectKey: 'pk_test', document: localDocument });
+    const insertion: OperationV1 = {
+      schemaVersion: 1,
+      id: 'baseline-insert',
+      kind: 'insertNode',
+      target: { marker: 'root' },
+      position: 'append',
+      node: { type: 'element', tag: 'p', children: [{ type: 'text', value: 'Lykar' }] },
+    };
+    const first = await runtime.applyManifest(manifest([insertion], { sourceSnapshot: baseline }));
+    const second = await runtime.applyManifest(manifest([], {
+      releaseId: 'release-after-mutation',
+      sourceSnapshot: baseline,
+    }));
+
+    expect(localDocument.querySelector('[data-lykar-operation-id="baseline-insert"]')).not.toBeNull();
+    expect(first.compatibility.status).toBe('compatible');
+    expect(second.compatibility).toMatchObject({ status: 'compatible', baseline: 'clean' });
+    expect(second.sourceSnapshot?.pageHash).toBe(baseline.pageHash);
+  });
+
+  it('reports unknown when the document has no trustworthy clean baseline', async () => {
+    const localDocument = new JSDOM(
+      '<main><p data-lykar-operation-id="older-runtime">Already changed</p></main>',
+      { url: 'https://site.test/' },
+    ).window.document;
+    const expected = await captureSourceSnapshot(new JSDOM('<main></main>').window.document);
+    const report = await new Lykar({ projectKey: 'pk_test', document: localDocument }).applyManifest(manifest([], {
+      releaseId: 'release-without-clean-baseline',
+      sourceSnapshot: expected,
+    }));
+
+    expect(report.compatibility).toMatchObject({
+      status: 'unknown',
+      basis: 'structural',
+      visualStatus: 'unknown',
+      baseline: 'unavailable',
+    });
+    expect(report.sourceSnapshot).toBeUndefined();
   });
 
   it('distributes an experiment, persists the browser ID, and gates events on consent', async () => {

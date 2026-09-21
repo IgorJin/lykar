@@ -53,9 +53,38 @@ Every operation produces an `applied`, `skipped`, or `error` result. Replay is
 sequential and normally continues after local failures; set `strict: true` to
 stop after the first mutation error.
 
+Target resolution is strict. It returns exactly one of `unique`, `missing`,
+`ambiguous`, or `invalid`, together with per-locator evidence. Marker, CSS, and
+XPath candidates are deduplicated and fingerprinted; mutation happens only
+when their combined result identifies one element. Multiple matching CTAs are
+`TARGET_AMBIGUOUS`—the runtime never selects the first candidate. Queries stay
+inside the supplied logical root. Registry-backed descriptors resolve only the
+exact environment and binding version frozen in the Release; legacy embedded
+descriptors continue to work at document scope.
+
 The runtime captures a normalized structural fingerprint before replay. A
 page-level mismatch is reported as drift but does not block compatible targets;
 per-operation target fingerprints decide local skips.
+
+The clean baseline is cached before the first Lykar mutation and is never
+replaced with the replayed DOM. Editor roots and operation-owned inserted nodes
+are excluded from structural capture. The hash contains structure and selected
+stable attributes, not raw HTML or full page text. Consequently CSS-only
+changes cannot prove visual compatibility: reports explicitly expose
+`basis: "structural"` and `visualStatus: "unknown"`. If a trustworthy clean
+baseline is unavailable, compatibility is `unknown` instead of a false pass.
+
+Ambiguous/failed results include the original target plus bounded candidate
+evidence (tag, stable attributes, matching strategies). This data is safe for a
+future manual-rebind UI without placing DOM references into serialized reports.
+
+The SDK may provide a page/root lifecycle signal and generation predicate.
+Runtime checks both after readiness/transport work and directly before every
+mutation, report, or analytics event. `targetRetryMs` and
+`targetRetryIntervalMs` enable a bounded, abortable retry for targets that appear
+after initial DOM readiness; the default is no retry. A supplied `root` confines
+all marker/CSS/XPath resolution and keeps release/baseline ownership separate
+from other roots in the same document.
 
 Experiment analytics is consent-gated. Assignment works while consent is
 pending, but no event is transmitted until the host grants consent:

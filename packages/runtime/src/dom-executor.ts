@@ -2,10 +2,13 @@ import type {
   InsertPosition,
   OperationV1,
   SerializedNode,
+  TargetEnvironment,
+  TargetRegistrySnapshotV1,
 } from '@lykar/protocol';
 
 import { matchesSha256 } from './hash.js';
 import { resolveTarget } from './target-resolver.js';
+import type { TargetResolution } from './target-resolver.js';
 import type { OperationApplyResult, TargetStrategy } from './types.js';
 
 const SAFE_TAGS = new Set([
@@ -36,17 +39,38 @@ class OperationExecutionError extends Error {
   }
 }
 
+export type ApplyOperationOptions = {
+  root?: Document | Element;
+  targetRegistry?: TargetRegistrySnapshotV1;
+  projectId?: string;
+  pageId?: string;
+  targetEnvironment?: TargetEnvironment;
+  signal?: AbortSignal;
+  isCurrent?: () => boolean;
+};
+
 export async function applyOperation(
   document: Document,
   operation: OperationV1,
+  options: ApplyOperationOptions = {},
 ): Promise<OperationApplyResult> {
-  const targetResolution = await resolveTarget(document, operation.target);
+  assertLifecycleActive(options);
+  const targetResolution = await resolveTarget(document, operation.target, resolutionOptions(options));
+  assertLifecycleActive(options);
   if (!targetResolution.element) {
-    return result(operation, 'skipped', 'TARGET_NOT_FOUND', describeIssues(targetResolution.issues));
+    return result(
+      operation,
+      'skipped',
+      targetFailureCode('TARGET', targetResolution.status),
+      describeResolution(targetResolution),
+      undefined,
+      targetResolution,
+    );
   }
 
   const target = targetResolution.element;
-  const preconditionFailure = await checkPreconditions(document, operation, target);
+  const preconditionFailure = await checkPreconditions(document, operation, target, options);
+  assertLifecycleActive(options);
   if (preconditionFailure) {
     return result(
       operation,
@@ -54,6 +78,7 @@ export async function applyOperation(
       preconditionFailure.code,
       preconditionFailure.message,
       targetResolution.strategy,
+      targetResolution,
     );
   }
 
@@ -88,14 +113,14 @@ export async function applyOperation(
         target.remove();
         break;
       case 'moveNode':
-        await applyMoveNode(document, target, operation.destination, operation.position);
+        await applyMoveNode(document, target, operation.destination, operation.position, options);
         break;
     }
 
-    return result(operation, 'applied', undefined, undefined, targetResolution.strategy);
+    return result(operation, 'applied', undefined, undefined, targetResolution.strategy, targetResolution);
   } catch (error) {
     const code = error instanceof OperationExecutionError ? error.code : 'DOM_MUTATION_FAILED';
-    return result(operation, 'error', code, errorMessage(error), targetResolution.strategy);
+    return result(operation, 'error', code, errorMessage(error), targetResolution.strategy, targetResolution);
   }
 }
 
@@ -103,16 +128,17 @@ async function checkPreconditions(
   document: Document,
   operation: OperationV1,
   target: Element,
+  options: ApplyOperationOptions,
 ): Promise<{ code: string; message: string } | null> {
   const precondition = operation.precondition;
   if (!precondition) return null;
 
   if (precondition.parent) {
-    const parent = await resolveTarget(document, precondition.parent);
+    const parent = await resolveTarget(document, precondition.parent, resolutionOptions(options));
     if (!parent.element) {
       return {
-        code: 'PARENT_PRECONDITION_NOT_FOUND',
-        message: describeIssues(parent.issues),
+        code: targetFailureCode('PARENT_PRECONDITION', parent.status),
+        message: describeResolution(parent),
       };
     }
     if (target.parentElement !== parent.element) {
@@ -133,6 +159,44 @@ async function checkPreconditions(
       }
     } catch (error) {
       return { code: 'TEXT_PRECONDITION_INVALID', message: errorMessage(error) };
+    }
+  }
+
+  if (precondition.before?.textHash) {
+    try {
+      if (!await matchesSha256(target.textContent ?? '', precondition.before.textHash)) {
+        return {
+          code: 'BEFORE_TEXT_DRIFT',
+          message: 'The target text no longer matches the captured before-state',
+        };
+      }
+    } catch (error) {
+      return { code: 'BEFORE_STATE_INVALID', message: errorMessage(error) };
+    }
+  }
+
+  for (const [name, expected] of Object.entries(precondition.before?.attributes ?? {})) {
+    if (target.getAttribute(name) !== expected) {
+      return {
+        code: 'BEFORE_ATTRIBUTE_DRIFT',
+        message: `The target attribute ${name} no longer matches the captured before-state`,
+      };
+    }
+  }
+
+  const expectedStyles = precondition.before?.styles;
+  if (expectedStyles) {
+    const HTMLElementConstructor = document.defaultView?.HTMLElement;
+    if (!HTMLElementConstructor || !(target instanceof HTMLElementConstructor)) {
+      return { code: 'BEFORE_STATE_INVALID', message: 'Style before-state requires an HTML element' };
+    }
+    for (const [property, expected] of Object.entries(expectedStyles)) {
+      if (target.style.getPropertyValue(normalizeStyleProperty(property) ?? property) !== expected) {
+        return {
+          code: 'BEFORE_STYLE_DRIFT',
+          message: `The target style ${property} no longer matches the captured before-state`,
+        };
+      }
     }
   }
 
@@ -249,10 +313,14 @@ async function applyMoveNode(
   target: Element,
   destinationDescriptor: Extract<OperationV1, { kind: 'moveNode' }>['destination'],
   position: InsertPosition,
+  options: ApplyOperationOptions,
 ): Promise<void> {
-  const destination = await resolveTarget(document, destinationDescriptor);
+  const destination = await resolveTarget(document, destinationDescriptor, resolutionOptions(options));
   if (!destination.element) {
-    throw new OperationExecutionError('DESTINATION_NOT_FOUND', describeIssues(destination.issues));
+    throw new OperationExecutionError(
+      targetFailureCode('DESTINATION', destination.status),
+      describeResolution(destination),
+    );
   }
   if (destination.element === target || target.contains(destination.element)) {
     throw new OperationExecutionError(
@@ -301,19 +369,53 @@ function result(
   code?: string,
   message?: string,
   targetStrategy?: TargetStrategy,
+  resolution?: TargetResolution,
 ): OperationApplyResult {
   return {
     operationId: operation.id,
     kind: operation.kind,
+    target: operation.target,
     status,
     ...(code ? { code } : {}),
     ...(message ? { message } : {}),
     ...(targetStrategy ? { targetStrategy } : {}),
+    ...(resolution ? {
+      targetResolution: resolution.status,
+      resolutionEvidence: resolution.evidence,
+    } : {}),
   };
 }
 
-function describeIssues(issues: string[]): string {
-  return issues.length > 0 ? issues.join('; ') : 'No target locator matched';
+function resolutionOptions(options: ApplyOperationOptions) {
+  return {
+    root: options.root,
+    registry: options.targetRegistry,
+    projectId: options.projectId,
+    pageId: options.pageId,
+    environment: options.targetEnvironment,
+  };
+}
+
+function assertLifecycleActive(options: ApplyOperationOptions): void {
+  if (options.signal?.aborted || options.isCurrent?.() === false) {
+    const error = new Error('Runtime lifecycle generation is no longer current.');
+    error.name = 'AbortError';
+    throw error;
+  }
+}
+
+function targetFailureCode(
+  prefix: 'TARGET' | 'DESTINATION' | 'PARENT_PRECONDITION',
+  status: TargetResolution['status'],
+): string {
+  if (status === 'unique') return `${prefix}_RESOLUTION_FAILED`;
+  if (status === 'missing') return prefix === 'PARENT_PRECONDITION' ? `${prefix}_NOT_FOUND` : `${prefix}_NOT_FOUND`;
+  return `${prefix}_${status.toUpperCase()}`;
+}
+
+function describeResolution(resolution: TargetResolution): string {
+  const details = resolution.issues.length > 0 ? resolution.issues.join('; ') : resolution.evidence.reason;
+  return `${resolution.status}: ${details}`;
 }
 
 function errorMessage(error: unknown): string {

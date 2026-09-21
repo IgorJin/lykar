@@ -9,6 +9,7 @@ type AccessClientOptions = {
   document?: Document;
   fetch?: typeof fetch;
   storage?: Storage;
+  isCurrent?: () => boolean;
 };
 
 const editorStorageKey = 'lykar:editor-capability';
@@ -168,6 +169,7 @@ export async function exchangeEditorLaunch(
         : '',
     }),
   });
+  assertCurrent(options);
 
   if (!response.ok) {
     throw new LykarSdkError(
@@ -177,6 +179,7 @@ export async function exchangeEditorLaunch(
   }
 
   const payload: unknown = await response.json();
+  assertCurrent(options);
   const capability =
     isRecord(payload) && isRecord(payload.capability) ? payload.capability : payload;
   if (!isCapability(capability)) {
@@ -196,6 +199,7 @@ export async function exchangeEditorLaunch(
       'Editor capability does not match the current page or API origin.',
     );
   }
+  assertCurrent(options);
   storage?.setItem(storageKey(document), JSON.stringify(normalizedCapability));
   removeFragment(document, 'lykar_edit');
   return normalizedCapability;
@@ -219,6 +223,7 @@ export async function exchangeShareAccess(
         : '',
     }),
   });
+  assertCurrent(options);
 
   if (!response.ok) {
     throw new LykarSdkError(
@@ -228,6 +233,7 @@ export async function exchangeShareAccess(
   }
 
   const payload: unknown = await response.json();
+  assertCurrent(options);
   const access = isRecord(payload) && isRecord(payload.access) ? payload.access : payload;
   if (!isShareAccess(access)) {
     throw new LykarSdkError(
@@ -236,8 +242,17 @@ export async function exchangeShareAccess(
     );
   }
 
+  assertCurrent(options);
   removeFragment(document, 'lykar_share');
   return access;
+}
+
+function assertCurrent(options: AccessClientOptions): void {
+  if (options.isCurrent?.() === false) {
+    const error = new Error('Lykar access exchange belongs to a stale PageSession.');
+    error.name = 'AbortError';
+    throw error;
+  }
 }
 
 function storageKey(document: Document): string {

@@ -1,6 +1,6 @@
 # S2-01.4 — Compatibility fixtures и repair primitives
 
-Status: PLANNED
+Status: DONE
 Priority: P0
 Depends on: S2-01.3
 Evidence: report
@@ -20,11 +20,11 @@ Report group: S2-target-lifecycle
 
 ## Acceptance criteria
 
-- [ ] Старые descriptors/manifests проходят compatibility replay.
-- [ ] Reordered DOM не приводит к молчаливому выбору похожего target.
-- [ ] Failed operation возвращает target, candidates и reason для UI.
-- [ ] New binding/revision не переписывает старый Release bytes/hash.
-- [ ] Incompatible schema отвергается до mutation.
+- [x] Старые descriptors/manifests проходят compatibility replay.
+- [x] Reordered DOM не приводит к молчаливому выбору похожего target.
+- [x] Failed operation возвращает target, candidates и reason для UI.
+- [x] New binding/revision не переписывает старый Release bytes/hash.
+- [x] Incompatible schema отвергается до mutation.
 
 ## Checks
 
@@ -44,3 +44,13 @@ Report: `docs/verification/reports/S2/s2-target-lifecycle.html`
 ## Notes
 
 Полный repair UI выполняется в S2-05.3.
+
+Результат: добавлен frozen legacy-manifest fixture, immutable
+`appendTargetBindingV1` для новой environment-specific binding revision и
+candidate evidence в runtime/editor reports. Reorder/repeated candidates дают
+ambiguous без мутации; schema mismatch отклоняется до replay.
+
+Проверено 2026-09-22: old/new manifest, immutable hash, editor diagnostics и
+browser reorder/rebind-data fixtures; `npm run typecheck`, `npm test`,
+`npm run build`. Полный repair UI остаётся в S2-05.3; итоговый групповой report
+выпущен после успешного lifecycle acceptance gate 7/7.

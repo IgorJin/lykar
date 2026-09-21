@@ -1,21 +1,25 @@
-import type { OperationKindV1, PublishedManifestV1, SourceSnapshotV1 } from '@lykar/protocol';
+import type { OperationKindV1, PublishedManifestV1, SourceSnapshotV1, TargetDescriptor } from '@lykar/protocol';
+import type { TargetResolutionEvidence, TargetResolutionStatus } from './target-resolver.js';
 
 export type FetchLike = (
   input: RequestInfo | URL,
   init?: RequestInit,
 ) => Promise<Response>;
 
-export type TargetStrategy = 'marker' | 'css' | 'xpath';
+export type TargetStrategy = 'binding' | 'marker' | 'css' | 'xpath';
 
 export type OperationApplyStatus = 'applied' | 'skipped' | 'error';
 
 export type OperationApplyResult = {
   operationId: string;
   kind: OperationKindV1;
+  target: TargetDescriptor;
   status: OperationApplyStatus;
   code?: string;
   message?: string;
   targetStrategy?: TargetStrategy;
+  targetResolution?: TargetResolutionStatus;
+  resolutionEvidence?: TargetResolutionEvidence;
 };
 
 export type ApplyReport = {
@@ -31,6 +35,9 @@ export type ApplyReport = {
   alreadyApplied: boolean;
   compatibility: {
     status: 'compatible' | 'drifted' | 'unknown';
+    basis: 'structural';
+    visualStatus: 'unknown';
+    baseline: 'clean' | 'unavailable';
     expectedPageHash?: string;
     actualPageHash?: string;
   };
@@ -71,9 +78,14 @@ export type LykarRuntimeOptions = {
   accessToken?: string;
   credentials?: RequestCredentials;
   document?: Document;
+  root?: Document | Element;
   fetch?: FetchLike;
   strict?: boolean;
   waitForDom?: boolean;
+  signal?: AbortSignal;
+  isCurrent?: () => boolean;
+  targetRetryMs?: number;
+  targetRetryIntervalMs?: number;
   onReport?: (report: ApplyReport) => void;
 };
 
@@ -91,6 +103,7 @@ export type ManifestClientOptions = {
   pathname: string;
   accessToken?: string;
   credentials?: RequestCredentials;
+  signal?: AbortSignal;
   fetch: FetchLike;
 };
 

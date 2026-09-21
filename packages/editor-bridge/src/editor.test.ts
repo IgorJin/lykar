@@ -57,6 +57,30 @@ describe('target builder', () => {
 });
 
 describe('local editor session', () => {
+  it('confines replay to its root and does not restore another draft pending queue', async () => {
+    document.body.innerHTML = `
+      <main id="a"><p data-lykar-id="copy">A</p></main>
+      <main id="b"><p data-lykar-id="copy">B</p></main>
+    `;
+    const pending: OperationV1 = {
+      schemaVersion: 1, id: 'pending-a', kind: 'setText',
+      target: {marker: 'copy'}, value: 'A pending',
+    };
+    window.sessionStorage.setItem('lykar:draft:draft-a', JSON.stringify({operations: [pending]}));
+    const rootB = document.querySelector('#b')!;
+    const pageB = new EditorSession(document, {
+      root: rootB, storage: window.sessionStorage, storageKey: 'lykar:draft:draft-b',
+    });
+
+    expect(await pageB.restore()).toBeNull();
+    await pageB.apply({operations: [{...pending, id: 'page-b', value: 'B changed'}]});
+
+    expect(document.querySelector('#a p')?.textContent).toBe('A');
+    expect(document.querySelector('#b p')?.textContent).toBe('B changed');
+    expect(pageB.pendingOperations().map(operation => operation.id)).toEqual(['page-b']);
+    expect(JSON.parse(window.sessionStorage.getItem('lykar:draft:draft-a')!).operations).toEqual([pending]);
+  });
+
   it('applies a page-scoped batch only on Apply and supports undo/redo', async () => {
     window.history.replaceState({}, '', '/pricing?version=9');
     document.body.innerHTML = '<a id="cta" href="/old">Old label</a>';
@@ -166,9 +190,54 @@ describe('local editor session', () => {
     expect(session.getChanges()[0]).toMatchObject({ id: 'missing', status: 'skipped', code: 'TARGET_NOT_FOUND' });
     expect(session.exportDraft().operations).toHaveLength(1);
   });
+
+  it('keeps ambiguous candidate evidence for a future manual rebind UI', async () => {
+    document.body.innerHTML = '<button id="one" class="cta">One</button><button id="two" class="cta">Two</button>';
+    const session = new EditorSession(document);
+    const target = { selectors: { css: '.cta' } };
+    const report = await session.preview({
+      schemaVersion: 1,
+      id: 'ambiguous-repair',
+      kind: 'setText',
+      target,
+      value: 'Never',
+    });
+
+    expect(report.operations[0]).toMatchObject({
+      target,
+      targetResolution: 'ambiguous',
+      resolutionEvidence: {
+        reason: 'MULTIPLE_CANDIDATES',
+        candidateCount: 2,
+        candidates: [
+          { attributes: { id: 'one' } },
+          { attributes: { id: 'two' } },
+        ],
+      },
+    });
+    expect(session.getChanges()[0].resolutionEvidence?.candidates).toHaveLength(2);
+  });
 });
 
 describe('editor UI and proposals', () => {
+  it('removes overlay, panel, listeners and selection ownership on destroy', () => {
+    document.body.innerHTML = '<main id="root"><button id="target">Target</button></main>';
+    const root = document.querySelector('#root')!;
+    const target = document.querySelector('#target')!;
+    const selection = vi.fn();
+    const editor = new LykarEditor({document, root, onSelection: selection}).start();
+
+    expect(document.querySelectorAll('[data-lykar-editor-root]')).toHaveLength(2);
+    editor.destroy();
+    editor.destroy();
+    const click = new MouseEvent('click', {bubbles: true, cancelable: true, composed: true});
+    target.dispatchEvent(click);
+
+    expect(click.defaultPrevented).toBe(false);
+    expect(selection).not.toHaveBeenCalled();
+    expect(document.querySelector('[data-lykar-editor-root]')).toBeNull();
+  });
+
   it('restores backend operations without losing unsaved local edits', async () => {
     document.body.innerHTML = '<h1 id="hero">Before</h1>';
     const target = buildTargetDescriptor(document.querySelector('h1')!);

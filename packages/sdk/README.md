@@ -38,3 +38,23 @@ allowed `editorAssetOrigin`.
 
 See [COMPATIBILITY.md](./COMPATIBILITY.md) for the supported entry-point matrix
 and version boundaries.
+
+## PageSession lifecycle
+
+Every SDK instance owns one generation-scoped `PageSession`. `start()` is
+idempotent and concurrent calls share one replay. `refresh()` starts a new
+generation for the same pathname/root, `navigate({ pathname, root })` retires
+the previous page context, and `destroy()` is idempotent. Retiring a generation
+aborts fetch/readiness/retry/editor work and synchronously runs registered
+cleanup callbacks.
+
+Async work checks generation immediately before DOM mutation, report/event
+delivery, capability persistence, and editor bootstrap. A transport that ignores
+abort may finish, but its result is returned as `PAGE_SESSION_STALE` and cannot
+affect the new route. Replay and target lookup are confined to `root` (the
+document by default). Editor pending changes remain keyed by page/draft and are
+not adopted by a new session.
+
+`PageSession` is exported for lifecycle adapters. Its
+`registerJournalCleanup()` hook is the ownership boundary for the S2-03
+mutation journal.

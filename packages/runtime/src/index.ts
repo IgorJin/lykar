@@ -1,4 +1,5 @@
 export { applyOperation } from './dom-executor.js';
+export type { ApplyOperationOptions } from './dom-executor.js';
 export { ManifestRequestError, fetchManifest } from './manifest-client.js';
 export { Lykar, LykarRuntime, consent, init, track } from './runtime.js';
 export { captureSourceSnapshot } from './dom-fingerprint.js';
@@ -24,4 +25,12 @@ export type {
   TrackEventResult,
   TargetStrategy,
 } from './types.js';
-export type { TargetResolution } from './target-resolver.js';
+export type {
+  TargetResolution,
+  TargetResolutionAttempt,
+  TargetResolutionCandidateEvidence,
+  TargetResolutionEvidence,
+  TargetResolutionOptions,
+  TargetResolutionReason,
+  TargetResolutionStatus,
+} from './target-resolver.js';

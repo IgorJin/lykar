@@ -19,6 +19,7 @@ export type ExperimentSelectionClientOptions = {
   experimentToken: string;
   document: Document;
   credentials?: RequestCredentials;
+  signal?: AbortSignal;
   fetch: FetchLike;
 };
 
@@ -32,6 +33,7 @@ export async function resolveExperimentSelection(
       method: 'POST',
       headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
       ...(options.credentials ? { credentials: options.credentials } : {}),
+      ...(options.signal ? { signal: options.signal } : {}),
       body: JSON.stringify({
         pathname: options.pathname,
         experimentToken: options.experimentToken,
@@ -74,6 +76,7 @@ export async function sendAnalyticsEvent(options: {
   name: string;
   properties: AnalyticsProperties;
   credentials?: RequestCredentials;
+  signal?: AbortSignal;
   fetch: FetchLike;
 }): Promise<TrackEventResult> {
   try {
@@ -83,6 +86,7 @@ export async function sendAnalyticsEvent(options: {
         method: 'POST',
         headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
         ...(options.credentials ? { credentials: options.credentials } : {}),
+        ...(options.signal ? { signal: options.signal } : {}),
         body: JSON.stringify({
           capability: options.capability,
           clientEventId: createUuid(),

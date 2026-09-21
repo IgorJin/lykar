@@ -1,6 +1,6 @@
 # S2-01.3 — Before-state, desired-state и drift
 
-Status: PLANNED
+Status: DONE
 Priority: P0
 Depends on: S2-01.2
 Evidence: report
@@ -20,11 +20,11 @@ Report group: S2-target-lifecycle
 
 ## Acceptance criteria
 
-- [ ] После setText locator не требует прежнего текста.
-- [ ] Fingerprint снимается до mutation и не содержит raw HTML/полный page text.
-- [ ] CSS-only change не объявляется доказанной visual compatibility.
-- [ ] Lykar-mutated DOM не становится новой source baseline.
-- [ ] Отсутствующая чистая baseline даёт `unknown`, а не ложный PASS.
+- [x] После setText locator не требует прежнего текста.
+- [x] Fingerprint снимается до mutation и не содержит raw HTML/полный page text.
+- [x] CSS-only change не объявляется доказанной visual compatibility.
+- [x] Lykar-mutated DOM не становится новой source baseline.
+- [x] Отсутствующая чистая baseline даёт `unknown`, а не ложный PASS.
 
 ## Checks
 
@@ -44,3 +44,13 @@ Report: `docs/verification/reports/S2/s2-target-lifecycle.html`
 ## Notes
 
 Structural fingerprint остаётся diagnostic signal; visual/computed validation относится к X2.
+
+Результат: mutable facts вынесены в `precondition.before`, ожидаемые — в
+`desiredState`; locator identity больше не требует прежнего текста. Runtime
+кэширует чистую structural baseline до первой мутации, исключает editor/service
+DOM и явно сообщает `basis: structural`, `visualStatus: unknown`. При отсутствии
+доверенной baseline результат — `unknown`.
+
+Проверено 2026-09-22: text/CSS/service-marker/source-baseline fixtures,
+`npm run typecheck`, `npm test`, `npm run build`; итоговый групповой report
+выпущен после успешного lifecycle acceptance gate 7/7.

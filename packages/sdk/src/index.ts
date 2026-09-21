@@ -1,4 +1,11 @@
 export {Lykar} from './sdk.js';
+export {PageSession, PageSessionStaleError, isPageSessionStale} from './page-session.js';
+export type {
+  PageSessionContext,
+  PageSessionRoot,
+  PageSessionScope,
+  PageSessionSnapshot,
+} from './page-session.js';
 export {
   LykarSdkError,
   type EditorApplyHandler,

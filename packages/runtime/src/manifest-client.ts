@@ -35,6 +35,7 @@ export async function fetchManifest(options: ManifestClientOptions): Promise<Run
         ...(options.accessToken ? { Authorization: `Bearer ${options.accessToken}` } : {}),
       },
       ...(options.credentials ? { credentials: options.credentials } : {}),
+      ...(options.signal ? { signal: options.signal } : {}),
     });
   } catch (error) {
     throw new ManifestRequestError(`Manifest request failed: ${errorMessage(error)}`);

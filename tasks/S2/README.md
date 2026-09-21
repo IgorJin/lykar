@@ -26,13 +26,13 @@ core contracts. Номер 06 сохраняет существующие ID, а
 
 | ID | Title | Status | Priority | Depends on | Task |
 | --- | --- | --- | --- | --- | --- |
-| S2-01.1 | Logical targets and versioned bindings | PLANNED | P0 | None | [01](./01-logical-targets.md) |
-| S2-01.2 | Strict target resolution | PLANNED | P0 | S2-01.1 | [02](./02-strict-resolution.md) |
-| S2-01.3 | Before-state, desired-state and drift | PLANNED | P0 | S2-01.2 | [03](./03-before-state-drift.md) |
-| S2-01.4 | Compatibility fixtures and repair primitives | PLANNED | P0 | S2-01.3 | [04](./04-compatibility-repair.md) |
-| S2-02.1 | PageSession ownership | PLANNED | P0 | S2-01.4 | [05](./05-session-ownership.md) |
-| S2-02.2 | Async cancellation and generation checks | PLANNED | P0 | S2-02.1 | [06](./06-async-cancellation.md) |
-| S2-02.3 | Cleanup and lifecycle regression matrix | PLANNED | P0 | S2-02.2 | [07](./07-cleanup-regression.md) |
+| S2-01.1 | Logical targets and versioned bindings | DONE | P0 | None | [01](./01-logical-targets.md) |
+| S2-01.2 | Strict target resolution | DONE | P0 | S2-01.1 | [02](./02-strict-resolution.md) |
+| S2-01.3 | Before-state, desired-state and drift | DONE | P0 | S2-01.2 | [03](./03-before-state-drift.md) |
+| S2-01.4 | Compatibility fixtures and repair primitives | DONE | P0 | S2-01.3 | [04](./04-compatibility-repair.md) |
+| S2-02.1 | PageSession ownership | DONE | P0 | S2-01.4 | [05](./05-session-ownership.md) |
+| S2-02.2 | Async cancellation and generation checks | DONE | P0 | S2-02.1 | [06](./06-async-cancellation.md) |
+| S2-02.3 | Cleanup and lifecycle regression matrix | DONE | P0 | S2-02.2 | [07](./07-cleanup-regression.md) |
 | S2-03.1 | Operation identity and ledger | PLANNED | P0 | S2-02.3 | [08](./08-identity-ledger.md) |
 | S2-03.2 | Dependency-aware replay | PLANNED | P0 | S2-03.1 | [09](./09-dependency-replay.md) |
 | S2-03.3 | Journal and compare-and-restore | PLANNED | P0 | S2-03.2 | [10](./10-journal-compensation.md) |
@@ -61,6 +61,12 @@ Editor безопасно применяет декларативные кома
 пользователю объяснимый способ исправить drift.
 Пользователь меняет оформление через секции и специализированные поля, а любое
 поддерживаемое CSS-свойство вне каталога — через Advanced без изменения кода.
+
+Progress 2026-09-22: блоки S2-01 и S2-02 завершены 7/7. Target lifecycle
+закрывает logical targets, strict resolver, drift/repair, PageSession ownership,
+generation cancellation, root isolation и cleanup. Групповой acceptance report
+выпущен; следующая обязательная core dependency — S2-03 operation ledger,
+dependency replay, journal и bounded execution.
 
 ## Definition of done
 

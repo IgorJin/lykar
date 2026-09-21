@@ -1,10 +1,14 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import test from 'node:test';
 
 import {
+  appendTargetBindingV1,
   OPERATION_SCHEMA_VERSION,
+  parseTargetRegistryV1,
   parseOperationV1,
   parsePublishedManifestV1,
+  validateTargetRegistryV1,
   validateOperationV1,
   validatePublishedManifestV1,
 } from '../dist/index.js';
@@ -71,6 +75,96 @@ test('rejects malformed markers even when a selector fallback exists', () => {
   assert.match(result.errors.join(' '), /target/);
 });
 
+test('serializes a scoped logical target with immutable environment bindings', () => {
+  const registry = {
+    schemaVersion: 1,
+    targets: [{
+      id: 'checkout-cta',
+      scope: {
+        projectId: 'project-1',
+        pageId: 'page-1',
+        root: { id: 'pricing-card', kind: 'element', descriptor: { marker: 'pricing-card' } },
+      },
+      createdAt: '2026-09-21T00:00:00.000Z',
+    }],
+    bindings: [{
+      schemaVersion: 1,
+      targetId: 'checkout-cta',
+      bindingVersion: 1,
+      environment: 'production',
+      descriptor: { marker: 'checkout', selectors: { css: '.checkout' } },
+      createdAt: '2026-09-21T00:00:00.000Z',
+    }],
+  };
+
+  const parsed = parseTargetRegistryV1(JSON.parse(JSON.stringify(registry)));
+  assert.deepEqual(parsed, registry);
+});
+
+test('rejects duplicate binding versions and bindings for unknown targets', () => {
+  const result = validateTargetRegistryV1({
+    schemaVersion: 1,
+    targets: [],
+    bindings: [{
+      schemaVersion: 1,
+      targetId: 'missing',
+      bindingVersion: 1,
+      environment: 'production',
+      descriptor: { marker: 'cta' },
+      createdAt: '2026-09-21T00:00:00.000Z',
+    }],
+  });
+
+  assert.equal(result.ok, false);
+  assert.match(result.errors.join(' '), /does not exist/);
+});
+
+test('appends a rebind revision without changing the frozen registry bytes', () => {
+  const registry = {
+    schemaVersion: 1,
+    targets: [{
+      id: 'cta',
+      scope: { projectId: 'project-1', pageId: 'page-1', root: { id: 'document', kind: 'document' } },
+      createdAt: '2026-09-21T00:00:00.000Z',
+    }],
+    bindings: [{
+      schemaVersion: 1,
+      targetId: 'cta',
+      bindingVersion: 1,
+      environment: 'production',
+      descriptor: { marker: 'old-cta' },
+      createdAt: '2026-09-21T00:00:00.000Z',
+    }],
+  };
+  const frozenBytes = JSON.stringify(registry);
+  const frozenHash = createHash('sha256').update(frozenBytes).digest('hex');
+  const result = appendTargetBindingV1(registry, {
+    targetId: 'cta',
+    environment: 'production',
+    descriptor: { marker: 'new-cta' },
+    createdAt: '2026-09-22T00:00:00.000Z',
+  });
+
+  assert.equal(result.reference.bindingVersion, 2);
+  assert.equal(result.snapshot.bindings.length, 2);
+  assert.equal(JSON.stringify(registry), frozenBytes);
+  assert.equal(createHash('sha256').update(JSON.stringify(registry)).digest('hex'), frozenHash);
+});
+
+test('keeps mutable before-state separate from locator identity and desired-state', () => {
+  const result = validateOperationV1({
+    schemaVersion: 1,
+    id: 'text-state',
+    kind: 'setText',
+    target: { marker: 'hero', fingerprint: { tag: 'h1' } },
+    precondition: { before: { textHash: 'a'.repeat(64), attributes: { lang: null } } },
+    desiredState: { textHash: 'b'.repeat(64) },
+    value: 'After',
+  });
+
+  assert.equal(result.ok, true, JSON.stringify(result));
+});
+
 test('rejects unknown schema versions and operation kinds', () => {
   assert.throws(
     () => parseOperationV1({
@@ -104,6 +198,51 @@ test('accepts a published manifest containing protocol v1 operations', () => {
   });
 
   assert.equal(result.ok, true, JSON.stringify(result));
+});
+
+test('requires an exact frozen binding and matching release environment', () => {
+  const registry = {
+    schemaVersion: 1,
+    targets: [{
+      id: 'hero',
+      scope: { projectId: 'project-1', pageId: 'page-1', root: { id: 'document', kind: 'document' } },
+      createdAt: '2026-09-21T00:00:00.000Z',
+    }],
+    bindings: [{
+      schemaVersion: 1,
+      targetId: 'hero',
+      bindingVersion: 2,
+      environment: 'production',
+      descriptor: { marker: 'hero' },
+      createdAt: '2026-09-21T00:00:00.000Z',
+    }],
+  };
+  const manifest = {
+    schemaVersion: 1,
+    projectId: 'project-1',
+    pageId: 'page-1',
+    pathname: '/',
+    releaseId: 'release-1',
+    version: 1,
+    manifestHash: 'a'.repeat(64),
+    targetEnvironment: 'production',
+    targetRegistry: registry,
+    operations: [{
+      schemaVersion: 1,
+      id: 'text',
+      kind: 'setText',
+      target: { binding: { targetId: 'hero', bindingVersion: 2, environment: 'production' } },
+      value: 'Hello',
+    }],
+    createdAt: '2026-09-21T00:00:00.000Z',
+  };
+
+  assert.equal(validatePublishedManifestV1(manifest).ok, true);
+  const mutableLatest = structuredClone(manifest);
+  mutableLatest.operations[0].target.binding.bindingVersion = 3;
+  const result = validatePublishedManifestV1(mutableLatest);
+  assert.equal(result.ok, false);
+  assert.match(result.errors.join(' '), /not frozen/);
 });
 
 test('rejects malformed source compatibility snapshots', () => {

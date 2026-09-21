@@ -87,7 +87,11 @@ export class OverlayService {
   }
 
   destroy(): void {
-    if (this.frame !== null) this.document.defaultView?.cancelAnimationFrame?.(this.frame);
+    if (this.frame !== null) {
+      this.document.defaultView?.cancelAnimationFrame?.(this.frame);
+      this.document.defaultView?.clearTimeout(this.frame);
+      this.frame = null;
+    }
     this.host.remove();
     this.layers.clear();
   }

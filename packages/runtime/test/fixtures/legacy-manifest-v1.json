@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "projectId": "legacy-project",
+  "pageId": "legacy-page",
+  "pathname": "/legacy",
+  "releaseId": "legacy-release-v1",
+  "version": 1,
+  "manifestHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "operations": [
+    {
+      "schemaVersion": 1,
+      "id": "legacy-text",
+      "kind": "setText",
+      "target": {
+        "marker": "legacy-hero",
+        "selectors": {
+          "css": "[data-lykar-id=\"legacy-hero\"]",
+          "xpath": "//*[@data-lykar-id=\"legacy-hero\"]"
+        },
+        "fingerprint": {
+          "tag": "h1",
+          "attributes": {
+            "data-lykar-id": "legacy-hero"
+          }
+        }
+      },
+      "value": "Legacy replayed"
+    }
+  ],
+  "createdAt": "2026-08-06T00:00:00.000Z"
+}

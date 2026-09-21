@@ -32,6 +32,7 @@ export type EditorCommitResult = { saved: number; revision?: number };
 
 export type LykarEditorOptions = {
   document?: Document;
+  root?: Document | Element;
   proposalProvider?: ProposalProvider;
   capability?: EditingCapability;
   persistence?: EditorDraftPersistence;
@@ -62,6 +63,10 @@ export class LykarEditor {
   constructor(options: LykarEditorOptions = {}) {
     const document = options.document ?? globalThis.document;
     if (!document?.body) throw new Error('Lykar editor requires a browser document with a body');
+    const root = options.root ?? document;
+    if (root.nodeType === 1 && root.ownerDocument !== document) {
+      throw new Error('Lykar editor root belongs to another document');
+    }
     if (options.capability) validateCapability(options.capability, document);
 
     this.options = options;
@@ -70,14 +75,19 @@ export class LykarEditor {
     this.expectedRevision = this.persistence?.expectedRevision ?? 0;
     this.session = new EditorSession(document, {
       storage: options.storage === undefined ? safeSessionStorage(document) : options.storage,
-      storageKey: this.persistence?.draftId ? `lykar:draft:${this.persistence.draftId}` : undefined,
+      storageKey: options.capability?.draftId
+        ? `lykar:draft:${options.capability.draftId}`
+        : this.persistence?.draftId
+          ? `lykar:draft:${this.persistence.draftId}`
+          : undefined,
       sourceSnapshot: options.sourceSnapshot,
+      root,
     });
     this.overlay = new OverlayService(document);
     this.inspector = new ElementInspector(document, this.overlay, element => {
       this.panel.setSelected(element);
       options.onSelection?.(element);
-    });
+    }, root);
     this.panel = new SidePanel(
       document,
       this.session.page.pathname,
@@ -146,6 +156,7 @@ export class LykarEditor {
     });
     this.previewQueue = next.then(() => undefined, () => undefined);
     return next.then(report => {
+      this.assertActive();
       this.overlay.refresh();
       return report;
     });
@@ -180,17 +191,22 @@ export class LykarEditor {
         operations,
         this.options.capability?.token,
         await this.session.sourceSnapshot(),
+        this.restoreController.signal,
       );
+      this.assertActive();
       this.expectedRevision = saved.revision;
       result = { saved: saved.appended, revision: saved.revision };
       this.session.markCommitted(operations.map(operation => operation.id));
       await this.options.onApply?.(this.session.exportDraft(), report);
+      this.assertActive();
     } else {
       result = { saved: operations.length };
       await this.options.onApply?.(this.session.exportDraft(), report);
+      this.assertActive();
       this.session.markCommitted(operations.map(operation => operation.id));
     }
     await this.options.onCommit?.(result, this.session.exportDraft());
+    this.assertActive();
     return result;
   }
 
@@ -234,6 +250,7 @@ async function persistOperations(
   operations: OperationV1[],
   capabilityToken?: string,
   sourceSnapshot?: import('@lykar/protocol').SourceSnapshotV1,
+  signal?: AbortSignal,
 ): Promise<{ revision: number; appended: number }> {
   const fetcher = persistence.fetch ?? globalThis.fetch;
   if (!fetcher) throw new Error('Editor persistence requires fetch');
@@ -246,6 +263,7 @@ async function persistOperations(
       method: 'POST',
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ expectedRevision, operations, sourceSnapshot }),
+      signal,
     },
   );
   if (!response.ok) {
@@ -293,9 +311,12 @@ function reportForPending(
   const results = changes.filter(change => ids.has(change.operation.id)).map(change => ({
     operationId: change.operation.id,
     kind: change.operation.kind,
+    target: change.operation.target,
     status: change.status,
     code: change.code,
     message: change.message,
+    targetResolution: change.targetResolution,
+    resolutionEvidence: change.resolutionEvidence,
   }));
   return {
     batchId: `commit-${Date.now()}`,
