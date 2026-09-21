@@ -1,10 +1,17 @@
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 
-import { DEV_SESSION_TOKEN, PRICING_PAGE_ID, PROJECT_ID, PROJECT_KEY, ROOT_PAGE_ID } from './fixture.mjs';
+import { PRICING_PAGE_ID, PROJECT_ID, PROJECT_KEY, ROOT_PAGE_ID } from './fixture.mjs';
 
 export async function runSmoke({ apiBaseUrl, playgroundBaseUrl }) {
-  const cookie = `lykar_session=${DEV_SESSION_TOKEN}`;
+  const loginResponse = await fetch(`${apiBaseUrl}/api/auth/dev-login`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: '{}',
+  });
+  assert.equal(loginResponse.status, 200);
+  const cookie = loginResponse.headers.get('set-cookie')?.split(';', 1)[0];
+  assert.ok(cookie);
   const admin = (path, init = {}) => request(`${apiBaseUrl}${path}`, {
     ...init,
     headers: { cookie, ...init.headers },

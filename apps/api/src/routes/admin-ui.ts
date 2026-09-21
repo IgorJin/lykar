@@ -22,7 +22,8 @@ async function send(reply: FastifyReply, file: string, type: string): Promise<Fa
 const adminUiRoutes: FastifyPluginAsync = async fastify => {
   fastify.get('/admin/app.js', async (_request, reply) => send(reply, 'app.js', 'text/javascript; charset=utf-8'));
   fastify.get('/admin/styles.css', async (_request, reply) => send(reply, 'styles.css', 'text/css; charset=utf-8'));
-  fastify.get('/admin', async (_request, reply) => reply.redirect('/admin/'));
+  fastify.get('/admin/', async (_request, reply) => send(reply, 'index.html', 'text/html; charset=utf-8'));
+  fastify.get('/admin', async (_request, reply) => send(reply, 'index.html', 'text/html; charset=utf-8'));
   fastify.get('/admin/*', async (_request, reply) => send(reply, 'index.html', 'text/html; charset=utf-8'));
 };
 

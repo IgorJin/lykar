@@ -7,6 +7,7 @@ export const SESSION_COOKIE = 'lykar_session';
 
 type AuthRoutesOptions = {
   service: AuthService;
+  devAuth: boolean;
   secureCookies: boolean;
   sessionTtlSeconds: number;
 };
@@ -56,6 +57,16 @@ export function sessionCookie(token: string, maxAge: number, secure: boolean): s
 
 const authRoutes: FastifyPluginAsync<AuthRoutesOptions> = async (fastify, options) => {
   const requireSession = createSessionGuard(options.service);
+
+  fastify.get('/api/auth/dev-login', async () => ({ enabled: options.devAuth }));
+
+  if (options.devAuth) {
+    fastify.post('/api/auth/dev-login', async (_request, reply) => {
+      const session = await options.service.createDevelopmentSession();
+      reply.header('Set-Cookie', sessionCookie(session.token, options.sessionTtlSeconds, options.secureCookies));
+      return { user: session.user, expiresAt: session.expiresAt };
+    });
+  }
 
   fastify.post<{ Body: { email: unknown } }>(
     '/api/auth/magic-link',

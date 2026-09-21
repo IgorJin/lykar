@@ -24,18 +24,22 @@ type InvitableRole = Exclude<ProjectRole, 'owner'>;
 
 function App() {
   const [session, setSession] = useState<Session | null | undefined>();
+  const [localLoginEnabled, setLocalLoginEnabled] = useState(false);
   useEffect(() => {
+    void api<{ enabled: boolean }>('/api/auth/dev-login')
+      .then(result => setLocalLoginEnabled(result.enabled))
+      .catch(() => setLocalLoginEnabled(false));
     void api<Session>('/api/auth/session').then(setSession).catch(error => {
       if (error instanceof ApiError && error.status === 401) setSession(null);
       else throw error;
     });
   }, []);
   if (session === undefined) return <div class="login card">Загрузка…</div>;
-  if (!session) return <Login />;
+  if (!session) return <Login localLoginEnabled={localLoginEnabled} />;
   return <Dashboard session={session} />;
 }
 
-function Login() {
+function Login({ localLoginEnabled }: { localLoginEnabled: boolean }) {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('');
   async function submit(event: Event) {
@@ -43,9 +47,21 @@ function Login() {
     await post('/api/auth/magic-link', { email });
     setStatus('Ссылка создана. В localhost она напечатана в terminal API.');
   }
+  async function localLogin() {
+    try {
+      await post('/api/auth/dev-login', {});
+      location.reload();
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : String(error));
+    }
+  }
   return <main class="login card">
     <h1>Lykar Admin</h1>
     <p class="muted">Вход без пароля по magic link.</p>
+    {localLoginEnabled && <>
+      <button type="button" class="primary" onClick={() => void localLogin()}>Войти как локальный владелец</button>
+      <p class="muted small">Доступно только в локальном режиме разработки.</p>
+    </>}
     <form class="form" onSubmit={submit}>
       <input type="email" required value={email} onInput={event => setEmail(event.currentTarget.value)} placeholder="you@example.com" />
       <button class="primary">Получить ссылку</button>
@@ -207,8 +223,16 @@ function PageWorkspace({ page, permissions, showError }: {
   async function createDraft() { await post(`/api/admin/pages/${page.id}/drafts`, {}); await load(); }
   async function launch() {
     if (!open) return;
-    const result = await post<{ launchUrl: string }>(`/api/admin/pages/${page.id}/editor-launch`, { draftId: open.id });
-    window.open(result.launchUrl, '_blank', 'noopener');
+    const editorWindow = window.open('about:blank', '_blank');
+    if (!editorWindow) throw new Error('Браузер заблокировал окно редактора. Разрешите всплывающие окна для админки.');
+    editorWindow.opener = null;
+    try {
+      const result = await post<{ launchUrl: string }>(`/api/admin/pages/${page.id}/editor-launch`, { draftId: open.id });
+      editorWindow.location.replace(result.launchUrl);
+    } catch (error) {
+      editorWindow.close();
+      throw error;
+    }
   }
   async function publish() {
     if (!open) return;

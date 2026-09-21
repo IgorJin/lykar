@@ -96,6 +96,11 @@ export class AuthService {
     return { id, user, token: sessionToken, expiresAt: expiresAt.toISOString() };
   }
 
+  async createDevelopmentSession(): Promise<IssuedSession> {
+    const user = await this.repository.findOrCreateUser({ id: randomUUID(), email: this.ownerEmail });
+    return this.createSessionForUser(user);
+  }
+
   async authenticate(tokenValue: unknown): Promise<AuthenticatedSession> {
     const token = requireToken(tokenValue, 'Session token');
     const session = await this.repository.findSession({ tokenHash: hashToken(token), now: this.now() });

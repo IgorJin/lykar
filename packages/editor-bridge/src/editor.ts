@@ -56,6 +56,8 @@ export class LykarEditor {
   private readonly persistence?: EditorDraftPersistence;
   private expectedRevision: number;
   private destroyed = false;
+  private restoration?: Promise<number>;
+  private readonly restoreController = new AbortController();
 
   constructor(options: LykarEditorOptions = {}) {
     const document = options.document ?? globalThis.document;
@@ -67,7 +69,8 @@ export class LykarEditor {
     this.persistence = options.persistence ?? persistenceFromCapability(options.capability);
     this.expectedRevision = this.persistence?.expectedRevision ?? 0;
     this.session = new EditorSession(document, {
-      storage: options.storage ?? safeSessionStorage(document),
+      storage: options.storage === undefined ? safeSessionStorage(document) : options.storage,
+      storageKey: this.persistence?.draftId ? `lykar:draft:${this.persistence.draftId}` : undefined,
       sourceSnapshot: options.sourceSnapshot,
     });
     this.overlay = new OverlayService(document);
@@ -98,11 +101,18 @@ export class LykarEditor {
 
   start(): this {
     this.assertActive();
-    this.inspector.start();
-    void this.session.restore().then(report => {
-      if (!report || this.destroyed) return;
+    if (this.restoration) return this;
+    if (!this.persistence) this.inspector.start();
+    else this.panel.setStatus('Загружаю сохранённые изменения…');
+    this.restoration = this.restore();
+    void this.restoration.then(restored => {
+      if (this.destroyed) return;
+      this.inspector.start();
       this.overlay.refresh();
-      this.panel.setStatus(`Восстановлено локальных команд: ${report.operations.length}.`, 'success');
+      if (restored > 0) this.panel.setStatus(`Восстановлено команд: ${restored}.`, 'success');
+      else this.panel.setStatus('Изменения показываются локально. «Применить» сохраняет их в draft.');
+    }).catch(error => {
+      if (!this.destroyed) this.panel.setStatus(errorMessage(error), 'error');
     });
     return this;
   }
@@ -119,6 +129,7 @@ export class LykarEditor {
   destroy(): void {
     if (this.destroyed) return;
     this.destroyed = true;
+    this.restoreController.abort();
     this.unsubscribeSession?.();
     this.unsubscribeChanges?.();
     this.inspector.destroy();
@@ -128,7 +139,11 @@ export class LykarEditor {
 
   private preview(operation: OperationV1, key?: string, nodeElement?: Element | null): Promise<EditorApplyReport> {
     this.assertActive();
-    const next = this.previewQueue.then(() => this.session.preview(operation, key, nodeElement));
+    const next = this.previewQueue.then(async () => {
+      await this.restoration;
+      this.assertActive();
+      return this.session.preview(operation, key, nodeElement);
+    });
     this.previewQueue = next.then(() => undefined, () => undefined);
     return next.then(report => {
       this.overlay.refresh();
@@ -136,9 +151,23 @@ export class LykarEditor {
     });
   }
 
+  private async restore(): Promise<number> {
+    let operations: OperationV1[] = [];
+    if (this.persistence) {
+      const remote = await loadPersistedDraft(this.persistence, this.options.capability?.token, this.restoreController.signal);
+      this.assertActive();
+      this.expectedRevision = remote.revision;
+      operations = remote.operations;
+    }
+    const restored = await this.session.restore(operations, this.restoreController.signal);
+    return restored?.operations.length ?? 0;
+  }
+
   private async commit(): Promise<EditorCommitResult> {
     this.assertActive();
+    await this.restoration;
     await this.previewQueue;
+    this.assertActive();
     const operations = this.session.pendingOperations();
     if (operations.length === 0) return { saved: 0, revision: this.expectedRevision };
     const report = reportForPending(this.session.page, this.session.getChanges(), operations);
@@ -234,6 +263,27 @@ async function persistOperations(
   return { revision: payload.draft!.revision!, appended: payload.draft!.appended! };
 }
 
+async function loadPersistedDraft(
+  persistence: EditorDraftPersistence,
+  capabilityToken?: string,
+  signal?: AbortSignal,
+): Promise<{ revision: number; operations: OperationV1[] }> {
+  const fetcher = persistence.fetch ?? globalThis.fetch;
+  const token = persistence.accessToken ?? capabilityToken;
+  if (!fetcher || !token) throw new Error('Editor persistence requires an editing capability token');
+  const baseUrl = (persistence.apiBaseUrl ?? '').replace(/\/+$/, '');
+  const response = await fetcher(`${baseUrl}/api/editor/drafts/${encodeURIComponent(persistence.draftId)}`, {
+    headers: { Authorization: `Bearer ${token}` },
+    signal,
+  });
+  if (!response.ok) throw new Error(`Не удалось загрузить draft: HTTP ${response.status}`);
+  const payload = await response.json() as { draft?: { revision?: number }; operations?: unknown };
+  if (!Number.isSafeInteger(payload.draft?.revision) || !Array.isArray(payload.operations)) {
+    throw new Error('Backend returned an invalid draft');
+  }
+  return { revision: payload.draft!.revision!, operations: payload.operations as OperationV1[] };
+}
+
 function reportForPending(
   page: EditorSession['page'],
   changes: ReturnType<EditorSession['getChanges']>,
@@ -271,4 +321,8 @@ function validateCapability(capability: EditingCapability, document: Document): 
   if (actual && (expected.origin !== actual.origin || expected.pathname !== actual.pathname)) {
     throw new Error('Editing capability does not match the current page');
   }
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }

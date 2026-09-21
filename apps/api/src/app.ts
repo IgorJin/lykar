@@ -33,6 +33,7 @@ export type BuildAppOptions = {
   allowedOrigins?: string[];
   appOrigin?: string;
   ownerEmail?: string;
+  devAuth?: boolean;
   secureCookies?: boolean;
   development?: boolean;
   magicLinkSender?: MagicLinkSender;
@@ -47,10 +48,18 @@ export type BuildAppOptions = {
 };
 
 export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
-  const server = Fastify({ logger: options.logger ?? true, bodyLimit: 1024 * 1024 });
   const appOrigin = new URL(options.appOrigin ?? 'http://localhost:3000').origin;
+  const appHostname = new URL(appOrigin).hostname;
   const allowedOrigins = new Set([appOrigin, ...(options.allowedOrigins ?? [])]);
   const development = options.development ?? process.env.NODE_ENV !== 'production';
+  const devAuth = options.devAuth ?? process.env.LYKAR_DEV_AUTH === '1';
+  if (devAuth && !development) {
+    throw new Error('LYKAR_DEV_AUTH can only be enabled outside production');
+  }
+  if (devAuth && !isLoopbackHost(appHostname)) {
+    throw new Error('LYKAR_DEV_AUTH requires a localhost or loopback app origin');
+  }
+  const server = Fastify({ logger: options.logger ?? true, bodyLimit: 1024 * 1024 });
   const analyticsSigningSecret = options.analyticsSigningSecret
     ?? (development ? 'lykar-development-analytics-signing-secret' : undefined);
   if (!analyticsSigningSecret) {
@@ -86,7 +95,9 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
   });
 
   server.addHook('preHandler', async (request, reply) => {
-    if (!request.url.startsWith('/api/admin/') || request.method === 'GET' || request.method === 'HEAD') return;
+    const adminMutation = request.url.startsWith('/api/admin/');
+    const developmentLogin = request.url.startsWith('/api/auth/dev-login');
+    if ((!adminMutation && !developmentLogin) || request.method === 'GET' || request.method === 'HEAD') return;
     const origin = request.headers.origin;
     const fetchSite = request.headers['sec-fetch-site'];
     if ((origin && origin !== appOrigin) || fetchSite === 'cross-site') {
@@ -166,6 +177,7 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
 
     await scopedServer.register(authRoutes, {
       service: authService,
+      devAuth,
       secureCookies,
       sessionTtlSeconds,
     });
@@ -187,4 +199,12 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
   });
 
   return server;
+}
+
+function isLoopbackHost(hostname: string): boolean {
+  const host = hostname.replace(/^\[|\]$/g, '').toLowerCase();
+  if (host === 'localhost' || host === '::1') return true;
+  const octets = host.split('.').map(Number);
+  return octets.length === 4 && octets[0] === 127
+    && octets.every(octet => Number.isInteger(octet) && octet >= 0 && octet <= 255);
 }

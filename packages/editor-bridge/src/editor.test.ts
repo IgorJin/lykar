@@ -169,6 +169,50 @@ describe('local editor session', () => {
 });
 
 describe('editor UI and proposals', () => {
+  it('restores backend operations without losing unsaved local edits', async () => {
+    document.body.innerHTML = '<h1 id="hero">Before</h1>';
+    const target = buildTargetDescriptor(document.querySelector('h1')!);
+    const saved: OperationV1 = { schemaVersion: 1, id: 'saved', kind: 'setText', target, value: 'Saved' };
+    const pending: OperationV1 = { ...saved, id: 'pending', value: 'Unsaved' };
+    window.sessionStorage.setItem('lykar:draft:draft', JSON.stringify({ operations: [pending] }));
+    const editor = new LykarEditor({ document, capability: {
+      token: 'editor-token', expiresAt: '2099-01-01', projectId: 'project',
+      pageUrl: 'http://localhost:3000/', draftId: 'draft',
+    }, persistence: {
+      draftId: 'draft', expectedRevision: 0,
+      fetch: vi.fn(async () => new Response(JSON.stringify({ draft: { revision: 1 }, operations: [saved] }))),
+    } }).start();
+    try {
+      await vi.waitFor(() => expect(editor.session.getState().operationCount).toBe(2));
+      expect(document.querySelector('h1')?.textContent).toBe('Unsaved');
+      expect(editor.session.pendingOperations()).toEqual([pending]);
+      expect(JSON.parse(window.sessionStorage.getItem('lykar:draft:draft')!).operations).toEqual([pending]);
+      expect(editor.session.undo()).toBe(true);
+      expect(document.querySelector('h1')?.textContent).toBe('Saved');
+      expect(editor.session.pendingOperations()).toEqual([]);
+      expect(editor.session.undo()).toBe(false);
+      await editor.session.redo();
+      expect(document.querySelector('h1')?.textContent).toBe('Unsaved');
+      expect(editor.session.pendingOperations()).toEqual([pending]);
+    } finally { editor.destroy(); }
+  });
+
+  it('does not mutate the page when a draft load finishes after destroy', async () => {
+    document.body.innerHTML = '<h1 id="hero">Before</h1>';
+    const target = buildTargetDescriptor(document.querySelector('h1')!);
+    let resolve!: (response: Response) => void;
+    const fetcher = vi.fn(() => new Promise<Response>(done => { resolve = done; }));
+    const editor = new LykarEditor({ document, persistence: {
+      draftId: 'draft', expectedRevision: 0, accessToken: 'token', fetch: fetcher,
+    } }).start();
+    editor.destroy();
+    resolve(new Response(JSON.stringify({ draft: { revision: 1 }, operations: [
+      { schemaVersion: 1, id: 'late', kind: 'setText', target, value: 'Late' },
+    ] })));
+    await new Promise(done => setTimeout(done, 20));
+    expect(document.querySelector('h1')?.textContent).toBe('Before');
+  });
+
   it('previews panel input immediately and commits the local draft on Apply', async () => {
     document.body.innerHTML = '<main><h1 id="hero">Before</h1></main>';
     const onApply = vi.fn();
@@ -207,10 +251,12 @@ describe('editor UI and proposals', () => {
 
   it('saves only pending operations through the editor capability on Apply', async () => {
     document.body.innerHTML = '<h1 id="hero">Before</h1>';
-    const fetcher = vi.fn(async () => ({
+    const fetcher = vi.fn(async (_url: string | URL | Request, init?: RequestInit) => ({
       ok: true,
       status: 200,
-      json: async () => ({ draft: { revision: 4, appended: 1 } }),
+      json: async () => init?.method === 'POST'
+        ? ({ draft: { revision: 4, appended: 1 } })
+        : ({ draft: { revision: 3 }, operations: [] }),
     } as Response));
     const onCommit = vi.fn();
     const editor = new LykarEditor({
@@ -242,8 +288,8 @@ describe('editor UI and proposals', () => {
       { saved: 1, revision: 4 },
       expect.any(Object),
     ));
-    expect(fetcher).toHaveBeenCalledOnce();
-    const request = fetcher.mock.calls[0][1] as RequestInit;
+    expect(fetcher).toHaveBeenCalledTimes(2);
+    const request = fetcher.mock.calls[1][1] as RequestInit;
     expect(request.headers).toMatchObject({ Authorization: 'Bearer editor-capability-token' });
     expect(JSON.parse(String(request.body))).toMatchObject({
       expectedRevision: 3,

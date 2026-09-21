@@ -144,6 +144,17 @@ const versioningRoutes: FastifyPluginAsync<VersioningRoutesOptions> = async (fas
     }),
   );
 
+  fastify.get<{ Params: DraftParams }>(
+    '/api/editor/drafts/:draftId',
+    async request => {
+      const userId = await options.accessService.authorizeEditorDraft(
+        bearerToken(request.headers.authorization),
+        request.params.draftId,
+      );
+      return options.service.getDraft(userId, request.params.draftId);
+    },
+  );
+
   fastify.post<{ Params: DraftParams; Body: { expectedRevision: unknown; operations: unknown; sourceSnapshot?: unknown } }>(
     '/api/editor/drafts/:draftId/operations',
     {

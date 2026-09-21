@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import type { OperationV1 } from '@lykar/protocol';
 
-import { buildApp } from './app';
+import { buildApp, type BuildAppOptions } from './app';
 import type { AnalyticsRepository, ExperimentAnalyticsReport } from './domain/analytics';
 import { hashToken } from './domain/auth';
 import type { AuthRepository, AuthenticatedSession, MagicLinkSender, UserRecord } from './domain/auth';
@@ -104,10 +104,80 @@ class ApiMembershipRepository implements MembershipRepository {
   async transferOwnership():ReturnType<MembershipRepository['transferOwnership']>{throw new Error('unused');}
 }
 
-function setup(){const versioningRepository=new ApiRepository();const authRepository=new MemoryAuthRepository();const sender=new CapturingSender();const app=buildApp({logger:false,appOrigin:'http://localhost:3000',ownerEmail:'owner@example.com',versioningRepository,authRepository,accessRepository:new ApiAccessRepository(),membershipRepository:new ApiMembershipRepository(),experimentRepository:new ApiExperimentRepository(),analyticsRepository:new ApiAnalyticsRepository(),magicLinkSender:sender});return{app,versioningRepository,sender};}
+function setup(overrides: Pick<BuildAppOptions, 'devAuth' | 'development' | 'appOrigin'> = {}) {
+  const versioningRepository = new ApiRepository();
+  const authRepository = new MemoryAuthRepository();
+  const sender = new CapturingSender();
+  const app = buildApp({
+    logger: false,
+    appOrigin: 'http://localhost:3000',
+    ownerEmail: 'owner@example.com',
+    versioningRepository,
+    authRepository,
+    accessRepository: new ApiAccessRepository(),
+    membershipRepository: new ApiMembershipRepository(),
+    experimentRepository: new ApiExperimentRepository(),
+    analyticsRepository: new ApiAnalyticsRepository(),
+    magicLinkSender: sender,
+    ...overrides,
+  });
+  return { app, versioningRepository, sender };
+}
 async function login(app:ReturnType<typeof buildApp>,sender:CapturingSender):Promise<string>{const requested=await app.inject({method:'POST',url:'/api/auth/magic-link',payload:{email:'owner@example.com'}});assert.equal(requested.statusCode,202);const token=new URL(sender.url).searchParams.get('token');assert.ok(token);const verified=await app.inject({method:'GET',url:`/api/auth/verify?token=${token}`});assert.equal(verified.statusCode,302);const cookie=verified.headers['set-cookie'];assert.equal(typeof cookie,'string');return(cookie as string).split(';')[0];}
 
 test('admin endpoints fail closed without a session cookie',async()=>{const{app,versioningRepository}=setup();try{const response=await app.inject({method:'POST',url:'/api/admin/projects',payload:{name:'Site',origins:['https://example.com']}});assert.equal(response.statusCode,401);assert.equal(versioningRepository.createProjectCalls,0);}finally{await app.close();}});
+
+test('development login is disabled unless the local development mode is enabled', async () => {
+  const { app } = setup();
+  try {
+    const status = await app.inject({ method: 'GET', url: '/api/auth/dev-login' });
+    assert.deepEqual(status.json(), { enabled: false });
+    const login = await app.inject({ method: 'POST', url: '/api/auth/dev-login', payload: {} });
+    assert.equal(login.statusCode, 404);
+  } finally {
+    await app.close();
+  }
+});
+
+test('local development login creates a normal owner session', async () => {
+  const { app, versioningRepository } = setup({ devAuth: true });
+  try {
+    const crossSiteLogin = await app.inject({
+      method: 'POST', url: '/api/auth/dev-login', payload: {},
+      headers: { origin: 'https://untrusted.example', 'sec-fetch-site': 'cross-site' },
+    });
+    assert.equal(crossSiteLogin.statusCode, 403);
+    assert.equal(crossSiteLogin.headers['set-cookie'], undefined);
+    const status = await app.inject({ method: 'GET', url: '/api/auth/dev-login' });
+    assert.deepEqual(status.json(), { enabled: true });
+    const login = await app.inject({ method: 'POST', url: '/api/auth/dev-login', payload: {} });
+    assert.equal(login.statusCode, 200);
+    const cookie = login.headers['set-cookie'];
+    assert.equal(typeof cookie, 'string');
+    const sessionCookie = (cookie as string).split(';')[0];
+    const session = await app.inject({ method: 'GET', url: '/api/auth/session', headers: { cookie: sessionCookie } });
+    assert.equal(session.statusCode, 200);
+    assert.equal(session.json().user.email, 'owner@example.com');
+    const project = await app.inject({
+      method: 'POST',
+      url: '/api/admin/projects',
+      headers: { cookie: sessionCookie },
+      payload: { name: 'Local site', origins: ['http://localhost:4173'] },
+    });
+    assert.equal(project.statusCode, 201);
+    assert.equal(versioningRepository.createProjectCalls, 1);
+  } finally {
+    await app.close();
+  }
+});
+
+test('development login refuses production and non-loopback origins', () => {
+  assert.throws(() => setup({ devAuth: true, development: false }), /outside production/);
+  assert.throws(
+    () => setup({ devAuth: true, development: true, appOrigin: 'https://admin.example.com' }),
+    /loopback app origin/,
+  );
+});
 
 test('owner signs in through a one-use magic link and creates a project',async()=>{const{app,versioningRepository,sender}=setup();try{const cookie=await login(app,sender);const reused=await app.inject({method:'GET',url:sender.url.replace('http://localhost:3000','')});assert.equal(reused.statusCode,401);const response=await app.inject({method:'POST',url:'/api/admin/projects',headers:{cookie},payload:{name:'Site',origins:['https://Example.com']}});assert.equal(response.statusCode,201);assert.deepEqual(response.json().project.origins,['https://example.com']);assert.equal(versioningRepository.createProjectCalls,1);}finally{await app.close();}});
 

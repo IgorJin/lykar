@@ -8,6 +8,23 @@ function writeStatus(value) {
   if (output) output.textContent = typeof value === 'string' ? value : JSON.stringify(value, null, 2);
 }
 
+function writeMissingEditorStatus() {
+  const output = document.querySelector('#draft-output');
+  if (!output) return;
+
+  output.replaceChildren(document.createTextNode(
+    'Editor capability отсутствует. Войдите в админку, выберите нужную страницу и нажмите «Открыть редактор».',
+  ));
+  const link = document.createElement('a');
+  link.className = 'admin-link-button';
+  link.href = config.adminUrl;
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  link.textContent = config.adminUrl;
+  link.setAttribute('aria-label', 'Открыть админку');
+  output.append(link);
+}
+
 async function loadRuntime(accessToken, version) {
   const runtime = new window.Lykar({
     projectKey: config.projectKey,
@@ -30,7 +47,7 @@ async function loadRuntime(accessToken, version) {
 
 function startPlaygroundEditor() {
   if (!editorCapability) {
-    writeStatus(`Editor capability отсутствует. Откройте ${config.adminUrl} и нажмите «Открыть редактор».`);
+    writeMissingEditorStatus();
     return;
   }
   editor?.destroy();
@@ -80,9 +97,7 @@ async function boot() {
   }
 
   document.body.dataset.lykarMode = report?.mode === 'native' ? 'native' : 'runtime';
-  writeStatus(report?.mode === 'native'
-    ? { mode: 'native', reason: report.reason }
-    : { mode: 'runtime', version: report?.version, report });
+  writeMissingEditorStatus();
 }
 
 document.querySelector('#restart-editor')?.addEventListener('click', startPlaygroundEditor);

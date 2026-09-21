@@ -16,8 +16,11 @@ npm run dev:api
 
 Open `http://localhost:3000/admin/`. Authentication is passwordless. In local
 development the magic link is printed in the API terminal; production email is
-connected through the `MagicLinkSender` adapter. Project invitation delivery
-uses the separate `InvitationSender` adapter and is also printed locally.
+connected through the `MagicLinkSender` adapter. To enable one-click owner login
+for local work, set `LYKAR_DEV_AUTH=1` and bind the API to a loopback host. The
+server refuses this mode in production, on non-loopback app origins, or when
+`HOST` is exposed beyond loopback. Project invitation delivery uses the separate
+`InvitationSender` adapter and is printed locally.
 
 Admin and API share one origin. The admin session is an HttpOnly, SameSite
 cookie. A one-time page-bound code is used when the admin opens an editor on a

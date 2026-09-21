@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>S0 — итоговая ревизия реализации</title>
+  <style>
+    :root{--ink:#172033;--muted:#5c6880;--line:#dbe2ee;--paper:#fff;--wash:#f4f7fb;--violet:#6941c6;--green:#067647;--amber:#b54708;--red:#b42318}
+    *{box-sizing:border-box}body{margin:0;background:var(--wash);color:var(--ink);font:16px/1.55 Inter,system-ui,-apple-system,sans-serif}
+    main{max-width:1180px;margin:auto;padding:42px 24px 80px}.hero,.card{background:var(--paper);border:1px solid var(--line);border-radius:20px;box-shadow:0 12px 35px #17203310}.hero{padding:36px}.card{padding:28px;margin-top:20px}.ey{color:var(--violet);font-size:12px;font-weight:800;letter-spacing:.13em;text-transform:uppercase}.lead{font-size:20px;color:var(--muted);max-width:920px}.badge{display:inline-block;padding:5px 11px;border-radius:99px;background:#ecfdf3;color:var(--green);font-weight:800}.metrics,.grid{display:grid;gap:14px}.metrics{grid-template-columns:repeat(auto-fit,minmax(180px,1fr));margin-top:24px}.metric,.note{padding:14px;border:1px solid var(--line);border-radius:13px;background:#fbfcfe}.metric b{display:block;font-size:27px}.metric span{color:var(--muted)}h1{font-size:clamp(34px,5vw,60px);line-height:1.04;margin:13px 0 18px}h2{font-size:25px;margin:0 0 16px}h3{font-size:18px;margin:20px 0 8px}.grid{grid-template-columns:repeat(auto-fit,minmax(270px,1fr))}.ok{color:var(--green);font-weight:800}.warn{color:var(--amber);font-weight:800}.path,code{font-family:SFMono-Regular,Consolas,monospace}.path{color:var(--violet);font-weight:750;overflow-wrap:anywhere}pre{margin:10px 0 0;background:#101828;color:#e7edf7;border-radius:13px;padding:17px;overflow:auto;font:13px/1.55 SFMono-Regular,Consolas,monospace}table{width:100%;border-collapse:collapse}th,td{text-align:left;vertical-align:top;padding:10px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-size:12px;letter-spacing:.06em;text-transform:uppercase}.diagram{overflow:auto;border:1px solid var(--line);border-radius:14px;padding:12px;background:#fbfcfe}.foot{color:var(--muted);font-size:13px}@media(max-width:650px){main{padding:20px 14px 50px}.hero,.card{padding:20px}}
+  </style>
+</head>
+<body>
+<main>
+  <section class="hero">
+    <div class="ey">Lykar · verification review · 2026-09-21</div>
+    <h1>S0 подтверждён после исправлений</h1>
+    <p class="lead">Автоматические проверки и ручной пользовательский путь дают ожидаемый результат: локальный стенд запускается, Admin открывает редактор, draft сохраняется и восстанавливается, Release и share работают в отдельном visitor-потоке.</p>
+    <p><span class="badge">S0 PASS</span> Все восемь задач закрыты в текущем snapshot. Ограничения дальнейших этапов перечислены в конце отчёта.</p>
+    <div class="metrics">
+      <div class="metric"><b>6/6</b><span>Chromium browser E2E</span></div>
+      <div class="metric"><b>21/21</b><span>API + PostgreSQL integration</span></div>
+      <div class="metric"><b>69</b><span>unit/component/lifecycle PASS</span></div>
+      <div class="metric"><b>0</b><span>ожидаемых ошибок page/network</span></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Что проверено</h2>
+    <table>
+      <thead><tr><th>Задача</th><th>Результат</th><th>Доказательство</th></tr></thead>
+      <tbody>
+        <tr><td>S0-01</td><td class="ok">PASS</td><td>Чистая копия, <code>npm ci --offline</code>, 376 пакетов, lockfile без изменений.</td></tr>
+        <tr><td>S0-02</td><td class="ok">PASS</td><td><code>npm run build</code>, <code>npm run typecheck</code>, <code>npm test</code>.</td></tr>
+        <tr><td>S0-03</td><td class="ok">PASS</td><td>Временный PostgreSQL, миграции, seed, HTTP smoke, restart/Ctrl+C.</td></tr>
+        <tr><td>S0-04</td><td class="ok">PASS</td><td>Playwright 1.63.0, Chromium 153.0.8010.12, изолированные contexts и артефакты failure.</td></tr>
+        <tr><td>S0-05</td><td class="ok">PASS</td><td>Dev login, magic link, Admin popup после задержки API, кнопка Admin в playground.</td></tr>
+        <tr><td>S0-06</td><td class="ok">PASS</td><td>Edit → preview → save → reload → reopen → Release → share; отдельная page isolation.</td></tr>
+        <tr><td>S0-07</td><td class="ok">PASS</td><td>Regression cases для найденных дефектов и повторный полный прогон.</td></tr>
+        <tr><td>S0-08</td><td class="ok">PASS</td><td>Ручной Chrome-проход завершён 2026-09-21; share дал Version 3, errors 0, editor panel отсутствует.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>Архитектура проверенного потока</h2>
+    <div class="diagram">
+      <svg viewBox="0 0 1120 360" role="img" aria-label="Схема Admin, API, PostgreSQL и editor bridge">
+        <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#6941c6"/></marker></defs>
+        <rect x="35" y="45" width="220" height="90" rx="14" fill="#fff" stroke="#c9d2e3" stroke-width="2"/><text x="145" y="78" text-anchor="middle" font-weight="700">Chrome / Admin</text><text x="145" y="105" text-anchor="middle" fill="#5c6880">login · draft · Release</text>
+        <rect x="35" y="225" width="220" height="90" rx="14" fill="#ecfdf3" stroke="#6ce9a6" stroke-width="2"/><text x="145" y="258" text-anchor="middle" font-weight="700">Chrome / Playground</text><text x="145" y="285" text-anchor="middle" fill="#5c6880">runtime · editor panel</text>
+        <rect x="450" y="135" width="220" height="90" rx="14" fill="#fff" stroke="#c9d2e3" stroke-width="2"/><text x="560" y="168" text-anchor="middle" font-weight="700">Fastify API</text><text x="560" y="195" text-anchor="middle" fill="#5c6880">auth · draft · version · share</text>
+        <rect x="865" y="135" width="220" height="90" rx="14" fill="#fff" stroke="#c9d2e3" stroke-width="2"/><text x="975" y="168" text-anchor="middle" font-weight="700">PostgreSQL</text><text x="975" y="195" text-anchor="middle" fill="#5c6880">revisions · operations · releases</text>
+        <path d="M255 90 L450 165" stroke="#6941c6" stroke-width="3" fill="none" marker-end="url(#arrow)"/><path d="M255 270 L450 195" stroke="#6941c6" stroke-width="3" fill="none" marker-end="url(#arrow)"/><path d="M670 180 L865 180" stroke="#6941c6" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+        <text x="350" y="110" text-anchor="middle" fill="#5c6880">same-origin / bearer</text><text x="350" y="260" text-anchor="middle" fill="#5c6880">editor exchange / save</text><text x="765" y="166" text-anchor="middle" fill="#5c6880">scoped SQL</text>
+      </svg>
+    </div>
+    <p>Editor открывает <code>about:blank</code> синхронно внутри клика, затем заменяет URL после API-ответа. Bridge загружает remote operations, читает local pending до replay и хранит capability только для совпадающих API/origin/path.</p>
+  </section>
+
+  <section class="card">
+    <h2>Найденные дефекты и исправления</h2>
+    <table>
+      <thead><tr><th>Риск</th><th>Причина</th><th>Исправление и regression</th></tr></thead>
+      <tbody>
+        <tr><td>Изолированный E2E мог взять рабочий DB URL.</td><td>Наследовались <code>LYKAR_E2E_DATABASE_URL</code> и другие env.</td><td><span class="path">scripts/e2e-process.mjs</span> разделяет isolated/dev режимы; тест с несуществующим URL прошёл на временной БД.</td></tr>
+        <tr><td>Popup test не проверял реальную блокировку.</td><td>Chromium запускался с Playwright default <code>--disable-popup-blocking</code>.</td><td><span class="path">playwright.config.ts</span> убирает только этот аргумент, а infrastructure test ждёт console event и подтверждает blocked delayed popup. Реальный Admin click остаётся рабочим.</td></tr>
+        <tr><td>Capability могла отправить token в другой API.</td><td>Restore переписывал persisted API URL настроенным URL.</td><td><span class="path">packages/editor-bridge/src/access-client.ts</span> проверяет exact API, page path, expiry и revision; invalid storage fail-closed.</td></tr>
+        <tr><td>Reload терял local pending edit.</td><td>Remote replay очищал тот же storage до чтения pending.</td><td><span class="path">packages/editor-bridge/src/session.ts</span> читает pending до remote replay, дедуплицирует ids, сохраняет committed/pending history; есть Undo/Redo regression.</td></tr>
+        <tr><td>Поздний draft GET менял уничтоженный editor.</td><td>Async ответ не был связан с lifecycle.</td><td><span class="path">packages/editor-bridge/src/editor.ts</span> использует AbortController и active checks; late-response test не меняет DOM.</td></tr>
+        <tr><td>Cleanup мог оставить descendants.</td><td>Фиксированная задержка вместо ожидания graceful exit.</td><td><span class="path">scripts/e2e-process.mjs</span> ждёт exit, затем ограниченно применяет SIGKILL; отдельные lifecycle tests проверяют parent/process-group cleanup.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>Ключевые блоки кода</h2>
+    <h3>Popup до асинхронного запроса</h3>
+    <div class="path">apps/admin/src/main.tsx</div>
+    <pre><code>const editorWindow = window.open('about:blank', '_blank');
+if (!editorWindow) throw new Error('Браузер заблокировал окно редактора.');
+editorWindow.opener = null;
+const result = await post(`/api/admin/pages/${page.id}/editor-launch`, { draftId: open.id });
+editorWindow.location.replace(result.launchUrl);</code></pre>
+    <h3>Remote operations до local pending</h3>
+    <div class="path">packages/editor-bridge/src/session.ts</div>
+    <pre><code>// Read pending edits before remote replay can update their storage key.
+const raw = this.storage?.getItem(this.storageKey);
+pending = value.operations.filter(operation =&gt; validateOperationV1(operation).ok
+  &amp;&amp; !committedIds.has(operation.id));
+const remote = await this.runBatch(batchId, committedOperations, ..., signal);
+const local = await this.runBatch(batchId, pending, ..., signal);</code></pre>
+    <h3>Изоляция базы для тестов</h3>
+    <div class="path">scripts/e2e-process.mjs</div>
+    <pre><code>export async function databaseUrlForRun({ isolated, environment, startLocalPostgres }) {
+  if (!isolated &amp;&amp; environment.LYKAR_E2E_DATABASE_URL) return environment.LYKAR_E2E_DATABASE_URL;
+  return startLocalPostgres();
+}</code></pre>
+  </section>
+
+  <section class="card">
+    <h2>Проверки и фактические результаты</h2>
+    <table>
+      <thead><tr><th>Команда</th><th>Результат</th><th>Примечание</th></tr></thead>
+      <tbody>
+        <tr><td><code>npm ci --offline</code> в чистой копии</td><td class="ok">PASS</td><td>376 packages; lock SHA-256 <code>b12bdb1f…970297</code>; audit 0.</td></tr>
+        <tr><td><code>npm run build</code></td><td class="ok">PASS</td><td>Все workspace build scripts.</td></tr>
+        <tr><td><code>npm run typecheck</code></td><td class="ok">PASS</td><td>Workspace + <code>tests/e2e/tsconfig.json</code>.</td></tr>
+        <tr><td><code>npm test</code></td><td class="ok">PASS</td><td>69 pass; три DB case без URL — ожидаемый skip в non-E2E запуске.</td></tr>
+        <tr><td><code>npm run test:e2e:http</code></td><td class="ok">PASS</td><td>21/21 API без skip + HTTP smoke; inherited invalid URLs игнорируются.</td></tr>
+        <tr><td><code>npm run test:e2e:browser</code></td><td class="ok">PASS</td><td>6/6; popup negative control, login, magic link, Admin, edit/reload/share.</td></tr>
+        <tr><td>Обычный Chrome, 2026-09-21</td><td class="ok">PASS</td><td>UI login → draft → editor → setText → revision 1 → reload → reopen → Version 3 → share.</td></tr>
+        <tr><td><code>git diff --check</code></td><td class="ok">PASS</td><td>Пробелы и конфликтные маркеры не найдены.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>Snapshot и среда</h2>
+    <pre><code>repository: /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar
+branch: codex/analytics
+base commit: 1aa184838ee233d5d796513ba51334e7f02caf79
+source manifest (excluding docs/verification): c762d0efe6f28223c8c60eeae1441a8dc2d6fd4d2aa8b7060a12d7da814631a8
+Node.js: v22.23.1   npm: 10.9.8   macOS: 26.6.2 arm64
+PostgreSQL CLI: 15.18   Playwright: 1.63.0
+automatic browser: Chromium 153.0.8010.12 (revision 1243)
+manual browser: Google Chrome 153.0.8010.48</code></pre>
+    <p class="foot">Промежуточные S0-01…S0-08 HTML сохраняются как исторический журнал. Этот документ содержит текущую проверку после исправлений и имеет приоритет для статуса snapshot.</p>
+  </section>
+
+  <section class="card">
+    <h2>Границы результата</h2>
+    <p>В S0 закрыт static Chromium baseline и локальный dev стенд. В следующие этапы вынесены SDK/npm distribution, React/Vue/SPA lifecycle, строгий TargetRegistry, идемпотентный save для конкурирующих вкладок, расширенная browser matrix и production operations. Это плановые ограничения, а не дефекты текущего проверенного сценария.</p>
+    <p class="foot">Связанные инструкции: <a href="../../../TASKS.md">TASKS.md</a>, <a href="../../../README.md">README.md</a>, <a href="../s0-baseline.md">исторический baseline</a>.</p>
+  </section>
+</main>
+</body>
+</html>

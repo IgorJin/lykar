@@ -9,17 +9,23 @@
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
-    "typecheck": "npm run typecheck --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present",
+    "typecheck": "npm run typecheck:e2e && npm run typecheck --workspaces --if-present",
+    "typecheck:e2e": "tsc --noEmit -p tests/e2e/tsconfig.json",
+    "test": "node --test scripts/*.test.mjs && npm run test --workspaces --if-present",
     "db:migrate": "npm run migrate --workspace lykar-lib-server",
     "dev:api": "npm run dev --workspace lykar-lib-server",
     "dev:admin": "npm run dev --workspace @lykar/admin",
     "dev:editor": "npm run dev --workspace lykar-lib",
     "dev:playground": "npm run dev --workspace @lykar/playground",
     "dev:e2e": "node scripts/e2e-stack.mjs",
-    "test:e2e": "node scripts/e2e-stack.mjs --smoke"
+    "test:e2e": "node scripts/e2e-stack.mjs --smoke",
+    "test:e2e:http": "node scripts/e2e-stack.mjs --smoke",
+    "test:e2e:browser": "playwright test"
   },
   "engines": {
     "node": ">=20"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0"
   }
 }

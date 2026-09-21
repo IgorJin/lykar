@@ -7,3 +7,6 @@ coverage/
 !.env.example
 *.log
 .lykar/
+playwright-report/
+test-results/
+blob-report/

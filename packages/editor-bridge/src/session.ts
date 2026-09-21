@@ -67,17 +67,29 @@ export class EditorSession {
     return this.sourceSnapshotPromise;
   }
 
-  async restore(): Promise<EditorApplyReport | null> {
-    const raw = this.storage?.getItem(this.storageKey);
-    if (!raw) return null;
+  async restore(committedOperations: OperationV1[] = [], signal?: AbortSignal): Promise<EditorApplyReport | null> {
+    // Read pending edits before remote replay can update their storage key.
+    let pending: OperationV1[] = [];
     try {
-      const value = JSON.parse(raw) as { operations?: unknown };
-      if (!Array.isArray(value.operations) || value.operations.length === 0) return null;
-      return this.apply({ id: createOperationId('restore'), operations: value.operations as OperationV1[] });
-    } catch {
-      this.storage?.removeItem(this.storageKey);
-      return null;
+      const raw = this.storage?.getItem(this.storageKey);
+      const value = raw ? JSON.parse(raw) as { operations?: unknown } : null;
+      if (Array.isArray(value?.operations)) {
+        const committedIds = new Set(committedOperations.map(operation => operation.id));
+        pending = value.operations.filter(operation => validateOperationV1(operation).ok && !committedIds.has(operation.id));
+      }
+    } catch { /* Invalid or unavailable local storage must not block backend restore. */ }
+
+    const batchId = createOperationId('restore');
+    const remote = await this.runBatch(batchId, committedOperations, undefined, undefined, signal);
+    for (const record of remote.records) record.committed = true;
+    const local = await this.runBatch(batchId, pending, undefined, undefined, signal);
+    const records = [...remote.records, ...local.records];
+    if (records.length > 0) {
+      this.history.push({ id: batchId, records });
+      this.redoStack.length = 0;
     }
+    this.changed();
+    return records.length ? reportFor(batchId, this.page, records.map(record => resultFrom(record))) : null;
   }
 
   async preview(operation: OperationV1, key?: string, nodeElement?: Element | null): Promise<EditorApplyReport> {
@@ -106,9 +118,11 @@ export class EditorSession {
     if (!batch || batch.records.every(record => record.committed)) return false;
     this.history.pop();
     for (const record of [...batch.records].reverse()) {
-      if (record.status === 'applied') record.undo();
+      if (!record.committed && record.status === 'applied') record.undo();
     }
-    this.redoStack.push(batch);
+    const committed = batch.records.filter(record => record.committed);
+    if (committed.length) this.history.push({ id: batch.id, records: committed });
+    this.redoStack.push({ id: batch.id, records: batch.records.filter(record => !record.committed) });
     this.changed();
     return true;
   }
@@ -191,9 +205,11 @@ export class EditorSession {
     operations: OperationV1[],
     key?: string,
     nodeElement?: Element | null,
+    signal?: AbortSignal,
   ): Promise<AppliedBatch> {
     const records: AppliedRecord[] = [];
     for (const operation of operations) {
+      signal?.throwIfAborted();
       const validation = validateOperationV1(operation);
       if (!validation.ok) {
         records.push({
@@ -210,6 +226,7 @@ export class EditorSession {
         continue;
       }
       const capture = await captureUndo(this.document, operation);
+      signal?.throwIfAborted();
       const result = await applyOperation(this.document, operation);
       records.push({
         id: operation.id,
@@ -228,10 +245,10 @@ export class EditorSession {
 
   private changed(): void {
     const operations = this.pendingOperations();
-    if (this.storage) {
-      if (operations.length > 0) this.storage.setItem(this.storageKey, JSON.stringify({ operations }));
-      else this.storage.removeItem(this.storageKey);
-    }
+    try {
+      if (operations.length > 0) this.storage?.setItem(this.storageKey, JSON.stringify({ operations }));
+      else this.storage?.removeItem(this.storageKey);
+    } catch { /* Local recovery is optional when browser storage is unavailable. */ }
     this.notify();
   }
 

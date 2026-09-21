@@ -162,6 +162,16 @@ test(
       });
       assert.equal(appendV2Response.statusCode, 200, appendV2Response.body);
 
+      const editorHeaders = { authorization: `Bearer ${editorExchange.json().capability.token}` };
+      const editorDraft = await app.inject({ method: 'GET', url: `/api/editor/drafts/${draftV2.id}`, headers: editorHeaders });
+      assert.equal(editorDraft.statusCode, 200, editorDraft.body);
+      assert.equal(editorDraft.json().draft.revision, 1);
+      assert.equal(editorDraft.json().operations.length, 1);
+      const anonymousDraft = await app.inject({ method: 'GET', url: `/api/editor/drafts/${draftV2.id}` });
+      assert.equal(anonymousDraft.statusCode, 401);
+      const otherDraft = await app.inject({ method: 'GET', url: `/api/editor/drafts/${draft.id}`, headers: editorHeaders });
+      assert.equal(otherDraft.statusCode, 401);
+
       const publishV2Response = await app.inject({
         method: 'POST',
         url: `/api/admin/drafts/${draftV2.id}/publish`,
@@ -171,6 +181,8 @@ test(
       const releaseV2 = publishV2Response.json().release;
       assert.equal(releaseV2.version, 2);
       assert.equal(releaseV2.operationCount, 2);
+      const closedDraft = await app.inject({ method: 'GET', url: `/api/editor/drafts/${draftV2.id}`, headers: editorHeaders });
+      assert.equal(closedDraft.statusCode, 401);
 
       const nativeManifest = await app.inject({
         method: 'GET',
