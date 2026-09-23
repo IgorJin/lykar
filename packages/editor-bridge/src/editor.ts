@@ -1,12 +1,14 @@
 import type { OperationV1, SourceSnapshotV1 } from '@lykar/protocol';
 
 import { ElementInspector } from './inspector.js';
+import { createOperationId } from './operation-id.js';
 import { OverlayService } from './overlay.js';
 import { SidePanel } from './panel.js';
 import { DummyProposalProvider } from './proposal.js';
 import type { ProposalProvider } from './proposal.js';
 import { EditorSession } from './session.js';
-import type { EditorApplyReport, EditorPageDraft } from './session.js';
+import type { EditorApplyReport, EditorGroupedPreviewReport, EditorPageDraft, PendingSaveBatch } from './session.js';
+import {buildTargetDescriptor} from './target-builder.js';
 
 export type EditingCapability = {
   token: string;
@@ -28,7 +30,20 @@ export type EditorDraftPersistence = {
   fetch?: typeof fetch;
 };
 
-export type EditorCommitResult = { saved: number; revision?: number };
+export type EditorCommitResult = { saved: number; revision?: number; replayed?: boolean };
+
+export class EditorPersistenceError extends Error {
+  constructor(
+    readonly code: string,
+    message: string,
+    readonly status?: number,
+    readonly details?: unknown,
+    options?: ErrorOptions,
+  ) {
+    super(message, options);
+    this.name = 'EditorPersistenceError';
+  }
+}
 
 export type LykarEditorOptions = {
   document?: Document;
@@ -59,6 +74,7 @@ export class LykarEditor {
   private destroyed = false;
   private restoration?: Promise<number>;
   private readonly restoreController = new AbortController();
+  private commitPromise?: Promise<EditorCommitResult>;
 
   constructor(options: LykarEditorOptions = {}) {
     const document = options.document ?? globalThis.document;
@@ -93,15 +109,42 @@ export class LykarEditor {
       this.session.page.pathname,
       {
         preview: (operation, key, nodeElement) => this.preview(operation, key, nodeElement),
+        previewGroup: (operations, key) => this.previewGroup(operations, key),
         commit: () => this.commit(),
+        resolveConflict: () => this.resolveConflict(),
         undo: () => this.undo(),
         redo: () => this.redo(),
+        repair: (operationId, element) => this.repair(operationId, element),
         close: () => this.destroy(),
         captureDestination: callback => this.inspector.captureNextSelection(callback),
         highlightChange: element => {
           if (element?.isConnected) this.overlay.show('proposal', element, 'change');
           else this.overlay.hide('proposal');
         },
+        selectParent: element => {
+          const parent = element.parentElement;
+          if (!parent || ['BODY', 'HTML'].includes(parent.tagName) || (root.nodeType === 1 && root !== parent && !root.contains(parent))) return false;
+          this.inspector.select(parent);
+          return true;
+        },
+        resetStyle: (element, property) => {
+          const baseline = this.session.styleBaseline(element, property);
+          if (!baseline) throw new Error('Исходное значение недоступно или стиль изменён страницей после правки Lykar.');
+          const style = (element as HTMLElement).style;
+          if (style?.getPropertyValue(property) === baseline.value && style.getPropertyPriority(property) === baseline.priority) {
+            return Promise.resolve({batchId: 'no-op-reset', page: this.session.page, applied: 0, skipped: 0, errors: 0, operations: []});
+          }
+          return this.preview({
+            schemaVersion: 1,
+            id: createOperationId('reset-style'),
+            kind: 'setStyle',
+            target: buildTargetDescriptor(element),
+            property,
+            value: baseline.value,
+            ...(baseline.priority ? {priority: baseline.priority} : {}),
+          }, undefined, element);
+        },
+        isStyleDirty: (element, property) => this.session.isStyleDirty(element, property),
       },
       options.proposalProvider ?? new DummyProposalProvider(),
     );
@@ -119,7 +162,14 @@ export class LykarEditor {
       if (this.destroyed) return;
       this.inspector.start();
       this.overlay.refresh();
-      if (restored > 0) this.panel.setStatus(`Восстановлено команд: ${restored}.`, 'success');
+      const recoveryWarning = this.session.recoveryWarning();
+      const pendingSave = this.session.pendingSaveBatch();
+      if (pendingSave && pendingSave.expectedRevision !== this.expectedRevision) {
+        const message = `Локальный save ожидал revision ${pendingSave.expectedRevision}, сервер уже на revision ${this.expectedRevision}.`;
+        this.panel.showConflict(message);
+        this.panel.setStatus(message, 'error');
+      } else if (recoveryWarning) this.panel.setStatus(recoveryWarning, 'error');
+      else if (restored > 0) this.panel.setStatus(`Восстановлено команд: ${restored}.`, 'success');
       else this.panel.setStatus('Изменения показываются локально. «Применить» сохраняет их в draft.');
     }).catch(error => {
       if (!this.destroyed) this.panel.setStatus(errorMessage(error), 'error');
@@ -162,6 +212,21 @@ export class LykarEditor {
     });
   }
 
+  private previewGroup(operations: OperationV1[], key?: string): Promise<EditorGroupedPreviewReport> {
+    this.assertActive();
+    const next = this.previewQueue.then(async () => {
+      await this.restoration;
+      this.assertActive();
+      return this.session.previewGroup(operations, {key, signal: this.restoreController.signal});
+    });
+    this.previewQueue = next.then(() => undefined, () => undefined);
+    return next.then(report => {
+      this.assertActive();
+      this.overlay.refresh();
+      return report;
+    });
+  }
+
   private async restore(): Promise<number> {
     let operations: OperationV1[] = [];
     if (this.persistence) {
@@ -175,31 +240,51 @@ export class LykarEditor {
   }
 
   private async commit(): Promise<EditorCommitResult> {
+    if (this.commitPromise) return this.commitPromise;
+    const pending = this.performCommit();
+    this.commitPromise = pending;
+    try {
+      return await pending;
+    } finally {
+      if (this.commitPromise === pending) this.commitPromise = undefined;
+    }
+  }
+
+  private async performCommit(): Promise<EditorCommitResult> {
     this.assertActive();
     await this.restoration;
     await this.previewQueue;
     this.assertActive();
     const operations = this.session.pendingOperations();
     if (operations.length === 0) return { saved: 0, revision: this.expectedRevision };
-    const report = reportForPending(this.session.page, this.session.getChanges(), operations);
 
     let result: EditorCommitResult;
     if (this.persistence) {
+      let batch = this.session.pendingSaveBatch();
+      if (!batch) {
+        batch = {
+          idempotencyKey: createOperationId('save'),
+          expectedRevision: this.expectedRevision,
+          operations,
+          sourceSnapshot: await this.session.sourceSnapshot(),
+        };
+        this.session.beginSave(batch);
+      }
+      const report = reportForPending(this.session.page, this.session.getChanges(), batch.operations);
       const saved = await persistOperations(
         this.persistence,
-        this.expectedRevision,
-        operations,
+        batch,
         this.options.capability?.token,
-        await this.session.sourceSnapshot(),
         this.restoreController.signal,
       );
       this.assertActive();
       this.expectedRevision = saved.revision;
-      result = { saved: saved.appended, revision: saved.revision };
-      this.session.markCommitted(operations.map(operation => operation.id));
+      result = { saved: saved.appended, revision: saved.revision, replayed: saved.replayed };
+      this.session.completeSave(saved.operationIds);
       await this.options.onApply?.(this.session.exportDraft(), report);
       this.assertActive();
     } else {
+      const report = reportForPending(this.session.page, this.session.getChanges(), operations);
       result = { saved: operations.length };
       await this.options.onApply?.(this.session.exportDraft(), report);
       this.assertActive();
@@ -210,10 +295,33 @@ export class LykarEditor {
     return result;
   }
 
-  private undo(): void {
+  private async resolveConflict(): Promise<void> {
+    if (!this.persistence) return;
+    const remote = await loadPersistedDraft(
+      this.persistence,
+      this.options.capability?.token,
+      this.restoreController.signal,
+    );
+    this.assertActive();
+    this.expectedRevision = remote.revision;
+    this.session.resolveSaveConflict(remote.operations);
+  }
+
+  private async undo(): Promise<void> {
+    await this.previewQueue;
     if (this.session.undo()) {
       this.overlay.refresh();
       this.panel.setStatus('Последнее локальное изменение отменено.', 'success');
+      return;
+    }
+    if (this.session.pendingOperations().length > 0) {
+      this.panel.setStatus('Undo остановлен: страница изменила часть связанной CSS-группы. Изменения оставлены для проверки.', 'error');
+      return;
+    }
+    const report = await this.session.undoCommitted();
+    if (report) {
+      this.overlay.refresh();
+      this.panel.setStatus('Undo сохранённого изменения добавлен как новая pending-команда.', 'success');
     }
   }
 
@@ -223,6 +331,12 @@ export class LykarEditor {
       this.overlay.refresh();
       this.panel.setStatus('Последнее локальное изменение применено повторно.', 'success');
     }
+  }
+
+  private async repair(operationId: string, element: Element): Promise<EditorApplyReport> {
+    const report = await this.session.repair(operationId, element);
+    this.overlay.refresh();
+    return report;
   }
 
   private assertActive(): void {
@@ -246,39 +360,78 @@ export function startEditor(options: LykarEditorOptions = {}): LykarEditor {
 
 async function persistOperations(
   persistence: EditorDraftPersistence,
-  expectedRevision: number,
-  operations: OperationV1[],
+  batch: PendingSaveBatch,
   capabilityToken?: string,
-  sourceSnapshot?: import('@lykar/protocol').SourceSnapshotV1,
   signal?: AbortSignal,
-): Promise<{ revision: number; appended: number }> {
+): Promise<{
+  revision: number;
+  appended: number;
+  operationIds: string[];
+  replayed: boolean;
+}> {
   const fetcher = persistence.fetch ?? globalThis.fetch;
   if (!fetcher) throw new Error('Editor persistence requires fetch');
   const token = persistence.accessToken ?? capabilityToken;
   if (!token) throw new Error('Editor persistence requires an editing capability token');
   const baseUrl = (persistence.apiBaseUrl ?? '').replace(/\/+$/, '');
-  const response = await fetcher(
-    `${baseUrl}/api/editor/drafts/${encodeURIComponent(persistence.draftId)}/operations`,
-    {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ expectedRevision, operations, sourceSnapshot }),
-      signal,
-    },
-  );
+  let response: Response;
+  try {
+    response = await fetcher(
+      `${baseUrl}/api/editor/drafts/${encodeURIComponent(persistence.draftId)}/operations`,
+      {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          idempotencyKey: batch.idempotencyKey,
+          expectedRevision: batch.expectedRevision,
+          operations: batch.operations,
+          sourceSnapshot: batch.sourceSnapshot,
+        }),
+        signal,
+      },
+    );
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') throw error;
+    throw new EditorPersistenceError(
+      'OFFLINE_OR_RESPONSE_LOST',
+      'Ответ сохранения не получен. Batch оставлен для безопасного повтора с тем же ключом.',
+      undefined,
+      undefined,
+      {cause: error},
+    );
+  }
   if (!response.ok) {
     let detail = `HTTP ${response.status}`;
+    let code = response.status === 409 ? 'REVISION_CONFLICT' : 'SAVE_FAILED';
+    let details: unknown;
     try {
-      const payload = await response.json() as { error?: { message?: string } };
+      const payload = await response.json() as { error?: { code?: string; message?: string; details?: unknown } };
       detail = payload.error?.message ?? detail;
+      code = payload.error?.code ?? code;
+      details = payload.error?.details;
     } catch { /* keep HTTP status */ }
-    throw new Error(`Не удалось сохранить draft: ${detail}`);
+    throw new EditorPersistenceError(code, `Не удалось сохранить draft: ${detail}`, response.status, details);
   }
-  const payload = await response.json() as { draft?: { revision?: number; appended?: number } };
-  if (!Number.isSafeInteger(payload.draft?.revision) || !Number.isSafeInteger(payload.draft?.appended)) {
+  const payload = await response.json() as { draft?: Record<string, unknown> };
+  const draft = payload.draft;
+  if (
+    !Number.isSafeInteger(draft?.revision)
+    || !Number.isSafeInteger(draft?.appended)
+    || !Array.isArray(draft?.operationIds)
+    || !draft.operationIds.every(id => typeof id === 'string')
+    || JSON.stringify(draft.operationIds) !== JSON.stringify(batch.operations.map(operation => operation.id))
+    || draft.idempotencyKey !== batch.idempotencyKey
+    || typeof draft.payloadHash !== 'string'
+    || typeof draft.replayed !== 'boolean'
+  ) {
     throw new Error('Backend returned an invalid draft revision');
   }
-  return { revision: payload.draft!.revision!, appended: payload.draft!.appended! };
+  return {
+    revision: draft.revision as number,
+    appended: draft.appended as number,
+    operationIds: draft.operationIds as string[],
+    replayed: draft.replayed,
+  };
 }
 
 async function loadPersistedDraft(

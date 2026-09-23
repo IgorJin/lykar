@@ -116,6 +116,7 @@ export class ElementInspector {
 
   private onKeyDown = (event: KeyboardEvent): void => {
     if (event.key !== 'Escape') return;
+    if (isEditorEvent(event)) return;
     if (this.captureNext) this.cancelCapture();
     else this.select(null);
   };

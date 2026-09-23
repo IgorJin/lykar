@@ -61,12 +61,53 @@ setStyle API, пары property/value или только unit tests не зак
 - Style editor acceptance matrix, browser suite и screenshots.
 - Групповой report с coverage, bundle cost, совместимостью и оставшимися рисками.
 
+## Prepared browser scaffold
+
+`tests/e2e/style-editor-acceptance.spec.ts` drives the active SDK panel on the
+seeded `/pricing` page and creates an isolated draft for the run. The matrix is
+representative across every configured section and each distinct control shape;
+it is not evidence that the full acceptance gate has passed.
+
+| Section | Representative control / behavior |
+| --- | --- |
+| Layout | `display` select with live preview |
+| Size | `width` number-unit field; Escape cancel, Enter commit, undo/redo/reset |
+| Space | Top margin composite part |
+| Position | `position` select |
+| Typography | Color swatch plus raw `var(--BrandAccent)` value |
+| Background | Raw gradient field |
+| Borders | Per-corner radius composite |
+| Effects | Multi-layer shadow edit preserving the other layer |
+| Advanced | Catalog select, arbitrary `hyphens`, case-sensitive custom variable |
+
+The scenario changes selection between the heading, its parent, and a link,
+then back to the heading; it applies host-page CSS that attempts to override
+native controls, checks the panel at 360px width, saves and reloads the draft,
+publishes it, and opens the share in a separate visitor context. It rechecks
+the representative declarations after reload and in the visitor. On a
+successful run, Playwright attaches these visual states:
+`style-editor-overall.png`,
+`style-editor-typography-section.png`, `style-editor-width-changed.png`, and
+`style-editor-width-reset.png`.
+
+The focused scenario passed in Chromium on 2026-09-23, including save, reload,
+publish and visitor share; Playwright attached all four planned screenshots.
+This is representative coverage, while S2-06.6 transaction/persistence
+acceptance and S2-06.7 delivery/budget evidence remain prerequisites. Keep this
+task `PLANNED` until the complete cross-browser/SDK matrix and shared report
+are produced.
+
+The focused scenario runs with
+`npm run test:e2e:browser -- tests/e2e/style-editor-acceptance.spec.ts`; when
+prerequisites are ready, run the full acceptance commands above. The existing
+`tests/e2e/style-editor.spec.ts` remains complementary coverage.
+
 ## Evidence and report
 
 Report: `docs/verification/reports/S2/s2-style-editor.html`
 
 ## Notes
 
-Планирование не является реализацией: все задачи остаются PLANNED до evidence.
+Этот подготовительный browser pass не закрывает все критерии приёмки.
 Полный page builder (blocks/layers/DnD), class-wide rules, pseudo/media contexts
 не маскируются статусом «все стили»: это отдельные продуктовые возможности.

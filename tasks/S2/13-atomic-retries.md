@@ -1,6 +1,6 @@
 # S2-04.2 — Атомарная запись и retries
 
-Status: PLANNED
+Status: DONE
 Priority: P0
 Depends on: S2-04.1
 Evidence: report
@@ -20,11 +20,11 @@ Report group: S2-persistence-recovery
 
 ## Acceptance criteria
 
-- [ ] Повтор same key/payload возвращает исходный result без второй operation.
-- [ ] Same key/different payload возвращает conflict.
-- [ ] Concurrent identical saves дают один effect.
-- [ ] Transaction failure не оставляет operations без result или наоборот.
-- [ ] Retry снова проверяет actor/project/draft capability.
+- [x] Повтор same key/payload возвращает исходный result без второй operation.
+- [x] Same key/different payload возвращает conflict.
+- [x] Concurrent identical saves дают один effect.
+- [x] Transaction failure не оставляет operations без result или наоборот.
+- [x] Retry снова проверяет actor/project/draft capability.
 
 ## Checks
 
@@ -44,3 +44,7 @@ Report: `docs/verification/reports/S2/s2-persistence-recovery.html`
 ## Notes
 
 Нельзя применять last-write-wins для stale expected revision.
+
+Result: draft lock, operation append, revision update and saved result run in a
+single transaction. PostgreSQL tests prove deterministic replay, concurrent
+deduplication, rollback, stale-revision rejection and authorization recheck.

@@ -118,14 +118,15 @@ const versioningRoutes: FastifyPluginAsync<VersioningRoutesOptions> = async (fas
     async request => options.service.getDraft(authenticatedSession(request).user.id, request.params.draftId),
   );
 
-  fastify.post<{ Params: DraftParams; Body: { expectedRevision: unknown; operations: unknown; sourceSnapshot?: unknown } }>(
+  fastify.post<{ Params: DraftParams; Body: { idempotencyKey: unknown; expectedRevision: unknown; operations: unknown; sourceSnapshot?: unknown } }>(
     '/api/admin/drafts/:draftId/operations',
     {
       preHandler: requireSession,
       schema: {
         body: {
-          type: 'object', required: ['expectedRevision', 'operations'], additionalProperties: false,
+          type: 'object', required: ['idempotencyKey', 'expectedRevision', 'operations'], additionalProperties: false,
           properties: {
+            idempotencyKey: { type: 'string', minLength: 16, maxLength: 160 },
             expectedRevision: { type: 'integer', minimum: 0 },
             operations: { type: 'array', minItems: 1, maxItems: 100, items: { type: 'object' } },
             sourceSnapshot: { type: 'object' },
@@ -137,6 +138,7 @@ const versioningRoutes: FastifyPluginAsync<VersioningRoutesOptions> = async (fas
       draft: await options.service.appendOperations(
         authenticatedSession(request).user.id,
         request.params.draftId,
+        request.body.idempotencyKey,
         request.body.expectedRevision,
         request.body.operations,
         request.body.sourceSnapshot,
@@ -155,13 +157,14 @@ const versioningRoutes: FastifyPluginAsync<VersioningRoutesOptions> = async (fas
     },
   );
 
-  fastify.post<{ Params: DraftParams; Body: { expectedRevision: unknown; operations: unknown; sourceSnapshot?: unknown } }>(
+  fastify.post<{ Params: DraftParams; Body: { idempotencyKey: unknown; expectedRevision: unknown; operations: unknown; sourceSnapshot?: unknown } }>(
     '/api/editor/drafts/:draftId/operations',
     {
       schema: {
         body: {
-          type: 'object', required: ['expectedRevision', 'operations'], additionalProperties: false,
+          type: 'object', required: ['idempotencyKey', 'expectedRevision', 'operations'], additionalProperties: false,
           properties: {
+            idempotencyKey: { type: 'string', minLength: 16, maxLength: 160 },
             expectedRevision: { type: 'integer', minimum: 0 },
             operations: { type: 'array', minItems: 1, maxItems: 100, items: { type: 'object' } },
             sourceSnapshot: { type: 'object' },
@@ -178,6 +181,7 @@ const versioningRoutes: FastifyPluginAsync<VersioningRoutesOptions> = async (fas
         draft: await options.service.appendOperations(
           userId,
           request.params.draftId,
+          request.body.idempotencyKey,
           request.body.expectedRevision,
           request.body.operations,
           request.body.sourceSnapshot,

@@ -21,7 +21,8 @@ export type TargetResolutionReason =
   | 'BINDING_NOT_FOUND'
   | 'BINDING_ENVIRONMENT_MISMATCH'
   | 'TARGET_SCOPE_MISMATCH'
-  | 'ROOT_NOT_UNIQUE';
+  | 'ROOT_NOT_UNIQUE'
+  | 'NODE_REFERENCE_LEDGER_REQUIRED';
 
 export type TargetResolutionAttempt = {
   strategy: TargetStrategy;
@@ -115,6 +116,9 @@ export async function resolveTarget(
   target: TargetDescriptor,
   options: TargetResolutionOptions = {},
 ): Promise<TargetResolution> {
+  if (target.nodeRef) {
+    return terminal('invalid', 'NODE_REFERENCE_LEDGER_REQUIRED', 'document', 'nodeRef targets require the replay ledger');
+  }
   let descriptor: LocatorTargetDescriptor = target;
   let root = options.root ?? document;
   let rootId = root.nodeType === 9 ? 'document' : 'provided-root';

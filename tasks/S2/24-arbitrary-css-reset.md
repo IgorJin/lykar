@@ -1,6 +1,6 @@
 # S2-06.5 — P0: произвольный CSS, сброс и диагностика применения
 
-Status: PLANNED
+Status: IN_PROGRESS
 Priority: P0
 Depends on: S2-06.4, S2-03.4
 Evidence: report
@@ -70,6 +70,19 @@ Report group: S2-style-editor
 Report: `docs/verification/reports/S2/s2-style-editor.html`
 
 ## Notes
+
+Implementation 2026-09-22: Advanced accepts arbitrary browser-supported
+properties and case-sensitive custom properties; protocol/runtime support
+optional priority and SVG style-bearing targets. Browser validation rejects
+unsupported values. Separate per-field actions now restore the pre-Lykar value
+or remove the inline declaration. Cascade diagnostics and browser acceptance
+for host ownership remain open. Browser coverage now verifies restoration of
+an original inline `!important` declaration, select-driven edits with
+undo/redo, raw `clamp()` values and authored CSS variables.
+The active panel also compares computed style before and after preview and
+warns when an accepted declaration leaves the computed value unchanged; this is
+a signal to inspect applicability, cascade or variable resolution, not a claim
+to identify the winning stylesheet rule.
 
 Не обещать применение свойства, которое браузер не поддерживает, или доступ к
 недоступному DOM. Все поддерживаемые декларации остаются редактируемыми через

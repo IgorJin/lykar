@@ -1,6 +1,6 @@
 # S2-05.2 — Undo/redo и сохранённые изменения
 
-Status: PLANNED
+Status: IN_PROGRESS
 Priority: P1
 Depends on: S2-05.1
 Evidence: report
@@ -44,3 +44,9 @@ Report: `docs/verification/reports/S2/s2-editor-acceptance.html`
 ## Notes
 
 Arbitrary DOM restore через замену body запрещён.
+
+Implementation 2026-09-22: pending undo/redo now uses compare-and-restore;
+saved undo appends a fresh operation with `revision.reason=undo`, ownership
+preconditions preserve later host values, and structural node references replay
+after reload. Unit regressions pass; the authored browser save/reload fixture is
+still awaiting an allowed local E2E run.

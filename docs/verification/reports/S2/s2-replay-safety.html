@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lykar S2 — Replay safety</title>
+  <style>
+    :root { color-scheme:light; --ink:#18212b; --muted:#5d6975; --line:#dbe3e8; --bg:#f4f7f9; --card:#fff; --ok:#087f5b; --blue:#2859a6; --amber:#8a5a00; }
+    * { box-sizing:border-box; } body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { max-width:1120px; margin:0 auto; padding:32px 20px 56px; } header { display:flex; justify-content:space-between; gap:20px; align-items:flex-start; margin-bottom:26px; }
+    h1 { margin:0 0 5px; font-size:30px; } h2 { margin:0 0 12px; font-size:20px; } h3 { margin:0 0 7px; font-size:16px; } p { margin:6px 0 12px; }
+    .muted { color:var(--muted); } .badge { background:#d9f4e9; color:var(--ok); border:1px solid #9ed9c2; border-radius:999px; padding:5px 12px; font-weight:750; white-space:nowrap; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(235px,1fr)); gap:14px; margin:14px 0 24px; } .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px; box-shadow:0 2px 8px rgba(24,39,55,.04); }
+    code,pre { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; } code { color:var(--blue); } pre { overflow:auto; background:#17202a; color:#e9f0f5; border-radius:10px; padding:17px; margin:10px 0 24px; }
+    table { width:100%; border-collapse:collapse; background:var(--card); border:1px solid var(--line); margin:10px 0 24px; } th,td { text-align:left; vertical-align:top; padding:10px 12px; border-bottom:1px solid var(--line); } th { background:#edf2f5; font-size:13px; } tr:last-child td { border-bottom:0; }
+    .ok { color:var(--ok); font-weight:750; } .note { color:var(--amber); } ul { margin:8px 0 0; padding-left:20px; } a { color:var(--blue); } footer { color:var(--muted); border-top:1px solid var(--line); padding-top:14px; margin-top:28px; font-size:13px; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1>S2 — Replay safety</h1>
+      <p class="muted">Групповой отчёт по S2-03.1…S2-03.4 · 22 сентября 2026</p>
+    </div>
+    <div class="badge">PASS · 4/4 tasks</div>
+  </header>
+
+  <section class="card">
+    <h2>Итоговый контракт</h2>
+    <p>Replay адресует созданные elements и text nodes через serializable identity,
+      выполняет только доступные dependency chains и компенсирует принадлежащие
+      PageSession mutations, не затирая более позднее состояние host.</p>
+    <pre>validate bytes / count / depth / unsafe payload
+                    │
+                    ▼
+ordered operations ─┬─ prerequisite unavailable → DEPENDENCY_UNAVAILABLE
+                    ├─ nodeRef → scoped ReplayLedger → exact Node
+                    ├─ mutation → before/after journal → result
+                    └─ independent operation continues
+                                      │
+timeout / PageSession destroy ────────┴─ reverse compare-and-restore
+                                           ├─ unchanged → COMPENSATED
+                                           └─ host changed → preserve + reload guidance</pre>
+  </section>
+
+  <div class="grid">
+    <article class="card"><h3>S2-03.1 · Identity</h3><ul>
+      <li>Scope: project/page/release/draft/generation/operation/path.</li>
+      <li>Element attributes и comment markers для text nodes.</li>
+      <li>Forced replay не создаёт duplicate insertion.</li>
+    </ul></article>
+    <article class="card"><h3>S2-03.2 · Dependencies</h3><ul>
+      <li>Только earlier explicit prerequisites.</li>
+      <li><code>nodeRef</code> не использует locator fallback.</li>
+      <li>Независимые operations продолжаются после skip/error.</li>
+    </ul></article>
+    <article class="card"><h3>S2-03.3 · Journal</h3><ul>
+      <li>Scalar before/after evidence; closures только in-memory.</li>
+      <li>Reverse compensation для text/style/attribute/insert/move/remove.</li>
+      <li>Host mutation сохраняется с diagnostic.</li>
+    </ul></article>
+    <article class="card"><h3>S2-03.4 · Bounds</h3><ul>
+      <li>512 KiB, 1,000 ops, depth 32, 5,000 serialized nodes.</li>
+      <li>Replay/retry limits и root-scoped observer.</li>
+      <li>Unsafe payload отклоняется до первой mutation.</li>
+    </ul></article>
+  </div>
+
+  <h2>Acceptance matrix</h2>
+  <table>
+    <thead><tr><th>Сценарий</th><th>Ожидаемый результат</th><th>Evidence</th></tr></thead>
+    <tbody>
+      <tr><td>Insert → edit text → move → delete → force</td><td>Stable exact identity, один insertion</td><td class="ok">PASS · unit + Chromium</td></tr>
+      <tr><td>Одинаковый operation ID в разных releases</td><td>Release-scoped identities не конфликтуют</td><td class="ok">PASS · unit</td></tr>
+      <tr><td>Failed insertion + dependent + independent</td><td>Dependent unavailable, independent applied</td><td class="ok">PASS · unit + Chromium</td></tr>
+      <tr><td>Mutation throws после partial append</td><td>Локальный rollback, journal чист</td><td class="ok">PASS · failure injection</td></tr>
+      <tr><td>Host меняет Lykar text перед destroy</td><td>Host value сохранён, reload guidance выдан</td><td class="ok">PASS · unit + Chromium</td></tr>
+      <tr><td>Oversized/unsafe manifest</td><td>Reject до любой более ранней mutation</td><td class="ok">PASS · protocol/runtime</td></tr>
+      <tr><td>Replay time budget исчерпан</td><td><code>REPLAY_TIME_LIMIT</code>, partial work compensated</td><td class="ok">PASS · deterministic clock</td></tr>
+      <tr><td>Destroy → same release restart</td><td>Native cleanup, затем ровно один replay</td><td class="ok">PASS · Chromium</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Проверки</h2>
+  <table>
+    <thead><tr><th>Команда</th><th>Результат</th><th>Покрытие</th></tr></thead>
+    <tbody>
+      <tr><td><code>npm run typecheck</code></td><td class="ok">PASS</td><td>Все workspaces и e2e TypeScript.</td></tr>
+      <tr><td><code>npm test</code></td><td class="ok">PASS</td><td>5 scripts; server 18 pass/3 DB skip; editor 24; lib 3; protocol 15; runtime 40; SDK 20.</td></tr>
+      <tr><td><code>playwright test page-session-lifecycle replay-safety</code></td><td class="ok">2/2</td><td>Реальный Chromium, временная PostgreSQL и локальный HTTP stack.</td></tr>
+    </tbody>
+  </table>
+
+  <p class="note">Sequential execution является предсказуемой минимальной batching
+    policy: dependency order не меняется, а независимые commands получают отдельные
+    outcomes. Более агрессивное DOM batching не требуется для принятого S2-03 контракта.</p>
+
+  <footer>
+    Задачи: <a href="../../../../tasks/S2/README.md">tasks/S2/README.md</a> ·
+    Protocol: <a href="../../../../packages/protocol/README.md">packages/protocol/README.md</a> ·
+    Runtime: <a href="../../../../packages/runtime/README.md">packages/runtime/README.md</a>.
+    Следующий core dependency: S2-04.1 save contract и idempotency storage.
+  </footer>
+</main>
+</body>
+</html>

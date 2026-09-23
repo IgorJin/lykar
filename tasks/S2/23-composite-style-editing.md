@@ -1,6 +1,6 @@
 # S2-06.4 — P0: составные стили и группы свойств
 
-Status: PLANNED
+Status: IN_PROGRESS
 Priority: P0
 Depends on: S2-06.3
 Evidence: report
@@ -62,6 +62,22 @@ Report group: S2-style-editor
 Report: `docs/verification/reports/S2/s2-style-editor.html`
 
 ## Notes
+
+Implementation 2026-09-23: conservative shorthand decoders now populate the
+spacing, border and radius controls. Spacing sides and radius corners write
+their longhands; a simple border part rewrites the complete border shorthand
+to keep its other parts and priority. Ambiguous full-shorthand edits stay in
+raw mode. Background and transform layer
+lists split only at top-level commas/whitespace, preserving nested functions,
+quotes and function order. Editing the background shorthand is blocked when
+separate `background-*` declarations could be reset. Full per-layer
+position/size/color editing and lossless mixed-background transactions remain
+open. Margin/padding now expose linked/unlinked controls; linked edits submit
+the physical longhands as one `previewGroup` history unit and preserve each
+side's `!important` priority. Unlinking does not rewrite distinct side values
+or units. CSSOM-synthesized longhands are no longer treated as separately
+authored declarations. The focused codec and editor tests passed, as did the
+representative Chromium style scenario; the full codec matrix remains open.
 
 Не писать общий CSS parser ради нескольких controls и не тащить тяжёлый parser
 в browser asset. Небольшие специализированные codecs + lossless raw fallback

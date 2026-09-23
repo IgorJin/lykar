@@ -1,5 +1,9 @@
-export { applyOperation } from './dom-executor.js';
+export {applyOperation, assertOperationPayloadSafe} from './dom-executor.js';
 export type { ApplyOperationOptions } from './dom-executor.js';
+export {MutationJournal} from './mutation-journal.js';
+export type {CompensationDiagnostic, JournalEntrySnapshot} from './mutation-journal.js';
+export {ReplayLedger} from './replay-ledger.js';
+export type {LedgerNodeHandle, ReplayIdentityScope} from './replay-ledger.js';
 export { ManifestRequestError, fetchManifest } from './manifest-client.js';
 export { Lykar, LykarRuntime, consent, init, track } from './runtime.js';
 export { captureSourceSnapshot } from './dom-fingerprint.js';

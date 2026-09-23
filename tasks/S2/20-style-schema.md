@@ -1,6 +1,6 @@
 # S2-06.1 — P0: отдельная конфигурация полного редактора стилей
 
-Status: PLANNED
+Status: IN_PROGRESS
 Priority: P0
 Depends on: None
 Evidence: report
@@ -40,15 +40,15 @@ GrapesJS. Каталог не является закрытым allowlist. Ре�
 
 ## Acceptance criteria
 
-- [ ] Добавление свойства/секции в конфигурацию не требует изменения renderer.
-- [ ] Все прежние ключи имеют проверяемое соответствие новому каталогу.
-- [ ] Font/color/flex/grid/spacing/size доступны явно, а не только через Advanced.
-- [ ] Для неизвестного каталогу свойства предусмотрен text fallback; CSS custom
+- [x] Добавление свойства/секции в конфигурацию не требует изменения renderer.
+- [x] Все прежние ключи имеют проверяемое соответствие новому каталогу.
+- [x] Font/color/flex/grid/spacing/size доступны явно, а не только через Advanced.
+- [x] Для неизвестного каталогу свойства предусмотрен text fallback; CSS custom
   properties сохраняют регистр. «Любой» означает CSS-декларации, поддерживаемые
   целевым браузером; неподдерживаемое значение получает объяснение.
-- [ ] `flex-grow`, `order`, `opacity` не получают px; alias `borderRadiusC`
+- [x] `flex-grow`, `order`, `opacity` не получают px; alias `borderRadiusC`
   сопоставлен с реальным `border-radius`, а не отдельным CSS-свойством.
-- [ ] Реестр описывает UI и применимость, но не заменяет protocol/runtime validation.
+- [x] Реестр описывает UI и применимость, но не заменяет protocol/runtime validation.
 
 ## Checks
 
@@ -72,3 +72,11 @@ GrapesJS — ориентир возможностей панели, не обя
 псевдосостояния, media rules и создание @keyframes — отдельные контексты CSS,
 а не дополнительные свойства; они остаются отдельным расширением roadmap.
 Существующие animation-name и любые обычные animation properties доступны.
+
+Implementation 2026-09-22: `@lykar/editor-ui` теперь содержит отдельные
+`styles/types.ts`, `styles/styles-config.ts` и legacy coverage matrix. Schema
+tests сверяют каждый активный `STYLES_LIST` key с исходным legacy-файлом,
+закомментированные capabilities, section references, virtual parts, unitless
+fields, alias и Advanced fallback. Package build, root typecheck и full unit/API
+suite проходят. Статус остаётся IN_PROGRESS только до выпуска единого
+`S2-style-editor` report после общей acceptance-задачи S2-06.8.

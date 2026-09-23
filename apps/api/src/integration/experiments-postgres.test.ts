@@ -42,6 +42,7 @@ test(
       const append = await app.inject({
         method: 'POST', url: `/api/admin/drafts/${draft.id}/operations`, headers,
         payload: {
+          idempotencyKey: `experiment-save-${project.id}`,
           expectedRevision: 0,
           sourceSnapshot: {
             algorithm: 'lykar-dom-v1',

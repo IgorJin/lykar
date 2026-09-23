@@ -24,7 +24,8 @@ export const test = base.extend<{ newContext: () => Promise<BrowserContext> }>({
       context.on('response', response => {
         const path = new URL(response.url()).pathname;
         const expected = (path === '/api/auth/session' && response.status() === 401)
-          || (path === '/favicon.ico' && response.status() === 404);
+          || (path === '/favicon.ico' && response.status() === 404)
+          || (response.status() === 409 && /^\/api\/editor\/drafts\/[^/]+\/operations$/.test(path));
         if (response.status() >= 400 && !expected) errors.push(`HTTP ${response.status()}: ${path}`);
       });
       return context;

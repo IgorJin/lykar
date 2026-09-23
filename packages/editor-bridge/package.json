@@ -15,16 +15,17 @@
   },
   "files": ["dist"],
   "scripts": {
-    "prebuild": "npm run build --workspace @lykar/protocol && npm run build --workspace @lykar/runtime",
+    "prebuild": "npm run build --workspace @lykar/protocol && npm run build --workspace @lykar/runtime && npm run build --workspace @lykar/editor-ui",
     "build": "npm run clean && npm run build:types && esbuild src/index.ts --bundle --platform=browser --format=esm --target=es2018 --sourcemap --outfile=dist/editor.js && esbuild src/global.ts --bundle --platform=browser --format=iife --target=es2018 --minify --sourcemap --outfile=dist/editor.iife.js",
     "build:types": "tsc --emitDeclarationOnly -p tsconfig.json",
     "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
-    "pretypecheck": "npm run build --workspace @lykar/protocol && npm run build --workspace @lykar/runtime",
+    "pretypecheck": "npm run build --workspace @lykar/protocol && npm run build --workspace @lykar/runtime && npm run build --workspace @lykar/editor-ui",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "pretest": "npm run build --workspace @lykar/protocol && npm run build --workspace @lykar/runtime",
+    "pretest": "npm run build --workspace @lykar/protocol && npm run build --workspace @lykar/runtime && npm run build --workspace @lykar/editor-ui",
     "test": "vitest run"
   },
   "dependencies": {
+    "@lykar/editor-ui": "0.0.0",
     "@lykar/protocol": "0.0.0",
     "@lykar/runtime": "0.0.0"
   },

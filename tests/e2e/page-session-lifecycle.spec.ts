@@ -103,8 +103,8 @@ test('PageSession cancels A→B late work, scopes roots, retries late nodes, and
 
   expect(outcome).toMatchObject({
     pageA: 'A native',
-    pageB: 'B restarted',
-    late: 'Late applied',
+    pageB: 'B reset',
+    late: 'Late native',
     staleA: {mode: 'native', reason: 'PAGE_SESSION_STALE'},
     pageBMode: 'visitor',
     restartedMode: 'visitor',

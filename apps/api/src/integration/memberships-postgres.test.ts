@@ -98,10 +98,11 @@ test(
         target: { marker: 'hero-title' },
         value: 'Edited by invited editor',
       };
+      const editorSaveKey = `member-save-${suffix}`;
       const editorAppend = await app.inject({
         method: 'POST', url: `/api/editor/drafts/${draft.id}/operations`,
         headers: { authorization: `Bearer ${capability.token}` },
-        payload: { expectedRevision: 0, operations: [operation] },
+        payload: { idempotencyKey: editorSaveKey, expectedRevision: 0, operations: [operation] },
       });
       assert.equal(editorAppend.statusCode, 200, editorAppend.body);
       const editorPublishDenied = await app.inject({
@@ -120,10 +121,17 @@ test(
         headers: { cookie: ownerCookie }, payload: { role: 'viewer' },
       });
       assert.equal(demoted.statusCode, 200, demoted.body);
+      const revokedRetry = await app.inject({
+        method: 'POST', url: `/api/editor/drafts/${draft.id}/operations`,
+        headers: { authorization: `Bearer ${capability.token}` },
+        payload: {idempotencyKey: editorSaveKey, expectedRevision: 0, operations: [operation]},
+      });
+      assert.equal(revokedRetry.statusCode, 401, revokedRetry.body);
       const revokedCapability = await app.inject({
         method: 'POST', url: `/api/editor/drafts/${draft.id}/operations`,
         headers: { authorization: `Bearer ${capability.token}` },
         payload: {
+          idempotencyKey: `revoked-save-${suffix}`,
           expectedRevision: 1,
           operations: [{ ...operation, id: `revoked-${suffix}`, value: 'must not persist' }],
         },

@@ -1,6 +1,6 @@
 # S2-04.3 — Client recovery после lost response
 
-Status: PLANNED
+Status: DONE
 Priority: P0
 Depends on: S2-04.2
 Evidence: report
@@ -20,11 +20,11 @@ Report group: S2-persistence-recovery
 
 ## Acceptance criteria
 
-- [ ] Потерянный после commit ответ восстанавливает сохранённый result без дубля.
-- [ ] Запрос, который не дошёл до сервера, безопасно повторяется с тем же payload.
-- [ ] Правки, сделанные во время save, остаются pending.
-- [ ] Reload восстанавливает saved и pending chain по правильному Page/Draft.
-- [ ] Ошибка save не отмечает batch сохранённым.
+- [x] Потерянный после commit ответ восстанавливает сохранённый result без дубля.
+- [x] Запрос, который не дошёл до сервера, безопасно повторяется с тем же payload.
+- [x] Правки, сделанные во время save, остаются pending.
+- [x] Reload восстанавливает saved и pending chain по правильному Page/Draft.
+- [x] Ошибка save не отмечает batch сохранённым.
 
 ## Checks
 
@@ -45,3 +45,7 @@ Report: `docs/verification/reports/S2/s2-persistence-recovery.html`
 ## Notes
 
 Storage failure/offline handling получает пользовательское сообщение в S2-04.4.
+
+Result: recovery envelope v2 persists the exact in-flight batch before fetch,
+reuses it after failure/reload, reconciles committed operation IDs and keeps
+newer local edits pending. Unit and Chromium lost-response fixtures pass.

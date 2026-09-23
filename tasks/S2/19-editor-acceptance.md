@@ -1,6 +1,6 @@
 # S2-05.4 — Overlay, accessibility и итоговая editor acceptance
 
-Status: PLANNED
+Status: BLOCKED
 Priority: P0
 Depends on: S2-05.3, S2-06.8
 Evidence: report
@@ -53,3 +53,8 @@ Report: `docs/verification/reports/S2/s2-editor-acceptance.html`
 ## Notes
 
 React/Vue reconciliation и cooperative integration выполняются в S4; X2 validator остаётся отдельной веткой.
+
+Blocked 2026-09-22: Shadow DOM isolation, responsive panel semantics, keyboard
+labels, editor-root exclusion and static copy/add limitations are implemented.
+Final acceptance cannot be claimed while required dependency S2-06.8 remains
+PLANNED, and the local Chromium suite still needs an approved 127.0.0.1 run.

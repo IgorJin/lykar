@@ -1,6 +1,6 @@
 # S2-06.3 — P0: StylesSection в активном editor-bridge
 
-Status: PLANNED
+Status: IN_PROGRESS
 Priority: P0
 Depends on: S2-06.1, S2-06.2, S2-02.2, S2-03.3
 Evidence: report
@@ -60,6 +60,11 @@ Report group: S2-style-editor
 Report: `docs/verification/reports/S2/s2-style-editor.html`
 
 ## Notes
+
+Implementation 2026-09-22: the SDK SidePanel now mounts the catalog-backed
+StyleManager through EditorSession preview, supports search, parent selection,
+authored/computed hints, undo refresh and arbitrary CSS entry. Restore/error
+and rapid selection browser matrix is still required.
 
 UI fixture можно делать до готовности ядра; запись в реальную страницу ждёт
 перечисленных lifecycle/journal зависимостей. Это не повод откладывать весь UI

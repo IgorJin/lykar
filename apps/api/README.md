@@ -60,8 +60,38 @@ different site origin; the admin cookie is never copied to that site.
 - `POST /api/runtime/analytics/events`
 
 Release versions, drafts, and experiments belong to a single page. Appending
-operations and freezing a release require `expectedRevision`; stale writes
-return `409 CONFLICT`.
+operations requires `idempotencyKey` and `expectedRevision`; freezing a release
+requires `expectedRevision`. Stale writes return `409 REVISION_CONFLICT` and
+are never rebased or applied as last-write-wins.
+
+### Draft save contract
+
+`POST /api/admin/drafts/:draftId/operations` and
+`POST /api/editor/drafts/:draftId/operations` accept this save envelope:
+
+```json
+{
+  "idempotencyKey": "client-generated-url-safe-key",
+  "expectedRevision": 4,
+  "operations": [],
+  "sourceSnapshot": null
+}
+```
+
+The key is scoped to the authenticated actor, project, and draft. The server
+stores a canonical SHA-256 hash of `expectedRevision`, `operations`, and
+`sourceSnapshot` together with the exact successful result. Retrying the same
+key and payload returns that result with `replayed: true` and creates no second
+operation. Reusing the key with a different payload returns
+`409 IDEMPOTENCY_CONFLICT`.
+
+The operation rows, draft revision, and saved result are committed in one
+PostgreSQL transaction. Authorization is checked again on every retry, so a
+stored result cannot bypass a revoked editor capability. Successful results
+carry `operationIds`, `payloadHash`, `savedAt`, and `expiresAt`. They are retained
+for at least 30 days; cleanup may remove an expired result only after its draft
+is closed. Migration `009_draft_save_idempotency.sql` is forward-only and does
+not rewrite existing operations or revisions.
 
 Membership belongs to a project. `Owner` and `Admin` can freeze releases,
 control experiments, share, and manage members; `Editor` can edit drafts and

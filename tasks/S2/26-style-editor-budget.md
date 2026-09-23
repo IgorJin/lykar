@@ -1,6 +1,6 @@
 # S2-06.7 — P0: lazy delivery и бюджет веса editor UI
 
-Status: PLANNED
+Status: IN_PROGRESS
 Priority: P0
 Depends on: S2-06.5
 Evidence: report
@@ -62,8 +62,57 @@ Report group: S2-style-editor
 
 Report: `docs/verification/reports/S2/s2-style-editor.html`
 
+## Reproducible budget harness
+
+From the repository root:
+
+```sh
+node scripts/style-editor-budget.mjs --artifacts-only
+node scripts/style-editor-budget.mjs
+node scripts/style-editor-budget.mjs --baseline-dir /path/to/baseline
+```
+
+`--artifacts-only` reads the existing SDK/editor distributions, asset manifest,
+and source maps, then prints JSON. The default additionally bundles the current
+`editor-ui` TypeScript entry in memory with esbuild (ES2018, IIFE, minified) to
+measure its standalone raw/gzip/Brotli size; it writes no bundle. A baseline
+directory may contain `sdk.iife.js`, `editor.iife.js`, and optionally
+`editor-ui.iife.js`. The script reports per-file deltas only where matching
+before and after artifacts exist. Preserve the baseline files from the same
+production build/configuration; the script does not create or infer one.
+
+The editor asset served by the SDK is `packages/sdk/dist/editor.iife.js`; the
+visitor entry is `packages/sdk/dist/sdk.iife.js`. Source-map and package audits
+show whether UI modules are bundled into each entry and whether third-party
+runtime modules appear. Manifest hashes and byte counts are checked, and
+versioned aliases are reported without counting duplicate payloads twice.
+Standalone UI bytes are diagnostic and are not added to compressed full-editor
+bytes because compression across a combined artifact is not additive.
+
 ## Notes
 
-20 KiB gzip и 50 ms — предложенные начальные targets; фактические значения
-появятся при реализации. Проверку повторить на финальной сборке S2-06.8 после
-интеграции transaction/persistence, отдельно указав core delta.
+Read-only artifact measurement after the CSSOM/undo review, 2026-09-23
+(Node 22.23.1, macOS arm64, zlib gzip level 9, Brotli quality 11):
+
+| Artifact | Raw | gzip | Brotli |
+| --- | ---: | ---: | ---: |
+| Visitor `sdk.iife.js` | 147,054 B | 29,995 B | 25,194 B |
+| Lazy `editor.iife.js` | 164,456 B | 43,668 B | 37,054 B |
+| Current standalone style UI probe (in-memory esbuild IIFE) | 54,737 B | 14,221 B | 12,622 B |
+
+The SDK manifest has 6 logical entries and 3 unique payloads; recorded lengths
+and SHA-256 values match the files on disk. The editor source map matches all
+current sources and the fresh budget script exits successfully. SDK source maps
+contain 8 modules and no editor UI/bridge modules; the editor source map
+contains 25 modules, including 4 editor UI modules and no third-party npm
+modules. Package production dependencies contain no external UI runtime, and
+the SDK loads the editor asset through its editor-mode script loader.
+
+The current standalone UI probe is 14,221 bytes gzip, under the 20 KiB target.
+The SDK entry exceeds the existing SDK script limits of 80,000 raw / 25,000
+gzip bytes by 67,054 raw / 4,995 gzip bytes; this total-size comparison does
+not establish how much, if any, is attributable to the style UI. No pre-UI/S1
+artifact baseline is present, so visitor UI delta, UI-only before/after delta,
+and protocol/core delta remain unmeasured. Native/share network fixtures and
+the 1,000-element selection/input-to-preview p95 probe remain open; do not mark
+this task DONE until those checks and the final budget decision are recorded.

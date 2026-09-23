@@ -7,6 +7,8 @@ import { applyOperation } from './dom-executor.js';
 import { captureSourceSnapshot } from './dom-fingerprint.js';
 import { sha256Text } from './hash.js';
 import { fetchManifest, ManifestRequestError } from './manifest-client.js';
+import { MutationJournal } from './mutation-journal.js';
+import { ReplayLedger } from './replay-ledger.js';
 import { Lykar, track } from './runtime.js';
 import type { FetchLike } from './types.js';
 
@@ -49,6 +51,54 @@ function response(payload: unknown, status = 200): Response {
 }
 
 describe('DOM executor', () => {
+  it('writes and removes important declarations on HTML and style-bearing SVG targets', async () => {
+    document.body.innerHTML = '<div data-lykar-id="html" style="color: blue !important"></div><svg><rect data-lykar-id="shape"/></svg>';
+    const html = document.querySelector<HTMLElement>('[data-lykar-id="html"]')!;
+    const shape = document.querySelector<SVGRectElement>('[data-lykar-id="shape"]')!;
+    const htmlChange = await applyOperation(document, {
+      schemaVersion: 1, id: 'html-important', kind: 'setStyle', target: {marker: 'html'},
+      property: 'color', value: 'red', priority: 'important',
+    });
+    expect(htmlChange.status).toBe('applied');
+    expect(html.style.getPropertyValue('color')).toBe('red');
+    expect(html.style.getPropertyPriority('color')).toBe('important');
+    const svgChange = await applyOperation(document, {
+      schemaVersion: 1, id: 'svg-fill', kind: 'setStyle', target: {marker: 'shape'},
+      property: 'fill', value: '#abc',
+    });
+    expect(svgChange.status).toBe('applied');
+    expect(shape.style.getPropertyValue('fill')).toBe('rgb(170, 187, 204)');
+    const removal = await applyOperation(document, {
+      schemaVersion: 1, id: 'html-remove', kind: 'setStyle', target: {marker: 'html'},
+      property: 'color', value: '',
+    });
+    expect(removal.status).toBe('applied');
+    expect(html.style.getPropertyValue('color')).toBe('');
+  });
+
+  it('does not report an invalid CSS value as applied or replace the last valid declaration', async () => {
+    document.body.innerHTML = '<div data-lykar-id="item" style="color: blue"></div>';
+    const element = document.querySelector<HTMLElement>('[data-lykar-id="item"]')!;
+    const result = await applyOperation(document, {
+      schemaVersion: 1, id: 'bad-style', kind: 'setStyle', target: {marker: 'item'},
+      property: 'color', value: 'definitely-not-a-color',
+    });
+    expect(result.status).not.toBe('applied');
+    expect(element.style.color).toBe('blue');
+  });
+
+  it('reports whether CSSOM actually applied a longhand beside a shorthand', async () => {
+    document.body.innerHTML = '<div data-lykar-id="item" style="background: linear-gradient(red, blue) center/cover no-repeat"></div>';
+    const element = document.querySelector<HTMLElement>('[data-lykar-id="item"]')!;
+    const before = element.style.cssText;
+    const result = await applyOperation(document, {
+      schemaVersion: 1, id: 'background-size-edit', kind: 'setStyle', target: {marker: 'item'},
+      property: 'background-size', value: 'contain',
+    });
+    expect(result.status === 'applied').toBe(element.style.backgroundSize === 'contain');
+    if (result.status !== 'applied') expect(element.style.cssText).toBe(before);
+  });
+
   it('confines target resolution and source ownership to the supplied root', async () => {
     document.body.innerHTML = `
       <main id="outside"><p data-lykar-id="copy">Outside</p></main>
@@ -169,10 +219,10 @@ describe('DOM executor', () => {
     });
   });
 
-  it('inserts safe trees and rejects executable attributes without partial insertion', async () => {
+  it('rejects an unsafe tree before any earlier operation can mutate the document', async () => {
     document.body.innerHTML = '<main data-lykar-id="content"></main>';
     const runtime = new Lykar({ projectKey: 'pk_test', document });
-    const report = await runtime.applyManifest(manifest([
+    await expect(runtime.applyManifest(manifest([
       {
         schemaVersion: 1,
         id: 'safe-insert',
@@ -198,16 +248,13 @@ describe('DOM executor', () => {
           attributes: { src: 'javascript:alert(1)', onerror: 'alert(1)' },
         },
       },
-    ]));
+    ]))).rejects.toThrow(/unsafe-insert.*unsafe URL/i);
 
-    expect(document.querySelector('p.lead')?.textContent).toBe('Inserted');
-    expect(document.querySelector('[data-lykar-operation-id="safe-insert"]')).not.toBeNull();
+    expect(document.querySelector('p.lead')).toBeNull();
     expect(document.querySelector('img')).toBeNull();
-    expect(report).toMatchObject({ applied: 1, skipped: 0, errors: 1 });
-    expect(report.operations[1].code).toBe('UNSAFE_NODE_URL');
   });
 
-  it('sets and removes safe attributes while rejecting script-capable values', async () => {
+  it('sets and removes safe attributes and preflights script-capable values', async () => {
     document.body.innerHTML = '<a data-lykar-id="link" title="Old">Link</a>';
     const runtime = new Lykar({ projectKey: 'pk_test', document });
     const report = await runtime.applyManifest(manifest([
@@ -226,22 +273,23 @@ describe('DOM executor', () => {
         target: { marker: 'link' },
         name: 'title',
       },
-      {
-        schemaVersion: 1,
-        id: 'unsafe-handler',
-        kind: 'setAttribute',
-        target: { marker: 'link' },
-        name: 'onclick',
-        value: 'alert(1)',
-      },
     ]));
 
     const link = document.querySelector('a');
     expect(link?.getAttribute('href')).toBe('/pricing');
     expect(link?.hasAttribute('title')).toBe(false);
     expect(link?.hasAttribute('onclick')).toBe(false);
-    expect(report).toMatchObject({ applied: 2, errors: 1 });
-    expect(report.operations[2].code).toBe('UNSAFE_NODE_ATTRIBUTE');
+    expect(report).toMatchObject({ applied: 2, errors: 0 });
+
+    await expect(runtime.applyManifest(manifest([{
+      schemaVersion: 1,
+      id: 'unsafe-handler',
+      kind: 'setAttribute',
+      target: { marker: 'link' },
+      name: 'onclick',
+      value: 'alert(1)',
+    }], {releaseId: 'unsafe-attributes'}))).rejects.toThrow(/unsafe-handler.*onclick/i);
+    expect(link?.hasAttribute('onclick')).toBe(false);
   });
 
   it('moves and removes nodes while protecting the document roots', async () => {
@@ -265,19 +313,20 @@ describe('DOM executor', () => {
         kind: 'removeNode',
         target: { marker: 'remove' },
       },
-      {
-        schemaVersion: 1,
-        id: 'protect-body',
-        kind: 'removeNode',
-        target: { selectors: { css: 'body' } },
-      },
     ]));
 
     expect(document.querySelector('[data-lykar-id="right"]')?.lastElementChild?.textContent).toBe('Item');
     expect(document.querySelector('[data-lykar-id="remove"]')).toBeNull();
     expect(document.body.isConnected).toBe(true);
-    expect(report).toMatchObject({ applied: 2, errors: 1 });
-    expect(report.operations[2].code).toBe('PROTECTED_DOCUMENT_NODE');
+    expect(report).toMatchObject({ applied: 2, errors: 0 });
+
+    await expect(runtime.applyManifest(manifest([{
+      schemaVersion: 1,
+      id: 'protect-body',
+      kind: 'removeNode',
+      target: { selectors: { css: 'body' } },
+    }], {releaseId: 'protected-root'}))).rejects.toThrow(/document root/i);
+    expect(document.body.isConnected).toBe(true);
   });
 
   it('checks parent and text-hash preconditions before mutating', async () => {
@@ -524,6 +573,219 @@ describe('manifest loading and runtime lifecycle', () => {
     expect(first.applied).toBe(1);
     expect(second).toMatchObject({ alreadyApplied: true, applied: 0, skipped: 1 });
     expect(document.querySelectorAll('span')).toHaveLength(1);
+  });
+
+  it('keeps element and text identities stable across edit, move, delete, and forced replay', async () => {
+    document.body.innerHTML = `
+      <main data-lykar-id="source"></main>
+      <aside data-lykar-id="destination"></aside>
+    `;
+    const runtime = new Lykar({ projectKey: 'pk_test', document });
+    const published = manifest([
+      {
+        schemaVersion: 1,
+        id: 'insert-card',
+        kind: 'insertNode',
+        target: { marker: 'source' },
+        position: 'append',
+        node: {
+          type: 'element',
+          tag: 'article',
+          children: [
+            { type: 'element', tag: 'strong', children: [{ type: 'text', value: 'Title' }] },
+            { type: 'text', value: ' movable text' },
+          ],
+        },
+      },
+      {
+        schemaVersion: 1,
+        id: 'edit-created-text',
+        kind: 'setText',
+        target: { nodeRef: { operationId: 'insert-card', path: [0, 0] } },
+        dependsOn: ['insert-card'],
+        value: 'Edited',
+      },
+      {
+        schemaVersion: 1,
+        id: 'move-created-text',
+        kind: 'moveNode',
+        target: { nodeRef: { operationId: 'insert-card', path: [1] } },
+        destination: { marker: 'destination' },
+        dependsOn: ['insert-card', 'edit-created-text'],
+        position: 'append',
+      },
+      {
+        schemaVersion: 1,
+        id: 'delete-created-child',
+        kind: 'removeNode',
+        target: { nodeRef: { operationId: 'insert-card', path: [0] } },
+        dependsOn: ['insert-card'],
+      },
+    ], { releaseId: 'release-ledger' });
+
+    const first = await runtime.applyManifest(published);
+    const second = await runtime.applyManifest(published, { force: true });
+
+    expect(first.operations.map(operation => operation.status)).toEqual(['applied', 'applied', 'applied', 'applied']);
+    expect(document.querySelectorAll('article')).toHaveLength(1);
+    expect(document.querySelector('article strong')).toBeNull();
+    expect(document.querySelector('aside')?.textContent).toContain('movable text');
+    expect(second.operations[0]).toMatchObject({status: 'skipped', code: 'OPERATION_ALREADY_APPLIED'});
+    expect(second.operations[1]).toMatchObject({status: 'skipped', code: 'NODE_REFERENCE_UNAVAILABLE'});
+    expect(JSON.stringify(published)).not.toMatch(/ownerDocument|parentNode|isConnected/);
+  });
+
+  it('scopes insertion identity by release so reused operation ids do not collide', async () => {
+    document.body.innerHTML = '<main data-lykar-id="content"></main>';
+    const runtime = new Lykar({ projectKey: 'pk_test', document });
+    const insertion: OperationV1 = {
+      schemaVersion: 1,
+      id: 'shared-operation-id',
+      kind: 'insertNode',
+      target: { marker: 'content' },
+      position: 'append',
+      node: {type: 'element', tag: 'span', children: [{type: 'text', value: 'Created'}]},
+    };
+
+    await runtime.applyManifest(manifest([insertion], {releaseId: 'release-ledger-a'}));
+    await runtime.applyManifest(manifest([insertion], {releaseId: 'release-ledger-b'}));
+
+    expect(document.querySelectorAll('span')).toHaveLength(2);
+  });
+
+  it('skips dependent operations after failure while continuing independent work', async () => {
+    document.body.innerHTML = '<p data-lykar-id="independent">Before</p>';
+    const runtime = new Lykar({
+      projectKey: 'pk_test', document, targetRetryMs: 0,
+    });
+    const report = await runtime.applyManifest(manifest([
+      {
+        schemaVersion: 1,
+        id: 'missing-insert',
+        kind: 'insertNode',
+        target: {marker: 'absent'},
+        position: 'append',
+        node: {type: 'element', tag: 'span'},
+      },
+      {
+        schemaVersion: 1,
+        id: 'dependent-edit',
+        kind: 'setText',
+        target: {nodeRef: {operationId: 'missing-insert'}},
+        dependsOn: ['missing-insert'],
+        value: 'Must not fall back',
+      },
+      textOperation('independent-edit', 'independent', 'After'),
+    ], {releaseId: 'release-dependencies'}));
+
+    expect(report.operations).toMatchObject([
+      {status: 'skipped', code: 'TARGET_NOT_FOUND'},
+      {status: 'skipped', code: 'DEPENDENCY_UNAVAILABLE'},
+      {status: 'applied'},
+    ]);
+    expect(document.querySelector('[data-lykar-id="independent"]')?.textContent).toBe('After');
+  });
+
+  it('compensates session mutations and preserves later host changes', async () => {
+    document.body.innerHTML = '<main data-lykar-id="root"><p data-lykar-id="copy">Native</p></main>';
+    let cleanup: (() => void) | undefined;
+    const diagnostics = vi.fn();
+    const runtime = new Lykar({
+      projectKey: 'pk_test',
+      document,
+      registerCleanup(callback) {
+        cleanup = callback;
+        return () => { cleanup = undefined; };
+      },
+      onDiagnostic: diagnostics,
+    });
+    const report = await runtime.applyManifest(manifest([
+      textOperation('session-text', 'copy', 'Lykar'),
+      {
+        schemaVersion: 1,
+        id: 'session-style',
+        kind: 'setStyle',
+        target: {marker: 'copy'},
+        property: 'color',
+        value: 'red',
+      },
+      {
+        schemaVersion: 1,
+        id: 'session-insert',
+        kind: 'insertNode',
+        target: {marker: 'root'},
+        position: 'append',
+        node: {type: 'element', tag: 'span', children: [{type: 'text', value: 'Temporary'}]},
+      },
+    ], {releaseId: 'release-cleanup'}));
+
+    const copy = document.querySelector('[data-lykar-id="copy"]') as HTMLElement;
+    copy.textContent = 'Host update';
+    cleanup?.();
+
+    expect(report.journal.map(entry => entry.mutation)).toEqual(['setText', 'setStyle', 'insertNode']);
+    expect(copy.textContent).toBe('Host update');
+    expect(copy.style.color).toBe('');
+    expect(document.querySelector('[data-lykar-operation-id="session-insert"]')).toBeNull();
+    expect(diagnostics).toHaveBeenCalledWith(expect.objectContaining({
+      operationId: 'session-text',
+      code: 'HOST_MUTATION_PRESERVED',
+      reloadRecommended: true,
+    }));
+  });
+
+  it('rolls back an insertion that mutates and then throws', async () => {
+    document.body.innerHTML = '<main data-lykar-id="root"></main>';
+    const root = document.querySelector('main')!;
+    const nativeAppend = root.appendChild.bind(root);
+    root.appendChild = ((node: Node) => {
+      nativeAppend(node);
+      throw new Error('injected append failure');
+    }) as typeof root.appendChild;
+    const ledger = new ReplayLedger(document, document, {
+      projectId: 'project-1', pageId: 'page-1', releaseId: 'release-failure',
+    });
+    const journal = new MutationJournal();
+
+    const result = await applyOperation(document, {
+      schemaVersion: 1,
+      id: 'partial-insert',
+      kind: 'insertNode',
+      target: {marker: 'root'},
+      position: 'append',
+      node: {type: 'element', tag: 'span', children: [{type: 'text', value: 'Partial'}]},
+    }, {ledger, journal});
+
+    expect(result).toMatchObject({status: 'error', code: 'DOM_MUTATION_FAILED'});
+    expect(root.querySelector('span')).toBeNull();
+    expect(journal.size).toBe(0);
+  });
+
+  it('rejects configured operation limits before mutation and compensates a timed-out replay', async () => {
+    document.body.innerHTML = '<p data-lykar-id="copy">Native</p>';
+    const limited = new Lykar({projectKey: 'pk_test', document, maxOperations: 1});
+    await expect(limited.applyManifest(manifest([
+      textOperation('first', 'copy', 'First'),
+      textOperation('second', 'copy', 'Second'),
+    ], {releaseId: 'release-too-many'}))).rejects.toThrow(/operation limit/i);
+    expect(document.querySelector('p')?.textContent).toBe('Native');
+
+    let now = 0;
+    const clock = vi.spyOn(Date, 'now').mockImplementation(() => {
+      const current = now;
+      now += 10;
+      return current;
+    });
+    try {
+      const bounded = new Lykar({projectKey: 'pk_test', document, maxReplayMs: 5});
+      const report = await bounded.applyManifest(manifest([
+        textOperation('never-visible', 'copy', 'Hidden page'),
+      ], {releaseId: 'release-time-limit'}));
+      expect(report.operations[0]).toMatchObject({status: 'skipped', code: 'REPLAY_TIME_LIMIT'});
+      expect(document.querySelector('p')?.textContent).toBe('Native');
+    } finally {
+      clock.mockRestore();
+    }
   });
 
   it('reports page drift without blocking compatible target-level operations', async () => {

@@ -1,6 +1,6 @@
 # S2-03.2 — Dependency-aware replay
 
-Status: PLANNED
+Status: DONE
 Priority: P0
 Depends on: S2-03.1
 Evidence: report
@@ -20,10 +20,10 @@ Report group: S2-replay-safety
 
 ## Acceptance criteria
 
-- [ ] Failed insertion/move выдаёт dependent operations `DEPENDENCY_UNAVAILABLE`.
-- [ ] Независимые operations продолжаются и имеют собственный result.
-- [ ] Fallback не выбирается молча для зависимой operation.
-- [ ] Изменение protocol dependency fields совместимо со старыми manifests.
+- [x] Failed insertion/move выдаёт dependent operations `DEPENDENCY_UNAVAILABLE`.
+- [x] Независимые operations продолжаются и имеют собственный result.
+- [x] Fallback не выбирается молча для зависимой operation.
+- [x] Изменение protocol dependency fields совместимо со старыми manifests.
 
 ## Checks
 
@@ -43,3 +43,7 @@ Report: `docs/verification/reports/S2/s2-replay-safety.html`
 ## Notes
 
 Replay сохраняет ordered semantics даже при независимых skip/error.
+
+Результат: manifest validator запрещает unknown/forward/implicit dependencies,
+а executor использует ordered outcomes. `nodeRef` не имеет selector fallback;
+legacy manifests без новых optional fields продолжают проходить protocol v1.

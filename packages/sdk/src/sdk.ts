@@ -383,6 +383,14 @@ export class Lykar {
         isCurrent: context.isCurrent,
         targetRetryMs: this.options.targetRetryMs,
         targetRetryIntervalMs: this.options.targetRetryIntervalMs,
+        targetRetryLimit: this.options.targetRetryLimit,
+        maxReplayMs: this.options.maxReplayMs,
+        maxManifestBytes: this.options.maxManifestBytes,
+        maxOperations: this.options.maxOperations,
+        generation: context.generation,
+        draftId: context.draftId,
+        registerCleanup: context.registerCleanup,
+        onDiagnostic: this.options.onDiagnostic,
         onReport: (report: ApplyReport) => {
           context.assertCurrent();
           this.options.onReport?.(report);

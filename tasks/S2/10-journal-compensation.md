@@ -1,6 +1,6 @@
 # S2-03.3 — Journal и compare-and-restore
 
-Status: PLANNED
+Status: DONE
 Priority: P0
 Depends on: S2-03.2
 Evidence: report
@@ -19,11 +19,11 @@ Report group: S2-replay-safety
 
 ## Acceptance criteria
 
-- [ ] Partial mutation откатывается в пределах Lykar ownership contract.
-- [ ] Host change после Lykar mutation сохраняется при cleanup/undo.
-- [ ] Невозможная компенсация даёт diagnostic и reload guidance.
-- [ ] Executor не заменяет весь `document.body` для восстановления.
-- [ ] Отменённая session не запускает компенсацию в другом context.
+- [x] Partial mutation откатывается в пределах Lykar ownership contract.
+- [x] Host change после Lykar mutation сохраняется при cleanup/undo.
+- [x] Невозможная компенсация даёт diagnostic и reload guidance.
+- [x] Executor не заменяет весь `document.body` для восстановления.
+- [x] Отменённая session не запускает компенсацию в другом context.
 
 ## Checks
 
@@ -44,3 +44,9 @@ Report: `docs/verification/reports/S2/s2-replay-safety.html`
 ## Notes
 
 Undo closures и node references остаются только в памяти editor/runtime.
+
+Результат: `MutationJournal` хранит serializable before/after evidence и
+in-memory inverses. PageSession cleanup компенсирует в обратном порядке;
+compare-and-restore сохраняет более позднюю host mutation и выдаёт
+`HOST_MUTATION_PRESERVED`/reload guidance. Failure injection подтверждает
+локальный rollback без замены body.

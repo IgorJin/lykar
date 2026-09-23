@@ -1,6 +1,6 @@
 # S2-05.3 — Ручной target repair
 
-Status: PLANNED
+Status: IN_PROGRESS
 Priority: P1
 Depends on: S2-05.2
 Evidence: report
@@ -45,3 +45,10 @@ Report: `docs/verification/reports/S2/s2-editor-acceptance.html`
 ## Notes
 
 Page fingerprint mismatch сам по себе не блокирует независимые совместимые operations.
+
+Implementation 2026-09-22: the Change Tree presents failure reasons and
+ambiguity candidates, explicit element selection appends a target-repair
+revision, and nodeRef/dependency descendants are rewritten and previewed as a
+chain without changing the failed operation. Unit regressions pass; browser
+save/reload evidence is authored but has not run because local port binding was
+not approved in this environment.

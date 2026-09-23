@@ -1,6 +1,6 @@
 # S2-04.4 — Conflict UX и две вкладки
 
-Status: PLANNED
+Status: DONE
 Priority: P0
 Depends on: S2-04.3
 Evidence: report
@@ -20,12 +20,12 @@ Report group: S2-persistence-recovery
 
 ## Acceptance criteria
 
-- [ ] Одна вкладка сохраняет batch, вторая получает conflict.
-- [ ] Вторая вкладка не теряет pending operations после reload.
-- [ ] UI не выполняет silent rebase или last-write-wins.
-- [ ] Новый payload получает новый key только после решения конфликта.
-- [ ] Offline/storage/capability errors не показываются как success.
-- [ ] Чужой actor/project/page не получает чужой saved result.
+- [x] Одна вкладка сохраняет batch, вторая получает conflict.
+- [x] Вторая вкладка не теряет pending operations после reload.
+- [x] UI не выполняет silent rebase или last-write-wins.
+- [x] Новый payload получает новый key только после решения конфликта.
+- [x] Offline/storage/capability errors не показываются как success.
+- [x] Чужой actor/project/page не получает чужой saved result.
 
 ## Checks
 
@@ -46,3 +46,8 @@ Report: `docs/verification/reports/S2/s2-persistence-recovery.html`
 ## Notes
 
 После этой задачи persistence считается готовым для интеграции с полным editor UI.
+
+Result: the panel exposes an explicit review action for revision conflicts,
+keeps pending edits through reload, blocks save when recovery storage is
+unavailable and surfaces offline/capability failures. Two-tab Chromium and
+actor/capability PostgreSQL fixtures pass.

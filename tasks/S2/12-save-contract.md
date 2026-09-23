@@ -1,6 +1,6 @@
 # S2-04.1 — Save contract и idempotency storage
 
-Status: PLANNED
+Status: DONE
 Priority: P0
 Depends on: S2-03.4
 Evidence: report
@@ -20,11 +20,11 @@ expected revision и сохранённым result.
 
 ## Acceptance criteria
 
-- [ ] Key scope включает actor, project и draft.
-- [ ] Payload hash и expected revision входят в проверяемый save contract.
-- [ ] Retention/expiry persisted result документированы.
-- [ ] Migration forward-only и сохраняет старые данные.
-- [ ] Contract различает повтор того же payload и key с другим payload.
+- [x] Key scope включает actor, project и draft.
+- [x] Payload hash и expected revision входят в проверяемый save contract.
+- [x] Retention/expiry persisted result документированы.
+- [x] Migration forward-only и сохраняет старые данные.
+- [x] Contract различает повтор того же payload и key с другим payload.
 
 ## Checks
 
@@ -44,3 +44,7 @@ Report: `docs/verification/reports/S2/s2-persistence-recovery.html`
 ## Notes
 
 Атомарная реализация транзакции выполняется в S2-04.2.
+
+Result: migration `009_draft_save_idempotency.sql`, canonical SHA-256 contract,
+scoped unique key and persisted 30-day result retention are implemented and
+covered by domain/PostgreSQL tests.

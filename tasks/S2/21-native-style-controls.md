@@ -1,6 +1,6 @@
 # S2-06.2 — P0: самописный минимальный UI kit для стилей
 
-Status: PLANNED
+Status: IN_PROGRESS
 Priority: P0
 Depends on: S2-06.1
 Evidence: report
@@ -66,6 +66,11 @@ DOM, без внешнего UI kit и без нового framework runtime в 
 Report: `docs/verification/reports/S2/s2-style-editor.html`
 
 ## Notes
+
+Implementation 2026-09-22: native text/select/color/number-unit controls,
+search, lazy sections, IME guard, focus-preserving refresh and scoped CSS are
+mounted in the active editor. Browser acceptance for hostile host CSS,
+keyboard-only paths and the full value matrix remains open.
 
 Preact уже используется в legacy/admin, но активный editor-bridge работает без
 него. Наличие пакета в monorepo не делает его бесплатным в editor bundle.

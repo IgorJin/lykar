@@ -1,6 +1,6 @@
 # S2-05.1 — Полный command workflow и Change Tree
 
-Status: PLANNED
+Status: IN_PROGRESS
 Priority: P1
 Depends on: S2-04.4
 Evidence: report
@@ -48,3 +48,10 @@ Report: `docs/verification/reports/S2/s2-editor-acceptance.html`
 ## Notes
 
 Визуальный validator expected-state относится к X2, а не к этой задаче.
+
+Implementation 2026-09-22: command UI, dependency-aware preview, detailed Change
+Tree and validated explicit proposal acceptance are implemented with unit
+regressions. Browser save/reload evidence is authored in
+`tests/e2e/persistence-recovery.spec.ts`, but the local E2E stack could not bind
+127.0.0.1 in the sandbox and the escalation approval timed out twice; status
+remains IN_PROGRESS until that suite runs.

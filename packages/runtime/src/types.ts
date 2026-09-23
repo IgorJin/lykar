@@ -1,12 +1,13 @@
 import type { OperationKindV1, PublishedManifestV1, SourceSnapshotV1, TargetDescriptor } from '@lykar/protocol';
 import type { TargetResolutionEvidence, TargetResolutionStatus } from './target-resolver.js';
+import type {CompensationDiagnostic, JournalEntrySnapshot} from './mutation-journal.js';
 
 export type FetchLike = (
   input: RequestInfo | URL,
   init?: RequestInit,
 ) => Promise<Response>;
 
-export type TargetStrategy = 'binding' | 'marker' | 'css' | 'xpath';
+export type TargetStrategy = 'binding' | 'marker' | 'css' | 'xpath' | 'ledger';
 
 export type OperationApplyStatus = 'applied' | 'skipped' | 'error';
 
@@ -20,6 +21,7 @@ export type OperationApplyResult = {
   targetStrategy?: TargetStrategy;
   targetResolution?: TargetResolutionStatus;
   resolutionEvidence?: TargetResolutionEvidence;
+  compensation?: CompensationDiagnostic;
 };
 
 export type ApplyReport = {
@@ -42,6 +44,8 @@ export type ApplyReport = {
     actualPageHash?: string;
   };
   sourceSnapshot?: SourceSnapshotV1;
+  journal: JournalEntrySnapshot[];
+  compensation: CompensationDiagnostic[];
   operations: OperationApplyResult[];
 };
 
@@ -86,6 +90,14 @@ export type LykarRuntimeOptions = {
   isCurrent?: () => boolean;
   targetRetryMs?: number;
   targetRetryIntervalMs?: number;
+  targetRetryLimit?: number;
+  maxReplayMs?: number;
+  maxManifestBytes?: number;
+  maxOperations?: number;
+  generation?: number;
+  draftId?: string;
+  registerCleanup?: (cleanup: () => void) => () => void;
+  onDiagnostic?: (diagnostic: CompensationDiagnostic) => void;
   onReport?: (report: ApplyReport) => void;
 };
 

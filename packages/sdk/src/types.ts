@@ -1,6 +1,7 @@
 import type {
   AnalyticsConsent,
   ApplyReport,
+  CompensationDiagnostic,
   FetchLike,
   RuntimeStartResult,
 } from '@lykar/runtime';
@@ -72,11 +73,16 @@ export type LykarSdkOptions = {
   waitForDom?: boolean;
   targetRetryMs?: number;
   targetRetryIntervalMs?: number;
+  targetRetryLimit?: number;
+  maxReplayMs?: number;
+  maxManifestBytes?: number;
+  maxOperations?: number;
   editorAssetUrl?: string;
   assetManifestUrl?: string;
   editorAssetOrigin?: string;
   editorAssetTimeoutMs?: number;
   onReport?: (report: ApplyReport) => void;
+  onDiagnostic?: (diagnostic: CompensationDiagnostic) => void;
   onEditorApply?: EditorApplyHandler;
   onEditorCommit?: EditorCommitHandler;
   onError?: (error: LykarSdkError) => void;

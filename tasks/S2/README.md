@@ -33,25 +33,25 @@ core contracts. Номер 06 сохраняет существующие ID, а
 | S2-02.1 | PageSession ownership | DONE | P0 | S2-01.4 | [05](./05-session-ownership.md) |
 | S2-02.2 | Async cancellation and generation checks | DONE | P0 | S2-02.1 | [06](./06-async-cancellation.md) |
 | S2-02.3 | Cleanup and lifecycle regression matrix | DONE | P0 | S2-02.2 | [07](./07-cleanup-regression.md) |
-| S2-03.1 | Operation identity and ledger | PLANNED | P0 | S2-02.3 | [08](./08-identity-ledger.md) |
-| S2-03.2 | Dependency-aware replay | PLANNED | P0 | S2-03.1 | [09](./09-dependency-replay.md) |
-| S2-03.3 | Journal and compare-and-restore | PLANNED | P0 | S2-03.2 | [10](./10-journal-compensation.md) |
-| S2-03.4 | Bounded execution and protocol safety | PLANNED | P0 | S2-03.3 | [11](./11-bounded-execution.md) |
-| S2-04.1 | Save contract and idempotency storage | PLANNED | P0 | S2-03.4 | [12](./12-save-contract.md) |
-| S2-04.2 | Atomic write and retries | PLANNED | P0 | S2-04.1 | [13](./13-atomic-retries.md) |
-| S2-04.3 | Client recovery after lost response | PLANNED | P0 | S2-04.2 | [14](./14-client-recovery.md) |
-| S2-04.4 | Conflict UX and two tabs | PLANNED | P0 | S2-04.3 | [15](./15-conflict-ux.md) |
-| S2-05.1 | Full command workflow and Change Tree | PLANNED | P1 | S2-04.4 | [16](./16-command-workflow.md) |
-| S2-05.2 | Undo/redo and saved changes | PLANNED | P1 | S2-05.1 | [17](./17-undo-redo.md) |
-| S2-05.3 | Manual target repair | PLANNED | P1 | S2-05.2 | [18](./18-target-repair.md) |
-| S2-05.4 | Overlay, accessibility and editor acceptance | PLANNED | P0 | S2-05.3, S2-06.8 | [19](./19-editor-acceptance.md) |
-| S2-06.1 | Отдельная конфигурация всех стилей и legacy coverage | PLANNED | P0 | None | [20](./20-style-schema.md) |
-| S2-06.2 | Самописные input/select/color и минимальный UI kit | PLANNED | P0 | S2-06.1 | [21](./21-native-style-controls.md) |
-| S2-06.3 | Полный StylesSection в активном editor-bridge | PLANNED | P0 | S2-06.1, S2-06.2, S2-02.2, S2-03.3 | [22](./22-style-panel-integration.md) |
-| S2-06.4 | Composite/stack: spacing, borders, shadows, backgrounds, effects | PLANNED | P0 | S2-06.3 | [23](./23-composite-style-editing.md) |
-| S2-06.5 | Любой CSS, custom properties, reset, priority и диагностика | PLANNED | P0 | S2-06.4, S2-03.4 | [24](./24-arbitrary-css-reset.md) |
-| S2-06.6 | Транзакции полей, undo/redo, save/reload | PLANNED | P0 | S2-06.5, S2-04.4, S2-05.2 | [25](./25-style-transactions-persistence.md) |
-| S2-06.7 | Lazy UI, зависимости и измеримый бюджет веса | PLANNED | P0 | S2-06.5 | [26](./26-style-editor-budget.md) |
+| S2-03.1 | Operation identity and ledger | DONE | P0 | S2-02.3 | [08](./08-identity-ledger.md) |
+| S2-03.2 | Dependency-aware replay | DONE | P0 | S2-03.1 | [09](./09-dependency-replay.md) |
+| S2-03.3 | Journal and compare-and-restore | DONE | P0 | S2-03.2 | [10](./10-journal-compensation.md) |
+| S2-03.4 | Bounded execution and protocol safety | DONE | P0 | S2-03.3 | [11](./11-bounded-execution.md) |
+| S2-04.1 | Save contract and idempotency storage | DONE | P0 | S2-03.4 | [12](./12-save-contract.md) |
+| S2-04.2 | Atomic write and retries | DONE | P0 | S2-04.1 | [13](./13-atomic-retries.md) |
+| S2-04.3 | Client recovery after lost response | DONE | P0 | S2-04.2 | [14](./14-client-recovery.md) |
+| S2-04.4 | Conflict UX and two tabs | DONE | P0 | S2-04.3 | [15](./15-conflict-ux.md) |
+| S2-05.1 | Full command workflow and Change Tree | IN_PROGRESS | P1 | S2-04.4 | [16](./16-command-workflow.md) |
+| S2-05.2 | Undo/redo and saved changes | IN_PROGRESS | P1 | S2-05.1 | [17](./17-undo-redo.md) |
+| S2-05.3 | Manual target repair | IN_PROGRESS | P1 | S2-05.2 | [18](./18-target-repair.md) |
+| S2-05.4 | Overlay, accessibility and editor acceptance | BLOCKED | P0 | S2-05.3, S2-06.8 | [19](./19-editor-acceptance.md) |
+| S2-06.1 | Отдельная конфигурация всех стилей и legacy coverage | IN_PROGRESS | P0 | None | [20](./20-style-schema.md) |
+| S2-06.2 | Самописные input/select/color и минимальный UI kit | IN_PROGRESS | P0 | S2-06.1 | [21](./21-native-style-controls.md) |
+| S2-06.3 | Полный StylesSection в активном editor-bridge | IN_PROGRESS | P0 | S2-06.1, S2-06.2, S2-02.2, S2-03.3 | [22](./22-style-panel-integration.md) |
+| S2-06.4 | Composite/stack: spacing, borders, shadows, backgrounds, effects | IN_PROGRESS | P0 | S2-06.3 | [23](./23-composite-style-editing.md) |
+| S2-06.5 | Любой CSS, custom properties, reset, priority и диагностика | IN_PROGRESS | P0 | S2-06.4, S2-03.4 | [24](./24-arbitrary-css-reset.md) |
+| S2-06.6 | Транзакции полей, undo/redo, save/reload | IN_PROGRESS | P0 | S2-06.5, S2-04.4, S2-05.2 | [25](./25-style-transactions-persistence.md) |
+| S2-06.7 | Lazy UI, зависимости и измеримый бюджет веса | IN_PROGRESS | P0 | S2-06.5 | [26](./26-style-editor-budget.md) |
 | S2-06.8 | Browser acceptance полного редактора стилей | PLANNED | P0 | S2-06.6, S2-06.7 | [27](./27-style-editor-acceptance.md) |
 
 ## Sprint goal
@@ -62,11 +62,43 @@ Editor безопасно применяет декларативные кома
 Пользователь меняет оформление через секции и специализированные поля, а любое
 поддерживаемое CSS-свойство вне каталога — через Advanced без изменения кода.
 
-Progress 2026-09-22: блоки S2-01 и S2-02 завершены 7/7. Target lifecycle
-закрывает logical targets, strict resolver, drift/repair, PageSession ownership,
-generation cancellation, root isolation и cleanup. Групповой acceptance report
-выпущен; следующая обязательная core dependency — S2-03 operation ledger,
-dependency replay, journal и bounded execution.
+Progress 2026-09-22: блоки S2-01…S2-04 завершены 15/15. Persistence recovery
+закрывает scoped idempotency, atomic revision transaction, lost-response/reload
+recovery, save-in-flight edits, явный two-tab conflict и capability recheck.
+Три групповых acceptance reports выпущены; следующая core dependency —
+S2-05.1 full command workflow and Change Tree. Независимые S2-06.1/06.2 по-прежнему
+можно выполнять параллельно.
+
+S2-05 implementation progress 2026-09-22: command workflow, append-only saved
+undo and manual dependent-chain repair are implemented with passing unit/API,
+build and typecheck suites. Browser scenarios are authored, but their local
+stack could not obtain port-binding approval. Final S2-05.4 remains BLOCKED on
+the explicit S2-06.8 dependency and that browser acceptance run.
+
+S2-06.1 implementation progress 2026-09-22: declarative style schema, field
+state types, open-ended Advanced fallback and complete legacy coverage matrix
+are implemented and verified. Its acceptance criteria are complete; final DONE
+and the shared HTML evidence are deferred until the S2-06 group acceptance gate.
+
+S2-06.2–06.5 progress 2026-09-22: catalog-backed controls now run in the SDK
+panel; browser coverage proves arbitrary CSS, custom variables, important
+priority, stack layers, spacing, undo and reload. Remaining acceptance includes
+lossless mixed shorthand/longhand codecs, Lykar-only reset, cascade diagnostics
+and the full cross-browser/host CSS matrix.
+
+S2-06 parallel progress 2026-09-23: conservative shorthand codecs now populate
+spacing/border/radius fields and edit individual longhands; background and
+transform stacks use top-level-aware splitting with a guard against resetting
+mixed background declarations. The panel warns when accepted CSS leaves the
+computed value unchanged. `EditorSession.previewGroup` provides a single undo
+batch and reverse compare-and-restore on partial style-group failure; linked
+margin/padding controls route edits through this path and preserve each side's
+priority. A reproducible size/dependency harness reports the current standalone
+UI probe at 14,221 bytes gzip and flags stale built source maps. The focused
+S2-06.8 Chromium scenario passed through save, reload and visitor share, with
+screenshots attached. Full codecs, background/shadow coverage, mixed shorthand
+fidelity, pre-UI baseline, 1,000-node latency, the complete acceptance matrix
+and the shared report remain open; S2-06 task statuses are intentionally unchanged.
 
 ## Definition of done
 

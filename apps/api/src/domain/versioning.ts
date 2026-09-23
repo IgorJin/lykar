@@ -1,4 +1,4 @@
-import { randomBytes, randomUUID } from 'node:crypto';
+import { createHash, randomBytes, randomUUID } from 'node:crypto';
 
 import { isSourceSnapshotV1, validateOperationV1 } from '@lykar/protocol';
 import type { OperationV1, PublishedManifestV1, SourceSnapshotV1 } from '@lykar/protocol';
@@ -45,6 +45,26 @@ export class ConflictError extends VersioningError {
   }
 }
 
+export class RevisionConflictError extends VersioningError {
+  constructor(expectedRevision: number, actualRevision: number) {
+    super('Draft revision does not match', 'REVISION_CONFLICT', 409, {
+      expectedRevision,
+      actualRevision,
+    });
+  }
+}
+
+export class IdempotencyConflictError extends VersioningError {
+  constructor(details: unknown) {
+    super(
+      'The idempotency key was already used with a different save payload',
+      'IDEMPOTENCY_CONFLICT',
+      409,
+      details,
+    );
+  }
+}
+
 export type ProjectRecord = {
   id: string;
   name: string;
@@ -82,7 +102,15 @@ export type AppendOperationsResult = {
   draftId: string;
   revision: number;
   appended: number;
+  operationIds: string[];
+  idempotencyKey: string;
+  payloadHash: string;
+  replayed: boolean;
+  savedAt: string;
+  expiresAt: string;
 };
+
+export const SAVE_RESULT_RETENTION_MS = 30 * 24 * 60 * 60 * 1_000;
 
 export type DraftDetails = {
   draft: DraftRecord;
@@ -133,9 +161,12 @@ export interface VersioningRepository {
   appendOperations(input: {
     userId: string;
     draftId: string;
+    idempotencyKey: string;
+    payloadHash: string;
     expectedRevision: number;
     operations: OperationV1[];
     sourceSnapshot?: SourceSnapshotV1;
+    resultExpiresAt: string;
   }): Promise<AppendOperationsResult>;
   publishDraft(input: {
     userId: string;
@@ -172,6 +203,18 @@ function requireRevision(value: unknown): number {
     throw new ValidationError('expectedRevision must be a non-negative integer');
   }
   return value as number;
+}
+
+function requireIdempotencyKey(value: unknown): string {
+  if (
+    typeof value !== 'string'
+    || value.length < 16
+    || value.length > 160
+    || !/^[A-Za-z0-9._:-]+$/.test(value)
+  ) {
+    throw new ValidationError('idempotencyKey must contain 16 to 160 URL-safe characters');
+  }
+  return value;
 }
 
 export function normalizePathname(value: unknown): string {
@@ -283,6 +326,7 @@ export class VersioningService {
   appendOperations(
     userIdValue: unknown,
     draftIdValue: unknown,
+    idempotencyKeyValue: unknown,
     expectedRevisionValue: unknown,
     operationsValue: unknown,
     sourceSnapshotValue?: unknown,
@@ -302,14 +346,20 @@ export class VersioningService {
       operations.push(result.value);
     });
 
+    const expectedRevision = requireRevision(expectedRevisionValue);
+    const sourceSnapshot = sourceSnapshotValue === undefined
+      ? undefined
+      : requireSourceSnapshot(sourceSnapshotValue);
+    const idempotencyKey = requireIdempotencyKey(idempotencyKeyValue);
     return this.repository.appendOperations({
       userId: requireUuid(userIdValue, 'userId'),
       draftId: requireUuid(draftIdValue, 'draftId'),
-      expectedRevision: requireRevision(expectedRevisionValue),
+      idempotencyKey,
+      payloadHash: hashSavePayload({expectedRevision, operations, sourceSnapshot}),
+      expectedRevision,
       operations,
-      ...(sourceSnapshotValue === undefined
-        ? {}
-        : { sourceSnapshot: requireSourceSnapshot(sourceSnapshotValue) }),
+      ...(sourceSnapshot ? {sourceSnapshot} : {}),
+      resultExpiresAt: new Date(Date.now() + SAVE_RESULT_RETENTION_MS).toISOString(),
     });
   }
 
@@ -356,4 +406,25 @@ export class VersioningService {
 function requireSourceSnapshot(value: unknown): SourceSnapshotV1 {
   if (!isSourceSnapshotV1(value)) throw new ValidationError('sourceSnapshot is invalid');
   return value;
+}
+
+export function hashSavePayload(value: {
+  expectedRevision: number;
+  operations: OperationV1[];
+  sourceSnapshot?: SourceSnapshotV1;
+}): string {
+  return createHash('sha256').update(canonicalJson({
+    expectedRevision: value.expectedRevision,
+    operations: value.operations,
+    sourceSnapshot: value.sourceSnapshot ?? null,
+  })).digest('hex');
+}
+
+function canonicalJson(value: unknown): string {
+  if (value === null || typeof value !== 'object') return JSON.stringify(value);
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`;
+  const entries = Object.entries(value as Record<string, unknown>)
+    .filter(([, item]) => item !== undefined)
+    .sort(([left], [right]) => left.localeCompare(right));
+  return `{${entries.map(([key, item]) => `${JSON.stringify(key)}:${canonicalJson(item)}`).join(',')}}`;
 }

@@ -1,5 +1,15 @@
 export const OPERATION_SCHEMA_VERSION = 1 as const;
 
+export const PROTOCOL_LIMITS = {
+  manifestBytes: 512 * 1024,
+  operations: 1_000,
+  operationDependencies: 64,
+  operationIdLength: 160,
+  serializedNodeDepth: 32,
+  serializedNodeCount: 5_000,
+  nodeReferenceDepth: 32,
+} as const;
+
 export const OPERATION_KINDS = [
   'setText',
   'setStyle',
@@ -52,8 +62,21 @@ export type TargetBindingReferenceV1 = {
  * Existing locator descriptors remain valid. New releases may additionally pin
  * the exact registry binding that supplied the embedded locator data.
  */
-export type TargetDescriptor = LocatorTargetDescriptor & {
+export type OperationNodeReferenceV1 = {
+  operationId: string;
+  /** Child-node indexes from the inserted root; an omitted path addresses the root. */
+  path?: number[];
+};
+
+export type TargetDescriptor = (LocatorTargetDescriptor & {
   binding?: TargetBindingReferenceV1;
+  nodeRef?: never;
+}) | {
+  nodeRef: OperationNodeReferenceV1;
+  marker?: never;
+  selectors?: never;
+  fingerprint?: never;
+  binding?: never;
 };
 
 export type TargetRootScopeV1 =
@@ -119,6 +142,11 @@ export type OperationMeta = {
   actor: OperationActor;
 };
 
+export type OperationRevisionV1 = {
+  previousOperationId: string;
+  reason: 'undo' | 'target-repair';
+};
+
 export type TargetBeforeStateV1 = {
   textHash?: string;
   attributes?: Record<string, string | null>;
@@ -156,9 +184,12 @@ type OperationBaseV1 = {
   schemaVersion: typeof OPERATION_SCHEMA_VERSION;
   id: string;
   target: TargetDescriptor;
+  dependsOn?: string[];
   meta?: OperationMeta;
   precondition?: OperationPrecondition;
   desiredState?: TargetDesiredStateV1;
+  /** Append-only relation used by editor undo and manual target repair. */
+  revision?: OperationRevisionV1;
 };
 
 export type SetTextOperationV1 = OperationBaseV1 & {
@@ -170,6 +201,8 @@ export type SetStyleOperationV1 = OperationBaseV1 & {
   kind: 'setStyle';
   property: string;
   value: string;
+  /** Omitted for legacy operations. Empty values remove the authored declaration. */
+  priority?: '' | 'important';
 };
 
 export type SetAttributeOperationV1 = OperationBaseV1 & {
@@ -259,6 +292,13 @@ function isIsoDate(value: unknown): value is string {
   return isNonEmptyString(value) && !Number.isNaN(Date.parse(value));
 }
 
+function isOperationRevision(value: unknown): value is OperationRevisionV1 {
+  return isRecord(value)
+    && isNonEmptyString(value.previousOperationId)
+    && value.previousOperationId.length <= PROTOCOL_LIMITS.operationIdLength
+    && (value.reason === 'undo' || value.reason === 'target-repair');
+}
+
 function isTargetEnvironment(value: unknown): value is TargetEnvironment {
   return typeof value === 'string' && (TARGET_ENVIRONMENTS as readonly string[]).includes(value);
 }
@@ -287,6 +327,15 @@ function isTargetBindingReference(value: unknown): value is TargetBindingReferen
     && isTargetEnvironment(value.environment);
 }
 
+function isOperationNodeReference(value: unknown): value is OperationNodeReferenceV1 {
+  if (!isRecord(value) || !isNonEmptyString(value.operationId)) return false;
+  if (value.operationId.length > PROTOCOL_LIMITS.operationIdLength) return false;
+  if (value.path === undefined) return true;
+  return Array.isArray(value.path)
+    && value.path.length <= PROTOCOL_LIMITS.nodeReferenceDepth
+    && value.path.every(index => Number.isSafeInteger(index) && index >= 0);
+}
+
 function isLocatorTargetDescriptor(value: unknown): value is LocatorTargetDescriptor {
   if (!isRecord(value) || !hasTargetLocator(value)) return false;
   if (value.marker !== undefined && !isNonEmptyString(value.marker)) return false;
@@ -309,6 +358,13 @@ function isLocatorTargetDescriptor(value: unknown): value is LocatorTargetDescri
 
 export function isTargetDescriptor(value: unknown): value is TargetDescriptor {
   if (!isRecord(value)) return false;
+  if (value.nodeRef !== undefined) {
+    return isOperationNodeReference(value.nodeRef)
+      && value.marker === undefined
+      && value.selectors === undefined
+      && value.fingerprint === undefined
+      && value.binding === undefined;
+  }
   if (!hasTargetLocator(value) && !isTargetBindingReference(value.binding)) return false;
   if (value.binding !== undefined && !isTargetBindingReference(value.binding)) return false;
 
@@ -448,16 +504,33 @@ function bindingKey(reference: TargetBindingReferenceV1): string {
 }
 
 export function isSerializedNode(value: unknown): value is SerializedNode {
-  if (!isRecord(value)) return false;
+  const pending: Array<{ value: unknown; depth: number }> = [{ value, depth: 1 }];
+  const seen = new Set<object>();
+  let count = 0;
 
-  if (value.type === 'text') {
-    return typeof value.value === 'string';
-  }
+  while (pending.length > 0) {
+    const current = pending.pop()!;
+    if (!isRecord(current.value)) return false;
+    if (seen.has(current.value)) return false;
+    seen.add(current.value);
+    count += 1;
+    if (count > PROTOCOL_LIMITS.serializedNodeCount || current.depth > PROTOCOL_LIMITS.serializedNodeDepth) {
+      return false;
+    }
 
-  if (value.type !== 'element' || !isNonEmptyString(value.tag)) return false;
-  if (value.attributes !== undefined && !isStringRecord(value.attributes)) return false;
-  if (value.children !== undefined) {
-    if (!Array.isArray(value.children) || !value.children.every(isSerializedNode)) return false;
+    if (current.value.type === 'text') {
+      if (typeof current.value.value !== 'string') return false;
+      continue;
+    }
+
+    if (current.value.type !== 'element' || !isNonEmptyString(current.value.tag)) return false;
+    if (current.value.attributes !== undefined && !isStringRecord(current.value.attributes)) return false;
+    if (current.value.children !== undefined) {
+      if (!Array.isArray(current.value.children)) return false;
+      for (const child of current.value.children) {
+        pending.push({ value: child, depth: current.depth + 1 });
+      }
+    }
   }
 
   return true;
@@ -495,7 +568,19 @@ export function validateOperationV1(value: unknown): OperationValidationResult {
   if (!isRecord(value)) return { ok: false, errors: ['operation must be an object'] };
   if (value.schemaVersion !== OPERATION_SCHEMA_VERSION) errors.push('schemaVersion must be 1');
   if (!isNonEmptyString(value.id)) errors.push('id must be a non-empty string');
-  if (!isTargetDescriptor(value.target)) errors.push('target must contain marker, css, or xpath');
+  else if (value.id.length > PROTOCOL_LIMITS.operationIdLength) errors.push(`id must be at most ${PROTOCOL_LIMITS.operationIdLength} characters`);
+  if (!isTargetDescriptor(value.target)) errors.push('target must contain marker, css, xpath, binding, or nodeRef');
+  if (value.dependsOn !== undefined) {
+    if (!Array.isArray(value.dependsOn)) errors.push('dependsOn must be an array');
+    else if (value.dependsOn.length > PROTOCOL_LIMITS.operationDependencies) {
+      errors.push(`dependsOn must contain at most ${PROTOCOL_LIMITS.operationDependencies} operation ids`);
+    } else if (!value.dependsOn.every(isNonEmptyString)) errors.push('dependsOn must contain non-empty operation ids');
+    else if (new Set(value.dependsOn).size !== value.dependsOn.length) errors.push('dependsOn must not contain duplicates');
+  }
+  if (value.revision !== undefined) {
+    if (!isOperationRevision(value.revision)) errors.push('revision is invalid');
+    else if (value.revision.previousOperationId === value.id) errors.push('revision cannot reference itself');
+  }
   if (value.meta !== undefined && !isMeta(value.meta)) errors.push('meta is invalid');
   if (value.precondition !== undefined && !isPrecondition(value.precondition)) errors.push('precondition is invalid');
   if (value.desiredState !== undefined && !isTargetState(value.desiredState)) errors.push('desiredState is invalid');
@@ -507,6 +592,9 @@ export function validateOperationV1(value: unknown): OperationValidationResult {
     case 'setStyle':
       if (!isNonEmptyString(value.property)) errors.push('setStyle.property must be a non-empty string');
       if (typeof value.value !== 'string') errors.push('setStyle.value must be a string');
+      if (value.priority !== undefined && value.priority !== '' && value.priority !== 'important') {
+        errors.push('setStyle.priority must be empty or important');
+      }
       break;
     case 'setAttribute':
       if (!isNonEmptyString(value.name)) errors.push('setAttribute.name must be a non-empty string');
@@ -548,6 +636,14 @@ export function validatePublishedManifestV1(value: unknown): PublishedManifestVa
   if (!isRecord(value)) return { ok: false, errors: ['manifest must be an object'] };
 
   const errors: string[] = [];
+  try {
+    const bytes = utf8ByteLength(JSON.stringify(value));
+    if (bytes > PROTOCOL_LIMITS.manifestBytes) {
+      errors.push(`manifest must be at most ${PROTOCOL_LIMITS.manifestBytes} bytes`);
+    }
+  } catch {
+    errors.push('manifest must be JSON serializable');
+  }
   if (value.schemaVersion !== OPERATION_SCHEMA_VERSION) errors.push('schemaVersion must be 1');
   if (!isNonEmptyString(value.projectId)) errors.push('projectId must be a non-empty string');
   if (!isNonEmptyString(value.pageId)) errors.push('pageId must be a non-empty string');
@@ -595,11 +691,18 @@ export function validatePublishedManifestV1(value: unknown): PublishedManifestVa
   if (!Array.isArray(value.operations)) {
     errors.push('operations must be an array');
   } else {
+    if (value.operations.length > PROTOCOL_LIMITS.operations) {
+      errors.push(`operations must contain at most ${PROTOCOL_LIMITS.operations} items`);
+    }
+    const validatedOperations = new Map<string, { operation: OperationV1; index: number }>();
     value.operations.forEach((operation, index) => {
       const result = validateOperationV1(operation);
       if (!result.ok) {
         errors.push(...result.errors.map(error => `operations[${index}]: ${error}`));
       } else {
+        const existing = validatedOperations.get(result.value.id);
+        if (existing) errors.push(`operations[${index}]: id duplicates operations[${existing.index}]`);
+        else validatedOperations.set(result.value.id, { operation: result.value, index });
         for (const descriptor of operationTargets(result.value)) {
           if (!descriptor.binding) continue;
           if (!registry) {
@@ -615,11 +718,65 @@ export function validatePublishedManifestV1(value: unknown): PublishedManifestVa
         }
       }
     });
+
+    for (const { operation, index } of validatedOperations.values()) {
+      const dependencies = new Set(operation.dependsOn ?? []);
+      for (const dependencyId of dependencies) {
+        const dependency = validatedOperations.get(dependencyId);
+        if (!dependency) {
+          errors.push(`operations[${index}]: dependsOn references unknown operation ${dependencyId}`);
+        } else if (dependency.index >= index) {
+          errors.push(`operations[${index}]: dependsOn must reference a preceding operation (${dependencyId})`);
+        }
+      }
+
+      if (operation.revision) {
+        const previous = validatedOperations.get(operation.revision.previousOperationId);
+        if (!previous) {
+          errors.push(`operations[${index}]: revision references unknown operation ${operation.revision.previousOperationId}`);
+        } else if (previous.index >= index) {
+          errors.push(`operations[${index}]: revision must reference a preceding operation (${operation.revision.previousOperationId})`);
+        }
+      }
+
+      for (const descriptor of operationTargets(operation)) {
+        if (!descriptor.nodeRef) continue;
+        const source = validatedOperations.get(descriptor.nodeRef.operationId);
+        if (!source) {
+          errors.push(`operations[${index}]: nodeRef references unknown operation ${descriptor.nodeRef.operationId}`);
+          continue;
+        }
+        if (source.operation.kind !== 'insertNode') {
+          errors.push(`operations[${index}]: nodeRef source ${descriptor.nodeRef.operationId} must be insertNode`);
+          continue;
+        }
+        if (!dependencies.has(descriptor.nodeRef.operationId)) {
+          errors.push(`operations[${index}]: nodeRef ${descriptor.nodeRef.operationId} must also appear in dependsOn`);
+        }
+        if (!serializedNodeAtPath(source.operation.node, descriptor.nodeRef.path ?? [])) {
+          errors.push(`operations[${index}]: nodeRef path does not exist in insertion ${descriptor.nodeRef.operationId}`);
+        }
+      }
+    }
   }
 
   return errors.length === 0
     ? { ok: true, value: value as PublishedManifestV1 }
     : { ok: false, errors };
+}
+
+function serializedNodeAtPath(root: SerializedNode, path: number[]): SerializedNode | null {
+  let current = root;
+  for (const index of path) {
+    if (current.type !== 'element' || !current.children || index >= current.children.length) return null;
+    current = current.children[index];
+  }
+  return current;
+}
+
+function utf8ByteLength(value: string | undefined): number {
+  if (value === undefined) return 0;
+  return new TextEncoder().encode(value).byteLength;
 }
 
 function operationTargets(operation: OperationV1): TargetDescriptor[] {

@@ -1,8 +1,11 @@
-import { parsePublishedManifestV1 } from '@lykar/protocol';
+import {parsePublishedManifestV1, PROTOCOL_LIMITS} from '@lykar/protocol';
 import type { PublishedManifestV1, SourceSnapshotV1 } from '@lykar/protocol';
 
-import { applyOperation } from './dom-executor.js';
+import {applyOperation, assertOperationPayloadSafe} from './dom-executor.js';
 import { captureSourceSnapshot } from './dom-fingerprint.js';
+import {MutationJournal} from './mutation-journal.js';
+import type {CompensationDiagnostic, JournalEntrySnapshot} from './mutation-journal.js';
+import {ReplayLedger} from './replay-ledger.js';
 import { resolveExperimentSelection, sendAnalyticsEvent } from './analytics-client.js';
 import { fetchManifest } from './manifest-client.js';
 import type {
@@ -45,6 +48,17 @@ export class Lykar {
   private readonly isCurrent?: () => boolean;
   private readonly targetRetryMs: number;
   private readonly targetRetryIntervalMs: number;
+  private readonly targetRetryLimit: number;
+  private readonly maxReplayMs: number;
+  private readonly maxManifestBytes: number;
+  private readonly maxOperations: number;
+  private readonly generation?: number;
+  private readonly draftId?: string;
+  private readonly registerCleanup?: (cleanup: () => void) => () => void;
+  private readonly journal: MutationJournal;
+  private readonly compensationDiagnostics: CompensationDiagnostic[] = [];
+  private readonly ownedReleaseIds = new Set<string>();
+  private cleanupRegistered = false;
   private analyticsConsent: AnalyticsConsent;
   private analyticsContext?: ExperimentRuntimeSelection;
   private pendingExposure = false;
@@ -89,6 +103,27 @@ export class Lykar {
     this.isCurrent = options.isCurrent;
     this.targetRetryMs = boundedDuration(options.targetRetryMs ?? 0, 'targetRetryMs');
     this.targetRetryIntervalMs = boundedDuration(options.targetRetryIntervalMs ?? 25, 'targetRetryIntervalMs');
+    this.targetRetryLimit = boundedInteger(options.targetRetryLimit ?? 20, 'targetRetryLimit', 0, 1_000);
+    this.maxReplayMs = boundedInteger(options.maxReplayMs ?? 2_000, 'maxReplayMs', 1, 60_000);
+    this.maxManifestBytes = boundedInteger(
+      options.maxManifestBytes ?? PROTOCOL_LIMITS.manifestBytes,
+      'maxManifestBytes',
+      1,
+      PROTOCOL_LIMITS.manifestBytes,
+    );
+    this.maxOperations = boundedInteger(
+      options.maxOperations ?? PROTOCOL_LIMITS.operations,
+      'maxOperations',
+      1,
+      PROTOCOL_LIMITS.operations,
+    );
+    this.generation = options.generation;
+    this.draftId = options.draftId;
+    this.registerCleanup = options.registerCleanup;
+    this.journal = new MutationJournal(diagnostic => {
+      this.compensationDiagnostics.push(diagnostic);
+      try { options.onDiagnostic?.(diagnostic); } catch { /* Diagnostic hooks do not affect replay. */ }
+    });
     this.analyticsConsent = options.analyticsConsent ?? 'pending';
     activeRuntime = this;
   }
@@ -129,10 +164,14 @@ export class Lykar {
   ): Promise<ApplyReport> {
     this.assertActive();
     const validatedManifest = parsePublishedManifestV1(manifest);
+    this.assertManifestLimitsAndSafety(validatedManifest);
     const startedAt = new Date().toISOString();
+    const replayStartedAt = Date.now();
     const releaseSet = getReleaseSet(this.root);
     const source = await sourceCompatibilityFor(this.document, this.root, validatedManifest);
     this.assertActive();
+    const journalCheckpoint = this.journal.checkpoint();
+    const diagnosticCheckpoint = this.compensationDiagnostics.length;
 
     if (!options.force && releaseSet.has(validatedManifest.releaseId)) {
       const operations = validatedManifest.operations.map<OperationApplyResult>(operation => ({
@@ -143,11 +182,52 @@ export class Lykar {
         code: 'RELEASE_ALREADY_APPLIED',
         message: 'This release was already applied to the document',
       }));
-      return this.finishReport(validatedManifest, startedAt, operations, true, source.compatibility, source.snapshot);
+      return this.finishReport(
+        validatedManifest,
+        startedAt,
+        operations,
+        true,
+        source.compatibility,
+        source.snapshot,
+        [],
+        [],
+      );
     }
 
+    this.ensureJournalCleanup();
+    const ledger = new ReplayLedger(this.document, this.root, {
+      projectId: validatedManifest.projectId,
+      pageId: validatedManifest.pageId,
+      releaseId: validatedManifest.releaseId,
+      ...(this.draftId ? {draftId: this.draftId} : {}),
+      ...(this.generation !== undefined ? {generation: this.generation} : {}),
+    });
     const operations: OperationApplyResult[] = [];
-    for (const operation of validatedManifest.operations) {
+    const outcomes = new Map<string, OperationApplyResult>();
+    let timedOut = false;
+    for (let index = 0; index < validatedManifest.operations.length; index += 1) {
+      const operation = validatedManifest.operations[index];
+      if (Date.now() - replayStartedAt >= this.maxReplayMs) {
+        timedOut = true;
+        appendReplayLimitResults(validatedManifest.operations.slice(index), operations, outcomes);
+        break;
+      }
+
+      const unavailable = (operation.dependsOn ?? []).find(dependency => !dependencyAvailable(outcomes.get(dependency)));
+      if (unavailable) {
+        const operationResult: OperationApplyResult = {
+          operationId: operation.id,
+          kind: operation.kind,
+          target: operation.target,
+          status: 'skipped',
+          code: 'DEPENDENCY_UNAVAILABLE',
+          message: `Dependency ${unavailable} did not complete successfully`,
+        };
+        operations.push(operationResult);
+        outcomes.set(operation.id, operationResult);
+        continue;
+      }
+
       const operationResult = await this.applyOperationWithRetry(operation, {
         root: this.root,
         targetRegistry: validatedManifest.targetRegistry,
@@ -156,14 +236,37 @@ export class Lykar {
         pageId: validatedManifest.pageId,
         signal: this.signal,
         isCurrent: this.isCurrent,
+        ledger,
+        journal: this.journal,
       });
       this.assertActive();
       operations.push(operationResult);
+      outcomes.set(operation.id, operationResult);
       if (this.strict && operationResult.status === 'error') break;
+      if (Date.now() - replayStartedAt >= this.maxReplayMs) {
+        timedOut = true;
+        appendReplayLimitResults(validatedManifest.operations.slice(index + 1), operations, outcomes);
+        break;
+      }
     }
 
-    releaseSet.add(validatedManifest.releaseId);
-    return this.finishReport(validatedManifest, startedAt, operations, false, source.compatibility, source.snapshot);
+    if (timedOut) {
+      const compensation = this.journal.compensateFrom(journalCheckpoint);
+      markReplayCompensated(operations, compensation);
+    } else {
+      releaseSet.add(validatedManifest.releaseId);
+      this.ownedReleaseIds.add(validatedManifest.releaseId);
+    }
+    return this.finishReport(
+      validatedManifest,
+      startedAt,
+      operations,
+      false,
+      source.compatibility,
+      source.snapshot,
+      this.journal.snapshots().slice(journalCheckpoint),
+      this.compensationDiagnostics.slice(diagnosticCheckpoint),
+    );
   }
 
   async start(): Promise<RuntimeStartResult> {
@@ -222,6 +325,8 @@ export class Lykar {
     alreadyApplied: boolean,
     compatibility: ApplyReport['compatibility'],
     sourceSnapshot?: SourceSnapshotV1,
+    journal: JournalEntrySnapshot[] = [],
+    compensation: CompensationDiagnostic[] = [],
   ): ApplyReport {
     this.assertActive();
     const report: ApplyReport = {
@@ -237,6 +342,8 @@ export class Lykar {
       alreadyApplied,
       compatibility,
       ...(sourceSnapshot ? { sourceSnapshot } : {}),
+      journal,
+      compensation,
       operations,
     };
 
@@ -291,17 +398,53 @@ export class Lykar {
     options: Parameters<typeof applyOperation>[2],
   ): Promise<OperationApplyResult> {
     const deadline = Date.now() + this.targetRetryMs;
+    let retries = 0;
     let result = await applyOperation(this.document, operation, options);
     while (
       result.status === 'skipped'
       && result.code === 'TARGET_NOT_FOUND'
       && Date.now() < deadline
+      && retries < this.targetRetryLimit
     ) {
-      await abortableDelay(Math.min(this.targetRetryIntervalMs, Math.max(0, deadline - Date.now())), this.signal);
+      retries += 1;
+      await waitForRootMutation(
+        this.root,
+        Math.min(this.targetRetryIntervalMs, Math.max(0, deadline - Date.now())),
+        this.signal,
+      );
       this.assertActive();
       result = await applyOperation(this.document, operation, options);
     }
     return result;
+  }
+
+  private assertManifestLimitsAndSafety(manifest: PublishedManifestV1): void {
+    const bytes = new TextEncoder().encode(JSON.stringify(manifest)).byteLength;
+    if (bytes > this.maxManifestBytes) {
+      throw new Error(`Lykar manifest exceeds the configured ${this.maxManifestBytes} byte limit`);
+    }
+    if (manifest.operations.length > this.maxOperations) {
+      throw new Error(`Lykar manifest exceeds the configured ${this.maxOperations} operation limit`);
+    }
+    for (const operation of manifest.operations) {
+      try {
+        assertOperationPayloadSafe(this.document, operation);
+      } catch (error) {
+        throw new Error(`Unsafe Lykar operation ${operation.id}: ${errorMessage(error)}`);
+      }
+    }
+  }
+
+  private ensureJournalCleanup(): void {
+    if (this.cleanupRegistered || !this.registerCleanup) return;
+    this.cleanupRegistered = true;
+    this.registerCleanup(() => {
+      this.journal.compensateAll();
+      const releases = getReleaseSet(this.root);
+      for (const releaseId of this.ownedReleaseIds) releases.delete(releaseId);
+      this.ownedReleaseIds.clear();
+      this.cleanupRegistered = false;
+    });
   }
 
   private assertActive(): void {
@@ -479,6 +622,47 @@ function nativePageReport(
   };
 }
 
+function dependencyAvailable(result: OperationApplyResult | undefined): boolean {
+  return result?.status === 'applied'
+    || (result?.status === 'skipped' && result.code === 'OPERATION_ALREADY_APPLIED');
+}
+
+function appendReplayLimitResults(
+  pending: PublishedManifestV1['operations'],
+  results: OperationApplyResult[],
+  outcomes: Map<string, OperationApplyResult>,
+): void {
+  for (const operation of pending) {
+    const result: OperationApplyResult = {
+      operationId: operation.id,
+      kind: operation.kind,
+      target: operation.target,
+      status: 'skipped',
+      code: 'REPLAY_TIME_LIMIT',
+      message: 'Replay exceeded its configured time budget',
+    };
+    results.push(result);
+    outcomes.set(operation.id, result);
+  }
+}
+
+function markReplayCompensated(
+  operations: OperationApplyResult[],
+  diagnostics: CompensationDiagnostic[],
+): void {
+  const byOperation = new Map<string, CompensationDiagnostic>();
+  for (const diagnostic of diagnostics) byOperation.set(diagnostic.operationId, diagnostic);
+  for (const operation of operations) {
+    if (operation.status !== 'applied') continue;
+    const diagnostic = byOperation.get(operation.operationId);
+    if (!diagnostic) continue;
+    operation.compensation = diagnostic;
+    operation.status = diagnostic.status === 'restored' ? 'skipped' : 'error';
+    operation.code = diagnostic.status === 'restored' ? 'REPLAY_COMPENSATED' : diagnostic.code;
+    operation.message = diagnostic.message;
+  }
+}
+
 function domReady(document: Document, signal?: AbortSignal): Promise<void> {
   if (document.readyState !== 'loading') return Promise.resolve();
   return new Promise((resolve, reject) => {
@@ -496,23 +680,52 @@ function domReady(document: Document, signal?: AbortSignal): Promise<void> {
   });
 }
 
-function abortableDelay(ms: number, signal?: AbortSignal): Promise<void> {
+function waitForRootMutation(root: Document | Element, ms: number, signal?: AbortSignal): Promise<void> {
   if (ms <= 0) return Promise.resolve();
   return new Promise((resolve, reject) => {
     if (signal?.aborted) {
       reject(abortError());
       return;
     }
-    const aborted = () => {
+    const document = root.nodeType === 9 ? root as Document : root.ownerDocument!;
+    const Observer = document.defaultView?.MutationObserver;
+    let observer: MutationObserver | undefined;
+    const finish = () => {
       globalThis.clearTimeout(timer);
-      reject(abortError());
-    };
-    const timer = globalThis.setTimeout(() => {
+      observer?.disconnect();
       signal?.removeEventListener('abort', aborted);
       resolve();
-    }, ms);
+    };
+    const aborted = () => {
+      globalThis.clearTimeout(timer);
+      observer?.disconnect();
+      reject(abortError());
+    };
+    const timer = globalThis.setTimeout(finish, ms);
+    if (Observer) {
+      observer = new Observer(records => {
+        if (records.some(record => !lykarOwnedMutation(record))) finish();
+      });
+      observer.observe(root.nodeType === 9 ? document.documentElement : root, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+        characterData: true,
+      });
+    }
     signal?.addEventListener('abort', aborted, {once: true});
   });
+}
+
+function lykarOwnedMutation(record: MutationRecord): boolean {
+  const serviceSelector = '[data-lykar-operation-id],[data-lykar-node-id],[data-lykar-editor-root]';
+  if (record.target.nodeType === 1 && (record.target as Element).closest(serviceSelector)) return true;
+  if (record.target.nodeType === 8 && record.target.nodeValue?.startsWith('lykar-')) return true;
+  const changed = [...record.addedNodes, ...record.removedNodes];
+  return changed.length > 0 && changed.every(node => (
+    (node.nodeType === 1 && ((node as Element).matches(serviceSelector) || (node as Element).closest(serviceSelector)))
+    || (node.nodeType === 8 && node.nodeValue?.startsWith('lykar-'))
+  ));
 }
 
 function abortError(): Error {
@@ -526,4 +739,15 @@ function boundedDuration(value: number, name: string): number {
     throw new Error(`Lykar ${name} must be between 0 and 60000 milliseconds`);
   }
   return value;
+}
+
+function boundedInteger(value: number, name: string, minimum: number, maximum: number): number {
+  if (!Number.isSafeInteger(value) || value < minimum || value > maximum) {
+    throw new Error(`Lykar ${name} must be an integer between ${minimum} and ${maximum}`);
+  }
+  return value;
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }

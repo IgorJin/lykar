@@ -2,5 +2,28 @@
   "name": "@lykar/editor-ui",
   "version": "0.0.0",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./styles": {
+      "types": "./dist/styles/styles-config.d.ts",
+      "import": "./dist/styles/styles-config.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "npm run clean && tsc -p tsconfig.json",
+    "clean": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "vitest": "^4.1.10"
+  }
 }

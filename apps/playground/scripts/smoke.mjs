@@ -57,6 +57,7 @@ export async function runSmoke({ apiBaseUrl, playgroundBaseUrl }) {
     method: 'POST',
     headers: { authorization: `Bearer ${capability.token}` },
     body: JSON.stringify({
+      idempotencyKey: `smoke-save-${randomUUID()}`,
       expectedRevision: capability.expectedRevision,
       sourceSnapshot: {
         algorithm: 'lykar-dom-v1',

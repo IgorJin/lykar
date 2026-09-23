@@ -50,28 +50,101 @@ test(
       assert.equal(draftResponse.statusCode, 201, draftResponse.body);
       const draft = draftResponse.json().draft;
 
+      const firstSavePayload = {
+        idempotencyKey: `save-v1-${project.id}`,
+        expectedRevision: 0,
+        sourceSnapshot: {
+          algorithm: 'lykar-dom-v1',
+          pageHash: 'a'.repeat(64),
+          capturedAt: '2026-08-06T00:00:00.000Z',
+        },
+        operations: [{
+          schemaVersion: 1,
+          id: `set-title-${project.id}`,
+          kind: 'setText',
+          target: { marker: 'hero-title' },
+          value: 'Version one',
+        }],
+      };
       const appendResponse = await app.inject({
         method: 'POST',
         url: `/api/admin/drafts/${draft.id}/operations`,
         headers: adminHeaders,
-        payload: {
-          expectedRevision: 0,
-          sourceSnapshot: {
-            algorithm: 'lykar-dom-v1',
-            pageHash: 'a'.repeat(64),
-            capturedAt: '2026-08-06T00:00:00.000Z',
-          },
-          operations: [{
-            schemaVersion: 1,
-            id: `set-title-${project.id}`,
-            kind: 'setText',
-            target: { marker: 'hero-title' },
-            value: 'Version one',
-          }],
-        },
+        payload: firstSavePayload,
       });
       assert.equal(appendResponse.statusCode, 200, appendResponse.body);
       assert.equal(appendResponse.json().draft.revision, 1);
+      assert.equal(appendResponse.json().draft.replayed, false);
+      assert.match(appendResponse.json().draft.payloadHash, /^[0-9a-f]{64}$/);
+
+      const replayedSave = await app.inject({
+        method: 'POST', url: `/api/admin/drafts/${draft.id}/operations`, headers: adminHeaders,
+        payload: firstSavePayload,
+      });
+      assert.equal(replayedSave.statusCode, 200, replayedSave.body);
+      assert.equal(replayedSave.json().draft.revision, 1);
+      assert.equal(replayedSave.json().draft.replayed, true);
+
+      const reusedKey = await app.inject({
+        method: 'POST', url: `/api/admin/drafts/${draft.id}/operations`, headers: adminHeaders,
+        payload: {
+          ...firstSavePayload,
+          operations: [{...firstSavePayload.operations[0], value: 'Different payload'}],
+        },
+      });
+      assert.equal(reusedKey.statusCode, 409, reusedKey.body);
+      assert.equal(reusedKey.json().error.code, 'IDEMPOTENCY_CONFLICT');
+
+      const concurrentDraftResponse = await app.inject({
+        method: 'POST', url: `/api/admin/pages/${page.id}/drafts`, headers: adminHeaders, payload: {},
+      });
+      const concurrentDraft = concurrentDraftResponse.json().draft;
+      const concurrentPayload = {
+        idempotencyKey: `concurrent-save-${project.id}`,
+        expectedRevision: 0,
+        operations: [{
+          schemaVersion: 1,
+          id: `concurrent-title-${project.id}`,
+          kind: 'setText',
+          target: {marker: 'hero-title'},
+          value: 'One effect',
+        }],
+      };
+      const concurrentResponses = await Promise.all([1, 2].map(() => app.inject({
+        method: 'POST', url: `/api/admin/drafts/${concurrentDraft.id}/operations`,
+        headers: adminHeaders, payload: concurrentPayload,
+      })));
+      assert.deepEqual(concurrentResponses.map(response => response.statusCode), [200, 200]);
+      assert.deepEqual(
+        concurrentResponses.map(response => response.json().draft.replayed).sort(),
+        [false, true],
+      );
+      const concurrentPersisted = await app.inject({
+        method: 'GET', url: `/api/admin/drafts/${concurrentDraft.id}`, headers: adminHeaders,
+      });
+      assert.equal(concurrentPersisted.json().draft.revision, 1);
+      assert.equal(concurrentPersisted.json().operations.length, 1);
+
+      const failedSaveKey = `failed-save-${project.id}`;
+      const failedSave = await app.inject({
+        method: 'POST', url: `/api/admin/drafts/${draft.id}/operations`, headers: adminHeaders,
+        payload: {
+          idempotencyKey: failedSaveKey,
+          expectedRevision: 1,
+          operations: [firstSavePayload.operations[0]],
+        },
+      });
+      assert.equal(failedSave.statusCode, 409, failedSave.body);
+      const rollbackPool = new Pool({connectionString: databaseUrl});
+      try {
+        const failedRows = await rollbackPool.query(
+          'SELECT id FROM draft_save_requests WHERE draft_id = $1 AND idempotency_key = $2',
+          [draft.id, failedSaveKey],
+        );
+        assert.equal(failedRows.rowCount, 0);
+      } finally {
+        await rollbackPool.end();
+      }
 
       const persistedDraft = await app.inject({
         method: 'GET',
@@ -87,6 +160,7 @@ test(
         url: `/api/admin/drafts/${draft.id}/operations`,
         headers: adminHeaders,
         payload: {
+          idempotencyKey: `save-stale-${project.id}`,
           expectedRevision: 0,
           operations: [{
             schemaVersion: 1,
@@ -144,6 +218,7 @@ test(
         url: `/api/editor/drafts/${draftV2.id}/operations`,
         headers: { authorization: `Bearer ${editorExchange.json().capability.token}` },
         payload: {
+          idempotencyKey: `save-v2-${project.id}`,
           expectedRevision: 0,
           sourceSnapshot: {
             algorithm: 'lykar-dom-v1',

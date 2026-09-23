@@ -8,7 +8,9 @@ import { rolesWithPermission, type ProjectPermission } from '../domain/membershi
 import {
   ConflictError,
   ForbiddenError,
+  IdempotencyConflictError,
   NotFoundError,
+  RevisionConflictError,
   type AppendOperationsResult,
   type DraftDetails,
   type DraftRecord,
@@ -55,6 +57,11 @@ type PageRow = {
   created_by: string | null;
   created_at: Date | string;
   updated_at: Date | string;
+};
+type SaveRequestRow = {
+  payload_hash: string;
+  expected_revision: string | number;
+  result: unknown;
 };
 
 function toIso(value: Date | string): string {
@@ -112,6 +119,28 @@ function parseSourceSnapshot(value: unknown): SourceSnapshotV1 | null {
   if (value === null || value === undefined) return null;
   if (!isSourceSnapshotV1(value)) throw new Error('Stored source snapshot is invalid');
   return value;
+}
+
+function parseAppendOperationsResult(value: unknown): AppendOperationsResult {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    throw new Error('Stored draft save result is invalid');
+  }
+  const result = value as Record<string, unknown>;
+  if (
+    typeof result.draftId !== 'string'
+    || !Number.isSafeInteger(result.revision)
+    || !Number.isSafeInteger(result.appended)
+    || !Array.isArray(result.operationIds)
+    || !result.operationIds.every(item => typeof item === 'string')
+    || typeof result.idempotencyKey !== 'string'
+    || typeof result.payloadHash !== 'string'
+    || typeof result.replayed !== 'boolean'
+    || typeof result.savedAt !== 'string'
+    || typeof result.expiresAt !== 'string'
+  ) {
+    throw new Error('Stored draft save result is invalid');
+  }
+  return result as AppendOperationsResult;
 }
 
 async function requireProjectAccess(
@@ -331,13 +360,30 @@ export class PostgresVersioningRepository implements VersioningRepository {
     try {
       return await this.transaction(async client => {
         const draft = await requireDraftAccess(client, input.userId, input.draftId, 'edit', true);
+        const previousSave = await client.query<SaveRequestRow>(
+          `SELECT payload_hash, expected_revision, result
+           FROM draft_save_requests
+           WHERE actor_user_id = $1 AND project_id = $2 AND draft_id = $3 AND idempotency_key = $4`,
+          [input.userId, draft.project_id, input.draftId, input.idempotencyKey],
+        );
+        const existing = previousSave.rows[0];
+        if (existing) {
+          if (
+            existing.payload_hash.trim() !== input.payloadHash
+            || Number(existing.expected_revision) !== input.expectedRevision
+          ) {
+            throw new IdempotencyConflictError({
+              idempotencyKey: input.idempotencyKey,
+              expectedPayloadHash: existing.payload_hash.trim(),
+              actualPayloadHash: input.payloadHash,
+            });
+          }
+          return {...parseAppendOperationsResult(existing.result), replayed: true};
+        }
         if (draft.status !== 'open') throw new ConflictError('Only an open draft can accept operations');
         const currentRevision = Number(draft.revision);
         if (currentRevision !== input.expectedRevision) {
-          throw new ConflictError('Draft revision does not match', {
-            expectedRevision: input.expectedRevision,
-            actualRevision: currentRevision,
-          });
+          throw new RevisionConflictError(input.expectedRevision, currentRevision);
         }
         const storedSnapshot = parseSourceSnapshot(draft.source_snapshot);
         if (
@@ -377,7 +423,28 @@ export class PostgresVersioningRepository implements VersioningRepository {
            WHERE id = $1`,
           [input.draftId, nextRevision, input.sourceSnapshot ? JSON.stringify(input.sourceSnapshot) : null],
         );
-        return { draftId: input.draftId, revision: nextRevision, appended: input.operations.length };
+        const result: AppendOperationsResult = {
+          draftId: input.draftId,
+          revision: nextRevision,
+          appended: input.operations.length,
+          operationIds: input.operations.map(operation => operation.id),
+          idempotencyKey: input.idempotencyKey,
+          payloadHash: input.payloadHash,
+          replayed: false,
+          savedAt: new Date().toISOString(),
+          expiresAt: input.resultExpiresAt,
+        };
+        await client.query(
+          `INSERT INTO draft_save_requests (
+             id, actor_user_id, project_id, draft_id, idempotency_key,
+             payload_hash, expected_revision, result, expires_at
+           ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8::jsonb, $9)`,
+          [
+            randomUUID(), input.userId, draft.project_id, input.draftId, input.idempotencyKey,
+            input.payloadHash, input.expectedRevision, JSON.stringify(result), input.resultExpiresAt,
+          ],
+        );
+        return result;
       });
     } catch (error) {
       if (isUniqueViolation(error)) throw new ConflictError('An operation with this id already exists in the draft');

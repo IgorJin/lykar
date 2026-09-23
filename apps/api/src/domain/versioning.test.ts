@@ -4,6 +4,7 @@ import test from 'node:test';
 import type { OperationV1 } from '@lykar/protocol';
 
 import {
+  hashSavePayload,
   VersioningService,
   type AppendOperationsResult,
   type DraftRecord,
@@ -18,6 +19,7 @@ import {
 const DRAFT_ID = '11111111-1111-4111-8111-111111111111';
 const USER_ID = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const PAGE_ID = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+const IDEMPOTENCY_KEY = 'save-request-00000001';
 
 class CapturingRepository implements VersioningRepository {
   createdProjectInput: Parameters<VersioningRepository['createProject']>[0] | undefined;
@@ -81,7 +83,17 @@ class CapturingRepository implements VersioningRepository {
     input: Parameters<VersioningRepository['appendOperations']>[0],
   ): Promise<AppendOperationsResult> {
     this.appendedInput = input;
-    return { draftId: input.draftId, revision: input.expectedRevision + 1, appended: input.operations.length };
+    return {
+      draftId: input.draftId,
+      revision: input.expectedRevision + 1,
+      appended: input.operations.length,
+      operationIds: input.operations.map(operation => operation.id),
+      idempotencyKey: input.idempotencyKey,
+      payloadHash: input.payloadHash,
+      replayed: false,
+      savedAt: '2026-01-01T00:00:00.000Z',
+      expiresAt: input.resultExpiresAt,
+    };
   }
 
   async publishDraft(): Promise<PublishResult> {
@@ -117,7 +129,7 @@ test('appendOperations validates protocol v1 before touching the repository', ()
   const service = new VersioningService(repository);
 
   assert.throws(
-    () => service.appendOperations(USER_ID, DRAFT_ID, 0, [{
+    () => service.appendOperations(USER_ID, DRAFT_ID, IDEMPOTENCY_KEY, 0, [{
       schemaVersion: 1,
       id: 'unsafe',
       kind: 'executeScript',
@@ -149,8 +161,29 @@ test('appendOperations accepts the complete static-page operation set', async ()
     { schemaVersion: 1, id: 'move', kind: 'moveNode', target, destination: target, position: 'after' },
   ];
 
-  const result = await service.appendOperations(USER_ID, DRAFT_ID, 7, operations);
+  const result = await service.appendOperations(USER_ID, DRAFT_ID, IDEMPOTENCY_KEY, 7, operations);
 
-  assert.deepEqual(result, { draftId: DRAFT_ID, revision: 8, appended: 7 });
+  assert.equal(result.revision, 8);
+  assert.equal(result.appended, 7);
+  assert.equal(result.idempotencyKey, IDEMPOTENCY_KEY);
   assert.deepEqual(repository.appendedInput?.operations, operations);
+  assert.equal(repository.appendedInput?.payloadHash, hashSavePayload({expectedRevision: 7, operations}));
+});
+
+test('save payload hash is canonical and includes expected revision', () => {
+  const operation: OperationV1 = {
+    schemaVersion: 1, id: 'canonical', kind: 'setText', target: {marker: 'hero'}, value: 'Hello',
+  };
+  const reordered = {
+    value: 'Hello', target: {marker: 'hero'}, kind: 'setText', id: 'canonical', schemaVersion: 1,
+  } as OperationV1;
+
+  assert.equal(
+    hashSavePayload({expectedRevision: 2, operations: [operation]}),
+    hashSavePayload({operations: [reordered], expectedRevision: 2}),
+  );
+  assert.notEqual(
+    hashSavePayload({expectedRevision: 2, operations: [operation]}),
+    hashSavePayload({expectedRevision: 3, operations: [operation]}),
+  );
 });

@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lykar S2 — Persistence recovery</title>
+  <style>
+    :root { color-scheme:light; --ink:#17212b; --muted:#5f6b76; --line:#d9e2e8; --bg:#f3f6f8; --card:#fff; --ok:#087f5b; --blue:#2859a6; --amber:#8a5a00; --red:#b42318; }
+    * { box-sizing:border-box; } body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { max-width:1160px; margin:0 auto; padding:32px 20px 56px; } header { display:flex; justify-content:space-between; gap:20px; align-items:flex-start; margin-bottom:26px; }
+    h1 { margin:0 0 5px; font-size:30px; } h2 { margin:0 0 12px; font-size:20px; } h3 { margin:0 0 7px; font-size:16px; } p { margin:6px 0 12px; }
+    .muted { color:var(--muted); } .badge { background:#d9f4e9; color:var(--ok); border:1px solid #9ed9c2; border-radius:999px; padding:5px 12px; font-weight:750; white-space:nowrap; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(235px,1fr)); gap:14px; margin:14px 0 24px; } .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px; box-shadow:0 2px 8px rgba(24,39,55,.04); }
+    code,pre { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; } code { color:var(--blue); } pre { overflow:auto; background:#17202a; color:#e9f0f5; border-radius:10px; padding:17px; margin:10px 0 24px; }
+    table { width:100%; border-collapse:collapse; background:var(--card); border:1px solid var(--line); margin:10px 0 24px; } th,td { text-align:left; vertical-align:top; padding:10px 12px; border-bottom:1px solid var(--line); } th { background:#edf2f5; font-size:13px; } tr:last-child td { border-bottom:0; }
+    .ok { color:var(--ok); font-weight:750; } .note { color:var(--amber); } .danger { color:var(--red); font-weight:700; } ul { margin:8px 0 0; padding-left:20px; } a { color:var(--blue); }
+    .flow { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin:14px 0 4px; } .step { border:1px solid var(--line); border-radius:10px; padding:12px; background:#f9fbfc; position:relative; } .step:not(:last-child)::after { content:"→"; position:absolute; right:-10px; top:35%; color:var(--blue); font-weight:800; z-index:1; }
+    footer { color:var(--muted); border-top:1px solid var(--line); padding-top:14px; margin-top:28px; font-size:13px; }
+    @media (max-width:760px) { header { display:block; } .badge { display:inline-block; margin-top:10px; } .flow { grid-template-columns:1fr; } .step:not(:last-child)::after { content:"↓"; right:auto; left:50%; top:auto; bottom:-16px; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1>S2 — Persistence recovery</h1>
+      <p class="muted">Групповой отчёт по S2-04.1…S2-04.4 · 22 сентября 2026</p>
+    </div>
+    <div class="badge">PASS · 4/4 tasks</div>
+  </header>
+
+  <section class="card">
+    <h2>Итоговый контракт</h2>
+    <p>Сохранение Draft теперь является атомарной идемпотентной операцией. Клиент
+      фиксирует точный batch до отправки, сервер связывает результат с actor,
+      project и draft, а stale revision требует явного решения пользователя.</p>
+    <div class="flow">
+      <div class="step"><strong>1 · Persist</strong><br>key + expected revision + exact operations сохраняются в sessionStorage.</div>
+      <div class="step"><strong>2 · Validate</strong><br>capability проверяется, payload канонизируется и хешируется.</div>
+      <div class="step"><strong>3 · Commit</strong><br>operations + revision + result записываются одной транзакцией.</div>
+      <div class="step"><strong>4 · Recover</strong><br>same key replay или reconciliation по operation IDs снимает batch.</div>
+    </div>
+    <pre>same actor/project/draft + same key + same payload
+  └─ 200 original result, replayed=true, zero duplicate effects
+
+same scope + same key + different payload ──► 409 IDEMPOTENCY_CONFLICT
+new key + stale expectedRevision           ──► 409 REVISION_CONFLICT
+                                                 │
+                                                 └─ preserve pending → explicit review</pre>
+  </section>
+
+  <div class="grid">
+    <article class="card"><h3>S2-04.1 · Save contract</h3><ul>
+      <li>URL-safe key, 16–160 chars.</li>
+      <li>Canonical SHA-256 включает revision, operations и snapshot.</li>
+      <li>Result хранится минимум 30 дней; migration forward-only.</li>
+    </ul></article>
+    <article class="card"><h3>S2-04.2 · Atomic retry</h3><ul>
+      <li>Draft row lock сериализует конкурентные saves.</li>
+      <li>Одна транзакция для effects, revision и result.</li>
+      <li>Capability проверяется раньше lookup сохранённого result.</li>
+    </ul></article>
+    <article class="card"><h3>S2-04.3 · Client recovery</h3><ul>
+      <li>Recovery envelope v2 хранит pending и in-flight batch.</li>
+      <li>Lost response сверяется с remote operation IDs.</li>
+      <li>Новые edits во время fetch не входят в подтверждённый batch.</li>
+    </ul></article>
+    <article class="card"><h3>S2-04.4 · Conflict UX</h3><ul>
+      <li>Нет silent rebase и last-write-wins.</li>
+      <li>Reload сохраняет local pending operations.</li>
+      <li>Новый key создаётся только после явного review.</li>
+    </ul></article>
+  </div>
+
+  <h2>Acceptance matrix</h2>
+  <table>
+    <thead><tr><th>Сценарий</th><th>Ожидаемый результат</th><th>Evidence</th></tr></thead>
+    <tbody>
+      <tr><td>Same key + same payload после commit</td><td>Исходный result, <code>replayed=true</code>, одна operation</td><td class="ok">PASS · PostgreSQL</td></tr>
+      <tr><td>Same key + different payload</td><td><code>IDEMPOTENCY_CONFLICT</code>, без side effects</td><td class="ok">PASS · PostgreSQL</td></tr>
+      <tr><td>Два одновременных одинаковых запроса</td><td>Один effect; второй получает persisted result</td><td class="ok">PASS · concurrency</td></tr>
+      <tr><td>Ошибка внутри transaction</td><td>Нет operation без result и нет result без operation</td><td class="ok">PASS · rollback fixture</td></tr>
+      <tr><td>Повтор после отзыва Editor capability</td><td>Доступ запрещён до чтения сохранённого result</td><td class="ok">PASS · authorization</td></tr>
+      <tr><td>Ответ потерян после server commit</td><td>Reload reconciles IDs; дубля нет</td><td class="ok">PASS · Chromium</td></tr>
+      <tr><td>Новая правка во время save</td><td>Подтверждён только sent batch; новая правка остаётся pending</td><td class="ok">PASS · editor unit</td></tr>
+      <tr><td>Две вкладки на одной revision</td><td>Первая сохраняет; вторая видит conflict и сохраняет pending</td><td class="ok">PASS · Chromium</td></tr>
+      <tr><td>sessionStorage недоступен</td><td>POST не отправляется; пользователю показана ошибка</td><td class="ok">PASS · editor unit</td></tr>
+      <tr><td>Чужой actor/project/draft</td><td>Не получает чужой idempotency result</td><td class="ok">PASS · scoped DB key + auth</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Что теперь разблокировано</h2>
+  <table>
+    <thead><tr><th>Следующая работа</th><th>Почему можно начинать</th><th>Параллельность</th></tr></thead>
+    <tbody>
+      <tr><td>S2-05.1 · Full command workflow</td><td>Persistence dependency S2-04.4 завершена.</td><td class="ok">Можно начать сейчас</td></tr>
+      <tr><td>S2-06.1 · Style schema</td><td>Не имеет внутренней зависимости.</td><td>Параллельно S2-05.1</td></tr>
+      <tr><td>S2-06.2 · Native style controls</td><td>После S2-06.1; не зависит от S2-05.</td><td>Последовательно после 06.1, затем параллельно core</td></tr>
+      <tr><td>S2-06.3 · Panel integration</td><td>Persistence готова, но требуются S2-06.1/06.2.</td><td class="note">Ждёт style prerequisites</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Проверки</h2>
+  <table>
+    <thead><tr><th>Команда</th><th>Результат</th><th>Покрытие</th></tr></thead>
+    <tbody>
+      <tr><td><code>npm run typecheck</code></td><td class="ok">PASS</td><td>Все workspaces и e2e TypeScript.</td></tr>
+      <tr><td><code>npm test</code></td><td class="ok">PASS</td><td>Server/domain и editor recovery regression suites.</td></tr>
+      <tr><td><code>npm run test:e2e:http</code></td><td class="ok">PASS · 22/22 + smoke</td><td>Временная PostgreSQL, migration 009, transactions, auth и HTTP flow.</td></tr>
+      <tr><td><code>playwright test persistence-recovery versioning-flow</code></td><td class="ok">PASS · 3/3</td><td>Two-tab conflict, lost response, reload и прежний release/share flow.</td></tr>
+    </tbody>
+  </table>
+
+  <p class="note">Retention cleanup намеренно не удаляет result активного Draft:
+    запись хранится минимум 30 дней и может быть удалена после expiry только когда
+    Draft закрыт. Это сохраняет детерминированность долгих client retries.</p>
+
+  <footer>
+    Задачи: <a href="../../../../tasks/S2/README.md">tasks/S2/README.md</a> ·
+    API contract: <a href="../../../../apps/api/README.md">apps/api/README.md</a> ·
+    Editor recovery: <a href="../../../../packages/editor-bridge/README.md">packages/editor-bridge/README.md</a>.
+    Следующий core dependency: S2-05.1 full command workflow and Change Tree.
+  </footer>
+</main>
+</body>
+</html>

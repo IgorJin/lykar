@@ -1,6 +1,6 @@
 # S2-06.6 — P0: история действий и сохранение всех стилей
 
-Status: PLANNED
+Status: IN_PROGRESS
 Priority: P0
 Depends on: S2-06.5, S2-04.4, S2-05.2
 Evidence: report
@@ -60,6 +60,21 @@ Report group: S2-style-editor
 Report: `docs/verification/reports/S2/s2-style-editor.html`
 
 ## Notes
+
+Implementation 2026-09-22: text field live preview is grouped by focus
+transaction, frame-throttled, and flushed on change/blur/save; Escape cancels
+the active preview. Unit coverage proves 50 input events compact to one undo
+step, and browser coverage proves undo/save/reload for several style types.
+An in-progress field transaction is bound to the element selected at focus;
+the selection-race regression prevents a stale input or Escape from changing
+the newly selected element.
+`EditorSession.previewGroup` now provides one pending history batch with reverse
+compare-and-restore on partial failure. Linked margin/padding controls use this
+path, so their longhand operations undo/redo together and enter the same save
+batch. A later host edit to one group member blocks the whole local undo
+without changing the other members. Saved-group compensation, latency
+measurements and the full
+browser failure matrix remain open.
 
 Эта задача расширяет общий механизм S2-05.2 для style controls; не создаёт
 отдельные history/persistence системы внутри editor-ui.

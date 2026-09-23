@@ -1,6 +1,6 @@
 # S2-03.4 — Bounded execution и protocol safety
 
-Status: PLANNED
+Status: DONE
 Priority: P0
 Depends on: S2-03.3
 Evidence: report
@@ -20,11 +20,11 @@ Report group: S2-replay-safety
 
 ## Acceptance criteria
 
-- [ ] Invalid/unsafe payload отклоняется до DOM mutation.
-- [ ] Limits завершают replay ограниченно и дают reason code.
-- [ ] Batching не меняет порядок зависимых commands.
-- [ ] Observer ограничен root и не создаёт self-triggered loop.
-- [ ] Slow/oversized fixture не оставляет скрытую страницу.
+- [x] Invalid/unsafe payload отклоняется до DOM mutation.
+- [x] Limits завершают replay ограниченно и дают reason code.
+- [x] Batching не меняет порядок зависимых commands.
+- [x] Observer ограничен root и не создаёт self-triggered loop.
+- [x] Slow/oversized fixture не оставляет скрытую страницу.
 
 ## Checks
 
@@ -45,3 +45,9 @@ Report: `docs/verification/reports/S2/s2-replay-safety.html`
 ## Notes
 
 Численные limits сверяются с baseline S1-02.5.
+
+Результат: protocol/runtime проверяют bytes, count, depth, node count,
+dependency count, retry count и replay time. Pipeline остаётся последовательно
+упорядоченным по dependency graph; root observer игнорирует Lykar/editor-owned
+mutations. Unsafe tree/attribute/root command отклоняется preflight, а timeout
+компенсирует уже применённые операции.
