@@ -140,6 +140,8 @@ export type OperationActor = {
 export type OperationMeta = {
   createdAt: string;
   actor: OperationActor;
+  /** Consecutive operations from one editor action; optional for legacy data. */
+  transactionId?: string;
 };
 
 export type OperationRevisionV1 = {
@@ -542,6 +544,7 @@ function isInsertPosition(value: unknown): value is InsertPosition {
 
 function isMeta(value: unknown): value is OperationMeta {
   if (!isRecord(value) || !isNonEmptyString(value.createdAt) || !isRecord(value.actor)) return false;
+  if (value.transactionId !== undefined && (!isNonEmptyString(value.transactionId) || value.transactionId.length > 256)) return false;
   if (value.actor.type !== 'human' && value.actor.type !== 'agent' && value.actor.type !== 'system') return false;
   return value.actor.id === undefined || typeof value.actor.id === 'string';
 }

@@ -65,7 +65,7 @@ export class OverlayService {
       this.layers.set(name, { element: null, label: '', box, badge });
     }
 
-    document.body.appendChild(this.host);
+    document.documentElement.appendChild(this.host);
   }
 
   show(name: OverlayLayerName, element: Element, label = element.tagName.toLowerCase()): void {

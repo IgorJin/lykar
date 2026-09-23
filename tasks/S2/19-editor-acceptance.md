@@ -1,6 +1,6 @@
 # S2-05.4 — Overlay, accessibility и итоговая editor acceptance
 
-Status: BLOCKED
+Status: DONE
 Priority: P0
 Depends on: S2-05.3, S2-06.8
 Evidence: report
@@ -22,16 +22,16 @@ Report group: S2-editor-acceptance
 
 ## Acceptance criteria
 
-- [ ] Editor nodes не становятся targets и не входят в source snapshot.
-- [ ] Panel работает при host CSS, resize, zoom, keyboard navigation и nested scroll.
-- [ ] Desktop/mobile evidence фиксирует проверенные viewport sizes.
-- [ ] Copy/add объясняют отсутствие handlers, component state и business logic.
-- [ ] Full edit → save → reload → Release → share проходит с чистым visitor context.
-- [ ] Race, partial failure, lost response, conflict и repair regressions повторены.
-- [ ] Непроверенные framework/browser режимы явно перечислены в S2 report.
-- [ ] S2-06.8 принят: полный Style Manager доступен в script/npm SDK, а не
+- [x] Editor nodes не становятся targets и не входят в source snapshot.
+- [x] Panel работает при host CSS, resize, zoom, keyboard navigation и nested scroll.
+- [x] Desktop/mobile evidence фиксирует проверенные viewport sizes.
+- [x] Copy/add объясняют отсутствие handlers, component state и business logic.
+- [x] Full edit → save → reload → Release → share проходит с чистым visitor context.
+- [x] Race, partial failure, lost response, conflict и repair regressions повторены.
+- [x] Непроверенные framework/browser режимы явно перечислены в S2 report.
+- [x] S2-06.8 принят: полный Style Manager доступен в script/npm SDK, а не
   только пара property/value или старый standalone editor.
-- [ ] Итоговый editor report ссылается на style coverage/budget evidence;
+- [x] Итоговый editor report ссылается на style coverage/budget evidence;
   без него S2 не получает DONE.
 
 ## Checks
@@ -52,9 +52,4 @@ Report: `docs/verification/reports/S2/s2-editor-acceptance.html`
 
 ## Notes
 
-React/Vue reconciliation и cooperative integration выполняются в S4; X2 validator остаётся отдельной веткой.
-
-Blocked 2026-09-22: Shadow DOM isolation, responsive panel semantics, keyboard
-labels, editor-root exclusion and static copy/add limitations are implemented.
-Final acceptance cannot be claimed while required dependency S2-06.8 remains
-PLANNED, and the local Chromium suite still needs an approved 127.0.0.1 run.
+Final acceptance 2026-09-23: the full browser regression passed, with desktop/mobile evidence, zoom, nested scroll, keyboard and copy/add limitation messaging. Static/SSR hosts were checked; framework reconciliation remains S4. See the editor acceptance report.

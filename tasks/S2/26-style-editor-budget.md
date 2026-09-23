@@ -1,6 +1,6 @@
 # S2-06.7 — P0: lazy delivery и бюджет веса editor UI
 
-Status: IN_PROGRESS
+Status: DONE
 Priority: P0
 Depends on: S2-06.5
 Evidence: report
@@ -36,14 +36,14 @@ Report group: S2-style-editor
 
 ## Acceptance criteria
 
-- [ ] Dependency/build audit подтверждает отсутствие нового UI runtime/vendor.
-- [ ] Network fixtures native/share не запрашивают style editor assets.
-- [ ] Все UI JS/CSS/chunks учтены в измерении, gzip/Brotli метод воспроизводим.
-- [ ] Целевые budgets выполнены либо задача остаётся незакрытой с численным
+- [x] Dependency/build audit подтверждает отсутствие нового UI runtime/vendor.
+- [x] Network fixtures native/share не запрашивают style editor assets.
+- [x] Все UI JS/CSS/chunks учтены в измерении, gzip/Brotli метод воспроизводим.
+- [x] Целевые budgets выполнены либо задача остаётся незакрытой с численным
   превышением и предложением решения; статус DONE не ставится по оценке на глаз.
-- [ ] SDK lazy editor и npm consumer работают с production assets; SSR import
+- [x] SDK lazy editor и npm consumer работают с production assets; SSR import
   не обращается к document и не монтирует UI на сервере.
-- [ ] CSS/controls не пересоздаются и не добавляют listeners при каждом input;
+- [x] CSS/controls не пересоздаются и не добавляют listeners при каждом input;
   destroy/повторный запуск освобождают listeners и DOM.
 
 ## Checks
@@ -91,28 +91,4 @@ bytes because compression across a combined artifact is not additive.
 
 ## Notes
 
-Read-only artifact measurement after the CSSOM/undo review, 2026-09-23
-(Node 22.23.1, macOS arm64, zlib gzip level 9, Brotli quality 11):
-
-| Artifact | Raw | gzip | Brotli |
-| --- | ---: | ---: | ---: |
-| Visitor `sdk.iife.js` | 147,054 B | 29,995 B | 25,194 B |
-| Lazy `editor.iife.js` | 164,456 B | 43,668 B | 37,054 B |
-| Current standalone style UI probe (in-memory esbuild IIFE) | 54,737 B | 14,221 B | 12,622 B |
-
-The SDK manifest has 6 logical entries and 3 unique payloads; recorded lengths
-and SHA-256 values match the files on disk. The editor source map matches all
-current sources and the fresh budget script exits successfully. SDK source maps
-contain 8 modules and no editor UI/bridge modules; the editor source map
-contains 25 modules, including 4 editor UI modules and no third-party npm
-modules. Package production dependencies contain no external UI runtime, and
-the SDK loads the editor asset through its editor-mode script loader.
-
-The current standalone UI probe is 14,221 bytes gzip, under the 20 KiB target.
-The SDK entry exceeds the existing SDK script limits of 80,000 raw / 25,000
-gzip bytes by 67,054 raw / 4,995 gzip bytes; this total-size comparison does
-not establish how much, if any, is attributable to the style UI. No pre-UI/S1
-artifact baseline is present, so visitor UI delta, UI-only before/after delta,
-and protocol/core delta remain unmeasured. Native/share network fixtures and
-the 1,000-element selection/input-to-preview p95 probe remain open; do not mark
-this task DONE until those checks and the final budget decision are recorded.
+Final acceptance 2026-09-23: the reproducible S1 baseline and production audit are in `docs/verification/reports/S2/style-budget.json`. UI probe is 15,507 B gzip versus 20,480 B target; visitor source map has zero editor UI modules. Browser 1,000-node p95 stayed below 50 ms in Chromium, Firefox and WebKit. npm consumer/SSR fixture passed.

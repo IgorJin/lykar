@@ -19,7 +19,7 @@ export const test = base.extend<{ newContext: () => Promise<BrowserContext> }>({
       context.on('page', page => page.on('pageerror', error => errors.push(error.message)));
       context.on('requestfailed', request => {
         // Navigation/reload intentionally cancels outstanding requests.
-        if (request.failure()?.errorText !== 'net::ERR_ABORTED') errors.push(`Request failed: ${request.method()} ${new URL(request.url()).pathname}`);
+        if (!/ERR_ABORTED|NS_BINDING_ABORTED|cancelled|canceled|interrupted/i.test(request.failure()?.errorText ?? '')) errors.push(`Request failed: ${request.method()} ${new URL(request.url()).pathname}`);
       });
       context.on('response', response => {
         const path = new URL(response.url()).pathname;

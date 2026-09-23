@@ -1,6 +1,6 @@
 # S2-06.2 — P0: самописный минимальный UI kit для стилей
 
-Status: IN_PROGRESS
+Status: DONE
 Priority: P0
 Depends on: S2-06.1
 Evidence: report
@@ -39,16 +39,16 @@ DOM, без внешнего UI kit и без нового framework runtime в 
 
 ## Acceptance criteria
 
-- [ ] Input/select/color работают мышью и клавиатурой, значения сохраняются при
+- [x] Input/select/color работают мышью и клавиатурой, значения сохраняются при
   переключении preset/custom и повторном раскрытии секции.
-- [ ] `300ms`, `1.5rem`, `auto`, `0`, `-12px`, `calc(100% - 2rem)` проходят
+- [x] `300ms`, `1.5rem`, `auto`, `0`, `-12px`, `calc(100% - 2rem)` проходят
   round trip без rem→em, ms→s, добавления единицы к keyword и потери знака.
-- [ ] Прозрачный цвет и var(--brand) не меняются от открытия picker/панели.
-- [ ] Ввод на IME не коммитит промежуточную композицию; внешнее обновление
+- [x] Прозрачный цвет и var(--brand) не меняются от открытия picker/панели.
+- [x] Ввод на IME не коммитит промежуточную композицию; внешнее обновление
   не стирает введённый draft без завершения/отмены сессии поля.
-- [ ] Нет новой third-party UI/runtime зависимости; библиотека работает
+- [x] Нет новой third-party UI/runtime зависимости; библиотека работает
   независимо от framework host page. Dev-only tooling считается отдельно.
-- [ ] Host CSS не меняет controls, editor controls не выбираются inspector.
+- [x] Host CSS не меняет controls, editor controls не выбираются inspector.
 
 ## Checks
 
@@ -67,11 +67,4 @@ Report: `docs/verification/reports/S2/s2-style-editor.html`
 
 ## Notes
 
-Implementation 2026-09-22: native text/select/color/number-unit controls,
-search, lazy sections, IME guard, focus-preserving refresh and scoped CSS are
-mounted in the active editor. Browser acceptance for hostile host CSS,
-keyboard-only paths and the full value matrix remains open.
-
-Preact уже используется в legacy/admin, но активный editor-bridge работает без
-него. Наличие пакета в monorepo не делает его бесплатным в editor bundle.
-Фактический вес решения измеряется в S2-06.7; заранее не объявлять размер готовым.
+Final acceptance 2026-09-23: native controls and lifecycle contract are documented in `packages/editor-ui/src/controls/README.md`. Unit/browser coverage includes keyboard, IME, color/raw values, host isolation and narrow viewport. Production audit found no external UI runtime.

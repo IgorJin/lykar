@@ -1,3 +1,4 @@
+import {makeInput, makeButton, makeFieldRow, makeSection, makeSelect} from '../controls/native.js';
 import {STYLE_FIELDS, STYLE_SECTIONS, normalizeCustomPropertyName} from './styles-config.js';
 import type {StyleFieldDefinition} from './types.js';
 import {
@@ -11,6 +12,9 @@ import {
   listExplicitDeclarations,
   readCompositePart,
   splitTopLevel,
+  decodeShadow,
+  encodeShadow,
+  type ShadowParts,
 } from './css-codecs.js';
 
 export {splitTopLevel};
@@ -39,6 +43,16 @@ export class StyleManager {
   private readonly customSection: HTMLDetailsElement;
   private editSequence = 0;
   private readonly search: HTMLInputElement;
+  private readonly stacks = new Map<string, () => void>();
+  private readonly flushers = new Set<() => void>();
+  private readonly cancellers = new Set<() => void>();
+
+  flush(): void { for (const flush of this.flushers) flush(); }
+  destroy(): void {
+    for (const cancel of this.cancellers) cancel();
+    this.target = null;
+    this.element.remove();
+  }
 
   constructor(
     document: Document,
@@ -60,13 +74,7 @@ export class StyleManager {
     root.append(this.search);
 
     for (const section of STYLE_SECTIONS) {
-      const details = document.createElement('details');
-      details.className = 'style-section';
-      details.open = Boolean(section.initiallyOpen);
-      details.dataset.section = section.id;
-      const summary = document.createElement('summary');
-      summary.textContent = section.label;
-      details.append(summary);
+      const details = makeSection(document, section.id, section.label, Boolean(section.initiallyOpen));
       details.addEventListener('toggle', () => {
         if (details.open) {
           this.ensureRows(section.id);
@@ -78,13 +86,8 @@ export class StyleManager {
       if (section.initiallyOpen) this.ensureRows(section.id);
     }
 
-    const advanced = document.createElement('details');
+    const advanced = makeSection(document, 'custom', 'Любое CSS-свойство');
     this.customSection = advanced;
-    advanced.className = 'style-section';
-    advanced.dataset.section = 'custom';
-    const title = document.createElement('summary');
-    title.textContent = 'Любое CSS-свойство';
-    advanced.append(title);
     const row = document.createElement('div');
     row.className = 'style-custom-row';
     this.customProperty = this.makeInput('text', 'Свойство, например grid-column или --Accent', 'CSS property');
@@ -131,7 +134,7 @@ export class StyleManager {
       const input = this.inputs.get(field.id);
       if (!row || !input) continue;
       const authored = styled?.getPropertyValue(field.property) ?? '';
-      if (forceCustom || (this.document.activeElement !== input && !input.matches(':focus'))) input.value = authored.trim();
+      if (forceCustom || (this.document.activeElement !== input && !this.focused(input))) input.value = authored.trim();
       row.dataset.dirty = target && this.isDirty(target, field.property) ? 'true' : 'false';
       row.title = authored
         ? `Задано: ${authored}${styled?.getPropertyPriority(field.property) ? ' !important' : ''}`
@@ -151,12 +154,12 @@ export class StyleManager {
       const swatch = row.querySelector<HTMLInputElement>('input[data-role="swatch"]');
       if (swatch && /^#[0-9a-f]{6}$/i.test(authored.trim())) swatch.value = authored.trim();
       const priority = row.querySelector<HTMLInputElement>('input[data-role="priority"]');
-      if (priority && (forceCustom || !priority.matches(':focus'))) priority.checked = styled?.getPropertyPriority(field.property) === 'important';
+      if (priority && (forceCustom || !this.focused(priority))) priority.checked = styled?.getPropertyPriority(field.property) === 'important';
       const parts = this.compositeInputs.get(field.id);
       if (parts && field.control === 'composite') {
         let hasUnreadablePart = false;
         field.parts.forEach((part, index) => {
-          if (forceCustom || !parts[index].matches(':focus')) {
+          if (forceCustom || !this.focused(parts[index])) {
             const value = styled
               ? readCompositePart(styled, field.property, part.affectedProperties[0])
               : '';
@@ -181,6 +184,7 @@ export class StyleManager {
       }
     }
     if (forceCustom || !this.customRows.contains(this.document.activeElement)) this.renderCustomDeclarations();
+    for (const refresh of this.stacks.values()) refresh();
   }
 
   private renderCustomDeclarations(): void {
@@ -218,9 +222,7 @@ export class StyleManager {
   }
 
   private makeRow(field: StyleFieldDefinition): HTMLElement {
-    const row = this.document.createElement('div');
-    row.className = 'style-row';
-    row.dataset.field = field.id;
+    const row = makeFieldRow(this.document, field.id);
     const label = this.document.createElement('label');
     label.textContent = field.label;
     label.title = field.property;
@@ -258,7 +260,7 @@ export class StyleManager {
       if (activeTransaction) hasPreview = true;
       this.onChange({property: field.property, value: input.value, priority: selectedPriority, transactionId: activeTransaction ?? `edit-${++this.editSequence}`});
     };
-    input.addEventListener('focus', () => {
+    const begin = () => {
       activeTransaction = `edit-${++this.editSequence}`;
       lastPreview = '';
       hasPreview = false;
@@ -266,6 +268,19 @@ export class StyleManager {
       startValue = input.value;
       startPriority = priority.checked;
       focusedTarget = this.target;
+    };
+    input.addEventListener('focus', begin);
+    this.flushers.add(() => {
+      if (pendingFrame !== null) {
+        this.document.defaultView?.cancelAnimationFrame(pendingFrame);
+        pendingFrame = null;
+        change();
+      }
+    });
+    this.cancellers.add(() => {
+      cancelled = true;
+      if (pendingFrame !== null) this.document.defaultView?.cancelAnimationFrame(pendingFrame);
+      pendingFrame = null;
     });
     input.addEventListener('blur', () => {
       if (pendingFrame !== null) {
@@ -315,15 +330,8 @@ export class StyleManager {
     });
     row.append(label);
     if (field.control === 'select') {
-      const select = this.document.createElement('select');
-      select.setAttribute('aria-label', `${field.label}: варианты`);
+      const select = makeSelect(this.document, `${field.label}: варианты`, [{value: '', label: 'Произвольное значение'}, ...field.options]);
       select.dataset.role = 'preset';
-      for (const option of [{value: '', label: 'Произвольное значение'}, ...field.options]) {
-        const item = this.document.createElement('option');
-        item.value = option.value;
-        item.textContent = option.label;
-        select.append(item);
-      }
       select.addEventListener('change', () => {
         if (!select.value) { input.focus(); return; }
         input.value = select.value;
@@ -334,7 +342,20 @@ export class StyleManager {
     if (field.control === 'color') {
       const swatch = this.makeInput('color', '#000000', `${field.label}: палитра`);
       swatch.dataset.role = 'swatch';
-      swatch.addEventListener('change', () => { input.value = swatch.value; change(); });
+      swatch.addEventListener('focus', begin);
+      swatch.addEventListener('input', () => {
+        if (!activeTransaction) begin();
+        input.value = swatch.value;
+        input.dispatchEvent(new Event('input'));
+      });
+      swatch.addEventListener('change', () => {
+        input.value = swatch.value;
+        if (pendingFrame !== null) this.document.defaultView?.cancelAnimationFrame(pendingFrame);
+        pendingFrame = null;
+        change();
+        activeTransaction = undefined;
+      });
+      swatch.addEventListener('blur', () => { this.flush(); activeTransaction = undefined; });
       row.append(swatch);
     }
     row.append(input, priorityLabel);
@@ -375,6 +396,10 @@ export class StyleManager {
       });
       layers.hidden = true;
       row.append(toggle, layers);
+      this.stacks.set(field.id, () => {
+        const active = this.element.getRootNode() as Document | ShadowRoot;
+        if (!layers.hidden && !layers.contains(active.activeElement)) this.renderStackLayers(field, input, layers, change);
+      });
       input.addEventListener('change', () => {
         if (!layers.hidden) this.renderStackLayers(field, input, layers, change);
       });
@@ -484,17 +509,21 @@ export class StyleManager {
     container: HTMLElement,
     commit: () => void,
   ): void {
+    if (field.codec === 'background') {
+      this.renderBackgroundLayers(field, container);
+      return;
+    }
     const raw = input.value.trim();
     const parsed = field.id === 'background'
       ? (raw && raw.toLowerCase() !== 'none' ? decodeBackgroundLayers(raw) : [])
-      : field.id === 'transform'
+      : field.id === 'transform' || field.id === 'filter'
         ? (raw && raw.toLowerCase() !== 'none' ? decodeTransformFunctions(raw) : [])
         : (raw && raw.toLowerCase() !== 'none' ? splitTopLevel(raw, 'comma') : []);
     const values = parsed ?? [];
     const update = (next: string[]) => {
       const serialized = field.id === 'background'
         ? encodeBackgroundLayers(next)
-        : field.id === 'transform'
+        : field.id === 'transform' || field.id === 'filter'
           ? encodeTransformFunctions(next)
           : next.map(item => item.trim()).filter(Boolean).join(', ') || 'none';
       if (serialized === null) {
@@ -537,6 +566,28 @@ export class StyleManager {
       remove.setAttribute('aria-label', `Удалить слой ${index + 1}`);
       remove.addEventListener('click', () => update(values.filter((_, offset) => offset !== index)));
       row.append(editor, up, down, remove);
+      if (field.codec === 'shadow') {
+        const decoded = decodeShadow(value, field.id === 'box-shadow');
+        if (decoded) {
+          const parts = this.document.createElement('div');
+          parts.className = 'style-composite-parts';
+          for (const key of ['x', 'y', 'blur', 'spread', 'color', 'inset'] as const) {
+            if (field.id === 'text-shadow' && (key === 'spread' || key === 'inset')) continue;
+            const label = this.document.createElement('label');
+            label.textContent = key;
+            const part = this.makeInput('text', 'CSS value', `${field.label} ${index + 1}: ${key}`);
+            part.value = decoded[key];
+            part.addEventListener('change', () => {
+              const next: ShadowParts = {...decoded, [key]: part.value.trim()};
+              const serialized = encodeShadow(next);
+              if (this.validate(field.property, serialized, part)) update(values.map((item, offset) => offset === index ? serialized : item));
+            });
+            label.append(part);
+            parts.append(label);
+          }
+          row.append(parts);
+        }
+      }
       container.append(row);
     });
     const add = this.makeButton('Добавить слой');
@@ -552,6 +603,68 @@ export class StyleManager {
       editor.focus();
     });
     container.append(add);
+  }
+
+  private renderBackgroundLayers(field: StyleFieldDefinition, container: HTMLElement): void {
+    container.replaceChildren();
+    const target = this.target;
+    const style = this.styleFor(target);
+    if (!target || !style) return;
+    const computed = this.document.defaultView?.getComputedStyle(target);
+    const properties = ['background-image', 'background-position', 'background-size', 'background-repeat', 'background-attachment', 'background-origin', 'background-clip'];
+    const lists = properties.map(property => splitTopLevel(style.getPropertyValue(property) || computed?.getPropertyValue(property) || '', 'comma'));
+    const images = lists[0];
+    if (!images.length || lists.some(items => !items.length || items.some(value => /\bvar\s*\(/i.test(value)))) {
+      const hint = this.document.createElement('p');
+      hint.textContent = 'Сложный фон доступен в raw-поле и отдельных background-* полях.';
+      container.append(hint);
+      return;
+    }
+    const expanded = lists.map(items => images.map((_, index) => items[index % items.length]));
+    const apply = (changes: StyleChangePart[]) => {
+      if (this.target !== target) return;
+      this.onChange({...changes[0], ...(changes.length > 1 ? {group: changes} : {}), transactionId: `layer-${++this.editSequence}`});
+    };
+    const member = (property: string, values: string[]): StyleChangePart => ({property, value: values.join(', '), priority: style.getPropertyPriority(property) === 'important' ? 'important' : ''});
+    images.forEach((_, index) => {
+      const layer = this.document.createElement('div');
+      layer.className = 'style-layer';
+      const parts = this.document.createElement('div');
+      parts.className = 'style-composite-parts';
+      properties.forEach((property, partIndex) => {
+        const label = this.document.createElement('label');
+        label.textContent = property.slice(11);
+        const input = this.makeInput('text', property, `${field.label} ${index + 1}: ${property.slice(11)}`);
+        input.value = expanded[partIndex][index];
+        input.addEventListener('change', () => {
+          const values = expanded[partIndex].map((value, offset) => offset === index ? input.value.trim() : value);
+          if (this.validate(property, values.join(', '), input)) apply([member(property, values)]);
+        });
+        label.append(input);
+        parts.append(label);
+      });
+      layer.append(parts);
+      for (const [label, destination] of [['↑', index - 1], ['↓', index + 1], ['×', -1]] as const) {
+        const button = this.makeButton(label);
+        button.setAttribute('aria-label', `${label === '×' ? 'Удалить' : label === '↑' ? 'Поднять' : 'Опустить'} слой ${index + 1}`);
+        button.disabled = label !== '×' && (destination < 0 || destination >= images.length);
+        button.addEventListener('click', () => apply(properties.map((property, partIndex) => {
+          const next = [...expanded[partIndex]];
+          if (label === '×') next.splice(index, 1);
+          else [next[index], next[destination]] = [next[destination], next[index]];
+          return member(property, next.length ? next : [partIndex === 0 ? 'none' : expanded[partIndex][index]]);
+        })));
+        layer.append(button);
+      }
+      container.append(layer);
+    });
+    const add = this.makeButton('Добавить слой');
+    add.addEventListener('click', () => apply(properties.map((property, index) => member(property, [...expanded[index], ['none', '0% 0%', 'auto', 'repeat', 'scroll', 'padding-box', 'border-box'][index]]))));
+    container.append(add);
+  }
+
+  private focused(element: Element): boolean {
+    return (element.getRootNode() as Document | ShadowRoot).activeElement === element;
   }
 
   private styleFor(target: Element | null): CSSStyleDeclaration | undefined {
@@ -619,7 +732,7 @@ export class StyleManager {
 
   private validate(property: string, value: string, input: HTMLInputElement): boolean {
     const supported = /^--[\w-]+$/.test(property) || /^-?[a-z][a-z0-9-]*$/.test(property);
-    const accepts = !value || !this.document.defaultView?.CSS?.supports || this.document.defaultView.CSS.supports(property, value);
+    const accepts = property.startsWith('--') || !value || !this.document.defaultView?.CSS?.supports || this.document.defaultView.CSS.supports(property, value);
     this.setError(input, supported ? (accepts ? '' : 'Браузер не поддерживает это CSS-значение.') : 'Некорректное имя CSS-свойства.');
     return supported && accepts;
   }
@@ -640,17 +753,10 @@ export class StyleManager {
   }
 
   private makeInput(type: string, placeholder: string, label: string): HTMLInputElement {
-    const input = this.document.createElement('input');
-    input.type = type;
-    if (type !== 'color') input.placeholder = placeholder;
-    input.setAttribute('aria-label', label);
-    return input;
+    return makeInput(this.document, type, placeholder, label);
   }
 
   private makeButton(label: string): HTMLButtonElement {
-    const button = this.document.createElement('button');
-    button.type = 'button';
-    button.textContent = label;
-    return button;
+    return makeButton(this.document, label);
   }
 }

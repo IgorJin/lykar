@@ -1,6 +1,6 @@
 # S2-06.8 — P0: приёмка полного визуального редактирования стилей
 
-Status: PLANNED
+Status: DONE
 Priority: P0
 Depends on: S2-06.6, S2-06.7
 Evidence: report
@@ -34,17 +34,17 @@ setStyle API, пары property/value или только unit tests не зак
 
 ## Acceptance criteria
 
-- [ ] Все legacy styles учтены; основные секции доступны визуально без ввода
+- [x] Все legacy styles учтены; основные секции доступны визуально без ввода
   названий CSS вручную. Остальные поддерживаемые свойства доступны в Advanced.
-- [ ] Для каждой группы есть browser evidence, для каждого типа control —
+- [x] Для каждой группы есть browser evidence, для каждого типа control —
   полный путь сохранения и повторного воспроизведения.
-- [ ] Произвольное свойство вне конфигурации, CSS variable и многослойный стиль
+- [x] Произвольное свойство вне конфигурации, CSS variable и многослойный стиль
   проходят reload/share без подмены или потери значения.
-- [ ] UI не ограничивается property/value; есть специализированные select,
+- [x] UI не ограничивается property/value; есть специализированные select,
   input, color, number-unit и composite/stack controls.
-- [ ] Screenshots показывают общий panel, раскрытые секции и changed/reset state.
-- [ ] Измеренный size/dependency report подтверждает выбранный лёгкий UI kit.
-- [ ] S2-06.1…S2-06.7 выполнены; ограничения по target/browser и отдельным
+- [x] Screenshots показывают общий panel, раскрытые секции и changed/reset state.
+- [x] Измеренный size/dependency report подтверждает выбранный лёгкий UI kit.
+- [x] S2-06.1…S2-06.7 выполнены; ограничения по target/browser и отдельным
   CSS-rule contexts перечислены явно. Итоговая S2-05.4 зависит от этой задачи.
 
 ## Checks
@@ -108,6 +108,4 @@ Report: `docs/verification/reports/S2/s2-style-editor.html`
 
 ## Notes
 
-Этот подготовительный browser pass не закрывает все критерии приёмки.
-Полный page builder (blocks/layers/DnD), class-wide rules, pseudo/media contexts
-не маскируются статусом «все стили»: это отдельные продуктовые возможности.
+Final acceptance 2026-09-23: script and ESM acceptance plus composite/style/host matrix passed in Chromium, Firefox and WebKit; all screenshots and production budget measurements are linked in the group report.

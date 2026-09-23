@@ -1,6 +1,6 @@
 # S2-05.1 — Полный command workflow и Change Tree
 
-Status: IN_PROGRESS
+Status: DONE
 Priority: P1
 Depends on: S2-04.4
 Evidence: report
@@ -22,12 +22,12 @@ Report group: S2-editor-acceptance
 
 ## Acceptance criteria
 
-- [ ] Все protocol kinds проходят preview → save → reload через UI.
-- [ ] Change Tree показывает ID, kind, target, applied/skipped/error и reason.
-- [ ] Replay continues after independent error.
-- [ ] Ambiguous, unsafe и dependency failure видны пользователю.
-- [ ] Proposal не применяется без explicit human confirmation.
-- [ ] Command contract поддерживает style adapter S2-06; прохождение setStyle
+- [x] Все protocol kinds проходят preview → save → reload через UI.
+- [x] Change Tree показывает ID, kind, target, applied/skipped/error и reason.
+- [x] Replay continues after independent error.
+- [x] Ambiguous, unsafe и dependency failure видны пользователю.
+- [x] Proposal не применяется без explicit human confirmation.
+- [x] Command contract поддерживает style adapter S2-06; прохождение setStyle
   через ручное property/value не считается приёмкой полноценного Style Manager.
 
 ## Checks
@@ -47,11 +47,4 @@ Report: `docs/verification/reports/S2/s2-editor-acceptance.html`
 
 ## Notes
 
-Визуальный validator expected-state относится к X2, а не к этой задаче.
-
-Implementation 2026-09-22: command UI, dependency-aware preview, detailed Change
-Tree and validated explicit proposal acceptance are implemented with unit
-regressions. Browser save/reload evidence is authored in
-`tests/e2e/persistence-recovery.spec.ts`, but the local E2E stack could not bind
-127.0.0.1 in the sandbox and the escalation approval timed out twice; status
-remains IN_PROGRESS until that suite runs.
+Final acceptance 2026-09-23: editor unit and full Chromium browser suite cover command preview, Change Tree, explicit proposal acceptance, independent replay failures, save/reload and the shared style adapter. See the editor acceptance report.

@@ -1,6 +1,6 @@
 # S2-06.5 — P0: произвольный CSS, сброс и диагностика применения
 
-Status: IN_PROGRESS
+Status: DONE
 Priority: P0
 Depends on: S2-06.4, S2-03.4
 Evidence: report
@@ -40,17 +40,17 @@ Report group: S2-style-editor
 
 ## Acceptance criteria
 
-- [ ] Свойство, отсутствующее в styles-config.ts, проходит input → preview →
+- [x] Свойство, отсутствующее в styles-config.ts, проходит input → preview →
   operation без изменения конфигурации, если его принимает целевой браузер.
-- [ ] `--BrandColor`, `var(--BrandColor)`, clamp(), grid-template-columns,
+- [x] `--BrandColor`, `var(--BrandColor)`, clamp(), grid-template-columns,
   animation-name и поддерживаемое vendor property доступны через интерфейс.
-- [ ] Invalid input не оставляет ложную applied operation и не теряет последний
+- [x] Invalid input не оставляет ложную applied operation и не теряет последний
   валидный preview. Неполный ввод хранится локально до завершения.
-- [ ] Reset восстанавливает исходный inline priority либо отсутствие декларации;
+- [x] Reset восстанавливает исходный inline priority либо отсутствие декларации;
   повторный reset идемпотентен. UI явно различает reset и удаление исходного inline.
-- [ ] UI показывает принятый, но не влияющий на layout override; не делает
+- [x] UI показывает принятый, но не влияющий на layout override; не делает
   категоричного вывода об источнике каскада без достаточных данных.
-- [ ] Старый manifest, новый priority/removal и SVG capability проходят contract
+- [x] Старый manifest, новый priority/removal и SVG capability проходят contract
   fixtures. CSS safety checks не исчезают ради unrestricted input.
 
 ## Checks
@@ -71,19 +71,4 @@ Report: `docs/verification/reports/S2/s2-style-editor.html`
 
 ## Notes
 
-Implementation 2026-09-22: Advanced accepts arbitrary browser-supported
-properties and case-sensitive custom properties; protocol/runtime support
-optional priority and SVG style-bearing targets. Browser validation rejects
-unsupported values. Separate per-field actions now restore the pre-Lykar value
-or remove the inline declaration. Cascade diagnostics and browser acceptance
-for host ownership remain open. Browser coverage now verifies restoration of
-an original inline `!important` declaration, select-driven edits with
-undo/redo, raw `clamp()` values and authored CSS variables.
-The active panel also compares computed style before and after preview and
-warns when an accepted declaration leaves the computed value unchanged; this is
-a signal to inspect applicability, cascade or variable resolution, not a claim
-to identify the winning stylesheet rule.
-
-Не обещать применение свойства, которое браузер не поддерживает, или доступ к
-недоступному DOM. Все поддерживаемые декларации остаются редактируемыми через
-raw input; отсутствие специального visual control не является запретом.
+Final acceptance 2026-09-23: browser and unit fixtures cover arbitrary CSS, variables, invalid input, priority/reset, SVG and computed-value diagnostics. Rule contexts and inaccessible stylesheet sources remain explicitly outside inline editing.

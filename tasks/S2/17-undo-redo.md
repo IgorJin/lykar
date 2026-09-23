@@ -1,6 +1,6 @@
 # S2-05.2 — Undo/redo и сохранённые изменения
 
-Status: IN_PROGRESS
+Status: DONE
 Priority: P1
 Depends on: S2-05.1
 Evidence: report
@@ -20,11 +20,11 @@ Report group: S2-editor-acceptance
 
 ## Acceptance criteria
 
-- [ ] Pending undo/redo меняет preview и history предсказуемо.
-- [ ] Undo saved change создаёт новый operation ID и не удаляет старую operation.
-- [ ] Старый Release/hash не изменяется.
-- [ ] Более позднее host value не затирается при undo/cleanup.
-- [ ] Undo → save → reload воспроизводит ожидаемое состояние.
+- [x] Pending undo/redo меняет preview и history предсказуемо.
+- [x] Undo saved change создаёт новый operation ID и не удаляет старую operation.
+- [x] Старый Release/hash не изменяется.
+- [x] Более позднее host value не затирается при undo/cleanup.
+- [x] Undo → save → reload воспроизводит ожидаемое состояние.
 
 ## Checks
 
@@ -43,10 +43,4 @@ Report: `docs/verification/reports/S2/s2-editor-acceptance.html`
 
 ## Notes
 
-Arbitrary DOM restore через замену body запрещён.
-
-Implementation 2026-09-22: pending undo/redo now uses compare-and-restore;
-saved undo appends a fresh operation with `revision.reason=undo`, ownership
-preconditions preserve later host values, and structural node references replay
-after reload. Unit regressions pass; the authored browser save/reload fixture is
-still awaiting an allowed local E2E run.
+Final acceptance 2026-09-23: unit and browser persistence recovery cover pending and saved undo, revision append, ownership checks, reload and immutable release behavior. See the editor acceptance report.

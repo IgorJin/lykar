@@ -252,6 +252,7 @@ export class LykarEditor {
 
   private async performCommit(): Promise<EditorCommitResult> {
     this.assertActive();
+    this.panel.flushStyles();
     await this.restoration;
     await this.previewQueue;
     this.assertActive();
@@ -322,6 +323,8 @@ export class LykarEditor {
     if (report) {
       this.overlay.refresh();
       this.panel.setStatus('Undo сохранённого изменения добавлен как новая pending-команда.', 'success');
+    } else {
+      this.panel.setStatus('Undo остановлен: сохранённый стиль изменён страницей. Проверьте конфликт.', 'error');
     }
   }
 

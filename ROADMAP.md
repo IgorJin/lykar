@@ -83,16 +83,16 @@ V1. Новые маркетинговые идеи имеют отдельный
 | EDT-01 | Overlay на настоящей странице: hover/selection/action layers, side panel | Есть код | S2 |
 | EDT-02 | `setText`, `setStyle`, `setAttribute`, `removeAttribute` | Есть код protocol/runtime/editor | S2 |
 | EDT-03 | Add, delete, move, copy; copy выражается безопасным `insertNode` | Есть код | S2 |
-| EDT-04 | Локальное применение сразу; «Применить» сохраняет в backend | Есть код | S2 |
-| EDT-05 | Undo/redo и сохранность pending правок при reload/сбое | Есть код; sessionStorage, undo только pending | S2 |
-| EDT-06 | Change Tree: id, target, applied/skipped/error, подсветка при hover | Есть код; требуется browser acceptance | S2 |
-| EDT-07 | Безопасный replay зависимых команд и стабильные targets новых nodes | Частично; проверить insert→edit→move→delete | S2 |
-| EDT-08 | Совместимость стилей панели с host, keyboard navigation, responsive preview | Частично: Shadow DOM есть | S2 |
-| EDT-09 | Dummy proposals без запросов к AI и без API key | Есть код | S2 |
-| EDT-10 | Copy/add описывают представление; UI не обещает копирование handlers и бизнес-логики | План проверки и обозначения ограничений | S2.4 |
-| EDT-11 | P0: Style Manager как в GrapesJS, все legacy styles и любое поддерживаемое CSS-свойство через специализированные controls/raw fallback | План; требование владельца 2026-09-21 | S2-06.1…06.8 |
-| EDT-12 | P0: отдельный styles-config.ts, select/input/color/number-unit/composite/stack; самописный TS/DOM UI без внешнего UI kit/runtime | План; lazy editor only, измеримый бюджет веса | S2-06.1, 06.2, 06.7 |
-| EDT-13 | P0: значения/каскад, reset/priority, составные стили, единая история и preview → save → reload | План; включено в итоговую приёмку S2 | S2-06.3…06.6, 06.8 |
+| EDT-04 | Локальное применение сразу; «Применить» сохраняет в backend | Принято S2 2026-09-23 | S2 |
+| EDT-05 | Undo/redo и сохранность pending правок при reload/сбое | Принято S2 2026-09-23 | S2 |
+| EDT-06 | Change Tree: id, target, applied/skipped/error, подсветка при hover | Принято S2 2026-09-23 | S2 |
+| EDT-07 | Безопасный replay зависимых команд и стабильные targets новых nodes | Принято S2 2026-09-23 | S2 |
+| EDT-08 | Совместимость стилей панели с host, keyboard navigation, responsive preview | Принято S2 2026-09-23 | S2 |
+| EDT-09 | Dummy proposals без запросов к AI и без API key | Принято S2 2026-09-23 | S2 |
+| EDT-10 | Copy/add описывают представление; UI не обещает копирование handlers и бизнес-логики | Принято S2 2026-09-23 | S2.4 |
+| EDT-11 | P0: Style Manager как в GrapesJS, все legacy styles и любое поддерживаемое CSS-свойство через специализированные controls/raw fallback | Принято S2 2026-09-23 | S2-06.1…06.8 |
+| EDT-12 | P0: отдельный styles-config.ts, select/input/color/number-unit/composite/stack; самописный TS/DOM UI без внешнего UI kit/runtime | Принято S2 2026-09-23 | S2-06.1, 06.2, 06.7 |
+| EDT-13 | P0: значения/каскад, reset/priority, составные стили, единая история и preview → save → reload | Принято S2 2026-09-23 | S2-06.3…06.6, 06.8 |
 
 EDT-11 означает открытый набор CSS-деклараций, а не только заданные пресеты.
 Неподдерживаемые браузером значения объясняются; отсутствие специального
@@ -296,7 +296,9 @@ Native visit не скачивает editor; public key не даёт редак
 ### S2 — Полный редактор и надёжное сохранение
 
 Детальные задачи S2-01…S2-06, зависимости и критерии приёмки:
-[план S2 в tasks](./tasks/S2/README.md). Статус: план, реализация не начата.
+[задачи S2](./tasks/S2/README.md). Статус: DONE; итоговая приёмка 2026-09-23.
+Отчёты: [редактор](./docs/verification/reports/S2/s2-editor-acceptance.html) и
+[стили/бюджет](./docs/verification/reports/S2/s2-style-editor.html).
 
 **Приоритет владельца 2026-09-21: EDT-11…13 / S2-06 — P0.** Конфигурацию
 стилей и native UI kit начать первыми (S2-06.1/06.2), интеграцию — сразу после

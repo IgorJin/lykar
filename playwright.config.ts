@@ -13,8 +13,12 @@ export default defineConfig({
     ['html', { outputFolder: 'playwright-report', open: 'never' }],
   ],
   outputDir: 'test-results',
+  projects: [
+    {name: 'chromium', use: {browserName: 'chromium', channel: 'chromium'}},
+    {name: 'firefox', testMatch: /style-(editor-acceptance|matrix)\.spec\.ts/, use: {browserName: 'firefox', channel: undefined}},
+    {name: 'webkit', testMatch: /style-(editor-acceptance|matrix)\.spec\.ts/, use: {browserName: 'webkit', channel: undefined}},
+  ],
   use: {
-    channel: 'chromium',
     headless: true,
     // Playwright disables popup blocking by default; keep real user activation rules.
     launchOptions: { ignoreDefaultArgs: ['--disable-popup-blocking'] },

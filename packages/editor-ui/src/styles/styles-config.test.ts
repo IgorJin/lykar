@@ -7,6 +7,8 @@ import {
   decodeBorderShorthand,
   decodeFourSideShorthand,
   encodeFourSideShorthand,
+  decodeShadow,
+  encodeShadow,
 } from './css-codecs.js';
 import {splitTopLevel} from './style-manager.js';
 import {
@@ -115,6 +117,17 @@ describe('stack layer splitting', () => {
 });
 
 describe('composite CSS codecs', () => {
+  it('edits one shadow component without losing inset, offsets or a second layer', () => {
+    const layers = splitTopLevel('0 1px 2px rgb(1, 2, 3), inset 0 2px 4px rgb(4, 5, 6)', 'comma');
+    const second = decodeShadow(layers[1], true);
+    expect(second).toMatchObject({x: '0', y: '2px', blur: '4px', color: 'rgb(4, 5, 6)', inset: 'inset'});
+    layers[1] = encodeShadow({...second!, color: 'rgb(7, 8, 9)'});
+    expect(splitTopLevel(layers.join(', '), 'comma')).toEqual([
+      '0 1px 2px rgb(1, 2, 3)',
+      'inset 0 2px 4px rgb(7, 8, 9)',
+    ]);
+    expect(decodeShadow('var(--shadow)', true)).toBeNull();
+  });
   it('decodes and re-encodes one-to-four spacing values', () => {
     expect(decodeFourSideShorthand('1px')).toEqual(['1px', '1px', '1px', '1px']);
     expect(decodeFourSideShorthand('1px 2px')).toEqual(['1px', '2px', '1px', '2px']);

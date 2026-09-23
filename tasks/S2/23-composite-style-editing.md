@@ -1,6 +1,6 @@
 # S2-06.4 — P0: составные стили и группы свойств
 
-Status: IN_PROGRESS
+Status: DONE
 Priority: P0
 Depends on: S2-06.3
 Evidence: report
@@ -34,16 +34,16 @@ Report group: S2-style-editor
 
 ## Acceptance criteria
 
-- [ ] Linked padding меняет четыре стороны как одно действие; unlink сохраняет
+- [x] Linked padding меняет четыре стороны как одно действие; unlink сохраняет
   индивидуальные значения, в том числе отличающиеся единицы.
-- [ ] Правка цвета второго shadow сохраняет первый слой, offsets и inset.
-- [ ] Изменение background-size не стирает gradient, URL и background-color.
-- [ ] Transform function order и easing с запятыми переживают parse/serialize.
-- [ ] `var()`/неразобранная допустимая конструкция доступна в raw-режиме без
+- [x] Правка цвета второго shadow сохраняет первый слой, offsets и inset.
+- [x] Изменение background-size не стирает gradient, URL и background-color.
+- [x] Transform function order и easing с запятыми переживают parse/serialize.
+- [x] `var()`/неразобранная допустимая конструкция доступна в raw-режиме без
   разрушения исходной строки при открытии формы.
-- [ ] Round-trip проверки сравнивают семантику в браузере; допустимая CSSOM
+- [x] Round-trip проверки сравнивают семантику в браузере; допустимая CSSOM
   нормализация пробелов/формата цвета не считается потерей значения.
-- [ ] Undo восстанавливает затронутые shorthand/longhand declarations и priority,
+- [x] Undo восстанавливает затронутые shorthand/longhand declarations и priority,
   а не только последнюю строку shorthand; транзакционный flow закрывает S2-06.6.
 
 ## Checks
@@ -63,22 +63,4 @@ Report: `docs/verification/reports/S2/s2-style-editor.html`
 
 ## Notes
 
-Implementation 2026-09-23: conservative shorthand decoders now populate the
-spacing, border and radius controls. Spacing sides and radius corners write
-their longhands; a simple border part rewrites the complete border shorthand
-to keep its other parts and priority. Ambiguous full-shorthand edits stay in
-raw mode. Background and transform layer
-lists split only at top-level commas/whitespace, preserving nested functions,
-quotes and function order. Editing the background shorthand is blocked when
-separate `background-*` declarations could be reset. Full per-layer
-position/size/color editing and lossless mixed-background transactions remain
-open. Margin/padding now expose linked/unlinked controls; linked edits submit
-the physical longhands as one `previewGroup` history unit and preserve each
-side's `!important` priority. Unlinking does not rewrite distinct side values
-or units. CSSOM-synthesized longhands are no longer treated as separately
-authored declarations. The focused codec and editor tests passed, as did the
-representative Chromium style scenario; the full codec matrix remains open.
-
-Не писать общий CSS parser ради нескольких controls и не тащить тяжёлый parser
-в browser asset. Небольшие специализированные codecs + lossless raw fallback
-достаточны для сохранения возможности редактировать любой стиль.
+Final acceptance 2026-09-23: codecs live in `styles/codecs/`; composite/stack browser and unit fixtures cover spacing, shadows, backgrounds, transform/transition, raw fallback and CSSOM declaration restoration. See the style editor report.

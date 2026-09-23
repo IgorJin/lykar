@@ -16,10 +16,11 @@ test('style panel searches catalog, edits arbitrary CSS, resets, undoes and relo
   const hero = page.locator('[data-lykar-id="pricing-title"]');
   await expect(panel.getByRole('heading', {name: 'Lykar Editor'})).toBeVisible();
   await hero.click();
+  const initialWidth = await hero.evaluate(element => (element as HTMLElement).style.getPropertyValue('width'));
 
   await panel.getByRole('searchbox', {name: 'Поиск свойства'}).fill('width');
   const width = panel.locator('[data-field="width"] input[aria-label="Width"]');
-  await expect(width).toHaveValue('');
+  await expect(width).toHaveValue(initialWidth);
   await width.fill('100px');
   await expect(hero).toHaveCSS('width', '100px');
   await width.press('Escape');
@@ -58,9 +59,9 @@ test('style panel searches catalog, edits arbitrary CSS, resets, undoes and relo
   await shadow.getByRole('textbox', {name: 'Box Shadows', exact: true}).press('Tab');
   await expect.poll(() => hero.evaluate(element => (element as HTMLElement).style.boxShadow)).toContain('rgb(4, 5, 6)');
   await shadow.getByRole('button', {name: 'Редактировать слои'}).click();
-  await expect(shadow.locator('.style-layer input')).toHaveCount(2);
-  await shadow.getByRole('textbox', {name: 'Box Shadows 2'}).fill('0 2px 4px rgb(7, 8, 9)');
-  await shadow.getByRole('textbox', {name: 'Box Shadows 2'}).press('Tab');
+  await expect(shadow.locator('.style-layer > input')).toHaveCount(2);
+  await shadow.getByRole('textbox', {name: 'Box Shadows 2', exact: true}).fill('0 2px 4px rgb(7, 8, 9)');
+  await shadow.getByRole('textbox', {name: 'Box Shadows 2', exact: true}).press('Tab');
   await expect.poll(() => hero.evaluate(element => (element as HTMLElement).style.boxShadow))
     .toMatch(/rgb\(1, 2, 3\).*rgb\(7, 8, 9\)/);
 

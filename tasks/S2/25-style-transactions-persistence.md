@@ -1,6 +1,6 @@
 # S2-06.6 — P0: история действий и сохранение всех стилей
 
-Status: IN_PROGRESS
+Status: DONE
 Priority: P0
 Depends on: S2-06.5, S2-04.4, S2-05.2
 Evidence: report
@@ -32,15 +32,15 @@ Report group: S2-style-editor
 
 ## Acceptance criteria
 
-- [ ] 50 событий ползунка/цвета дают один завершённый undo step; повторное
+- [x] 50 событий ползунка/цвета дают один завершённый undo step; повторное
   отдельное редактирование того же поля даёт следующий step.
-- [ ] Save во время активного поля сохраняет последнее валидное завершённое
+- [x] Save во время активного поля сохраняет последнее валидное завершённое
   значение; не сохраняет устаревший preview из очереди.
-- [ ] Undo/redo для linked spacing и multi-layer shadow атомарны и обновляют UI.
-- [ ] Обычный, составной, arbitrary CSS и variable сохраняются после reload.
-- [ ] Lost response/retry и две вкладки не дублируют операции; локальный field
+- [x] Undo/redo для linked spacing и multi-layer shadow атомарны и обновляют UI.
+- [x] Обычный, составной, arbitrary CSS и variable сохраняются после reload.
+- [x] Lost response/retry и две вкладки не дублируют операции; локальный field
   draft не исчезает без объяснения при conflict.
-- [ ] Undo saved style → save → reload восстанавливает нужный результат без
+- [x] Undo saved style → save → reload восстанавливает нужный результат без
   изменения старого Release; более поздний host change защищён ownership check.
 
 ## Checks
@@ -61,20 +61,4 @@ Report: `docs/verification/reports/S2/s2-style-editor.html`
 
 ## Notes
 
-Implementation 2026-09-22: text field live preview is grouped by focus
-transaction, frame-throttled, and flushed on change/blur/save; Escape cancels
-the active preview. Unit coverage proves 50 input events compact to one undo
-step, and browser coverage proves undo/save/reload for several style types.
-An in-progress field transaction is bound to the element selected at focus;
-the selection-race regression prevents a stale input or Escape from changing
-the newly selected element.
-`EditorSession.previewGroup` now provides one pending history batch with reverse
-compare-and-restore on partial failure. Linked margin/padding controls use this
-path, so their longhand operations undo/redo together and enter the same save
-batch. A later host edit to one group member blocks the whole local undo
-without changing the other members. Saved-group compensation, latency
-measurements and the full
-browser failure matrix remain open.
-
-Эта задача расширяет общий механизм S2-05.2 для style controls; не создаёт
-отдельные history/persistence системы внутри editor-ui.
+Final acceptance 2026-09-23: 50 color events form one undo step; save flushes active fields. Saved linked-group undo, priority ownership, reload/share, lost response and two-tab conflicts passed unit/browser/HTTP regression.

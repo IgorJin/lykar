@@ -54,7 +54,9 @@ export class SidePanel {
       (element, property) => this.actions.isStyleDirty(element, property),
     );
     this.get('[data-view="styles"]').append(this.styles.element);
-    document.body.appendChild(this.host);
+    // A host page may zoom or transform BODY. Keep fixed editor chrome outside
+    // that coordinate system while its ShadowRoot still isolates host CSS.
+    document.documentElement.appendChild(this.host);
     this.bindEvents();
     this.setSelected(null);
   }
@@ -161,8 +163,11 @@ export class SidePanel {
 
   destroy(): void {
     this.controller.abort();
+    this.styles.destroy();
     this.host.remove();
   }
+
+  flushStyles(): void { this.styles.flush(); }
 
   private bindEvents(): void {
     const { signal } = this.controller;
@@ -254,8 +259,14 @@ export class SidePanel {
     const appliedValue = style?.getPropertyValue(property) ?? '';
     const appliedPriority = style?.getPropertyPriority(property) ?? '';
     const computed = this.document.defaultView?.getComputedStyle(element).getPropertyValue(property).trim() ?? '';
+    const computedStyle = this.document.defaultView?.getComputedStyle(element);
+    const missingVariable = [...value.matchAll(/\bvar\(\s*(--[\w-]+)\s*\)/g)]
+      .map(match => match[1])
+      .find(name => !computedStyle?.getPropertyValue(name).trim());
     const authoredChanged = beforeValue !== appliedValue || beforePriority !== appliedPriority;
-    if (value && authoredChanged && (!computed || computed === beforeComputed)) {
+    if (missingVariable) {
+      this.setStatus(`${property}: CSS принят, но переменная ${missingVariable} не имеет вычисленного значения; проверьте каскад или задайте переменную.`);
+    } else if (value && authoredChanged && (!computed || computed === beforeComputed)) {
       this.setStatus(`${property}: CSS принят, но вычисленное значение не изменилось; проверьте layout, cascade и значение var().`);
     } else if (report.applied) {
       this.setStatus(`${property}: предпросмотр применён.`);
@@ -416,6 +427,7 @@ export class SidePanel {
   }
 
   private async commit(): Promise<void> {
+    this.styles.flush();
     const button = this.get<HTMLButtonElement>('[data-action="apply"]');
     button.disabled = true;
     this.setStatus('Сохраняю последовательность изменений…');

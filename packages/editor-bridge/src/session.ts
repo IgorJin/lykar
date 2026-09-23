@@ -3,6 +3,8 @@ import { isSourceSnapshotV1, validateOperationV1 } from '@lykar/protocol';
 import { applyOperation, captureSourceSnapshot, ReplayLedger, resolveTarget, sha256Text } from '@lykar/runtime';
 import type { OperationApplyResult } from '@lykar/runtime';
 
+import {styleSnapshot, styleMutation, restoreStyle, type StyleMutation} from './style-history.js';
+
 import { createOperationId } from './operation-id.js';
 import { buildTargetDescriptor, serializeEditableElement } from './target-builder.js';
 
@@ -70,12 +72,13 @@ export type PendingSaveBatch = {
 type AppliedRecord = EditorChange & {
   key?: string;
   undo: () => boolean;
-  inverse?: () => OperationV1 | null | Promise<OperationV1 | null>;
+  inverse?: () => OperationV1 | OperationV1[] | null | Promise<OperationV1 | OperationV1[] | null>;
+  styleMutation?: StyleMutation;
   beforeStyle?: {value: string; priority: '' | 'important'};
   afterStyle?: {value: string; priority: '' | 'important'};
 };
 type AppliedBatch = { id: string; records: AppliedRecord[] };
-type UndoAction = { undo: () => boolean; inverse?: () => OperationV1 | null | Promise<OperationV1 | null>; afterStyle?: AppliedRecord['afterStyle'] };
+type UndoAction = { styleMutation?: StyleMutation; undo: () => boolean; inverse?: () => OperationV1 | OperationV1[] | null | Promise<OperationV1 | OperationV1[] | null>; afterStyle?: AppliedRecord['afterStyle'] };
 type UndoCapture = { element: Element | null; finalize: () => UndoAction; beforeStyle?: AppliedRecord['beforeStyle'] };
 
 export class EditorSession {
@@ -151,17 +154,17 @@ export class EditorSession {
     const batchId = createOperationId('restore');
     const remote = await this.runBatch(batchId, committedOperations, undefined, undefined, signal);
     for (const record of remote.records) record.committed = true;
-    if (remote.records.length > 0) this.history.push({id: `${batchId}:remote`, records: remote.records});
+    this.history.push(...restoreHistoryBatches(`${batchId}:remote`, remote.records));
     const local = await this.runBatch(batchId, pending, undefined, undefined, signal);
     const records = [...remote.records, ...local.records];
-    if (local.records.length > 0) this.history.push({id: `${batchId}:local`, records: local.records});
+    this.history.push(...restoreHistoryBatches(`${batchId}:local`, local.records));
     if (records.length > 0) this.redoStack.length = 0;
     this.changed();
     return records.length ? reportFor(batchId, this.page, records.map(record => resultFrom(record))) : null;
   }
 
   async preview(operation: OperationV1, key?: string, nodeElement?: Element | null): Promise<EditorApplyReport> {
-    if (key) this.removeReplaceableChange(key);
+    if (key && !this.removeReplaceableChange(key)) throw new Error('Предыдущий preview изменён страницей; заменять его небезопасно.');
     const batchId = createOperationId('change');
     const appliedBatch = await this.runBatch(batchId, [operation], key, nodeElement);
     this.history.push(appliedBatch);
@@ -181,7 +184,7 @@ export class EditorSession {
     options: {id?: string; key?: string; signal?: AbortSignal} = {},
   ): Promise<EditorGroupedPreviewReport> {
     const batchId = options.id ?? createOperationId('preview-group');
-    const members = [...operations];
+    const members = operations.map(operation => ({...operation, meta: {...(operation.meta ?? humanMeta()), transactionId: batchId}}));
     const results: GroupedPreviewOperationReport[] = [];
     const attempted: Array<{
       record: AppliedRecord;
@@ -200,7 +203,11 @@ export class EditorSession {
         message: 'A grouped preview requires at least one style operation.',
       });
     }
-    if (options.key) this.removeReplaceableChange(options.key);
+    if (options.key && !this.removeReplaceableChange(options.key)) {
+      return groupedPreviewReport(batchId, this.page, 'rejected', results, 0, 0, {
+        code: 'OWNERSHIP_CONFLICT', message: 'The previous preview changed outside the editor.',
+      });
+    }
 
     const appendNotAttempted = (start: number, code: string, message: string): void => {
       for (let index = start; index < members.length; index += 1) {
@@ -288,6 +295,7 @@ export class EditorSession {
           ...(action.inverse ? {inverse: action.inverse} : {}),
           ...(capture.beforeStyle ? {beforeStyle: capture.beforeStyle} : {}),
           ...(action.afterStyle ? {afterStyle: action.afterStyle} : {}),
+          ...(action.styleMutation ? {styleMutation: action.styleMutation} : {}),
         };
         const operationReport: GroupedPreviewOperationReport = {
           result: resultFrom(record),
@@ -328,6 +336,7 @@ export class EditorSession {
           ...(action.inverse ? {inverse: action.inverse} : {}),
           ...(capture?.beforeStyle ? {beforeStyle: capture.beforeStyle} : {}),
           ...(action.afterStyle ? {afterStyle: action.afterStyle} : {}),
+          ...(action.styleMutation ? {styleMutation: action.styleMutation} : {}),
         };
         const operationReport: GroupedPreviewOperationReport = {
           result: resultFrom(record),
@@ -413,17 +422,7 @@ export class EditorSession {
   undo(): boolean {
     const batch = this.history.at(-1);
     if (!batch || batch.records.every(record => record.committed)) return false;
-    if (batch.records.length > 1 && batch.records.every(record => record.operation.kind === 'setStyle')) {
-      for (const record of batch.records) {
-        if (record.status !== 'applied') continue;
-        if (record.operation.kind !== 'setStyle') return false;
-        const style = (record.nodeElement as (Element & {style?: CSSStyleDeclaration}) | null)?.style;
-        const property = normalizeStyleProperty(record.operation.property);
-        if (!style || !record.afterStyle
-          || style.getPropertyValue(property) !== record.afterStyle.value
-          || style.getPropertyPriority(property) !== record.afterStyle.priority) return false;
-      }
-    }
+    if (!this.preflightStyleUndo(batch.records)) return false;
     this.history.pop();
     for (const record of [...batch.records].reverse()) {
       if (!record.committed && record.status === 'applied') record.undo();
@@ -436,19 +435,22 @@ export class EditorSession {
   }
 
   async undoCommitted(): Promise<EditorApplyReport | null> {
-    const records = this.history.flatMap(batch => batch.records);
-    let record: AppliedRecord | undefined;
-    for (let index = records.length - 1; index >= 0; index -= 1) {
-      const candidate = records[index];
-      if (candidate.committed && candidate.status === 'applied' && candidate.inverse) {
-        record = candidate;
-        break;
-      }
+    const batch = [...this.history].reverse().find(candidate => candidate.records.some(record => record.committed && record.status === 'applied' && record.inverse));
+    if (!batch) return null;
+    const records = batch.records.filter(record => record.committed && record.status === 'applied');
+    if (records.some(record => !record.inverse) || !this.preflightStyleUndo(records)) return null;
+    const operations: OperationV1[] = [];
+    for (const record of [...records].reverse()) {
+      const inverse = await record.inverse!();
+      if (!inverse) return null;
+      operations.push(...(Array.isArray(inverse) ? inverse : [inverse]));
     }
-    if (!record?.inverse) return null;
-    const inverse = await record.inverse();
-    if (!inverse) return null;
-    return this.apply({id: createOperationId('undo-saved'), operations: [inverse]});
+    if (!operations.length) return null;
+    if (operations.every(operation => operation.kind === 'setStyle')) {
+      const result = await this.previewGroup(operations, {id: createOperationId('undo-saved')});
+      return reportFor(result.batchId, this.page, result.operations.map(member => member.result));
+    }
+    return this.apply({id: createOperationId('undo-saved'), operations});
   }
 
   async repair(operationId: string, element: Element): Promise<EditorApplyReport> {
@@ -481,6 +483,15 @@ export class EditorSession {
   async redo(): Promise<EditorApplyReport | null> {
     const batch = this.redoStack.pop();
     if (!batch) return null;
+    if (batch.records.length > 1 && batch.records.every(record => record.operation.kind === 'setStyle')) {
+      const remaining = [...this.redoStack];
+      const result = await this.previewGroup(batch.records.map(record => record.operation), {id: batch.id});
+      this.redoStack.length = 0;
+      this.redoStack.push(...remaining);
+      if (result.outcome !== 'applied') this.redoStack.push(batch);
+      this.changed();
+      return reportFor(result.batchId, this.page, result.operations.map(member => member.result));
+    }
     const replayed = await this.runBatch(batch.id, batch.records.map(record => record.operation));
     if (replayed.records.length > 0) this.history.push(replayed);
     this.changed();
@@ -573,6 +584,7 @@ export class EditorSession {
     return this.history.flatMap(batch => batch.records.map(({
       undo: _undo,
       inverse: _inverse,
+      styleMutation: _styleMutation,
       key: _key,
       ...change
     }) => change));
@@ -610,18 +622,35 @@ export class EditorSession {
     this.notify();
   }
 
-  private removeReplaceableChange(key: string): void {
+  private preflightStyleUndo(records: AppliedRecord[]): boolean {
+    const copies = new Map<Element, CSSStyleDeclaration>();
+    for (const record of [...records].reverse()) {
+      if (record.status !== 'applied' || !record.styleMutation || !record.nodeElement) continue;
+      let copy = copies.get(record.nodeElement);
+      if (!copy) {
+        copy = this.document.createElement('div').style;
+        copy.cssText = (record.nodeElement as HTMLElement).style.cssText;
+        copies.set(record.nodeElement, copy);
+      }
+      if (!restoreStyle(copy, record.styleMutation)) return false;
+    }
+    return true;
+  }
+
+  private removeReplaceableChange(key: string): boolean {
     for (let batchIndex = this.history.length - 1; batchIndex >= 0; batchIndex--) {
       const batch = this.history[batchIndex];
       const replaceable = batch.records.filter(record => record.key === key && !record.committed);
       if (replaceable.length === 0) continue;
+      if (!this.preflightStyleUndo(replaceable)) return false;
       for (const record of replaceable.reverse()) {
-        if (record.status === 'applied') record.undo();
+        if (record.status === 'applied' && !record.undo()) return false;
       }
       batch.records = batch.records.filter(record => record.key !== key || record.committed);
       if (batch.records.length === 0) this.history.splice(batchIndex, 1);
-      return;
+      return true;
     }
+    return true;
   }
 
   private async runBatch(
@@ -691,6 +720,7 @@ export class EditorSession {
         ...(action.inverse ? {inverse: action.inverse} : {}),
         ...(capture.beforeStyle ? {beforeStyle: capture.beforeStyle} : {}),
         ...(action.afterStyle ? {afterStyle: action.afterStyle} : {}),
+          ...(action.styleMutation ? {styleMutation: action.styleMutation} : {}),
       };
       records.push(record);
       outcomes.set(operation.id, record);
@@ -788,36 +818,31 @@ async function captureUndo(
       if (target.nodeType !== 1) return noUndo();
       const styled = target as HTMLElement;
       const property = normalizeStyleProperty(operation.property);
+      const beforeDeclarations = styleSnapshot(styled.style);
       const previous = styled.style?.getPropertyValue(property) ?? '';
       const priority = styled.style?.getPropertyPriority(property) ?? '';
       return {
         element: styled,
         beforeStyle: {value: previous, priority: priority === 'important' ? 'important' : ''},
         finalize: () => {
+          const mutation = styleMutation(beforeDeclarations, styleSnapshot(styled.style));
           const applied = styled.style?.getPropertyValue(property) ?? '';
           const appliedPriority = styled.style?.getPropertyPriority(property) ?? '';
           return {
             afterStyle: {value: applied, priority: appliedPriority === 'important' ? 'important' : ''},
-            undo: () => {
-              if (!styled.style
-                || styled.style.getPropertyValue(property) !== applied
-                || styled.style.getPropertyPriority(property) !== appliedPriority) return false;
-              if (previous) styled.style.setProperty(property, previous, priority);
-              else styled.style.removeProperty(property);
-              return true;
+            styleMutation: mutation,
+            undo: () => restoreStyle(styled.style, mutation),
+            inverse: () => {
+              // Clear affected declarations before restoring them in authored order.
+              const removals = mutation.touched.map(property => ({property, value: '', priority: ''}));
+              const declarations = mutation.before.filter(item => mutation.touched.includes(item.property));
+              return [...removals, ...declarations].map(item => ({
+                schemaVersion: 1 as const, id: createOperationId('undo'), kind: 'setStyle' as const,
+                target: operation.target, property: item.property, value: item.value,
+                priority: item.priority === 'important' ? 'important' as const : '' as const,
+                revision: {previousOperationId: operation.id, reason: 'undo' as const}, meta: humanMeta(),
+              }));
             },
-            inverse: () => ({
-              schemaVersion: 1,
-              id: createOperationId('undo'),
-              kind: 'setStyle',
-              target: operation.target,
-              property,
-              value: previous,
-              priority: priority === 'important' ? 'important' : '',
-              precondition: {before: {styles: {[property]: applied}}},
-              revision: {previousOperationId: operation.id, reason: 'undo'},
-              meta: humanMeta(),
-            }),
           };
         },
       };
@@ -960,6 +985,17 @@ async function captureUndo(
 
 function noUndo(): UndoCapture {
   return { element: null, finalize: () => ({undo: () => false}) };
+}
+
+function restoreHistoryBatches(prefix: string, records: AppliedRecord[]): AppliedBatch[] {
+  const batches: AppliedBatch[] = [];
+  for (const record of records) {
+    const id = record.operation.meta?.transactionId;
+    const previous = batches.at(-1);
+    if (id && previous?.id === id) previous.records.push(record);
+    else batches.push({id: id ?? `${prefix}:${record.id}`, records: [record]});
+  }
+  return batches;
 }
 
 function humanMeta(): NonNullable<OperationV1['meta']> {

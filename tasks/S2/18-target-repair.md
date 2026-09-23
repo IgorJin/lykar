@@ -1,6 +1,6 @@
 # S2-05.3 — Ручной target repair
 
-Status: IN_PROGRESS
+Status: DONE
 Priority: P1
 Depends on: S2-05.2
 Evidence: report
@@ -20,12 +20,12 @@ binding/revision и preview полной цепочки.
 
 ## Acceptance criteria
 
-- [ ] UI показывает, почему target не применился.
-- [ ] Пользователь выбирает новый element вручную.
-- [ ] Preview проверяет всю зависимую цепочку до сохранения.
-- [ ] Repair создаёт новую binding/operation revision.
-- [ ] Старый Release остаётся immutable и воспроизводимым.
-- [ ] Fuzzy rebind не применяется молча.
+- [x] UI показывает, почему target не применился.
+- [x] Пользователь выбирает новый element вручную.
+- [x] Preview проверяет всю зависимую цепочку до сохранения.
+- [x] Repair создаёт новую binding/operation revision.
+- [x] Старый Release остаётся immutable и воспроизводимым.
+- [x] Fuzzy rebind не применяется молча.
 
 ## Checks
 
@@ -44,11 +44,4 @@ Report: `docs/verification/reports/S2/s2-editor-acceptance.html`
 
 ## Notes
 
-Page fingerprint mismatch сам по себе не блокирует независимые совместимые operations.
-
-Implementation 2026-09-22: the Change Tree presents failure reasons and
-ambiguity candidates, explicit element selection appends a target-repair
-revision, and nodeRef/dependency descendants are rewritten and previewed as a
-chain without changing the failed operation. Unit regressions pass; browser
-save/reload evidence is authored but has not run because local port binding was
-not approved in this environment.
+Final acceptance 2026-09-23: unit and browser recovery cover explicit target selection, dependent-chain preview, revision, save/reload and no silent fuzzy rebind. See the editor acceptance report.

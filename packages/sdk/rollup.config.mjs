@@ -57,6 +57,11 @@ export default [
       name: 'Lykar',
       sourcemap: true,
     },
-    plugins,
+    plugins: [
+      nodeResolve({browser: true, extensions: ['.mjs', '.js', '.json', '.ts']}),
+      commonjs(),
+      esbuild({target: 'es2020', tsconfig: 'tsconfig.json', minify: true}),
+      compatibilityConstants(),
+    ],
   },
 ];

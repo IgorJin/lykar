@@ -1,6 +1,6 @@
 # S2-06.1 — P0: отдельная конфигурация полного редактора стилей
 
-Status: IN_PROGRESS
+Status: DONE
 Priority: P0
 Depends on: None
 Evidence: report
@@ -80,3 +80,5 @@ tests сверяют каждый активный `STYLES_LIST` key с исхо
 fields, alias и Advanced fallback. Package build, root typecheck и full unit/API
 suite проходят. Статус остаётся IN_PROGRESS только до выпуска единого
 `S2-style-editor` report после общей acceptance-задачи S2-06.8.
+
+Final acceptance 2026-09-23: full style browser matrix and shared report completed.

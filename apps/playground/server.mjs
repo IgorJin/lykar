@@ -23,6 +23,10 @@ const routes = new Map([
     file: join(sdkDistDirectory, 'sdk.iife.js'),
     type: 'text/javascript; charset=utf-8',
   }],
+  ['/sdk.esm.js', {
+    file: join(sdkDistDirectory, 'index.js'),
+    type: 'text/javascript; charset=utf-8',
+  }],
   ['/editor.iife.js', {
     file: join(sdkDistDirectory, 'editor.iife.js'),
     type: 'text/javascript; charset=utf-8',

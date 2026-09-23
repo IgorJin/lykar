@@ -52,7 +52,9 @@ function handleSdkResult(result) {
 
 async function boot() {
   config = await fetch('/lykar-config.json', {cache: 'no-store'}).then(response => response.json());
-  sdk = new window.Lykar({
+  const Lykar = new URL(location.href).searchParams.get('lykar_sdk') === 'module'
+    ? (await import('/sdk.esm.js')).Lykar : window.Lykar;
+  sdk = new Lykar({
     projectKey: config.projectKey,
     apiBaseUrl: config.apiBaseUrl,
     delivery: 'links-only',

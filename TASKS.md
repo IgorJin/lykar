@@ -3,8 +3,7 @@
 Это короткий индекс спринтов. Подробные task records, зависимости, критерии,
 проверки и evidence policy находятся в папке [`tasks/`](./tasks/). Для S1/S2
 36 task records объединены в 8 групповых HTML reports. Исторические S0
-доказательства сохранены; S1 закрыт после реализации и проверки, S2 остаётся
-планом.
+доказательства сохранены; S1 закрыт после реализации и проверки, S2 также принят итоговой browser-проверкой.
 
 ## Порядок спринтов
 
@@ -14,7 +13,7 @@
 | --- | --- | --- | --- |
 | S0 | DONE | Проверенный baseline и первый browser flow | [tasks/S0](./tasks/S0/README.md) |
 | S1 | DONE | Единый SDK, script/npm delivery и библиотечные артефакты | [tasks/S1](./tasks/S1/README.md) |
-| S2 | PLANNED | P0 Style Manager, надёжные targets, replay, save/recovery | [tasks/S2](./tasks/S2/README.md) |
+| S2 | DONE | P0 Style Manager, надёжные targets, replay, save/recovery | [tasks/S2](./tasks/S2/README.md) |
 | S3 | PLANNED | Admin → release → share → experiment → report | [ROADMAP § S3](./ROADMAP.md) |
 | S4 | PLANNED | React/SPA adapter и cooperative integration | [ROADMAP § S4](./ROADMAP.md) |
 | S5 | PLANNED | Deploy/Disable/Rollback и delivery semantics | [ROADMAP § S5](./ROADMAP.md) |

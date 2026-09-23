@@ -1,6 +1,6 @@
 # S2-06.3 — P0: StylesSection в активном editor-bridge
 
-Status: IN_PROGRESS
+Status: DONE
 Priority: P0
 Depends on: S2-06.1, S2-06.2, S2-02.2, S2-03.3
 Evidence: report
@@ -34,14 +34,14 @@ Report group: S2-style-editor
 
 ## Acceptance criteria
 
-- [ ] Через штатный script/npm editor launch доступны все секции конфигурации.
-- [ ] Чтение/раскрытие панели не создаёт operations и не меняет host DOM styles.
-- [ ] Font size, color, width, padding, display и flex/grid меняются реальными
+- [x] Через штатный script/npm editor launch доступны все секции конфигурации.
+- [x] Чтение/раскрытие панели не создаёт operations и не меняет host DOM styles.
+- [x] Font size, color, width, padding, display и flex/grid меняются реальными
   полями с немедленным preview и корректным updated state.
-- [ ] Undo/redo и выбор другого элемента обновляют значения и dirty indicators.
-- [ ] Selection race, detached target, failed restore имеют явное состояние;
+- [x] Undo/redo и выбор другого элемента обновляют значения и dirty indicators.
+- [x] Selection race, detached target, failed restore имеют явное состояние;
   предыдущая асинхронная правка не записывается на другой target/page.
-- [ ] Legacy `StylesSection` и старая история не входят второй копией в SDK.
+- [x] Legacy `StylesSection` и старая история не входят второй копией в SDK.
 
 ## Checks
 
@@ -61,11 +61,4 @@ Report: `docs/verification/reports/S2/s2-style-editor.html`
 
 ## Notes
 
-Implementation 2026-09-22: the SDK SidePanel now mounts the catalog-backed
-StyleManager through EditorSession preview, supports search, parent selection,
-authored/computed hints, undo refresh and arbitrary CSS entry. Restore/error
-and rapid selection browser matrix is still required.
-
-UI fixture можно делать до готовности ядра; запись в реальную страницу ждёт
-перечисленных lifecycle/journal зависимостей. Это не повод откладывать весь UI
-до окончания persistence, repair или последующих спринтов.
+Final acceptance 2026-09-23: script and ESM SDK paths expose all sections and the shared EditorSession adapter. Browser/unit checks cover read-only panel interaction, selection races, restore diagnostics, undo refresh and target isolation.

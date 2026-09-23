@@ -1,0 +1,258 @@
+{
+  "schemaVersion": 1,
+  "measuredAt": "2026-09-23T12:56:46.961Z",
+  "environment": {
+    "node": "v22.23.1",
+    "platform": "darwin",
+    "arch": "arm64",
+    "compression": {
+      "gzipLevel": 9,
+      "brotliQuality": 11
+    }
+  },
+  "inputs": {
+    "sdkDist": "packages/sdk/dist",
+    "bridgeDist": "packages/editor-bridge/dist",
+    "measurementOnly": false,
+    "baselineDir": ".lykar/style-baseline"
+  },
+  "currentDelivery": {
+    "visitorEntry": {
+      "path": "packages/sdk/dist/sdk.iife.js",
+      "rawBytes": 77754,
+      "gzipBytes": 22741,
+      "brotliBytes": 20096,
+      "sha256": "e8c82b58a35db77599d5861340b4414749da2685dbb3e461b063354e495308c0"
+    },
+    "lazyEditorAsset": {
+      "path": "packages/sdk/dist/editor.iife.js",
+      "rawBytes": 172928,
+      "gzipBytes": 45933,
+      "brotliBytes": 39033,
+      "sha256": "32423defe63efadbb403466cd4bfc4589472b87767da9a927ced1a8b7feca930"
+    },
+    "bridgeEditorAsset": {
+      "path": "packages/editor-bridge/dist/editor.iife.js",
+      "rawBytes": 172928,
+      "gzipBytes": 45933,
+      "brotliBytes": 39033,
+      "sha256": "32423defe63efadbb403466cd4bfc4589472b87767da9a927ced1a8b7feca930"
+    },
+    "bridgeCopyMatchesSdkDelivery": true,
+    "existingSdkPerformanceBudget": {
+      "rawBytes": 80000,
+      "gzipBytes": 25000,
+      "rawOverBy": 0,
+      "gzipOverBy": 0,
+      "source": "packages/sdk/scripts/measure-performance.mjs"
+    },
+    "manifest": {
+      "package": "@lykar/sdk",
+      "packageVersion": "0.0.0",
+      "logicalAssetCount": 6,
+      "uniquePayloadCount": 3,
+      "assets": [
+        {
+          "name": "index.js",
+          "file": "index.js",
+          "bytes": 139220,
+          "gzipBytes": 29510,
+          "brotliBytes": 24862,
+          "bytesMatch": true,
+          "integrityMatches": true,
+          "sha256": "da70a359d0678b6dd049570d55458fcbf5d4ef272fdc17978d5ed8a2d2746c2a"
+        },
+        {
+          "name": "sdk.iife.js",
+          "file": "sdk.iife.js",
+          "bytes": 77754,
+          "gzipBytes": 22741,
+          "brotliBytes": 20096,
+          "bytesMatch": true,
+          "integrityMatches": true,
+          "sha256": "e8c82b58a35db77599d5861340b4414749da2685dbb3e461b063354e495308c0"
+        },
+        {
+          "name": "editor.iife.js",
+          "file": "editor.iife.js",
+          "bytes": 172928,
+          "gzipBytes": 45933,
+          "brotliBytes": 39033,
+          "bytesMatch": true,
+          "integrityMatches": true,
+          "sha256": "32423defe63efadbb403466cd4bfc4589472b87767da9a927ced1a8b7feca930"
+        },
+        {
+          "name": "sdk-0.0.0.esm.js",
+          "file": "sdk-0.0.0.esm.js",
+          "bytes": 139220,
+          "gzipBytes": 29510,
+          "brotliBytes": 24862,
+          "bytesMatch": true,
+          "integrityMatches": true,
+          "sha256": "da70a359d0678b6dd049570d55458fcbf5d4ef272fdc17978d5ed8a2d2746c2a"
+        },
+        {
+          "name": "sdk-0.0.0.iife.js",
+          "file": "sdk-0.0.0.iife.js",
+          "bytes": 77754,
+          "gzipBytes": 22741,
+          "brotliBytes": 20096,
+          "bytesMatch": true,
+          "integrityMatches": true,
+          "sha256": "e8c82b58a35db77599d5861340b4414749da2685dbb3e461b063354e495308c0"
+        },
+        {
+          "name": "editor-0.0.0.iife.js",
+          "file": "editor-0.0.0.iife.js",
+          "bytes": 172928,
+          "gzipBytes": 45933,
+          "brotliBytes": 39033,
+          "bytesMatch": true,
+          "integrityMatches": true,
+          "sha256": "32423defe63efadbb403466cd4bfc4589472b87767da9a927ced1a8b7feca930"
+        }
+      ]
+    },
+    "standaloneStyleUi": {
+      "path": "in-memory probe",
+      "rawBytes": 59422,
+      "gzipBytes": 15507,
+      "brotliBytes": 13774,
+      "sha256": "fb2684f182579b56350ce462438dc7192d80b9880ed3333fa898d9e1fe68f58c",
+      "inputCount": 7,
+      "thirdPartyInputs": []
+    },
+    "sourceMapModuleGraph": {
+      "sdk": {
+        "available": true,
+        "sourceCount": 8,
+        "moduleGroups": {
+          "editorUi": 0,
+          "editorBridge": 0,
+          "protocol": 0,
+          "runtime": 1,
+          "thirdParty": 0
+        },
+        "sourceDriftCount": 0,
+        "sourceDrift": []
+      },
+      "editor": {
+        "available": true,
+        "sourceCount": 27,
+        "moduleGroups": {
+          "editorUi": 5,
+          "editorBridge": 4,
+          "protocol": 2,
+          "runtime": 9,
+          "thirdParty": 0
+        },
+        "sourceDriftCount": 0,
+        "sourceDrift": []
+      }
+    }
+  },
+  "dependencyAndLazyLoadAudit": {
+    "workspaceProductionDependencies": {
+      "@lykar/sdk": {
+        "@lykar/runtime": "0.0.0"
+      },
+      "@lykar/editor-bridge": {
+        "@lykar/editor-ui": "0.0.0",
+        "@lykar/protocol": "0.0.0",
+        "@lykar/runtime": "0.0.0"
+      },
+      "@lykar/editor-ui": {},
+      "@lykar/runtime": {
+        "@lykar/protocol": "0.0.0"
+      },
+      "@lykar/protocol": {}
+    },
+    "externalRuntimeDependencies": [],
+    "bundledThirdPartySourceModules": [],
+    "sdkMapExcludesEditorUi": true,
+    "editorMapIncludesEditorUi": true,
+    "sdkUsesLazyEditorScript": true,
+    "editorAssetHasSeparateStylesheet": false,
+    "notes": [
+      "Source-map module lists describe the on-disk production artifacts; zero npm source entries means no third-party module was bundled into the current IIFE.",
+      "The standalone UI probe is generated in memory from current workspace sources. It is a diagnostic component size, not an additive chunk in the delivered editor asset."
+    ]
+  },
+  "comparison": {
+    "available": true,
+    "baseline": {
+      "directory": ".lykar/style-baseline",
+      "artifacts": {
+        "sdkIife": {
+          "path": ".lykar/style-baseline/sdk.iife.js",
+          "rawBytes": 40909,
+          "gzipBytes": 12733,
+          "brotliBytes": 11247,
+          "sha256": "a6a669a0428699e1c193dd80e51eb2f049f1a596a266bc18b406d5eacf3b767a"
+        },
+        "deliveredEditorIife": {
+          "path": ".lykar/style-baseline/editor.iife.js",
+          "rawBytes": 57534,
+          "gzipBytes": 16053,
+          "brotliBytes": 14124,
+          "sha256": "933c8ad803258d533cd8390f6ae0060bd663dea9d7a6298ddebd7db844ce084f"
+        },
+        "standaloneUi": null
+      }
+    },
+    "artifacts": {
+      "sdkIife": {
+        "available": true,
+        "rawDeltaBytes": 36845,
+        "gzipDeltaBytes": 10008,
+        "brotliDeltaBytes": 8849,
+        "before": {
+          "path": ".lykar/style-baseline/sdk.iife.js",
+          "rawBytes": 40909,
+          "gzipBytes": 12733,
+          "brotliBytes": 11247,
+          "sha256": "a6a669a0428699e1c193dd80e51eb2f049f1a596a266bc18b406d5eacf3b767a"
+        },
+        "after": {
+          "path": "packages/sdk/dist/sdk.iife.js",
+          "rawBytes": 77754,
+          "gzipBytes": 22741,
+          "brotliBytes": 20096,
+          "sha256": "e8c82b58a35db77599d5861340b4414749da2685dbb3e461b063354e495308c0"
+        }
+      },
+      "deliveredEditorIife": {
+        "available": true,
+        "rawDeltaBytes": 115394,
+        "gzipDeltaBytes": 29880,
+        "brotliDeltaBytes": 24909,
+        "before": {
+          "path": ".lykar/style-baseline/editor.iife.js",
+          "rawBytes": 57534,
+          "gzipBytes": 16053,
+          "brotliBytes": 14124,
+          "sha256": "933c8ad803258d533cd8390f6ae0060bd663dea9d7a6298ddebd7db844ce084f"
+        },
+        "after": {
+          "path": "packages/sdk/dist/editor.iife.js",
+          "rawBytes": 172928,
+          "gzipBytes": 45933,
+          "brotliBytes": 39033,
+          "sha256": "32423defe63efadbb403466cd4bfc4589472b87767da9a927ced1a8b7feca930"
+        }
+      },
+      "standaloneUi": {
+        "available": false,
+        "beforeAvailable": false,
+        "afterAvailable": true
+      }
+    }
+  },
+  "criteria": {
+    "uiGzipBudgetBytes": 20480,
+    "selectionAndInputPreviewP95Ms": 50,
+    "visitorEntryUiDeltaBytes": 0,
+    "note": "Targets are reported for review; this script does not infer a baseline or convert browser timing into a pass/fail gate."
+  }
+}

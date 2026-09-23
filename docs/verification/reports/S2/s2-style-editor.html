@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Lykar S2 — Style Editor acceptance</title>
+  <style>
+    :root{font:15px/1.5 system-ui,sans-serif;color:#17212b;background:#f3f6f8}*{box-sizing:border-box}body{margin:0}main{max-width:1100px;margin:auto;padding:28px 18px 54px}h1{font-size:30px;margin:0}h2{font-size:21px;margin:32px 0 10px}h3{font-size:16px;margin:0 0 8px}.muted{color:#5f6b76}.badge{display:inline-block;background:#d9f4e9;color:#087f5b;border:1px solid #9ed9c2;border-radius:99px;padding:5px 12px;font-weight:700}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}.card{background:white;border:1px solid #d9e2e8;border-radius:12px;padding:16px}table{border-collapse:collapse;width:100%;background:white}td,th{border:1px solid #d9e2e8;padding:9px 11px;text-align:left;vertical-align:top}th{background:#eaf0f4}code{color:#2859a6}a{color:#2859a6}.shots{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}.shots figure{margin:0;background:white;border:1px solid #d9e2e8;border-radius:12px;padding:10px}.shots img{display:block;width:100%;height:300px;object-fit:contain}.shots figcaption{font-size:13px;color:#5f6b76;margin-top:7px}ul{padding-left:22px}footer{border-top:1px solid #d9e2e8;margin-top:30px;padding-top:12px;color:#5f6b76}
+  </style>
+</head>
+<body><main>
+  <h1>S2 — полный редактор стилей</h1>
+  <p class="muted">Приёмка S2-06.1…S2-06.8 · 23 сентября 2026 · production SDK script и ESM</p>
+  <p><span class="badge">PASS · 8/8 задач</span></p>
+  <p>Style Manager встроен в активный SDK editor. Основные CSS-группы доступны через специализированные нативные поля; поддерживаемые браузером свойства вне каталога и custom properties — через Advanced. Изменения проходят preview, undo/redo, сохранение draft, reload, release и просмотр по share-ссылке.</p>
+
+  <h2>Покрытие</h2>
+  <table><thead><tr><th>Группа</th><th>Проверенное поведение</th><th>Evidence</th></tr></thead><tbody>
+    <tr><td>Layout / Size / Space / Position</td><td>display select, width number+unit, linked padding как одна операция, margin, position; Escape, reset, undo/redo.</td><td>script + ESM, Chromium / Firefox / WebKit</td></tr>
+    <tr><td>Typography / Borders</td><td>color swatch + raw <code>var()</code>, font, letter-spacing с исходным <code>!important</code>, углы radius.</td><td>browser matrix + unit</td></tr>
+    <tr><td>Background / Effects</td><td>Gradient + data URL + цвет сохраняются при смене размера второго слоя; цвет второй тени не меняет первую, offsets и inset; transform/transition удерживают порядок функций и запятые в easing.</td><td>browser matrix + codec tests</td></tr>
+    <tr><td>Advanced / SVG</td><td>Произвольный <code>hyphens</code>, case-sensitive CSS variable, <code>clamp()</code>, grid, animation, поддерживаемый vendor prefix и SVG stroke; invalid input не создаёт команду.</td><td>browser matrix + protocol tests</td></tr>
+    <tr><td>История и сохранение</td><td>50 color input events дают один undo step; linked spacing сохраняется и атомарно отменяется после reload; при host drift откат блокируется. Lost response и две вкладки не дублируют операции.</td><td>unit + browser + HTTP regression</td></tr>
+  </tbody></table>
+
+  <h2>Состояния интерфейса</h2>
+  <div class="shots">
+    <figure><img src="assets/style-editor-overall.png" alt="Панель полного редактора"><figcaption>Панель и все основные секции</figcaption></figure>
+    <figure><img src="assets/style-editor-typography-section.png" alt="Раскрытая секция типографики"><figcaption>Раскрытая секция Typography</figcaption></figure>
+    <figure><img src="assets/style-editor-width-changed.png" alt="Изменённая ширина"><figcaption>Width после preview и redo</figcaption></figure>
+    <figure><img src="assets/style-editor-width-reset.png" alt="Ширина после сброса"><figcaption>Возврат исходного inline значения</figcaption></figure>
+  </div>
+
+  <h2>Размер и доставка</h2>
+  <div class="cards">
+    <div class="card"><h3>Visitor entry</h3>77 754 B raw · 22 741 B gzip · 20 096 B Brotli. В source map нет editor UI; существующий лимит SDK 80 000/25 000 B выполнен.</div>
+    <div class="card"><h3>Lazy editor</h3>172 928 B raw · 45 933 B gzip · 39 033 B Brotli. Это весь editor asset, включая core, а не только стили.</div>
+    <div class="card"><h3>Standalone UI probe</h3>59 422 B raw · 15 507 B gzip · 13 774 B Brotli. Цель ≤20 480 B gzip выполнена. Новых production UI/vendor зависимостей нет.</div>
+  </div>
+  <p>От воспроизведённого S1 commit <code>70cd83c</code> visitor entry вырос на 10 008 B gzip, полный lazy editor — на 29 880 B gzip. Это суммарный прирост S2 core и UI; приписывать его целиком Style Manager некорректно. UI-related прирост visitor entry равен 0 по составу bundle: editor UI/bridge modules в нём отсутствуют. Asset manifest содержит 6 логических имен и 3 уникальных payload, все byte counts и SHA-256 совпадают.</p>
+  <p>Метод: Node 22.23.1, macOS arm64, gzip level 9, Brotli quality 11. Baseline собирается <code>node scripts/build-style-baseline.mjs</code> из S1 revision тем же minifier/toolchain; затем <code>node scripts/style-editor-budget.mjs --baseline-dir .lykar/style-baseline</code>. <a href="style-budget.json">Полный машинный аудит</a> содержит hashes, dependency graph и все asset sizes. Production npm consumer и SSR import проверены отдельным fixture.</p>
+  <p>На fixture из 1 000 DOM nodes измерены 30 событий после 5 прогревов: p95 выбора / input-to-preview — Chromium 17.2 / 33.9 ms, Firefox 13 / 18 ms, WebKit 17 / 34 ms. Все ниже цели 50 ms. Native visitor не запрашивает editor UI.</p>
+
+  <h2>Ограничения</h2>
+  <ul>
+    <li>Редактор меняет inline CSS declarations выбранного доступного DOM/SVG target. CSS selectors, pseudo states, media rules, keyframes и breakpoints — отдельные rule contexts.</li>
+    <li>Closed shadow roots, чужие iframe и недоступные cross-origin stylesheets не инспектируются. Диагностика каскада сообщает об отсутствии видимого эффекта, но не называет неподтверждённый winning rule.</li>
+    <li>React/Vue reconciliation и cooperative framework adapters относятся к S4; browser acceptance здесь охватывает static/SSR host в Chromium, Firefox и WebKit.</li>
+  </ul>
+  <footer>Проверки: <code>npm run build</code>, <code>npm run typecheck</code>, <code>npm test</code>, <code>npm run test:e2e:http</code>, <code>npm run test:e2e:browser</code>, <code>npm run verify:consumer --workspace @lykar/sdk</code>. Задачи: <a href="../../../../tasks/S2/README.md">S2 task index</a>; итоговая приёмка: <a href="s2-editor-acceptance.html">S2 editor acceptance</a>.</footer>
+</main></body></html>
