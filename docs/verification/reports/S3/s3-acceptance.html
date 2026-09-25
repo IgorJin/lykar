@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Lykar S3 — Admin to experiment report acceptance</title>
+  <style>
+    :root{font:15px/1.55 system-ui,sans-serif;color:#18212b;background:#f3f6f8}
+    body{margin:0}main{max-width:1080px;margin:auto;padding:30px 20px 56px}
+    h1{font-size:30px;line-height:1.2;margin:0}h2{font-size:21px;margin:32px 0 10px}
+    p{margin:10px 0}.muted{color:#5f6c78}.badge{display:inline-block;padding:5px 12px;border-radius:99px;
+      color:#087f5b;background:#d9f4e9;border:1px solid #9ed9c2;font-weight:700}
+    table{width:100%;border-collapse:collapse;background:#fff}td,th{padding:10px 12px;border:1px solid #d9e2e8;
+      text-align:left;vertical-align:top}th{background:#eaf0f4}a,code{color:#2859a6}
+    code{font-size:.93em}.shots{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+    figure{margin:0;background:#fff;border:1px solid #d9e2e8;border-radius:12px;padding:12px}
+    figure img{display:block;width:100%;height:390px;object-fit:contain;background:#f5f7f9}
+    figcaption{margin-top:8px;color:#5f6c78;font-size:13px}
+    footer{border-top:1px solid #d9e2e8;margin-top:32px;padding-top:14px;color:#5f6c78}
+    @media(max-width:600px){main{padding:22px 14px 40px}figure img{height:300px}}
+  </style>
+</head>
+<body><main>
+  <h1>S3 — приёмка Admin → release → share → experiment → report</h1>
+  <p class="muted">Закрыт 23 сентября 2026 · исправления по ревью 25 сентября · шесть task records · browser + PostgreSQL acceptance</p>
+  <p><span class="badge">PASS · 34/34 browser checks</span></p>
+  <p>Владелец вошёл в Admin, открыл Members и Pages, изменил Draft в editor, выпустил immutable Release, поделился ссылкой, проверил ограничение capability и отзыв. Затем создал и завершил A/B эксперимент и сверил consent-gated отчёт с ручными событиями.</p>
+
+  <h2>Что изменилось</h2>
+  <ul>
+    <li>Admin показывает loading/retry/error состояния; устаревшие page/project ответы не перезаписывают новый выбор. Конфликт publish показывает обновлённую ревизию и разрешает явный retry.</li>
+    <li>После создания share Admin оставляет URL доступным в текстовом поле, даже если браузер запретил clipboard.</li>
+    <li>Создание сайта, Page, эксперимента и операции с участниками отличают успешное изменение от сбоя обновления списка. Поздний ответ для другого сайта не меняет текущий выбор.</li>
+    <li>Вариантный PATCH сохраняет пропущенные releaseId и description; явный <code>null</code> очищает nullable поле.</li>
+    <li>Новые A/B capability находятся во фрагменте visitor URL; runtime передаёт variant capability в заголовке Authorization. Analytics прекращает принимать новые события после отзыва ссылки или завершения эксперимента.</li>
+    <li>Playground больше не предоставляет согласие на аналитику по умолчанию; пользователь или host вызывает <code>Lykar.consent('granted')</code>.</li>
+    <li>Добавлен browser acceptance на независимых временных Page paths. HTML fallback ограничен маршрутом <code>/__e2e__/s3-*</code> и отдаёт Home/Pricing shell по назначению, не меняя общие fixtures.</li>
+  </ul>
+
+  <h2>Проверенные контракты</h2>
+  <table><thead><tr><th>Путь</th><th>Результат</th><th>Evidence</th></tr></thead><tbody>
+    <tr><td>Admin и доступ</td><td>Участники и Owner видны в Admin; PostgreSQL проверки покрывают invitations, роли, отзыв, передачу владения и инвариант единственного Owner.</td><td>Browser S3 + API PostgreSQL suite</td></tr>
+    <tr><td>Draft и Release</td><td>Редактор сохраняет изменение; устаревшая ревизия возвращает 409, Admin обновляет состояние, повторная публикация проходит. У каждого Page своя последовательность версий.</td><td><code>s3-acceptance.spec.ts</code></td></tr>
+    <tr><td>Share capability</td><td>Обмен кода на чужом Page отклонён (401), на нужном Page разрешён. Посетитель видит Release без панели редактора; отзыв делает share URL недействительным (404).</td><td><code>s3-acceptance.spec.ts</code></td></tr>
+    <tr><td>A/B lifecycle</td><td>A использует исходную страницу, B — immutable Release. Входная A/B-ссылка назначает eligible вариант; назначение sticky при reload. После выбора победителя обычный URL по-прежнему показывает native страницу. Отозванная ссылка и завершённый эксперимент прекращают приём новых событий.</td><td><code>s3-acceptance.spec.ts</code> + PostgreSQL integration</td></tr>
+    <tr><td>Consent и отчёт</td><td>Pending даёт <code>CONSENT_REQUIRED</code>, denied даёт <code>CONSENT_DENIED</code>, события не попадают в отчёт. После granted и явной конверсии ручные totals совпадают: 1 visitor, 1 view, 1 unique conversion, 1 conversion; CVR 100%.</td><td>Browser report + API totals</td></tr>
+  </tbody></table>
+
+  <h2>Визуальные артефакты</h2>
+  <div class="shots">
+    <figure><img src="assets/admin-experiment-report.png" alt="Admin с завершённым экспериментом и аналитическим отчётом"><figcaption>Admin: winner B сохранён как metadata; CVR рассчитан по явной конверсии.</figcaption></figure>
+    <figure><img src="assets/share-preview.png" alt="Share preview в отдельном контексте посетителя"><figcaption>Отдельный visitor context: опубликованная версия без editor panel.</figcaption></figure>
+    <figure><img src="assets/experiment-native-or-treatment.png" alt="Страница для одного из вариантов A/B"><figcaption>Страница A/B link; вариант не задаётся обычным URL после завершения эксперимента.</figcaption></figure>
+  </div>
+
+  <h2>Проверки</h2>
+  <ul>
+    <li><code>npx playwright test tests/e2e/s3-acceptance.spec.ts tests/e2e/s3-admin-recovery.spec.ts --project=chromium</code> — 2 passed.</li>
+    <li><code>npm run test:e2e:browser</code> — 34 passed: Chromium, Firefox и WebKit style acceptance.</li>
+    <li><code>npm run test:e2e:http</code> — PostgreSQL integration suite и HTTP smoke прошли; итог smoke: version 1 / release created.</li>
+    <li><code>npm test</code> — прошёл; DB-dependent integration checks также выполнены предыдущей командой с временной PostgreSQL.</li>
+    <li><code>npm run build</code>, <code>npm run typecheck</code> и <code>git diff --check</code> — прошли.</li>
+  </ul>
+
+  <h2>Границы и следующий этап</h2>
+  <p>Победитель эксперимента — метаданные, автоматического deployment нет; статистическая значимость не заявляется. Реальный email provider и автоматический retention scheduler остаются в S6, явный Deploy/Disable/Rollback — в S5. Следующий спринт — cooperative SPA/React adapter и route lifecycle.</p>
+  <footer>Task records: <a href="../../../../tasks/S3/README.md">S3 index</a> · <a href="../../../../ROADMAP.md">Roadmap</a></footer>
+</main></body></html>

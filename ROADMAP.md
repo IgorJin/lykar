@@ -108,13 +108,13 @@ EDT-11 означает открытый набор CSS-деклараций, а
 
 | ID | Требование | Состояние | Этап |
 | --- | --- | --- | --- |
-| VER-01 | Project с разрешёнными origins, ручное добавление Page, exact pathname | Есть код | S3 |
-| VER-02 | Версии отдельно для каждой Page; query не создаёт новую Page | Есть код | S3 |
-| VER-03 | Draft, base Release, optimistic revision, idempotency key и восстановление после потери ответа | Частично: revision есть, отдельный retry contract нужно завершить | S2.4, S3 |
-| VER-04 | Publish создаёт immutable Release с manifest hash; новые правки — новый Draft | Есть код | S3 |
+| VER-01 | Project с разрешёнными origins, ручное добавление Page, exact pathname | Принято S3: Admin + scoped browser flow | S3 |
+| VER-02 | Версии отдельно для каждой Page; query не создаёт новую Page | Принято S3: независимые Page version sequences | S3 |
+| VER-03 | Draft, base Release, optimistic revision, idempotency key и восстановление после потери ответа | Принято S2/S3: idempotent persistence + browser stale revision/retry | S2.4, S3 |
+| VER-04 | Publish создаёт immutable Release с manifest hash; новые правки — новый Draft | Принято S3: edited Draft becomes immutable Release | S3 |
 | VER-05 | Без токена и без явного deployment показывается исходная страница | Есть код | S1, S5 |
-| VER-06 | Защищённый `?version=N`; share expiry/revoke, без editor capability | Есть код | S3 |
-| VER-07 | Share URL на Lykar origin; one-time code exchange на host | Общий bootstrap и share/version flow готовы; release lifecycle остаётся S3 | S1, S3 |
+| VER-06 | Защищённый `?version=N`; share expiry/revoke, без editor capability | Принято S3: share preview/revoke and read-only visitor | S3 |
+| VER-07 | Share URL на Lykar origin; one-time code exchange на host | Принято S3: page-bound one-time exchange and visitor flow | S1, S3 |
 | VER-08 | Source fingerprint до Lykar replay, hash без хранения raw page DOM | Есть код | S2 |
 | VER-09 | Operation report; missing target пропускается, остальные независимые команды продолжаются | Есть код; нужны проверки цепочек | S2 |
 | VER-10 | Ручной rebind target через новый Draft/Release | План | S2 |
@@ -149,11 +149,11 @@ page; отсутствие такого release не подменяется др
 | --- | --- | --- | --- |
 | ADM-01 | Отдельное Preact app; Admin/API на одном origin | Есть код | S3 |
 | ADM-02 | Email magic link, HttpOnly session, CSRF; development TTL отдельно | Есть код; реальный email provider впереди | S3, S6 |
-| ADM-03 | Projects/pages, drafts/releases, shares, experiments, analytics, members | Есть код UI; browser acceptance не выполнена этой сверкой | S3 |
+| ADM-03 | Projects/pages, drafts/releases, shares, experiments, analytics, members | Принято S3: browser acceptance покрывает Admin screens | S3 |
 | ADM-04 | One-time editor launch и scoped cross-origin capability | Есть код | S1, S3 |
 | ADM-05 | Owner/Admin/Editor/Viewer, invitations, expiry, revoke, ownership transfer | Есть код | S3 |
 | ADM-06 | Ровно один Owner; отзыв прав закрывает editor capabilities | Есть код и DB invariants | S3 |
-| ADM-07 | Error/loading/empty/conflict states без потери пользовательских правок | Частично | S2, S3 |
+| ADM-07 | Error/loading/empty/conflict states без потери пользовательских правок | Принято S3: retryable loads, action errors and revision conflict/retry | S2, S3 |
 
 Совместная работа в реальном времени не требуется. Роли и приглашения входят
 в продукт; параллельное редактирование одного Draft обнаруживается revision
@@ -362,6 +362,9 @@ revision и восстановление результата потерянно
 запрещённый payload, ambiguous target и ограничения copy объяснены в UI.
 
 ### S3 — Законченный путь Admin → версия → ссылка → эксперимент → отчёт
+
+Status: DONE · Accepted 2026-09-23 · [S3 task index](./tasks/S3/README.md) ·
+[browser and PostgreSQL acceptance report](./docs/verification/reports/S3/s3-acceptance.html)
 
 Проверить все экраны и permission boundaries. Завершить состояния загрузки,
 ошибок и conflicts. Пройти preview/revoke, independent page versions, native

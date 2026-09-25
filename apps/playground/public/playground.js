@@ -58,7 +58,6 @@ async function boot() {
     projectKey: config.projectKey,
     apiBaseUrl: config.apiBaseUrl,
     delivery: 'links-only',
-    analyticsConsent: 'granted',
     waitForDom: false,
     editorAssetUrl: new URL('/editor.iife.js', location.origin).toString(),
     editorAssetOrigin: location.origin,

@@ -52,7 +52,11 @@ const server = createServer((request, response) => {
     }));
     return;
   }
-  const route = routes.get(pathname);
+  // S3 acceptance creates unique Page paths while reusing the existing HTML fixtures.
+  const route = routes.get(pathname)
+    ?? (pathname.startsWith('/__e2e__/s3-pricing-')
+      ? routes.get('/pricing')
+      : pathname.startsWith('/__e2e__/s3-') ? routes.get('/') : undefined);
   if (!route) {
     response.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
     response.end('Not found');

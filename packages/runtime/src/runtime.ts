@@ -8,6 +8,7 @@ import type {CompensationDiagnostic, JournalEntrySnapshot} from './mutation-jour
 import {ReplayLedger} from './replay-ledger.js';
 import { resolveExperimentSelection, sendAnalyticsEvent } from './analytics-client.js';
 import { fetchManifest } from './manifest-client.js';
+import { visitorTokensFromLocation } from './visitor-url.js';
 import type {
   ApplyManifestOptions,
   ApplyReport,
@@ -84,9 +85,10 @@ export class Lykar {
     const globalFetch = globalThis.fetch;
     this.projectKey = options.projectKey.trim();
     this.apiBaseUrl = options.apiBaseUrl ?? '';
+    const locationTokens = visitorTokensFromLocation(document);
     this.version = options.version ?? versionFromLocation(document);
-    this.variantToken = options.variantToken ?? variantTokenFromLocation(document);
-    this.experimentToken = options.experimentToken ?? experimentTokenFromLocation(document);
+    this.variantToken = options.variantToken ?? locationTokens.variant;
+    this.experimentToken = options.experimentToken ?? locationTokens.experiment;
     this.pathname = normalizePathname(options.pathname ?? document.defaultView?.location.pathname ?? '/');
     this.accessToken = options.accessToken;
     this.credentials = options.credentials;
@@ -519,20 +521,6 @@ function versionFromLocation(document: Document): number | undefined {
     throw new Error('Lykar version query parameter must be a positive integer');
   }
   return version;
-}
-
-function variantTokenFromLocation(document: Document): string | undefined {
-  const value = document.defaultView?.location
-    ? new URLSearchParams(document.defaultView.location.search).get('lykar_variant')
-    : null;
-  return value?.trim() || undefined;
-}
-
-function experimentTokenFromLocation(document: Document): string | undefined {
-  const value = document.defaultView?.location
-    ? new URLSearchParams(document.defaultView.location.search).get('lykar_experiment')
-    : null;
-  return value?.trim() || undefined;
 }
 
 function requireAnalyticsEvent(

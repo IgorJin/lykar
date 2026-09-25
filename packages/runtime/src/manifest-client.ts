@@ -24,15 +24,18 @@ export async function fetchManifest(options: ManifestClientOptions): Promise<Run
 
   query.set('pathname', options.pathname);
   if (options.version !== undefined) query.set('version', String(options.version));
-  if (options.variantToken) query.set('variantToken', options.variantToken);
-
   const url = `${baseUrl}${path}${query.size > 0 ? `?${query}` : ''}`;
+  const authorizationToken = options.version !== undefined
+    ? options.accessToken
+    : options.variantToken ?? options.accessToken;
   let response: Response;
   try {
     response = await options.fetch(url, {
       headers: {
         Accept: 'application/json',
-        ...(options.accessToken ? { Authorization: `Bearer ${options.accessToken}` } : {}),
+        ...(authorizationToken
+          ? { Authorization: `Bearer ${authorizationToken}` }
+          : {}),
       },
       ...(options.credentials ? { credentials: options.credentials } : {}),
       ...(options.signal ? { signal: options.signal } : {}),

@@ -224,14 +224,17 @@ const versioningRoutes: FastifyPluginAsync<VersioningRoutesOptions> = async (fas
     Querystring: { pathname?: string; version?: string; variantToken?: string };
   }>(
     '/api/runtime/projects/:publicKey/manifest',
+    { logLevel: 'silent' },
     async (request, reply) => {
       const pathname = request.query.pathname ?? '/';
       let manifest;
-      if (request.query.variantToken !== undefined) {
+      const variantToken = request.query.variantToken
+        ?? (request.query.version === undefined ? bearerToken(request.headers.authorization) : undefined);
+      if (variantToken !== undefined) {
         const resolved = await options.experimentService.resolveVariant(
           request.params.publicKey,
           pathname,
-          request.query.variantToken,
+          variantToken,
         );
         if (!resolved) {
           reply.header('Cache-Control', 'no-store');

@@ -77,6 +77,69 @@ test(
       const firstResponse = await createExperiment('First A/B');
       assert.equal(firstResponse.statusCode, 201, firstResponse.body);
       const first = firstResponse.json().experiment;
+      const variantSnapshot = (response: { json(): { experiment: { variants: Array<{
+        key: string; releaseId: string | null; description: string | null; weightBps: number;
+      }> } } }) => response.json().experiment.variants.map(variant => ({
+        key: variant.key,
+        releaseId: variant.releaseId,
+        description: variant.description,
+        weightBps: variant.weightBps,
+      }));
+
+      const setControlRelease = await app.inject({
+        method: 'PATCH', url: `/api/admin/experiments/${first.id}/variants/A`, headers,
+        payload: { releaseId: release.id },
+      });
+      assert.equal(setControlRelease.statusCode, 200, setControlRelease.body);
+      assert.deepEqual(variantSnapshot(setControlRelease), [
+        { key: 'A', releaseId: release.id, description: 'Native control', weightBps: 5000 },
+        { key: 'B', releaseId: release.id, description: 'Treatment', weightBps: 5000 },
+      ]);
+
+      const partialWeightUpdate = await app.inject({
+        method: 'PATCH', url: `/api/admin/experiments/${first.id}/variants/B`, headers,
+        payload: { weightBps: 6000 },
+      });
+      assert.equal(partialWeightUpdate.statusCode, 200, partialWeightUpdate.body);
+      assert.deepEqual(variantSnapshot(partialWeightUpdate), [
+        { key: 'A', releaseId: release.id, description: 'Native control', weightBps: 4000 },
+        { key: 'B', releaseId: release.id, description: 'Treatment', weightBps: 6000 },
+      ]);
+
+      const clearDescription = await app.inject({
+        method: 'PATCH', url: `/api/admin/experiments/${first.id}/variants/B`, headers,
+        payload: { description: null },
+      });
+      assert.equal(clearDescription.statusCode, 200, clearDescription.body);
+      assert.deepEqual(variantSnapshot(clearDescription), [
+        { key: 'A', releaseId: release.id, description: 'Native control', weightBps: 4000 },
+        { key: 'B', releaseId: release.id, description: null, weightBps: 6000 },
+      ]);
+
+      const clearRelease = await app.inject({
+        method: 'PATCH', url: `/api/admin/experiments/${first.id}/variants/B`, headers,
+        payload: { releaseId: null },
+      });
+      assert.equal(clearRelease.statusCode, 200, clearRelease.body);
+      assert.deepEqual(variantSnapshot(clearRelease), [
+        { key: 'A', releaseId: release.id, description: 'Native control', weightBps: 4000 },
+        { key: 'B', releaseId: null, description: null, weightBps: 6000 },
+      ]);
+
+      const restoreDefaults = await app.inject({
+        method: 'PATCH', url: `/api/admin/experiments/${first.id}/variants/B`, headers,
+        payload: { releaseId: release.id, weightBps: 5000, description: 'Treatment' },
+      });
+      assert.equal(restoreDefaults.statusCode, 200, restoreDefaults.body);
+      const restoreNativeControl = await app.inject({
+        method: 'PATCH', url: `/api/admin/experiments/${first.id}/variants/A`, headers,
+        payload: { releaseId: null },
+      });
+      assert.equal(restoreNativeControl.statusCode, 200, restoreNativeControl.body);
+      assert.deepEqual(variantSnapshot(restoreNativeControl), [
+        { key: 'A', releaseId: null, description: 'Native control', weightBps: 5000 },
+        { key: 'B', releaseId: release.id, description: 'Treatment', weightBps: 5000 },
+      ]);
       const activation = await app.inject({
         method: 'POST', url: `/api/admin/experiments/${first.id}/activate`, headers, payload: {},
       });
@@ -89,16 +152,19 @@ test(
       });
       const aLinkResponse = await createLink('A');
       const bLinkResponse = await createLink('B');
-      const aToken = new URL(aLinkResponse.json().url).searchParams.get('lykar_variant');
-      const bToken = new URL(bLinkResponse.json().url).searchParams.get('lykar_variant');
+      const aToken = new URLSearchParams(new URL(aLinkResponse.json().url).hash.slice(1)).get('lykar_variant');
+      const bToken = new URLSearchParams(new URL(bLinkResponse.json().url).hash.slice(1)).get('lykar_variant');
       assert.ok(aToken && bToken);
 
-      const runtimeUrl = `/api/runtime/projects/${project.publicKey}/manifest?pathname=%2F&variantToken=`;
-      const nativeA = await app.inject({ method: 'GET', url: `${runtimeUrl}${aToken}` });
+      const runtimeUrl = `/api/runtime/projects/${project.publicKey}/manifest?pathname=%2F`;
+      const variantRequest = (token: string) => app.inject({
+        method: 'GET', url: runtimeUrl, headers: { authorization: `Bearer ${token}` },
+      });
+      const nativeA = await variantRequest(aToken);
       assert.equal(nativeA.statusCode, 200, nativeA.body);
       assert.equal(nativeA.json().manifest, null);
       assert.deepEqual(nativeA.json().variant, { experimentId: first.id, key: 'A' });
-      const treatmentB = await app.inject({ method: 'GET', url: `${runtimeUrl}${bToken}` });
+      const treatmentB = await variantRequest(bToken);
       assert.equal(treatmentB.statusCode, 200, treatmentB.body);
       assert.equal(treatmentB.json().manifest.releaseId, release.id);
       assert.equal(treatmentB.json().manifest.sourceSnapshot.pageHash, 'b'.repeat(64));
@@ -107,7 +173,7 @@ test(
         method: 'POST', url: `/api/admin/experiments/${first.id}/links`, headers, payload: {},
       });
       assert.equal(experimentLink.statusCode, 201, experimentLink.body);
-      const experimentToken = new URL(experimentLink.json().url).searchParams.get('lykar_experiment');
+      const experimentToken = new URLSearchParams(new URL(experimentLink.json().url).hash.slice(1)).get('lykar_experiment');
       assert.ok(experimentToken);
       const anonymousId = randomUUID();
       const resolveExperiment = () => app.inject({
@@ -121,10 +187,10 @@ test(
       assert.equal(stickySelection.assignmentId, selection.assignmentId);
       assert.equal(stickySelection.variantKey, selection.variantKey);
 
-      const event = async (eventType: 'exposure' | 'conversion', name: string) => app.inject({
+      const event = async (eventType: 'exposure' | 'conversion', name: string, capability = selection.capability) => app.inject({
         method: 'POST', url: '/api/runtime/analytics/events',
         payload: {
-          capability: selection.capability,
+          capability,
           clientEventId: randomUUID(),
           eventType,
           name,
@@ -149,6 +215,20 @@ test(
         method: 'DELETE', url: `/api/admin/experiment-links/${experimentLink.json().link.id}`, headers,
       })).statusCode, 204);
       assert.equal((await resolveExperiment()).statusCode, 204);
+      assert.equal((await event('conversion', 'after-revocation')).statusCode, 401);
+
+      const replacementExperimentLink = await app.inject({
+        method: 'POST', url: `/api/admin/experiments/${first.id}/links`, headers, payload: {},
+      });
+      assert.equal(replacementExperimentLink.statusCode, 201, replacementExperimentLink.body);
+      const replacementExperimentToken = new URLSearchParams(new URL(replacementExperimentLink.json().url).hash.slice(1)).get('lykar_experiment');
+      assert.ok(replacementExperimentToken);
+      const replacementSelection = await app.inject({
+        method: 'POST', url: `/api/runtime/projects/${project.publicKey}/experiments/resolve`,
+        payload: { pathname: '/', experimentToken: replacementExperimentToken, anonymousId },
+      });
+      assert.equal(replacementSelection.statusCode, 200, replacementSelection.body);
+      const replacementCapability = replacementSelection.json().selection.capability as string;
 
       const lockedUpdate = await app.inject({
         method: 'PATCH', url: `/api/admin/experiments/${first.id}/variants/B`, headers,
@@ -166,21 +246,22 @@ test(
         method: 'DELETE', url: `/api/admin/variant-links/${bLinkResponse.json().link.id}`, headers,
       });
       assert.equal(revoked.statusCode, 204, revoked.body);
-      assert.equal((await app.inject({ method: 'GET', url: `${runtimeUrl}${bToken}` })).statusCode, 204);
+      assert.equal((await variantRequest(bToken)).statusCode, 204);
 
       const replacementB = await createLink('B');
-      const replacementToken = new URL(replacementB.json().url).searchParams.get('lykar_variant');
+      const replacementToken = new URLSearchParams(new URL(replacementB.json().url).hash.slice(1)).get('lykar_variant');
       assert.ok(replacementToken);
       await app.inject({ method: 'POST', url: `/api/admin/experiments/${first.id}/pause`, headers, payload: {} });
-      assert.equal((await app.inject({ method: 'GET', url: `${runtimeUrl}${replacementToken}` })).statusCode, 204);
+      assert.equal((await variantRequest(replacementToken)).statusCode, 204);
       await app.inject({ method: 'POST', url: `/api/admin/experiments/${first.id}/activate`, headers, payload: {} });
-      assert.equal((await app.inject({ method: 'GET', url: `${runtimeUrl}${replacementToken}` })).statusCode, 200);
+      assert.equal((await variantRequest(replacementToken)).statusCode, 200);
       const completion = await app.inject({
         method: 'POST', url: `/api/admin/experiments/${first.id}/complete`, headers,
         payload: { winnerVariantKey: 'B' },
       });
       assert.equal(completion.json().experiment.winnerVariantKey, 'B');
-      assert.equal((await app.inject({ method: 'GET', url: `${runtimeUrl}${replacementToken}` })).statusCode, 204);
+      assert.equal((await variantRequest(replacementToken)).statusCode, 204);
+      assert.equal((await event('conversion', 'after-completion', replacementCapability)).statusCode, 401);
       const cannotRestart = await app.inject({
         method: 'POST', url: `/api/admin/experiments/${first.id}/activate`, headers, payload: {},
       });

@@ -76,8 +76,8 @@ export interface ExperimentRepository {
     userId: string;
     experimentId: string;
     key: ExperimentVariantKey;
-    releaseId: string | null;
-    description: string | null;
+    releaseId?: string | null;
+    description?: string | null;
     weightBps?: number;
   }): Promise<ExperimentRecord>;
   transition(input: {
@@ -193,7 +193,7 @@ export class ExperimentService {
       tokenHint: token.slice(-8),
     });
     const url = new URL(result.pathname, result.origin);
-    url.searchParams.set('lykar_experiment', token);
+    url.hash = new URLSearchParams({ lykar_experiment: token }).toString();
     return { link: result.link, url: url.toString() };
   }
 
@@ -220,7 +220,7 @@ export class ExperimentService {
       tokenHint: token.slice(-8),
     });
     const url = new URL(result.pathname, result.origin);
-    url.searchParams.set('lykar_variant', token);
+    url.hash = new URLSearchParams({ lykar_variant: token }).toString();
     return { link: result.link, url: url.toString() };
   }
 
@@ -259,8 +259,8 @@ function parseVariantInput(value: unknown): {
   const variant = value as Record<string, unknown>;
   return {
     key: requireVariantKey(variant.key),
-    releaseId: optionalReleaseId(variant.releaseId),
-    description: optionalDescription(variant.description),
+    releaseId: optionalReleaseId(variant.releaseId) ?? null,
+    description: optionalDescription(variant.description) ?? null,
     weightBps: requireWeightBps(variant.weightBps),
   };
 }
@@ -292,12 +292,14 @@ function requireCompleteWeightAllocation(variants: Array<{ weightBps: number }>)
   }
 }
 
-function optionalReleaseId(value: unknown): string | null {
-  return value === undefined || value === null ? null : requireUuid(value, 'releaseId');
+function optionalReleaseId(value: unknown): string | null | undefined {
+  if (value === undefined) return undefined;
+  return value === null ? null : requireUuid(value, 'releaseId');
 }
 
-function optionalDescription(value: unknown): string | null {
-  if (value === undefined || value === null || value === '') return null;
+function optionalDescription(value: unknown): string | null | undefined {
+  if (value === undefined) return undefined;
+  if (value === null || value === '') return null;
   if (typeof value !== 'string' || value.trim().length > 240) {
     throw new ValidationError('variant description must contain at most 240 characters');
   }

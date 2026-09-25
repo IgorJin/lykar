@@ -12,6 +12,7 @@ test('edit → save → reload → reopen → release → share keeps page scope
   const admin = await owner.newPage();
   await admin.goto(`${apiBaseUrl}/admin/`);
   await admin.getByRole('button', { name: 'Войти как локальный владелец' }).click();
+  await admin.locator('.list-item').filter({ hasText: 'Northstar E2E' }).click();
   await expect(admin.getByRole('heading', { name: 'Northstar E2E' })).toBeVisible();
 
   const firstPopup = owner.waitForEvent('page');
@@ -46,6 +47,7 @@ test('edit → save → reload → reopen → release → share keeps page scope
   await expect(panel.locator('[data-action="apply"]')).toBeDisabled();
 
   await admin.reload();
+  await admin.locator('.list-item').filter({ hasText: 'Northstar E2E' }).click();
   await expect(admin.getByRole('heading', { name: 'Northstar E2E' })).toBeVisible();
   const secondPopup = owner.waitForEvent('page');
   await admin.getByRole('button', { name: 'Открыть редактор' }).click();
@@ -61,11 +63,10 @@ test('edit → save → reload → reopen → release → share keeps page scope
   await expect(admin.getByText('1 команд')).toBeVisible();
 
   let shareUrl = '';
-  admin.once('dialog', async dialog => {
-    shareUrl = dialog.message().split('\n').at(-1) ?? '';
-    await dialog.accept();
-  });
   await admin.getByRole('button', { name: 'Share' }).click();
+  const shareUrlField = admin.getByRole('textbox', { name: 'Share URL' });
+  await expect(shareUrlField).toBeVisible();
+  shareUrl = await shareUrlField.inputValue();
   await expect.poll(() => shareUrl).toMatch(/^http:\/\/127\.0\.0\.1:\d+\/share\//);
 
   const shared = await visitor.newPage();

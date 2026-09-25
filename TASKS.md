@@ -2,8 +2,9 @@
 
 Это короткий индекс спринтов. Подробные task records, зависимости, критерии,
 проверки и evidence policy находятся в папке [`tasks/`](./tasks/). Для S1/S2
-36 task records объединены в 8 групповых HTML reports. Исторические S0
-доказательства сохранены; S1 закрыт после реализации и проверки, S2 также принят итоговой browser-проверкой.
+36 task records S1/S2 объединены в групповые HTML reports. S3 закрыт шестью
+task records и итоговой browser/PostgreSQL-проверкой. Исторические S0 evidence
+сохранены.
 
 ## Порядок спринтов
 
@@ -14,7 +15,7 @@
 | S0 | DONE | Проверенный baseline и первый browser flow | [tasks/S0](./tasks/S0/README.md) |
 | S1 | DONE | Единый SDK, script/npm delivery и библиотечные артефакты | [tasks/S1](./tasks/S1/README.md) |
 | S2 | DONE | P0 Style Manager, надёжные targets, replay, save/recovery | [tasks/S2](./tasks/S2/README.md) |
-| S3 | PLANNED | Admin → release → share → experiment → report | [ROADMAP § S3](./ROADMAP.md) |
+| S3 | DONE | Admin → release → share → experiment → report | [tasks/S3](./tasks/S3/README.md), [acceptance report](./docs/verification/reports/S3/s3-acceptance.html) |
 | S4 | PLANNED | React/SPA adapter и cooperative integration | [ROADMAP § S4](./ROADMAP.md) |
 | S5 | PLANNED | Deploy/Disable/Rollback и delivery semantics | [ROADMAP § S5](./ROADMAP.md) |
 | S6 | PLANNED | Production operations и public SaaS baseline | [ROADMAP § S6](./ROADMAP.md) |
@@ -118,6 +119,15 @@ Advanced. Единые preview/reset/undo/redo/save/reload, без новой UI
 Начать с [S2-06.1: конфигурация](./tasks/S2/20-style-schema.md), затем
 [S2-06.2: самописный UI kit](./tasks/S2/21-native-style-controls.md).
 Полный порядок, budgets и критерии: [план S2](./tasks/S2/README.md).
+
+## S3 — Admin, releases, sharing, experiments and reports
+
+S3 завершён 2026-09-23. Полный путь проверен браузером и PostgreSQL-backed API:
+Members/Admin, независимые Page versions, stale revision retry, scoped share
+preview/revoke, sticky native-vs-release experiment, consent-gated totals и
+winner без deployment на обычном URL. Все 6 task records и screenshots находятся
+в [S3 task index](./tasks/S3/README.md) и
+[acceptance report](./docs/verification/reports/S3/s3-acceptance.html).
 
 ## Правила статусов
 

@@ -497,7 +497,7 @@ describe('manifest loading and runtime lifecycle', () => {
 
   it('treats unavailable variant tokens as the native page', async () => {
     const token = 'v'.repeat(48);
-    const dom = new JSDOM('<h1>Native</h1>', { url: `https://site.test/page?lykar_variant=${token}` });
+    const dom = new JSDOM('<h1>Native</h1>', { url: `https://site.test/page#lykar_variant=${token}` });
     const fetcher = vi.fn<FetchLike>(async () => response(undefined, 204));
     const result = await new Lykar({
       projectKey: 'pk_public', apiBaseUrl: 'https://api.test', document: dom.window.document,
@@ -505,10 +505,11 @@ describe('manifest loading and runtime lifecycle', () => {
     }).start();
 
     expect(fetcher).toHaveBeenCalledWith(
-      `https://api.test/api/runtime/projects/pk_public/manifest?pathname=%2Fpage&variantToken=${token}`,
-      { headers: { Accept: 'application/json' } },
+      'https://api.test/api/runtime/projects/pk_public/manifest?pathname=%2Fpage',
+      { headers: { Accept: 'application/json', Authorization: `Bearer ${token}` } },
     );
     expect(result).toMatchObject({ mode: 'native', reason: 'VARIANT_UNAVAILABLE' });
+    expect(dom.window.location.search).toBe('');
   });
 
   it('identifies a valid native control variant without applying a release', async () => {
@@ -527,6 +528,8 @@ describe('manifest loading and runtime lifecycle', () => {
       mode: 'native', reason: 'NATIVE_VARIANT', experimentId: 'experiment-1', variantKey: 'A',
     });
     expect(dom.window.document.querySelector('h1')?.textContent).toBe('Control');
+    expect(dom.window.location.search).toBe('');
+    expect(dom.window.location.hash).toBe(`#lykar_variant=${token}`);
   });
 
   it('loads a validated versioned manifest and applies it to a static document', async () => {
@@ -876,7 +879,7 @@ describe('manifest loading and runtime lifecycle', () => {
 
   it('distributes an experiment, persists the browser ID, and gates events on consent', async () => {
     const token = 'e'.repeat(48);
-    const dom = new JSDOM('<h1>Control</h1>', { url: `https://site.test/page?lykar_experiment=${token}` });
+    const dom = new JSDOM('<h1>Control</h1>', { url: `https://site.test/page#lykar_experiment=${token}` });
     const calls: Array<{ url: string; body: Record<string, unknown> }> = [];
     const fetcher = vi.fn<FetchLike>(async (input, init) => {
       const url = String(input);
@@ -940,5 +943,17 @@ describe('manifest loading and runtime lifecycle', () => {
 
     await expect(fetchManifest({ projectKey: 'pk_test', pathname: '/', fetch: fetcher }))
       .rejects.toBeInstanceOf(ManifestRequestError);
+  });
+
+  it('uses the read capability for an explicit release even when a variant token is present', async () => {
+    const fetcher = vi.fn<FetchLike>(async () => response(undefined, 204));
+    await fetchManifest({
+      projectKey: 'pk_test', pathname: '/', version: 2,
+      accessToken: 'read-capability', variantToken: 'variant-capability', fetch: fetcher,
+    });
+    expect(fetcher).toHaveBeenCalledWith(
+      '/api/runtime/projects/pk_test/manifest?pathname=%2F&version=2',
+      { headers: { Accept: 'application/json', Authorization: 'Bearer read-capability' } },
+    );
   });
 });

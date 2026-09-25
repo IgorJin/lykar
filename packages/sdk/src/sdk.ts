@@ -1,6 +1,7 @@
 import {
   Lykar as RuntimeLykar,
   ManifestRequestError,
+  visitorTokensFromLocation,
   type ApplyReport,
   type FetchLike,
   type RuntimeStartResult,
@@ -290,10 +291,11 @@ export class Lykar {
       }
 
       const search = new URLSearchParams(location.search);
+      const tokens = visitorTokensFromLocation(document);
       const version = this.options.version ?? this.numberParam(search.get('version'));
-      const variantToken = this.options.variantToken ?? search.get('lykar_variant') ?? undefined;
+      const variantToken = this.options.variantToken ?? tokens.variant;
       const experimentToken =
-        this.options.experimentToken ?? search.get('lykar_experiment') ?? undefined;
+        this.options.experimentToken ?? tokens.experiment;
       const runtimeSelectorCount = [
         version !== undefined,
         Boolean(variantToken),

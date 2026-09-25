@@ -17,6 +17,8 @@ export type ExperimentAssignment = {
   manifest: PublishedManifestV1 | null;
 };
 
+export type ResolvedExperimentAssignment = ExperimentAssignment & { experimentLinkId: string };
+
 export type ExperimentSelection = ExperimentAssignment & {
   capability: string;
   capabilityExpiresAt: string;
@@ -46,11 +48,12 @@ export interface AnalyticsRepository {
     pathname: string;
     tokenHash: string;
     visitorHash: string;
-  }): Promise<ExperimentAssignment | null>;
+  }): Promise<ResolvedExperimentAssignment | null>;
   recordEvent(input: {
     id: string;
     clientEventId: string;
     assignmentId: string;
+    experimentLinkId: string;
     eventType: AnalyticsEventType;
     eventName: string;
     properties: AnalyticsProperties;
@@ -65,7 +68,7 @@ export type AnalyticsServiceOptions = {
   now?: () => Date;
 };
 
-type CapabilityPayload = { v: 1; assignmentId: string; expiresAt: number };
+type CapabilityPayload = { v: 2; assignmentId: string; experimentLinkId: string; expiresAt: number };
 
 const RESERVED_PROPERTY_NAMES = new Set([
   'url', 'href', 'pathname', 'html', 'outerhtml', 'innerhtml', 'text', 'content',
@@ -107,10 +110,14 @@ export class AnalyticsService {
     if (!assignment) return null;
     const expiresAt = new Date(this.now().getTime() + this.ttlMs);
     return {
-      ...assignment,
+      assignmentId: assignment.assignmentId,
+      experimentId: assignment.experimentId,
+      variantKey: assignment.variantKey,
+      manifest: assignment.manifest,
       capability: this.issueCapability({
-        v: 1,
+        v: 2,
         assignmentId: assignment.assignmentId,
+        experimentLinkId: assignment.experimentLinkId,
         expiresAt: expiresAt.getTime(),
       }),
       capabilityExpiresAt: expiresAt.toISOString(),
@@ -139,6 +146,7 @@ export class AnalyticsService {
       id: randomUUID(),
       clientEventId: requireUuid(clientEventIdValue, 'clientEventId'),
       assignmentId: capability.assignmentId,
+      experimentLinkId: capability.experimentLinkId,
       eventType,
       eventName,
       properties: sanitizeProperties(propertiesValue),
@@ -178,13 +186,14 @@ export class AnalyticsService {
     } catch {
       throw new UnauthorizedError('Analytics capability is invalid');
     }
-    if (!isRecord(parsed) || parsed.v !== 1) throw new UnauthorizedError('Analytics capability is invalid');
+    if (!isRecord(parsed) || parsed.v !== 2) throw new UnauthorizedError('Analytics capability is invalid');
     const assignmentId = requireUuid(parsed.assignmentId, 'assignmentId');
+    const experimentLinkId = requireUuid(parsed.experimentLinkId, 'experimentLinkId');
     if (typeof parsed.expiresAt !== 'number' || !Number.isSafeInteger(parsed.expiresAt)) {
       throw new UnauthorizedError('Analytics capability is invalid');
     }
     if (parsed.expiresAt <= this.now().getTime()) throw new UnauthorizedError('Analytics capability has expired');
-    return { v: 1, assignmentId, expiresAt: parsed.expiresAt };
+    return { v: 2, assignmentId, experimentLinkId, expiresAt: parsed.expiresAt };
   }
 
   private sign(encoded: string): string {

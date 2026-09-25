@@ -93,10 +93,19 @@ export class PostgresExperimentRepository implements ExperimentRepository {
       if (input.releaseId) await requireReleaseOnPage(client, input.releaseId, experiment.page_id);
       const updated = await client.query(
         `UPDATE experiment_variants
-         SET release_id = $3, description = $4,
-             weight_bps = COALESCE($5, weight_bps), updated_at = NOW()
+         SET release_id = CASE WHEN $3 THEN $4::uuid ELSE release_id END,
+             description = CASE WHEN $5 THEN $6::text ELSE description END,
+             weight_bps = COALESCE($7, weight_bps), updated_at = NOW()
          WHERE experiment_id = $1 AND variant_key = $2`,
-        [input.experimentId, input.key, input.releaseId, input.description, input.weightBps],
+        [
+          input.experimentId,
+          input.key,
+          input.releaseId !== undefined,
+          input.releaseId,
+          input.description !== undefined,
+          input.description,
+          input.weightBps,
+        ],
       );
       if (updated.rowCount === 0) throw new NotFoundError('Experiment variant was not found');
       if (input.weightBps !== undefined) {

@@ -92,21 +92,21 @@ export async function runSmoke({ apiBaseUrl, playgroundBaseUrl }) {
   await admin(`/api/admin/experiments/${experiment.id}/activate`, { method: 'POST', body: '{}' });
   const variantA = await admin(`/api/admin/experiments/${experiment.id}/variants/A/links`, { method: 'POST', body: '{}' });
   const variantB = await admin(`/api/admin/experiments/${experiment.id}/variants/B/links`, { method: 'POST', body: '{}' });
-  const tokenA = new URL(variantA.url).searchParams.get('lykar_variant');
-  const tokenB = new URL(variantB.url).searchParams.get('lykar_variant');
+  const tokenA = new URLSearchParams(new URL(variantA.url).hash.slice(1)).get('lykar_variant');
+  const tokenB = new URLSearchParams(new URL(variantB.url).hash.slice(1)).get('lykar_variant');
   assert.ok(tokenA && tokenB);
-  const variantEndpoint = `${apiBaseUrl}/api/runtime/projects/${PROJECT_KEY}/manifest?pathname=%2F&variantToken=`;
-  const control = await request(`${variantEndpoint}${tokenA}`);
+  const variantEndpoint = `${apiBaseUrl}/api/runtime/projects/${PROJECT_KEY}/manifest?pathname=%2F`;
+  const control = await request(variantEndpoint, { headers: { Authorization: `Bearer ${tokenA}` } });
   assert.equal(control.manifest, null);
   assert.equal(control.variant.key, 'A');
-  const treatment = await request(`${variantEndpoint}${tokenB}`);
+  const treatment = await request(variantEndpoint, { headers: { Authorization: `Bearer ${tokenB}` } });
   assert.equal(treatment.manifest.releaseId, published.release.id);
   await admin(`/api/admin/variant-links/${variantB.link.id}`, { method: 'DELETE' });
-  assert.equal((await fetch(`${variantEndpoint}${tokenB}`)).status, 204);
+  assert.equal((await fetch(variantEndpoint, { headers: { Authorization: `Bearer ${tokenB}` } })).status, 204);
   const replacementB = await admin(`/api/admin/experiments/${experiment.id}/variants/B/links`, { method: 'POST', body: '{}' });
 
   const experimentLink = await admin(`/api/admin/experiments/${experiment.id}/links`, { method: 'POST', body: '{}' });
-  const experimentToken = new URL(experimentLink.url).searchParams.get('lykar_experiment');
+  const experimentToken = new URLSearchParams(new URL(experimentLink.url).hash.slice(1)).get('lykar_experiment');
   assert.ok(experimentToken);
   const anonymousId = randomUUID();
   const resolveExperiment = anonymous => request(`${apiBaseUrl}/api/runtime/projects/${PROJECT_KEY}/experiments/resolve`, {

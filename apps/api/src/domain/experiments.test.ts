@@ -14,6 +14,7 @@ const RELEASE_ID = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
 
 class CapturingExperimentRepository implements ExperimentRepository {
   created: Parameters<ExperimentRepository['createExperiment']>[0] | null = null;
+  updated: Parameters<ExperimentRepository['updateVariant']>[0] | null = null;
   linkInput: Parameters<ExperimentRepository['createVariantLink']>[0] | null = null;
 
   async createExperiment(input: Parameters<ExperimentRepository['createExperiment']>[0]): Promise<ExperimentRecord> {
@@ -21,7 +22,10 @@ class CapturingExperimentRepository implements ExperimentRepository {
     return record(input.id, input.name);
   }
   async listExperiments(): Promise<ExperimentRecord[]> { return []; }
-  async updateVariant(): Promise<ExperimentRecord> { throw new Error('unused'); }
+  async updateVariant(input: Parameters<ExperimentRepository['updateVariant']>[0]): Promise<ExperimentRecord> {
+    this.updated = input;
+    return record(input.experimentId, 'CTA test');
+  }
   async transition(): Promise<ExperimentRecord> { throw new Error('unused'); }
   async createExperimentLink(): ReturnType<ExperimentRepository['createExperimentLink']> { throw new Error('unused'); }
   async revokeExperimentLink(): Promise<boolean> { return true; }
@@ -59,6 +63,22 @@ test('experiment creation requires exactly A and B with at least one immutable r
   );
 });
 
+test('partial variant updates preserve omitted fields and retain explicit nulls', async () => {
+  const repository = new CapturingExperimentRepository();
+  const service = new ExperimentService(repository);
+  const experimentId = 'dddddddd-dddd-4ddd-8ddd-dddddddddddd';
+
+  await service.updateVariant(USER_ID, experimentId, 'B', undefined, undefined, 6000);
+  assert.equal(repository.updated?.releaseId, undefined);
+  assert.equal(repository.updated?.description, undefined);
+  assert.equal(repository.updated?.weightBps, 6000);
+
+  await service.updateVariant(USER_ID, experimentId, 'B', null, null, undefined);
+  assert.equal(repository.updated?.releaseId, null);
+  assert.equal(repository.updated?.description, null);
+  assert.equal(repository.updated?.weightBps, undefined);
+});
+
 test('variant URLs expose an opaque token while repositories receive only its hash', async () => {
   const repository = new CapturingExperimentRepository();
   const service = new ExperimentService(repository);
@@ -68,7 +88,7 @@ test('variant URLs expose an opaque token while repositories receive only its ha
     'A',
   );
 
-  const token = new URL(result.url).searchParams.get('lykar_variant');
+  const token = new URLSearchParams(new URL(result.url).hash.slice(1)).get('lykar_variant');
   assert.ok(token);
   assert.ok(token.length >= 32);
   assert.notEqual(repository.linkInput?.tokenHash, token);

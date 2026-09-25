@@ -10,6 +10,7 @@ import {
 
 const ASSIGNMENT_ID = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const EXPERIMENT_ID = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+const EXPERIMENT_LINK_ID = 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee';
 const ANONYMOUS_ID = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
 const NOW = new Date('2026-08-06T12:00:00.000Z');
 
@@ -19,7 +20,7 @@ class CapturingRepository implements AnalyticsRepository {
 
   async resolveAssignment(input: Parameters<AnalyticsRepository['resolveAssignment']>[0]) {
     this.resolution = input;
-    return { assignmentId: ASSIGNMENT_ID, experimentId: EXPERIMENT_ID, variantKey: 'B' as const, manifest: null };
+    return { assignmentId: ASSIGNMENT_ID, experimentLinkId: EXPERIMENT_LINK_ID, experimentId: EXPERIMENT_ID, variantKey: 'B' as const, manifest: null };
   }
   async recordEvent(input: Parameters<AnalyticsRepository['recordEvent']>[0]) {
     this.event = input;
@@ -49,6 +50,7 @@ test('experiment selection hashes the browser ID and issues a scoped event capab
   );
   assert.deepEqual(recorded, { accepted: true, duplicate: false });
   assert.equal(repository.event?.assignmentId, ASSIGNMENT_ID);
+  assert.equal(repository.event?.experimentLinkId, EXPERIMENT_LINK_ID);
   assert.deepEqual(repository.event?.properties, { plan: 'pro', seats: 3 });
 });
 

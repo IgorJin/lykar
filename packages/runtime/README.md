@@ -33,8 +33,8 @@ await runtime.start();
 Runtime always sends the document pathname, so `/` and `/pricing` have separate
 release numbers. When the host page has `?version=3`, runtime requests immutable
 release 3 and requires page-bound editor/share access. A public
-`?lykar_variant=<opaque-token>` resolves one exact QA variant. A public
-`?lykar_experiment=<opaque-token>` performs weighted A/B assignment and keeps it
+`#lykar_variant=<opaque-token>` resolves one exact QA variant. A public
+`#lykar_experiment=<opaque-token>` performs weighted A/B assignment and keeps it
 stable for 30 days. Without one of these parameters runtime returns immediately
 without fetching a manifest or changing the host DOM.
 

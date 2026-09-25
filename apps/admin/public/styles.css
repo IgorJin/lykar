@@ -22,3 +22,12 @@ h2 { margin:0 0 14px; font-size:17px; } h3 { margin:20px 0 10px; font-size:14px;
 .role-owner { background:#fef3c7; color:#92400e; }.role-admin { background:#ede9fe; color:#5b21b6; }.role-editor { background:#dbeafe; color:#1d4ed8; }.role-viewer { background:#f2f4f7; color:#475467; }
 .login { max-width:430px; margin:12vh auto; }.login h1 { margin-top:0; }
 @media (max-width:800px) { .grid,.detail-grid,.member-row,.variant-grid { grid-template-columns:1fr; }.detail-grid .wide { grid-column:auto; }.member-actions { justify-content:flex-start; } }
+.loading-state { color:#475467; padding:10px 0; }
+.error-state { color:#b42318; background:#fff5f4; border:1px solid #fecdca; border-radius:9px; padding:12px; }
+.error-state p { margin:0 0 8px; }
+.workspace-state { margin-top:14px; }
+.inline-error { color:#b42318; background:#fff5f4; border:1px solid #fecdca; border-radius:8px; padding:9px 11px; }
+.inline-load-error { margin:10px 0; }
+.fresh-share { display:grid; gap:6px; margin:12px 0; padding:12px; border:1px solid #b9e6c9; background:#f0fdf4; border-radius:10px; }
+.fresh-share .row { align-items:stretch; }
+.fresh-share input { min-width:220px; flex:1; }

@@ -8,7 +8,8 @@
 | --- | --- | --- | --- |
 | S0 | DONE | Воспроизводимый baseline и первый browser flow | [tasks/S0](./S0/README.md) |
 | S1 | DONE | Единый SDK, script/npm delivery и артефакты — 9 tasks | [tasks/S1](./S1/README.md) |
-| S2 | PLANNED | P0 полный Style Manager, надёжное ядро и сохранение — 27 tasks | [tasks/S2](./S2/README.md) |
+| S2 | DONE | P0 полный Style Manager, надёжное ядро и сохранение — 27 tasks | [tasks/S2](./S2/README.md) |
+| S3 | DONE | Admin, releases, shares, experiments и analytics — 6 tasks | [tasks/S3](./S3/README.md) |
 
 Порядок выполнения: `S0 → S1 → S2 → S3 → S4 → S5 → S6`. Статусы в планах:
 `PLANNED`, `IN_PROGRESS`, `BLOCKED`, `DONE`, `CANCELLED`.

@@ -23,9 +23,21 @@ export const test = base.extend<{ newContext: () => Promise<BrowserContext> }>({
       });
       context.on('response', response => {
         const path = new URL(response.url()).pathname;
+        const injectedAdminLoadFailure = response.status() === 503
+          && response.request().method() === 'GET'
+          && response.headers()['x-lykar-e2e-fault'] === 'admin-load-once'
+          && (
+            path === '/api/admin/projects'
+            || /^\/api\/admin\/projects\/[^/]+\/pages$/.test(path)
+            || /^\/api\/admin\/pages\/[^/]+\/experiments$/.test(path)
+          );
         const expected = (path === '/api/auth/session' && response.status() === 401)
           || (path === '/favicon.ico' && response.status() === 404)
-          || (response.status() === 409 && /^\/api\/editor\/drafts\/[^/]+\/operations$/.test(path));
+          || injectedAdminLoadFailure
+          || (response.status() === 409 && (
+            /^\/api\/editor\/drafts\/[^/]+\/operations$/.test(path)
+            || /^\/api\/admin\/drafts\/[^/]+\/publish$/.test(path)
+          ));
         if (response.status() >= 400 && !expected) errors.push(`HTTP ${response.status()}: ${path}`);
       });
       return context;

@@ -1,3 +1,5 @@
+import { visitorTokensFromLocation } from '@lykar/runtime';
+
 import {
   LykarSdkError,
   type SdkEditorCapability,
@@ -123,10 +125,11 @@ function hasVisitorSelector(document: Document): boolean {
   const location = document.location;
   if (!location) return false;
   const search = new URLSearchParams(location.search);
+  const tokens = visitorTokensFromLocation(document);
   return (
     search.has('version') ||
-    search.has('lykar_variant') ||
-    search.has('lykar_experiment') ||
+    Boolean(tokens.variant) ||
+    Boolean(tokens.experiment) ||
     readHash(document).has('lykar_share')
   );
 }
@@ -269,13 +272,14 @@ export function getLocationSelectors(document: Document): {
   selectorCount: number;
 } {
   const location = document.location;
+  const tokens = visitorTokensFromLocation(document);
   const search = new URLSearchParams(location?.search ?? '');
   const hash = readHash(document);
   const editor = hash.has('lykar_edit');
   const share = hash.has('lykar_share');
   const version = search.has('version');
-  const variant = search.has('lykar_variant');
-  const experiment = search.has('lykar_experiment');
+  const variant = Boolean(tokens.variant);
+  const experiment = Boolean(tokens.experiment);
   const selectors = [editor, share, variant, experiment, version && !share];
   return {
     editor,

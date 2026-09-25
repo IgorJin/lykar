@@ -7,12 +7,14 @@ import {
   type AnalyticsVariantReport,
   type ExperimentAssignment,
   type ExperimentAnalyticsReport,
+  type ResolvedExperimentAssignment,
 } from '../domain/analytics';
 import type { ExperimentVariantKey } from '../domain/experiments';
 import { rolesWithPermission } from '../domain/memberships';
 import { ForbiddenError, UnauthorizedError } from '../domain/versioning';
 
 type RuntimeVariantRow = {
+  experiment_link_id: string;
   experiment_id: string;
   variant_id: string;
   variant_key: ExperimentVariantKey;
@@ -47,10 +49,10 @@ export class PostgresAnalyticsRepository implements AnalyticsRepository {
 
   async resolveAssignment(
     input: Parameters<AnalyticsRepository['resolveAssignment']>[0],
-  ): Promise<ExperimentAssignment | null> {
+  ): Promise<ResolvedExperimentAssignment | null> {
     return this.transaction(async client => {
       const variants = await client.query<RuntimeVariantRow>(
-        `SELECT experiment.id AS experiment_id, variant.id AS variant_id,
+        `SELECT link.id AS experiment_link_id, experiment.id AS experiment_id, variant.id AS variant_id,
                 variant.variant_key, variant.weight_bps, variant.release_id,
                 project.id AS project_id, page.id AS page_id, page.pathname,
                 release.version, release.manifest, release.manifest_hash,
@@ -102,6 +104,7 @@ export class PostgresAnalyticsRepository implements AnalyticsRepository {
       if (!selected) throw new Error('Stored experiment assignment references an invalid variant');
       return {
         assignmentId: assignment.id,
+        experimentLinkId: selected.experiment_link_id,
         experimentId,
         variantKey: selected.variant_key,
         manifest: manifestFromRow(selected),
@@ -118,6 +121,9 @@ export class PostgresAnalyticsRepository implements AnalyticsRepository {
            (id, client_event_id, assignment_id, event_type, event_name, properties, occurred_at)
          SELECT $1, $2, assignment.id, $4, $5, $6::jsonb, $7
          FROM experiment_assignments assignment
+         JOIN experiments experiment ON experiment.id = assignment.experiment_id AND experiment.status = 'active'
+         JOIN experiment_links link ON link.id = $8 AND link.experiment_id = experiment.id
+           AND link.revoked_at IS NULL
          WHERE assignment.id = $3
          ON CONFLICT (client_event_id) DO NOTHING
          RETURNING assignment_id, event_type
@@ -148,6 +154,7 @@ export class PostgresAnalyticsRepository implements AnalyticsRepository {
         input.eventName,
         JSON.stringify(input.properties),
         input.occurredAt,
+        input.experimentLinkId,
       ],
     );
     if ((inserted.rowCount ?? 0) > 0) return { duplicate: false };

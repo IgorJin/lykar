@@ -101,13 +101,17 @@ the target and keeps the previous Owner as Admin. Demoting to Viewer or
 revoking membership immediately invalidates outstanding editor launch codes
 and sessions, while public share links remain independent.
 
-Without `version` or `variantToken`, the runtime manifest endpoint returns 204
+Without `version` or a variant bearer token, the runtime manifest endpoint returns 204
 and the host page stays native. Explicit `?version=N` requests require a
 page-scoped editor/share session. Public experiment tokens resolve only while
-their experiment is active; native variants return a typed null manifest.
+their experiment is active; native variants return a typed null manifest. New
+variant links put the bearer token in the URL fragment. The runtime sends it in
+the `Authorization` header so it does not enter request URLs or access logs.
 
-Weighted experiment entry links use `lykar_experiment`. The runtime keeps a
+Weighted experiment entry links use `#lykar_experiment`. The runtime keeps a
 random browser ID for 30 days, while PostgreSQL receives only its SHA-256 hash.
+Event capabilities are bound to the issuing link and stop accepting new events
+when that link is revoked or the experiment ends.
 Analytics ingestion stores no URL, page content, or IP address. Schedule
 `npm run analytics:prune --workspace lykar-lib-server` to enforce the default
 90-day raw-event retention policy.
