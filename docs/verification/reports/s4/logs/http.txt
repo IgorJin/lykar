@@ -1,0 +1,396 @@
+Server request JSON omitted; test/build output retained.
+
+> lykar@0.0.0 test:e2e:http
+> node scripts/e2e-stack.mjs --smoke
+
+The files belonging to this database system will be owned by user "igorjan".
+This user must also own the server process.
+
+The database cluster will be initialized with locale "C".
+The default text search configuration will be set to "english".
+
+Data page checksums are disabled.
+
+fixing permissions on existing directory /var/folders/8s/bm2zf75s7t5c95ztfq7j19rw0000gn/T/lykar-e2e-mkx4DE/postgres ... ok
+creating subdirectories ... ok
+selecting dynamic shared memory implementation ... posix
+selecting default max_connections ... 100
+selecting default shared_buffers ... 128MB
+selecting default time zone ... Europe/Moscow
+creating configuration files ... ok
+running bootstrap script ... ok
+performing post-bootstrap initialization ... ok
+syncing data to disk ... ok
+
+Success. You can now start the database server using:
+
+    pg_ctl -D /var/folders/8s/bm2zf75s7t5c95ztfq7j19rw0000gn/T/lykar-e2e-mkx4DE/postgres -l logfile start
+
+waiting for server to start.... done
+server started
+
+> @lykar/admin@0.0.0 build
+> npm run clean && esbuild src/main.tsx --bundle --format=esm --target=es2022 --outfile=dist/app.js && node scripts/copy-static.mjs
+
+
+> @lykar/admin@0.0.0 clean
+> node -e "require('node:fs').rmSync('dist', { recursive: true, force: true })"
+
+
+  dist/app.js  83.4kb
+
+⚡ Done in 4ms
+
+> @lykar/sdk@0.0.0 prebuild
+> npm run build --workspace @lykar/runtime && npm run build --workspace @lykar/editor-bridge
+
+
+> @lykar/runtime@0.0.0 prebuild
+> npm run build --workspace @lykar/protocol
+
+
+> @lykar/protocol@0.0.0 build
+> tsc -p tsconfig.json && esbuild src/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs
+
+
+  dist/index.cjs  27.9kb
+
+⚡ Done in 2ms
+
+> @lykar/runtime@0.0.0 build
+> npm run clean && npm run build:types && esbuild src/index.ts --bundle --platform=browser --format=esm --target=es2018 --sourcemap --outfile=dist/runtime.js && esbuild src/global.ts --bundle --platform=browser --format=iife --target=es2018 --minify --sourcemap --outfile=dist/runtime.iife.js
+
+
+> @lykar/runtime@0.0.0 clean
+> node -e "require('node:fs').rmSync('dist', { recursive: true, force: true })"
+
+
+> @lykar/runtime@0.0.0 build:types
+> tsc --emitDeclarationOnly -p tsconfig.json
+
+
+  dist/runtime.js      142.5kb
+  dist/runtime.js.map  255.1kb
+
+⚡ Done in 4ms
+
+  dist/runtime.iife.js       79.8kb
+  dist/runtime.iife.js.map  264.9kb
+
+⚡ Done in 6ms
+
+> @lykar/editor-bridge@0.0.0 prebuild
+> npm run build --workspace @lykar/protocol && npm run build --workspace @lykar/runtime && npm run build --workspace @lykar/editor-ui
+
+
+> @lykar/protocol@0.0.0 build
+> tsc -p tsconfig.json && esbuild src/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs
+
+
+  dist/index.cjs  27.9kb
+
+⚡ Done in 2ms
+
+> @lykar/runtime@0.0.0 prebuild
+> npm run build --workspace @lykar/protocol
+
+
+> @lykar/protocol@0.0.0 build
+> tsc -p tsconfig.json && esbuild src/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs
+
+
+  dist/index.cjs  27.9kb
+
+⚡ Done in 2ms
+
+> @lykar/runtime@0.0.0 build
+> npm run clean && npm run build:types && esbuild src/index.ts --bundle --platform=browser --format=esm --target=es2018 --sourcemap --outfile=dist/runtime.js && esbuild src/global.ts --bundle --platform=browser --format=iife --target=es2018 --minify --sourcemap --outfile=dist/runtime.iife.js
+
+
+> @lykar/runtime@0.0.0 clean
+> node -e "require('node:fs').rmSync('dist', { recursive: true, force: true })"
+
+
+> @lykar/runtime@0.0.0 build:types
+> tsc --emitDeclarationOnly -p tsconfig.json
+
+
+  dist/runtime.js      142.5kb
+  dist/runtime.js.map  255.1kb
+
+⚡ Done in 4ms
+
+  dist/runtime.iife.js       79.8kb
+  dist/runtime.iife.js.map  264.9kb
+
+⚡ Done in 5ms
+
+> @lykar/editor-ui@0.0.0 build
+> npm run clean && tsc -p tsconfig.json
+
+
+> @lykar/editor-ui@0.0.0 clean
+> node -e "require('node:fs').rmSync('dist', { recursive: true, force: true })"
+
+
+> @lykar/editor-bridge@0.0.0 build
+> npm run clean && npm run build:types && esbuild src/index.ts --bundle --platform=browser --format=esm --target=es2018 --sourcemap --outfile=dist/editor.js && esbuild src/global.ts --bundle --platform=browser --format=iife --target=es2018 --minify --sourcemap --outfile=dist/editor.iife.js
+
+
+> @lykar/editor-bridge@0.0.0 clean
+> node -e "require('node:fs').rmSync('dist', { recursive: true, force: true })"
+
+
+> @lykar/editor-bridge@0.0.0 build:types
+> tsc --emitDeclarationOnly -p tsconfig.json
+
+
+  dist/editor.js      316.5kb
+  dist/editor.js.map  630.9kb
+
+⚡ Done in 12ms
+
+  dist/editor.iife.js      199.8kb
+  dist/editor.iife.js.map  645.7kb
+
+⚡ Done in 13ms
+
+> @lykar/sdk@0.0.0 build
+> npm run clean && npm run build:types && rollup -c && node scripts/build-assets.mjs
+
+
+> @lykar/sdk@0.0.0 clean
+> node -e "require('node:fs').rmSync('dist',{recursive:true,force:true})"
+
+
+> @lykar/sdk@0.0.0 build:types
+> tsc --emitDeclarationOnly -p tsconfig.json
+
+
+src/index.ts → dist/index.js...
+created dist/index.js in 176ms
+
+src/global.ts → dist/sdk.iife.js...
+created dist/sdk.iife.js in 39ms
+
+src/runtime-core-global.ts → dist/runtime-core.iife.js...
+created dist/runtime-core.iife.js in 81ms
+
+> lykar@0.0.0 db:migrate
+> npm run migrate --workspace lykar-lib-server
+
+
+> lykar-lib-server@1.0.0 migrate
+> npm run build && node dist/db/migrate.js
+
+
+> lykar-lib-server@1.0.0 prebuild
+> npm run build --workspace @lykar/protocol
+
+
+> @lykar/protocol@0.0.0 build
+> tsc -p tsconfig.json && esbuild src/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs
+
+
+  dist/index.cjs  27.9kb
+
+⚡ Done in 2ms
+
+> lykar-lib-server@1.0.0 build
+> npm run clean && tsc
+
+
+> lykar-lib-server@1.0.0 clean
+> node -e "require('node:fs').rmSync('dist', { recursive: true, force: true })"
+
+Applied migration 001_versioning_core.sql
+Applied migration 002_page_auth_and_sharing.sql
+Applied migration 003_project_members_and_invitations.sql
+Applied migration 004_owner_invariant.sql
+Applied migration 005_owner_invariant_trigger_fix.sql
+Applied migration 006_experiments_and_source_snapshots.sql
+Applied migration 007_analytics.sql
+Applied migration 008_analytics_rollups.sql
+Applied migration 009_draft_save_idempotency.sql
+
+> lykar-lib-server@1.0.0 pretest
+> npm run build
+
+
+> lykar-lib-server@1.0.0 prebuild
+> npm run build --workspace @lykar/protocol
+
+
+> @lykar/protocol@0.0.0 build
+> tsc -p tsconfig.json && esbuild src/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs
+
+
+  dist/index.cjs  27.9kb
+
+⚡ Done in 2ms
+
+> lykar-lib-server@1.0.0 build
+> npm run clean && tsc
+
+
+> lykar-lib-server@1.0.0 clean
+> node -e "require('node:fs').rmSync('dist', { recursive: true, force: true })"
+
+
+> lykar-lib-server@1.0.0 test
+> node --test "dist/**/*.test.js"
+
+TAP version 13
+# Subtest: admin endpoints fail closed without a session cookie
+ok 1 - admin endpoints fail closed without a session cookie
+  ---
+  duration_ms: 80.670208
+  type: 'test'
+  ...
+# Subtest: development login is disabled unless the local development mode is enabled
+ok 2 - development login is disabled unless the local development mode is enabled
+  ---
+  duration_ms: 29.189583
+  type: 'test'
+  ...
+# Subtest: local development login creates a normal owner session
+ok 3 - local development login creates a normal owner session
+  ---
+  duration_ms: 17.827417
+  type: 'test'
+  ...
+# Subtest: development login refuses production and non-loopback origins
+ok 4 - development login refuses production and non-loopback origins
+  ---
+  duration_ms: 0.311583
+  type: 'test'
+  ...
+# Subtest: owner signs in through a one-use magic link and creates a project
+ok 5 - owner signs in through a one-use magic link and creates a project
+  ---
+  duration_ms: 16.882125
+  type: 'test'
+  ...
+# Subtest: explicit immutable versions require a page-scoped editor or share token
+ok 6 - explicit immutable versions require a page-scoped editor or share token
+  ---
+  duration_ms: 14.430958
+  type: 'test'
+  ...
+# Subtest: runtime without an explicit version or variant token leaves the native page untouched
+ok 7 - runtime without an explicit version or variant token leaves the native page untouched
+  ---
+  duration_ms: 13.315542
+  type: 'test'
+  ...
+# Subtest: invalid persisted operation is rejected before repository append
+ok 8 - invalid persisted operation is rejected before repository append
+  ---
+  duration_ms: 14.382834
+  type: 'test'
+  ...
+# Subtest: experiment selection hashes the browser ID and issues a scoped event capability
+ok 9 - experiment selection hashes the browser ID and issues a scoped event capability
+  ---
+  duration_ms: 2.414916
+  type: 'test'
+  ...
+# Subtest: analytics capability rejects tampering and event properties reject page data
+ok 10 - analytics capability rejects tampering and event properties reject page data
+  ---
+  duration_ms: 0.481667
+  type: 'test'
+  ...
+# Subtest: assignment bucket is deterministic and bounded
+ok 11 - assignment bucket is deterministic and bounded
+  ---
+  duration_ms: 0.088541
+  type: 'test'
+  ...
+# Subtest: experiment creation requires exactly A and B with at least one immutable release
+ok 12 - experiment creation requires exactly A and B with at least one immutable release
+  ---
+  duration_ms: 1.965875
+  type: 'test'
+  ...
+# Subtest: partial variant updates preserve omitted fields and retain explicit nulls
+ok 13 - partial variant updates preserve omitted fields and retain explicit nulls
+  ---
+  duration_ms: 0.142584
+  type: 'test'
+  ...
+# Subtest: variant URLs expose an opaque token while repositories receive only its hash
+ok 14 - variant URLs expose an opaque token while repositories receive only its hash
+  ---
+  duration_ms: 0.542625
+  type: 'test'
+  ...
+# Subtest: project roles map to the agreed permission boundaries
+ok 15 - project roles map to the agreed permission boundaries
+  ---
+  duration_ms: 0.622375
+  type: 'test'
+  ...
+# Subtest: owner can only be assigned through ownership transfer
+ok 16 - owner can only be assigned through ownership transfer
+  ---
+  duration_ms: 0.245709
+  type: 'test'
+  ...
+# Subtest: createProject normalizes and deduplicates origins
+ok 17 - createProject normalizes and deduplicates origins
+  ---
+  duration_ms: 1.069042
+  type: 'test'
+  ...
+# Subtest: appendOperations validates protocol v1 before touching the repository
+ok 18 - appendOperations validates protocol v1 before touching the repository
+  ---
+  duration_ms: 0.370792
+  type: 'test'
+  ...
+# Subtest: appendOperations accepts the complete static-page operation set
+ok 19 - appendOperations accepts the complete static-page operation set
+  ---
+  duration_ms: 7.427458
+  type: 'test'
+  ...
+# Subtest: save payload hash is canonical and includes expected revision
+ok 20 - save payload hash is canonical and includes expected revision
+  ---
+  duration_ms: 0.144
+  type: 'test'
+  ...
+# Subtest: PostgreSQL experiments expose only active A/B variant links and preserve the native default
+ok 21 - PostgreSQL experiments expose only active A/B variant links and preserve the native default
+  ---
+  duration_ms: 180.568291
+  type: 'test'
+  ...
+# Subtest: project invitations enforce roles, revoke editor capabilities, and transfer ownership
+ok 22 - project invitations enforce roles, revoke editor capabilities, and transfer ownership
+  ---
+  duration_ms: 159.129083
+  type: 'test'
+  ...
+# Subtest: PostgreSQL workflow freezes immutable versions without changing the native page
+ok 23 - PostgreSQL workflow freezes immutable versions without changing the native page
+  ---
+  duration_ms: 158.307
+  type: 'test'
+  ...
+1..23
+# tests 23
+# suites 0
+# pass 23
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 280.518459
+Seeded pk_playground_local for http://127.0.0.1:58959
+Lykar playground: http://127.0.0.1:58959
+
+Lykar E2E smoke passed: version 1, release 63a0a5eb-82a0-4bf6-8d0b-5727e4801599
+waiting for server to shut down.... done
+server stopped

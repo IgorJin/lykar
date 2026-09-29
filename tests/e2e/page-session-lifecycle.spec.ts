@@ -49,6 +49,7 @@ test('PageSession cancels A→B late work, scopes roots, retries late nodes, and
       waitForDom: false,
       onReport: (report: {pageId: string}) => reports.push(report.pageId),
       fetch: (input: RequestInfo | URL) => {
+        if (String(input).includes('asset-manifest.json')) return window.fetch(input);
         const pathname = new URL(String(input), location.origin).searchParams.get('pathname');
         if (pathname === '/a') return new Promise<Response>(resolve => { resolveA = resolve; });
         pageBRequests += 1;
@@ -78,7 +79,7 @@ test('PageSession cancels A→B late work, scopes roots, retries late nodes, and
       waitForDom: false,
       targetRetryMs: 200,
       targetRetryIntervalMs: 10,
-      fetch: () => Promise.resolve(json({
+      fetch: (input: RequestInfo | URL) => String(input).includes('asset-manifest.json') ? window.fetch(input) : Promise.resolve(json({
         manifest: manifest('/late', 'Late applied', 'release-late-node', 'late-copy'),
       })),
     });

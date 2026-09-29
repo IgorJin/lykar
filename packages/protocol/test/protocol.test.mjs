@@ -8,11 +8,41 @@ import {
   PROTOCOL_LIMITS,
   parseTargetRegistryV1,
   parseOperationV1,
+  parseOperation,
   parsePublishedManifestV1,
   validateTargetRegistryV1,
   validateOperationV1,
+  validateOperation,
   validatePublishedManifestV1,
 } from '../dist/index.js';
+
+const conditionalManifest = operations => ({
+  schemaVersion: 1, projectId: 'project-1', pageId: 'page-1', pathname: '/',
+  releaseId: 'release-conditional', version: 1, manifestHash: 'a'.repeat(64),
+  createdAt: '2026-09-27T00:00:00.000Z', operations,
+});
+
+test('conditional text/style require operation schema 2 and share one source state', () => {
+  const text = {schemaVersion: 2, id: 'text-2', kind: 'setText', target, condition: {id: 'cta-state', text: 'Продолжить'}, value: 'Далее'};
+  const style = {schemaVersion: 2, id: 'style-2', kind: 'setStyle', target, condition: {id: 'cta-state', text: 'Продолжить'}, property: 'color', value: 'navy'};
+  assert.deepEqual(parseOperation(text), text);
+  assert.equal(validateOperationV1(text).ok, false);
+  assert.equal(validateOperation({...text, schemaVersion: 1}).ok, false);
+  assert.equal(validateOperation({...text, schemaVersion: 2, condition: undefined}).ok, false);
+  assert.equal(validatePublishedManifestV1(conditionalManifest([text, style])).ok, true);
+  assert.match(validatePublishedManifestV1(conditionalManifest([text, {...style, condition: {id: 'cta-state', text: 'Ожидаем'}}])).errors.join(' '), /disagrees/);
+});
+
+test('conditional undo is a matched tombstone and cannot undo another tombstone', () => {
+  const style = {schemaVersion: 2, id: 'color', kind: 'setStyle', target, condition: {id: 'cta-state', text: 'Продолжить'}, property: 'color', value: 'navy'};
+  const undo = {...style, id: 'undo-color', revision: {reason: 'undo', previousOperationId: 'color'}};
+  assert.equal(validatePublishedManifestV1(conditionalManifest([style, undo])).ok, true);
+  assert.match(validatePublishedManifestV1(conditionalManifest([style, {...undo, property: 'background-color'}])).errors.join(' '), /must match/);
+  assert.match(validatePublishedManifestV1(conditionalManifest([style, undo, {...undo, id: 'undo-again', revision: {reason: 'undo', previousOperationId: 'undo-color'}}])).errors.join(' '), /must match/);
+  assert.equal(validateOperation({...style, target: {nodeRef: {operationId: 'insert'}}}).ok, false);
+  assert.equal(validateOperation({...style, precondition: {textHash: 'abc'}}).ok, false);
+  assert.equal(validateOperation({...style, dependsOn: ['other']}).ok, false);
+});
 
 const target = {
   marker: 'hero-title',

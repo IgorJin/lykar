@@ -102,3 +102,24 @@ export function validateAssetManifest(value: unknown): SdkAssetManifest {
 
   return value as SdkAssetManifest;
 }
+
+export function validateRuntimeAssetEntry(manifest: SdkAssetManifest): SdkAssetEntry {
+  const entry = manifest.assets['runtime-core.iife.js'];
+  const expectedVersion = SDK_COMPATIBILITY.sdk.replace(/[^0-9A-Za-z.-]+/g, '-');
+  if (
+    !isRecord(entry) ||
+    entry.path !== 'runtime-core.iife.js' ||
+    typeof entry.bytes !== 'number' ||
+    !Number.isSafeInteger(entry.bytes) ||
+    entry.bytes <= 0 ||
+    typeof entry.sha256 !== 'string' ||
+    !/^[a-f0-9]{64}$/.test(entry.sha256) ||
+    typeof entry.integrity !== 'string' ||
+    !/^sha256-[A-Za-z0-9+/]+={0,2}$/.test(entry.integrity) ||
+    entry.integrity !== integrityForHexSha256(entry.sha256) ||
+    entry.versionedPath !== `runtime-core-${expectedVersion}.iife.js`
+  ) {
+    throw new LykarSdkError('RUNTIME_ASSET_INVALID', 'Lykar manifest lacks a valid runtime core asset.');
+  }
+  return entry as SdkAssetEntry;
+}

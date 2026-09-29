@@ -1,5 +1,5 @@
-import type { InsertPosition, OperationV1 } from '@lykar/protocol';
-import { validateOperationV1 } from '@lykar/protocol';
+import type { InsertPosition, Operation } from '@lykar/protocol';
+import { validateOperation } from '@lykar/protocol';
 import {StyleManager} from '@lykar/editor-ui';
 import type {StyleChange} from '@lykar/editor-ui';
 
@@ -9,8 +9,8 @@ import type { EditorApplyReport, EditorChange, EditorGroupedPreviewReport, Edito
 import { buildTargetDescriptor, serializeEditableElement } from './target-builder.js';
 
 export type SidePanelActions = {
-  preview: (operation: OperationV1, key?: string, nodeElement?: Element | null) => Promise<EditorApplyReport>;
-  previewGroup: (operations: OperationV1[], key?: string, nodeElement?: Element | null) => Promise<EditorGroupedPreviewReport>;
+  preview: (operation: Operation, key?: string, nodeElement?: Element | null) => Promise<EditorApplyReport>;
+  previewGroup: (operations: Operation[], key?: string, nodeElement?: Element | null) => Promise<EditorGroupedPreviewReport>;
   commit: () => Promise<{ saved: number; revision?: number }>;
   resolveConflict: () => Promise<void>;
   undo: () => void | Promise<void>;
@@ -20,6 +20,7 @@ export type SidePanelActions = {
   captureDestination: (callback: (element: Element) => void) => void;
   highlightChange: (element: Element | null) => void;
   selectParent: (element: Element) => boolean;
+  readStyle?: (element: Element) => CSSStyleDeclaration | undefined;
   resetStyle: (element: Element, property: string) => Promise<EditorApplyReport>;
   isStyleDirty: (element: Element, property: string) => boolean;
 };
@@ -52,6 +53,7 @@ export class SidePanel {
       property => void this.resetStyle(property),
       () => void this.actions.undo(),
       (element, property) => this.actions.isStyleDirty(element, property),
+      this.actions.readStyle,
     );
     this.get('[data-view="styles"]').append(this.styles.element);
     // A host page may zoom or transform BODY. Keep fixed editor chrome outside
@@ -212,7 +214,7 @@ export class SidePanel {
     const beforePriority = style?.getPropertyPriority(property) ?? '';
     const beforeComputed = this.document.defaultView?.getComputedStyle(element).getPropertyValue(property).trim() ?? '';
     if (change.group && change.group.length > 1) {
-      const operations: OperationV1[] = change.group.map(member => ({
+      const operations: Operation[] = change.group.map(member => ({
         schemaVersion: 1,
         id: createOperationId('style'),
         kind: 'setStyle',
@@ -288,7 +290,7 @@ export class SidePanel {
     const name = this.get<HTMLInputElement>('[data-field="attribute-name"]').value.trim();
     if (!element || !name) return;
     const remove = this.get<HTMLInputElement>('[data-field="attribute-remove"]').checked;
-    const operation: OperationV1 = remove
+    const operation: Operation = remove
       ? { schemaVersion: 1, id: createOperationId('remove-attribute'), kind: 'removeAttribute', target: buildTargetDescriptor(element), name }
       : {
           schemaVersion: 1,
@@ -384,7 +386,7 @@ export class SidePanel {
       this.setStatus('Формирую dummy-предложение…');
       const proposal = await this.proposalProvider.propose(this.selected);
       const invalid = proposal.operations.flatMap(operation => {
-        const validation = validateOperationV1(operation);
+        const validation = validateOperation(operation);
         return validation.ok ? [] : validation.errors.map(error => `${operation.id}: ${error}`);
       });
       if (proposal.operations.length === 0 || invalid.length > 0) {
@@ -409,7 +411,7 @@ export class SidePanel {
     for (const operation of proposal.operations) await this.preview(operation, undefined, element);
   }
 
-  private async preview(operation: OperationV1, key?: string, element?: Element | null): Promise<EditorApplyReport | null> {
+  private async preview(operation: Operation, key?: string, element?: Element | null): Promise<EditorApplyReport | null> {
     try {
       const report = await this.actions.preview(operation, key, element);
       const tone = report.errors > 0 ? 'error' : 'success';
@@ -574,7 +576,7 @@ function describeElement(element: Element): string {
   return `${element.tagName.toLowerCase()}${id ? `#${id}` : ''}${classes ? `.${classes}` : ''}`;
 }
 
-function describeTarget(target: OperationV1['target']): string {
+function describeTarget(target: Operation['target']): string {
   if (target.nodeRef) return `nodeRef(${target.nodeRef.operationId}${target.nodeRef.path?.length ? `:${target.nodeRef.path.join('.')}` : ''})`;
   if (target.binding) return `binding(${target.binding.targetId}@${target.binding.bindingVersion})`;
   if (target.marker) return `[data-lykar-id="${target.marker}"]`;

@@ -78,11 +78,14 @@ export type LykarSdkOptions = {
   maxManifestBytes?: number;
   maxOperations?: number;
   editorAssetUrl?: string;
+  runtimeAssetUrl?: string;
   assetManifestUrl?: string;
   editorAssetOrigin?: string;
   editorAssetTimeoutMs?: number;
+  runtimeAssetTimeoutMs?: number;
   onReport?: (report: ApplyReport) => void;
   onDiagnostic?: (diagnostic: CompensationDiagnostic) => void;
+  onConditionalDiagnostic?: (diagnostic: {groupId: string; code: string; message: string}) => void;
   onEditorApply?: EditorApplyHandler;
   onEditorCommit?: EditorCommitHandler;
   onError?: (error: LykarSdkError) => void;

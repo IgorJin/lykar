@@ -16,7 +16,7 @@ task records и итоговой browser/PostgreSQL-проверкой. Исто
 | S1 | DONE | Единый SDK, script/npm delivery и библиотечные артефакты | [tasks/S1](./tasks/S1/README.md) |
 | S2 | DONE | P0 Style Manager, надёжные targets, replay, save/recovery | [tasks/S2](./tasks/S2/README.md) |
 | S3 | DONE | Admin → release → share → experiment → report | [tasks/S3](./tasks/S3/README.md), [acceptance report](./docs/verification/reports/S3/s3-acceptance.html) |
-| S4 | PLANNED | React/SPA adapter и cooperative integration | [ROADMAP § S4](./ROADMAP.md) |
+| S4 | DONE | Автономные условные правки React/Vue, npm/build integration | [ROADMAP § S4](./ROADMAP.md) |
 | S5 | PLANNED | Deploy/Disable/Rollback и delivery semantics | [ROADMAP § S5](./ROADMAP.md) |
 | S6 | PLANNED | Production operations и public SaaS baseline | [ROADMAP § S6](./ROADMAP.md) |
 

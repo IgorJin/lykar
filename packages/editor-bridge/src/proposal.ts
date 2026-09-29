@@ -1,4 +1,4 @@
-import type { OperationV1 } from '@lykar/protocol';
+import type { Operation } from '@lykar/protocol';
 
 import { createOperationId } from './operation-id.js';
 import { buildTargetDescriptor } from './target-builder.js';
@@ -8,7 +8,7 @@ export type EditorProposal = {
   source: 'dummy' | 'agent';
   title: string;
   description: string;
-  operations: OperationV1[];
+  operations: Operation[];
 };
 
 export interface ProposalProvider {

@@ -1,7 +1,7 @@
 import type {
   InsertPosition,
   OperationNodeReferenceV1,
-  OperationV1,
+  Operation,
   SerializedNode,
   TargetDescriptor,
   TargetEnvironment,
@@ -10,6 +10,7 @@ import type {
 
 import { matchesSha256 } from './hash.js';
 import {MutationJournal, preserveHostMutation, restored} from './mutation-journal.js';
+import {frameworkRootFor} from './framework-support.js';
 import type {CompensationDiagnostic} from './mutation-journal.js';
 import {
   LYKAR_NODE_ATTRIBUTE,
@@ -63,10 +64,13 @@ export type ApplyOperationOptions = {
 
 export async function applyOperation(
   document: Document,
-  operation: OperationV1,
+  operation: Operation,
   options: ApplyOperationOptions = {},
 ): Promise<OperationApplyResult> {
   assertLifecycleActive(options);
+  if (operation.schemaVersion === 2) {
+    return result(operation, 'skipped', 'CONDITIONAL_RUNTIME_REQUIRED', 'Conditional operations require continuous source-state reconciliation.');
+  }
   const resolvedTarget = await resolveOperationTarget(document, operation.target, options);
   assertLifecycleActive(options);
   if (!resolvedTarget.node) {
@@ -81,6 +85,10 @@ export async function applyOperation(
   }
 
   const target = resolvedTarget.node;
+  const managedElement = target.nodeType === 1 ? target as Element : target.parentElement;
+  if (managedElement && frameworkRootFor(managedElement)) {
+    return result(operation, 'skipped', 'FRAMEWORK_CONDITION_REQUIRED', 'Framework-owned DOM requires a conditional text/style operation; structural edits are unsupported.');
+  }
   const preconditionFailure = await checkPreconditions(document, operation, target, options);
   assertLifecycleActive(options);
   if (preconditionFailure) {
@@ -196,7 +204,7 @@ async function resolveOperationTarget(
 
 async function checkPreconditions(
   document: Document,
-  operation: OperationV1,
+  operation: Operation,
   target: Node,
   options: ApplyOperationOptions,
 ): Promise<{ code: string; message: string } | null> {
@@ -394,7 +402,7 @@ function normalizeStyleProperty(property: string): string | null {
 }
 
 /** Static payload safety pass used before the first manifest mutation. */
-export function assertOperationPayloadSafe(document: Document, operation: OperationV1): void {
+export function assertOperationPayloadSafe(document: Document, operation: Operation): void {
   const detached = document.createElement('div');
   switch (operation.kind) {
     case 'setStyle':
@@ -622,7 +630,7 @@ async function applyMoveNode(
   document: Document,
   target: Node,
   targetHandle: LedgerNodeHandle | undefined,
-  destinationDescriptor: Extract<OperationV1, {kind: 'moveNode'}>['destination'],
+  destinationDescriptor: Extract<Operation, {kind: 'moveNode'}>['destination'],
   position: InsertPosition,
   operationId: string,
   options: ApplyOperationOptions,
@@ -793,7 +801,7 @@ function hasOperationMarker(root: Document | Element, operationId: string): bool
 }
 
 function result(
-  operation: OperationV1,
+  operation: Operation,
   status: OperationApplyResult['status'],
   code?: string,
   message?: string,

@@ -1,0 +1,19 @@
+{
+  "result": "PASS",
+  "dependencies": {
+    "@lykar/frameworks": "file:/var/folders/8s/bm2zf75s7t5c95ztfq7j19rw0000gn/T/lykar-framework-consumer-SNMdsM/lykar-frameworks-0.0.0.tgz",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "vue": "3.5.18",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4"
+  },
+  "vite": "8.2.0",
+  "checks": [
+    "packed installation",
+    "SSR imports",
+    "public TypeScript",
+    "esbuild automatic rewrite",
+    "Vite production automatic rewrite"
+  ]
+}

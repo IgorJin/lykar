@@ -1,7 +1,7 @@
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 
-import { isSourceSnapshotV1, validateOperationV1 } from '@lykar/protocol';
-import type { OperationV1, PublishedManifestV1, SourceSnapshotV1 } from '@lykar/protocol';
+import { isSourceSnapshotV1, validateOperation } from '@lykar/protocol';
+import type { Operation, PublishedManifestV1, SourceSnapshotV1 } from '@lykar/protocol';
 
 export class VersioningError extends Error {
   constructor(
@@ -114,7 +114,7 @@ export const SAVE_RESULT_RETENTION_MS = 30 * 24 * 60 * 60 * 1_000;
 
 export type DraftDetails = {
   draft: DraftRecord;
-  operations: OperationV1[];
+  operations: Operation[];
 };
 
 export type ReleaseRecord = {
@@ -164,7 +164,7 @@ export interface VersioningRepository {
     idempotencyKey: string;
     payloadHash: string;
     expectedRevision: number;
-    operations: OperationV1[];
+    operations: Operation[];
     sourceSnapshot?: SourceSnapshotV1;
     resultExpiresAt: string;
   }): Promise<AppendOperationsResult>;
@@ -331,13 +331,13 @@ export class VersioningService {
     operationsValue: unknown,
     sourceSnapshotValue?: unknown,
   ): Promise<AppendOperationsResult> {
-    const operations: OperationV1[] = [];
+    const operations: Operation[] = [];
     const operationIds = new Set<string>();
     if (!Array.isArray(operationsValue) || operationsValue.length === 0 || operationsValue.length > 100) {
       throw new ValidationError('operations must contain between 1 and 100 entries');
     }
     operationsValue.forEach((operation, index) => {
-      const result = validateOperationV1(operation);
+      const result = validateOperation(operation);
       if (!result.ok) throw new ValidationError(`operations[${index}] is invalid`, result.errors);
       if (operationIds.has(result.value.id)) {
         throw new ValidationError(`Duplicate operation id in request: ${result.value.id}`);
@@ -410,7 +410,7 @@ function requireSourceSnapshot(value: unknown): SourceSnapshotV1 {
 
 export function hashSavePayload(value: {
   expectedRevision: number;
-  operations: OperationV1[];
+  operations: Operation[];
   sourceSnapshot?: SourceSnapshotV1;
 }): string {
   return createHash('sha256').update(canonicalJson({

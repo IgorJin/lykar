@@ -51,6 +51,7 @@ try {
   const databaseUrl = await databaseUrlForRun({ isolated: isolatedMode, environment: process.env, startLocalPostgres });
   await run('npm', ['run', 'build', '--workspace', '@lykar/admin']);
   await run('npm', ['run', 'build', '--workspace', '@lykar/sdk']);
+  await run('node', ['tests/fixtures/spa/build.mjs']);
   const { sdkDistDirectory } = await installSdkConsumer(repositoryDirectory, sdkConsumerDirectory);
   await run('npm', ['run', 'db:migrate'], { DATABASE_URL: databaseUrl });
   if (smokeMode) {
@@ -96,6 +97,7 @@ try {
     ...['/admin', '/admin/', '/admin/app.js', '/admin/styles.css'].map(path => waitFor(`${apiBaseUrl}${path}`)),
     waitFor(`${playgroundBaseUrl}/lykar-config.json`),
     ...['/', '/pricing', '/sdk.iife.js', '/editor.iife.js', '/asset-manifest.json'].map(path => waitFor(`${playgroundBaseUrl}${path}`)),
+    ...['/__e2e__/s4-react-csr-a', '/__e2e__/s4-react-ssr-a', '/__e2e__/s4-vue-csr-a', '/__e2e__/s4-vue-ssr-a', '/__e2e__/s4-assets/react-client.js', '/__e2e__/s4-assets/vue-client.js'].map(path => waitFor(`${playgroundBaseUrl}${path}`)),
   ];
   if (magicApiBaseUrl) ready.push(waitFor(`${magicApiBaseUrl}/api/health`));
   await Promise.all(ready);

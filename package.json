@@ -20,12 +20,18 @@
     "dev:e2e": "node scripts/e2e-stack.mjs",
     "test:e2e": "node scripts/e2e-stack.mjs --smoke",
     "test:e2e:http": "node scripts/e2e-stack.mjs --smoke",
-    "test:e2e:browser": "playwright test"
+    "test:e2e:browser": "playwright test",
+    "verify:s4:framework-consumer": "node scripts/verify-framework-consumer.mjs",
+    "verify:s4:performance": "node scripts/measure-s4.mjs",
+    "verify:s4:runtime-browser": "node scripts/verify-s4-runtime-browser.mjs"
   },
   "engines": {
     "node": ">=20"
   },
   "devDependencies": {
-    "@playwright/test": "1.63.0"
+    "@playwright/test": "1.63.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "vue": "3.5.18"
   }
 }

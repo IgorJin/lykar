@@ -115,6 +115,7 @@ async function verifyNpmOptions(distDirectory) {
 
 async function verifyBrowserWorkflow(distDirectory, manifest) {
   const sdkSource = await readFile(join(distDirectory, 'sdk.iife.js'), 'utf8');
+  const runtimeSource = await readFile(join(distDirectory, 'runtime-core.iife.js'), 'utf8');
   const editorSource = await readFile(join(distDirectory, 'editor.iife.js'), 'utf8');
   const dom = new JSDOM(`<!doctype html><body><main>Original</main><script
     src="/assets/sdk.iife.js"
@@ -159,9 +160,12 @@ async function verifyBrowserWorkflow(distDirectory, manifest) {
 
   const observer = new window.MutationObserver(records => {
     for (const node of records.flatMap(record => [...record.addedNodes])) {
-      if (!(node instanceof window.HTMLScriptElement) || node.dataset.lykarEditorAsset !== 'true') continue;
+      if (!(node instanceof window.HTMLScriptElement)) continue;
+      const runtimeAsset = node.dataset.lykarRuntimeAsset === 'true';
+      const editorAsset = node.dataset.lykarEditorAsset === 'true';
+      if (!runtimeAsset && !editorAsset) continue;
       loadedScripts.push({src: node.src, integrity: node.integrity});
-      window.eval(editorSource);
+      window.eval(runtimeAsset ? runtimeSource : editorSource);
       node.dispatchEvent(new window.Event('load'));
     }
   });
@@ -169,7 +173,6 @@ async function verifyBrowserWorkflow(distDirectory, manifest) {
 
   window.eval(sdkSource);
   const result = await window.__LYKAR_SDK__.start();
-  const expectedIntegrity = manifest.assets['editor.iife.js'].integrity;
   if (result.mode !== 'editor' || !result.editor) {
     throw new Error(
       `One-script browser workflow did not enter editor mode: ${result.reason ?? result.mode}` +
@@ -177,13 +180,18 @@ async function verifyBrowserWorkflow(distDirectory, manifest) {
     );
   }
   if (
-    loadedScripts.length !== 1 ||
-    loadedScripts[0].src !== 'https://host.test/assets/editor.iife.js' ||
-    loadedScripts[0].integrity !== expectedIntegrity
+    loadedScripts.length !== 2 ||
+    loadedScripts[0].src !== 'https://host.test/assets/runtime-core.iife.js' ||
+    loadedScripts[0].integrity !== manifest.assets['runtime-core.iife.js'].integrity ||
+    loadedScripts[1].src !== 'https://host.test/assets/editor.iife.js' ||
+    loadedScripts[1].integrity !== manifest.assets['editor.iife.js'].integrity
   ) {
-    throw new Error('One-script browser workflow did not load the verified sibling editor asset');
+    throw new Error('One-script browser workflow did not load the verified sibling runtime and editor assets');
   }
 
+  const core = window[Symbol.for('@lykar/runtime-core/v1')];
+  window.eval(runtimeSource);
+  if (window[Symbol.for('@lykar/runtime-core/v1')] !== core) throw new Error('Repeated runtime asset replaced the active class identities');
   result.editor.destroy?.();
   observer.disconnect();
   window.close();

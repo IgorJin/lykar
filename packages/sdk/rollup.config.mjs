@@ -2,6 +2,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import {nodeResolve} from '@rollup/plugin-node-resolve';
 import esbuild from 'rollup-plugin-esbuild';
 import {readFile} from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
 
 const packageJson = JSON.parse(await readFile(new URL('./package.json', import.meta.url), 'utf8'));
 const runtimeJson = JSON.parse(await readFile(new URL('../runtime/package.json', import.meta.url), 'utf8'));
@@ -32,6 +33,16 @@ function compatibilityConstants() {
   };
 }
 
+function externalRuntimeShim() {
+  const shim = fileURLToPath(new URL('./src/runtime-shim.ts', import.meta.url));
+  return {
+    name: 'lykar-script-runtime-shim',
+    resolveId(source) {
+      return source === '@lykar/runtime' ? shim : null;
+    },
+  };
+}
+
 const plugins = [
   nodeResolve({browser: true, extensions: ['.mjs', '.js', '.json', '.ts']}),
   commonjs(),
@@ -55,6 +66,22 @@ export default [
       file: 'dist/sdk.iife.js',
       format: 'iife',
       name: 'Lykar',
+      sourcemap: true,
+    },
+    plugins: [
+      externalRuntimeShim(),
+      nodeResolve({browser: true, extensions: ['.mjs', '.js', '.json', '.ts']}),
+      commonjs(),
+      esbuild({target: 'es2020', tsconfig: 'tsconfig.json', minify: true}),
+      compatibilityConstants(),
+    ],
+  },
+  {
+    input: 'src/runtime-core-global.ts',
+    output: {
+      file: 'dist/runtime-core.iife.js',
+      format: 'iife',
+      name: 'LykarRuntimeCore',
       sourcemap: true,
     },
     plugins: [

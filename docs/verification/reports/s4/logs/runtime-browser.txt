@@ -1,0 +1,5 @@
+
+> lykar@0.0.0 verify:s4:runtime-browser
+> node scripts/verify-s4-runtime-browser.mjs
+
+{"normal":{"active":{"text":"Далее","color":"rgb(0, 0, 128)","styles":1,"own":5},"restored":{"text":"Ожидаем","inline":"navy","styles":0},"diagnostics":[]},"important":{"text":"Продолжить","color":"rgb(255, 0, 0)","state":{"id":"continue","status":"unsafe","reason":"STYLE_OVERLAY_OVERRIDDEN"},"styles":1,"extraPasses":10,"extraOwnWrites":0},"copies":{"attrs":["data-lykar-overlay-5cdde9342583ffeab86e81ae-3","data-lykar-overlay-5cdde9342583ffeab86e81ae-4"],"activeStyles":2,"remainingStyles":0}}

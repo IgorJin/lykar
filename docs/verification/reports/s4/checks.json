@@ -1,0 +1,52 @@
+[
+  {
+    "command": "npm run build",
+    "status": "PASS",
+    "evidence": "Exit 0; all workspace artifacts built. logs/build.txt"
+  },
+  {
+    "command": "npm run typecheck",
+    "status": "PASS",
+    "evidence": "Exit 0; E2E and workspace TypeScript. logs/typecheck.txt"
+  },
+  {
+    "command": "npm test",
+    "status": "PASS",
+    "evidence": "205 passed; 3 DB tests skipped without DB URL, all 3 executed in HTTP gate. logs/tests.txt"
+  },
+  {
+    "command": "npm run test:e2e:http",
+    "status": "PASS",
+    "evidence": "23 API tests passed, 0 skipped; real temporary PostgreSQL + HTTP smoke. logs/http.txt"
+  },
+  {
+    "command": "npx playwright test",
+    "status": "PASS",
+    "evidence": "62 passed, 0 failed/skipped; Chromium, Firefox, WebKit. logs/full-browser.txt"
+  },
+  {
+    "command": "npm run verify:consumer --workspace @lykar/sdk",
+    "status": "PASS",
+    "evidence": "Packed install/types/SSR/SRI/editor workflow, repeated core asset preserves identity. logs/sdk-consumer.txt"
+  },
+  {
+    "command": "npm run verify:s4:framework-consumer",
+    "status": "PASS",
+    "evidence": "Packed install/types/SSR/esbuild 0.28.1/Vite 8.2.0 production rewrite. logs/framework-consumer.txt"
+  },
+  {
+    "command": "npm run verify:s4:runtime-browser",
+    "status": "PASS",
+    "evidence": "Chromium: current-host restoration, cascade rejection without partial edit, two independent copies and cleanup. logs/runtime-browser.txt"
+  },
+  {
+    "command": "npm run verify:s4:performance",
+    "status": "PASS",
+    "evidence": "Initial SDK and legacy replay gates passed; 200 cycles, 0 remaining sheets. Historical editor 100K limit remains exceeded (204639 bytes), reported separately. performance.json"
+  },
+  {
+    "command": "Desktop/mobile visual inspection",
+    "status": "PASS",
+    "evidence": "Four final screenshots inspected: conditional label/style, navy swatch, controls and visitor layout. Full visual/a11y audit deferred. assets/*.png"
+  }
+]

@@ -60,6 +60,7 @@ export class StyleManager {
     onReset: (property: string) => void = () => {},
     onCancel: () => void = () => {},
     isDirty: (element: Element, property: string) => boolean = () => false,
+    private readonly readStyle?: (element: Element) => CSSStyleDeclaration | undefined,
   ) {
     this.document = document;
     this.onChange = onChange;
@@ -152,7 +153,11 @@ export class StyleManager {
       const select = row.querySelector<HTMLSelectElement>('select[data-role="preset"]');
       if (select && this.document.activeElement !== select) select.value = field.control === 'select' && field.options.some(option => option.value === authored.trim()) ? authored.trim() : '';
       const swatch = row.querySelector<HTMLInputElement>('input[data-role="swatch"]');
-      if (swatch && /^#[0-9a-f]{6}$/i.test(authored.trim())) swatch.value = authored.trim();
+      if (swatch) {
+        const rgb = computed?.getPropertyValue(field.property).match(/^rgba?\(\s*(\d+(?:\.\d+)?)[,\s]+(\d+(?:\.\d+)?)[,\s]+(\d+(?:\.\d+)?)/i);
+        if (/^#[0-9a-f]{6}$/i.test(authored.trim())) swatch.value = authored.trim();
+        else if (rgb) swatch.value = '#' + rgb.slice(1, 4).map(value => Math.min(255, Math.round(Number(value))).toString(16).padStart(2, '0')).join('');
+      }
       const priority = row.querySelector<HTMLInputElement>('input[data-role="priority"]');
       if (priority && (forceCustom || !this.focused(priority))) priority.checked = styled?.getPropertyPriority(field.property) === 'important';
       const parts = this.compositeInputs.get(field.id);
@@ -668,6 +673,7 @@ export class StyleManager {
   }
 
   private styleFor(target: Element | null): CSSStyleDeclaration | undefined {
+    if (target && this.readStyle) return this.readStyle(target);
     return (target as (Element & {style?: CSSStyleDeclaration}) | null)?.style;
   }
 

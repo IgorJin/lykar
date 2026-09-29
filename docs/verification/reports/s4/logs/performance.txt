@@ -1,0 +1,83 @@
+
+> lykar@0.0.0 verify:s4:performance
+> node scripts/measure-s4.mjs
+
+{
+  "measuredAt": "2026-09-29T09:17:03.337Z",
+  "environment": {
+    "node": "v22.23.1",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "sizes": {
+    "sdk.iife.js": {
+      "rawBytes": 28725,
+      "gzipBytes": 8674,
+      "sha256": "3374f9512b5b6f5c72b6552e3a20bb3963eaa30b24fe7e744b210ccbf758c630"
+    },
+    "runtime-core.iife.js": {
+      "rawBytes": 81653,
+      "gzipBytes": 24331,
+      "sha256": "403459c4751eb2b12dbc0da1688b81b81453eed6e1d25a90e021164a29239809"
+    },
+    "index.js": {
+      "rawBytes": 192296,
+      "gzipBytes": 40546,
+      "sha256": "c036660bea668d7209574e0097dec40ff9112a509f4034c0f53d195191b86071"
+    },
+    "editor.iife.js": {
+      "rawBytes": 204639,
+      "gzipBytes": 54621,
+      "sha256": "f0b70b1ba35b757d96aaf4479ace2d64f89c920c3667e94387bb1283892bd2df"
+    }
+  },
+  "initialBudget": {
+    "rawBytes": 80000,
+    "gzipBytes": 25000
+  },
+  "initialPass": true,
+  "totalScriptVisitor": {
+    "rawBytes": 110378,
+    "gzipBytes": 33005,
+    "extraRuntimeRequest": true,
+    "note": "Asset-manifest bytes and network latency are additional. Splitting reduces initial native-page cost, not total feature bytes."
+  },
+  "conditional": {
+    "cycles": 200,
+    "p50Ms": 0.5045839999999657,
+    "p95Ms": 1.2445000000000164,
+    "stats": {
+      "groups": 1,
+      "active": 0,
+      "observedRecords": 600,
+      "ownRecords": 1404,
+      "syncPasses": 401,
+      "suspended": false
+    },
+    "remainingSheets": 0,
+    "note": "Synchronous JSDOM CPU measurement, not browser latency or heap proof. No new absolute threshold adopted."
+  },
+  "legacyReplay": {
+    "cases": [
+      {
+        "nodes": 100,
+        "operations": 25,
+        "runs": 7,
+        "p95Ms": 10.442542000000003
+      },
+      {
+        "nodes": 500,
+        "operations": 100,
+        "runs": 7,
+        "p95Ms": 60.71691699999997
+      }
+    ],
+    "budgetP95Ms": 250,
+    "pass": true
+  },
+  "legacyEditorBudget": {
+    "rawBytes": 100000,
+    "current": 204639,
+    "note": "Historical S1 threshold was already exceeded by accepted S2 style editor (172928 bytes). Reported separately; not silently treated as a current PASS."
+  }
+}

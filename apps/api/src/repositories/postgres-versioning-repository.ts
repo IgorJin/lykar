@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 
-import { isSourceSnapshotV1, parseOperationV1 } from '@lykar/protocol';
-import type { OperationV1, SourceSnapshotV1 } from '@lykar/protocol';
+import { isSourceSnapshotV1, parseOperation } from '@lykar/protocol';
+import type { Operation, SourceSnapshotV1 } from '@lykar/protocol';
 import type { Pool, PoolClient } from 'pg';
 
 import { rolesWithPermission, type ProjectPermission } from '../domain/memberships';
@@ -353,7 +353,7 @@ export class PostgresVersioningRepository implements VersioningRepository {
       'SELECT data FROM operations WHERE draft_id = $1 ORDER BY ordinal ASC',
       [draftId],
     );
-    return { draft: mapDraft(draft), operations: operationsResult.rows.map(row => parseOperationV1(row.data)) };
+    return { draft: mapDraft(draft), operations: operationsResult.rows.map(row => parseOperation(row.data)) };
   }
 
   async appendOperations(input: Parameters<VersioningRepository['appendOperations']>[0]): Promise<AppendOperationsResult> {
@@ -465,7 +465,7 @@ export class PostgresVersioningRepository implements VersioningRepository {
       }
       await client.query('SELECT id FROM pages WHERE id = $1 FOR UPDATE', [draft.page_id]);
 
-      let baseManifest: OperationV1[] = [];
+      let baseManifest: Operation[] = [];
       if (draft.base_release_id) {
         const baseResult = await client.query<{ manifest: unknown }>(
           'SELECT manifest FROM releases WHERE id = $1 AND page_id = $2',
@@ -473,13 +473,13 @@ export class PostgresVersioningRepository implements VersioningRepository {
         );
         if (baseResult.rowCount === 0) throw new ConflictError('Draft base release no longer exists');
         if (!Array.isArray(baseResult.rows[0].manifest)) throw new Error('Stored release manifest is not an array');
-        baseManifest = baseResult.rows[0].manifest.map(parseOperationV1);
+        baseManifest = baseResult.rows[0].manifest.map(parseOperation);
       }
       const operationsResult = await client.query<{ data: unknown }>(
         'SELECT data FROM operations WHERE draft_id = $1 ORDER BY ordinal ASC',
         [input.draftId],
       );
-      const draftOperations = operationsResult.rows.map(row => parseOperationV1(row.data));
+      const draftOperations = operationsResult.rows.map(row => parseOperation(row.data));
       const operationIds = new Set(baseManifest.map(operation => operation.id));
       for (const operation of draftOperations) {
         if (operationIds.has(operation.id)) throw new ConflictError(`Operation id already exists in the base release: ${operation.id}`);
@@ -558,7 +558,7 @@ export class PostgresVersioningRepository implements VersioningRepository {
       ...(parseSourceSnapshot(release.source_snapshot)
         ? { sourceSnapshot: parseSourceSnapshot(release.source_snapshot)! }
         : {}),
-      operations: release.manifest.map(parseOperationV1),
+      operations: release.manifest.map(parseOperation),
       createdAt: toIso(release.created_at),
     };
   }

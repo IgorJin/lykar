@@ -2,6 +2,9 @@ import {parsePublishedManifestV1, PROTOCOL_LIMITS} from '@lykar/protocol';
 import type { PublishedManifestV1, SourceSnapshotV1 } from '@lykar/protocol';
 
 import {applyOperation, assertOperationPayloadSafe} from './dom-executor.js';
+import {ConditionalRuntime, compileConditionalGroups} from './conditional-runtime.js';
+import {resolveConditionalTarget} from './conditional-target.js';
+import {isFrameworkTargetReady, subscribeFrameworkRoots} from './framework-support.js';
 import { captureSourceSnapshot } from './dom-fingerprint.js';
 import {MutationJournal} from './mutation-journal.js';
 import type {CompensationDiagnostic, JournalEntrySnapshot} from './mutation-journal.js';
@@ -44,6 +47,7 @@ export class Lykar {
   private readonly fetcher?: FetchLike;
   private readonly strict: boolean;
   private readonly waitForDom: boolean;
+  private readonly onConditionalDiagnostic?: LykarRuntimeOptions['onConditionalDiagnostic'];
   private readonly onReport?: (report: ApplyReport) => void;
   private readonly signal?: AbortSignal;
   private readonly isCurrent?: () => boolean;
@@ -64,6 +68,14 @@ export class Lykar {
   private analyticsContext?: ExperimentRuntimeSelection;
   private pendingExposure = false;
   private exposureSent = false;
+  /** Live conditional status, including missing, not-ready and unsafe targets. */
+  get conditionalState() {
+    return {groups: this.conditional?.groupStates ?? [], stats: this.conditional?.stats ?? null};
+  }
+
+  private conditional?: ConditionalRuntime;
+  private stopFrameworkSubscription?: () => void;
+  private disposed = false;
 
   constructor(projectKey: string, options?: LykarRuntimeConstructorOptions);
   constructor(options: LykarRuntimeOptions);
@@ -101,6 +113,7 @@ export class Lykar {
     this.strict = options.strict ?? false;
     this.waitForDom = options.waitForDom ?? true;
     this.onReport = options.onReport;
+    this.onConditionalDiagnostic = options.onConditionalDiagnostic;
     this.signal = options.signal;
     this.isCurrent = options.isCurrent;
     this.targetRetryMs = boundedDuration(options.targetRetryMs ?? 0, 'targetRetryMs');
@@ -215,6 +228,16 @@ export class Lykar {
         break;
       }
 
+      if (operation.schemaVersion === 2) {
+        const registration: OperationApplyResult = {
+          operationId: operation.id, kind: operation.kind, target: operation.target,
+          status: 'skipped', code: 'CONDITIONAL_REGISTERED',
+          message: 'Registered conditional change; activation follows the current source state.',
+        };
+        operations.push(registration);
+        outcomes.set(operation.id, registration);
+        continue;
+      }
       const unavailable = (operation.dependsOn ?? []).find(dependency => !dependencyAvailable(outcomes.get(dependency)));
       if (unavailable) {
         const operationResult: OperationApplyResult = {
@@ -256,6 +279,34 @@ export class Lykar {
       const compensation = this.journal.compensateFrom(journalCheckpoint);
       markReplayCompensated(operations, compensation);
     } else {
+      this.conditional?.dispose();
+      this.stopFrameworkSubscription?.();
+      const groups = compileConditionalGroups(validatedManifest.operations);
+      if (groups.length) {
+        this.conditional = new ConditionalRuntime({
+          document: this.document, root: this.root, groups,
+          onDiagnostic: this.onConditionalDiagnostic,
+          isCurrent: () => !this.disposed && !this.signal?.aborted && this.isCurrent?.() !== false,
+          isTargetReady: isFrameworkTargetReady,
+          resolveTargetSync: target => resolveConditionalTarget(this.document, target, {
+            root: this.root, registry: validatedManifest.targetRegistry,
+            projectId: validatedManifest.projectId, pageId: validatedManifest.pageId,
+            environment: validatedManifest.targetEnvironment,
+          }),
+        });
+        this.stopFrameworkSubscription = subscribeFrameworkRoots(this.document, () => this.conditional?.sync());
+        this.conditional.start();
+        const states = new Map(this.conditional.groupStates.map(state => [state.id, state]));
+        for (const operation of validatedManifest.operations) {
+          if (operation.schemaVersion !== 2) continue;
+          const result = outcomes.get(operation.id)!;
+          const state = states.get(operation.condition.id);
+          if (state?.status === 'active') {
+            result.status = 'applied'; result.code = 'CONDITIONAL_ACTIVE';
+            result.message = 'Conditional group is active for the current source state.';
+          }
+        }
+      }
       releaseSet.add(validatedManifest.releaseId);
       this.ownedReleaseIds.add(validatedManifest.releaseId);
     }
@@ -437,20 +488,32 @@ export class Lykar {
     }
   }
 
+  destroy(): void {
+    if (this.disposed) return;
+    this.disposed = true;
+    this.stopFrameworkSubscription?.();
+    this.stopFrameworkSubscription = undefined;
+    this.conditional?.dispose();
+    this.conditional = undefined;
+    this.journal.compensateAll();
+    const releases = getReleaseSet(this.root);
+    for (const releaseId of this.ownedReleaseIds) releases.delete(releaseId);
+    this.ownedReleaseIds.clear();
+    this.signal?.removeEventListener('abort', this.abortCleanup);
+    if (activeRuntime === this) activeRuntime = undefined;
+  }
+
+  private readonly abortCleanup = (): void => this.destroy();
+
   private ensureJournalCleanup(): void {
-    if (this.cleanupRegistered || !this.registerCleanup) return;
+    if (this.cleanupRegistered) return;
     this.cleanupRegistered = true;
-    this.registerCleanup(() => {
-      this.journal.compensateAll();
-      const releases = getReleaseSet(this.root);
-      for (const releaseId of this.ownedReleaseIds) releases.delete(releaseId);
-      this.ownedReleaseIds.clear();
-      this.cleanupRegistered = false;
-    });
+    this.registerCleanup?.(() => this.destroy());
+    this.signal?.addEventListener('abort', this.abortCleanup, {once: true});
   }
 
   private assertActive(): void {
-    if (this.signal?.aborted || this.isCurrent?.() === false) {
+    if (this.disposed || this.signal?.aborted || this.isCurrent?.() === false) {
       const error = new Error('Runtime lifecycle generation is no longer current.');
       error.name = 'AbortError';
       throw error;

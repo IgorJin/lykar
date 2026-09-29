@@ -1,4 +1,4 @@
-import type { OperationV1, SourceSnapshotV1 } from '@lykar/protocol';
+import type { Operation, SourceSnapshotV1 } from '@lykar/protocol';
 
 import { ElementInspector } from './inspector.js';
 import { createOperationId } from './operation-id.js';
@@ -97,10 +97,12 @@ export class LykarEditor {
           ? `lykar:draft:${this.persistence.draftId}`
           : undefined,
       sourceSnapshot: options.sourceSnapshot,
+      onConditionalDiagnostic: diagnostic => this.panel?.setStatus(`Условная правка приостановлена: ${diagnostic.code}.`, 'error'),
       root,
     });
     this.overlay = new OverlayService(document);
     this.inspector = new ElementInspector(document, this.overlay, element => {
+      this.session.captureSelection(element);
       this.panel.setSelected(element);
       options.onSelection?.(element);
     }, root);
@@ -127,7 +129,9 @@ export class LykarEditor {
           this.inspector.select(parent);
           return true;
         },
-        resetStyle: (element, property) => {
+        resetStyle: async (element, property) => {
+          const conditional = await this.session.resetConditionalStyle(element, property);
+          if (conditional) return conditional;
           const baseline = this.session.styleBaseline(element, property);
           if (!baseline) throw new Error('Исходное значение недоступно или стиль изменён страницей после правки Lykar.');
           const style = (element as HTMLElement).style;
@@ -144,6 +148,7 @@ export class LykarEditor {
             ...(baseline.priority ? {priority: baseline.priority} : {}),
           }, undefined, element);
         },
+        readStyle: element => this.session.styleView(element),
         isStyleDirty: (element, property) => this.session.isStyleDirty(element, property),
       },
       options.proposalProvider ?? new DummyProposalProvider(),
@@ -195,9 +200,10 @@ export class LykarEditor {
     this.inspector.destroy();
     this.overlay.destroy();
     this.panel.destroy();
+    this.session.destroy();
   }
 
-  private preview(operation: OperationV1, key?: string, nodeElement?: Element | null): Promise<EditorApplyReport> {
+  private preview(operation: Operation, key?: string, nodeElement?: Element | null): Promise<EditorApplyReport> {
     this.assertActive();
     const next = this.previewQueue.then(async () => {
       await this.restoration;
@@ -212,7 +218,7 @@ export class LykarEditor {
     });
   }
 
-  private previewGroup(operations: OperationV1[], key?: string): Promise<EditorGroupedPreviewReport> {
+  private previewGroup(operations: Operation[], key?: string): Promise<EditorGroupedPreviewReport> {
     this.assertActive();
     const next = this.previewQueue.then(async () => {
       await this.restoration;
@@ -228,7 +234,7 @@ export class LykarEditor {
   }
 
   private async restore(): Promise<number> {
-    let operations: OperationV1[] = [];
+    let operations: Operation[] = [];
     if (this.persistence) {
       const remote = await loadPersistedDraft(this.persistence, this.options.capability?.token, this.restoreController.signal);
       this.assertActive();
@@ -441,7 +447,7 @@ async function loadPersistedDraft(
   persistence: EditorDraftPersistence,
   capabilityToken?: string,
   signal?: AbortSignal,
-): Promise<{ revision: number; operations: OperationV1[] }> {
+): Promise<{ revision: number; operations: Operation[] }> {
   const fetcher = persistence.fetch ?? globalThis.fetch;
   const token = persistence.accessToken ?? capabilityToken;
   if (!fetcher || !token) throw new Error('Editor persistence requires an editing capability token');
@@ -455,13 +461,13 @@ async function loadPersistedDraft(
   if (!Number.isSafeInteger(payload.draft?.revision) || !Array.isArray(payload.operations)) {
     throw new Error('Backend returned an invalid draft');
   }
-  return { revision: payload.draft!.revision!, operations: payload.operations as OperationV1[] };
+  return { revision: payload.draft!.revision!, operations: payload.operations as Operation[] };
 }
 
 function reportForPending(
   page: EditorSession['page'],
   changes: ReturnType<EditorSession['getChanges']>,
-  operations: OperationV1[],
+  operations: Operation[],
 ): EditorApplyReport {
   const ids = new Set(operations.map(operation => operation.id));
   const results = changes.filter(change => ids.has(change.operation.id)).map(change => ({

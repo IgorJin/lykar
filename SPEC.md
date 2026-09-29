@@ -831,8 +831,9 @@ MVP считается функционально завершённым, ког
 3. **S2 — Editor/core:** S2.1 strict targets → S2.2 PageSession → S2.3 dependencies/
    ledger/journal → S2.4 idempotent persistence/editor/repair.
 4. **S3 — Полный продуктовый путь:** Admin, access, versions, links, A/B и analytics.
-5. **S4 — SPA:** первый adapter поверх PageSession, cooperative overrides,
-   ownership matrix и browser fixtures.
+5. **S4 — SPA:** автоматические React/Vue build adapters поверх PageSession,
+   условные text/style группы по исходному отображению, без hooks в компонентах.
+   CSR и обычная SSR/hydration; подробные границы и проверки — tasks/s4.
 6. **S5 — Deployment:** explicit Deploy/Disable/Rollback и delivery/cache semantics.
 7. **S6 — Public SaaS:** email, domain verification, sitemap, CDN, CI, jobs,
    rate limits, audit, backup/restore и deletion.

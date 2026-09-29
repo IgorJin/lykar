@@ -70,11 +70,11 @@ V1. Новые маркетинговые идеи имеют отдельный
 | INT-03 | npm ESM + TypeScript declarations; совместимость script/npm на одних manifests | Готово: @lykar/sdk ESM, IIFE, declarations и manifest | S1 |
 | INT-04 | Rollup dist, отдельные runtime/editor bundles, immutable versioned assets | Готово: Rollup entries, separate editor asset и versioned manifest | S1 |
 | INT-05 | `start`, `navigate`, `refresh`, `destroy`; отмена устаревших запросов | Контракт SDK готов; PageSession и строгая отмена остаются в S2.2 | S1 контракт, S2.2 ядро, S4 adapter |
-| INT-06 | SPA navigation, mount/unmount, re-render и hydration без нарушения host UI | План | S4 |
-| INT-07 | SSR-safe import и framework adapters; React первым как технический выбор | План | S4 |
+| INT-06 | SPA navigation, mount/unmount, re-render и hydration без нарушения host UI | S4: React/Vue CSR и обычная hydration проверены | S4 |
+| INT-07 | SSR-safe import и framework adapters; React первым как технический выбор | S4: React/Vue packed consumers проверены | S4 |
 | INT-08 | Installation wizard, health check, проверка origin и CSP | S1: origin/access и fail-open checks; wizard/health остаются S6 | S1, S6 |
-| INT-09 | Два уровня интеграции: script для стабильного DOM и cooperative npm adapter | S1 script/npm contract готов; cooperative adapter остаётся S4 | S1 контракт, S4 |
-| INT-10 | Зарегистрированные targets/roots и ограниченные overrides через props/store | План; минимальный React-срез | S4 |
+| INT-09 | Script для стабильного DOM и npm + автоматический build adapter для React/Vue | S1 script/npm contract готов; автоматический build adapter S4 проверен | S1 контракт, S4 |
+| INT-10 | Автоматическая готовность roots и условные text/style группы по исходному отображению | S4 DONE в согласованной матрице; React/Vue | S4 |
 
 ### Редактор и command core
 
@@ -174,7 +174,7 @@ conflict, а не скрытым last-write-wins.
 | ANA-02 | Visitors/views/unique conversions/conversions/CVR/uplift; деление на ноль определено | Есть код; проверить крайние случаи | S3 |
 | ANA-03 | Никаких авто IP/full URL/page text/HTML; 90-day raw retention | Есть код storage/prune; scheduler впереди | S3, S6 |
 | ANA-04 | Winner — metadata; без автоматического deploy и заявления significance | Есть код | S3 |
-| ANA-05 | В SPA route visit и re-render различаются, exposure не дублируется | План | S4 |
+| ANA-05 | В SPA route visit и re-render различаются, exposure не дублируется | S4 PASS | S4 |
 
 Подробная семантика находится в [analytics.md](./docs/architecture/analytics.md).
 Один fingerprint описывает наблюдаемую исходную структуру; он не фиксирует
@@ -188,7 +188,7 @@ conflict, а не скрытым last-write-wins.
 | QLT-01 | Воспроизводимые install/build/typecheck/unit/integration проверки | S0 PASS: clean install, build, typecheck, 69 lifecycle/unit/component и 21/21 PostgreSQL API | S0 завершён |
 | QLT-02 | Browser E2E через реальные клики, reload, две страницы, share и reports | Static Chromium baseline 6/6 PASS; SPA и расширенная matrix остаются S4 | S0 baseline, S4 |
 | QLT-03 | Один локальный запуск БД/API/Admin/runtime/fixtures | S0 PASS: `dev:e2e`, restart, Ctrl+C и port preflight | S0 завершён |
-| QLT-04 | Static, React SPA и Vue compatibility fixtures; cold start документация | Static есть, остальные план | S4 |
+| QLT-04 | Static, React SPA и Vue compatibility fixtures; cold start документация | S4: static, React и Vue fixtures проверены | S4 |
 | QLT-05 | Бюджеты JS size/replay duration, bounded observer и network timeout | S1 size/replay/network baseline готов; observer budgets остаются S4/S6 | S1, S4, S6 |
 | QLT-06 | Adversarial browser fixtures: дубликаты targets, поздние nodes, route races, lost save response, CSS drift, rerender | План; добавляются с каждой реализацией | S0 harness, S2–S4, X2 |
 | SEC-01 | Валидация каждой команды; запрет JS/handlers/unsafe HTML/URL | Есть код | S2 |
@@ -374,23 +374,30 @@ control A, modified B, sticky allocation и consent-gated analytics.
 project/page недоступен чужой capability; ручные контрольные события совпадают
 с числами отчёта; winner не меняет обычный URL.
 
-### S4 — npm для SPA
+### S4 — Автономные условные правки React/Vue
 
-Переиспользовать PageSession/journal из S2; подключить route/hydration hooks и
-bounded reconciliation. React fixture и adapter — рекомендуемый первый стек;
-Vue fixture проверяет framework-independent boundary. Готовый Vue adapter
-идёт следом. Документировать поддерживаемые DOM roots и команды.
+Однократное подключение SDK и build plugin автоматически инструментирует
+React/Vue boot APIs. Компоненты не добавляют Lykar hooks, markers или имена
+бизнес-состояний. Runtime не вызывает AI. План и согласованные проверки:
+[tasks/s4](./tasks/s4/README.md). Статус: DONE в указанной матрице. [Приёмка](./docs/verification/reports/s4/s4-acceptance.html).
 
-Первый cooperative npm adapter регистрирует targets/roots и минимальный набор
-разрешённых overrides через props/store, которые отображает сам framework.
-Структурные команды гарантируются внутри Lykar-owned regions; arbitrary
-framework-owned nodes не получают обещание безопасного move/delete. Контракт
-будущего component/action registry определяется здесь, полный каталог — FUT-08.
+Format 2 сохраняет исходный текст выбранного элемента и общую группу text/style.
+После безопасного commit MutationObserver синхронно переоценивает группу:
+«Продолжить» → «Далее» + цвет; при «Ожидаем» эффекты снимаются. CSS-наложение
+не меняет inline-стили host, поэтому снятие показывает актуальный стиль приложения.
+Одинаковый исходный текст не различает скрытые бизнес-состояния; произвольное
+условие в коде не выводится автоматически. Неоднозначные targets пропускаются.
 
-Выход: A→B→A, back/forward, async mount, hydration, re-render и повторный
-mount/unmount не смешивают версии и аналитику. Дубликаты listeners/nodes/events
-не накапливаются. Все structural commands работают в Lykar-owned roots;
-неподдерживаемые мутации framework-owned nodes отклоняются с reason code.
+Диапазон: React 19.2.8 и Vue 3.5.18, CSR и обычная non-streaming SSR/hydration,
+esbuild и production Vite build; PageSession/navigation/access изолированы.
+Next.js, RSC, streaming/selective hydration, portals/Shadow DOM и structural
+framework edits требуют отдельных адаптеров/доказательств. Legacy static
+commands сохраняются; framework structural commands отклоняются.
+
+Выход: автоматический capture → preview → save/reload → Release/share;
+циклы состояний, host handlers, remount, маршруты, ограниченное наблюдение,
+cleanup и browser/package evidence. Полный component/action registry остаётся
+FUT-08. Итоговые результаты и ограничения фиксируются в отчётах S4.
 
 ### S5 — Explicit production deployment
 

@@ -22,6 +22,7 @@ const versionedNames = {
   'index.js': `sdk-${versionTag}.esm.js`,
   'sdk.iife.js': `sdk-${versionTag}.iife.js`,
   'editor.iife.js': `editor-${versionTag}.iife.js`,
+  'runtime-core.iife.js': `runtime-core-${versionTag}.iife.js`,
 };
 
 for (const [stableName, versionedName] of Object.entries(versionedNames)) {

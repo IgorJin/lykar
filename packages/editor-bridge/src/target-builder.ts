@@ -29,6 +29,17 @@ export function buildTargetDescriptor(element: Element): TargetDescriptor {
   return target;
 }
 
+/** Avoid positional identity in a framework tree: another repeated item must
+ * become ambiguous rather than inheriting the selected item's customization. */
+export function buildConditionalTargetDescriptor(element: Element): TargetDescriptor {
+  const descriptor = buildTargetDescriptor(element);
+  return {
+    ...(descriptor.marker ? {marker: descriptor.marker} : {}),
+    selectors: {css: buildCssSelector(element).replace(/:nth-of-type\(\d+\)/g, '')},
+    fingerprint: descriptor.fingerprint,
+  };
+}
+
 function stableAttributes(element: Element): { attributes?: Record<string, string> } {
   const attributes: Record<string, string> = {};
   for (const name of ['id', 'name', 'role', 'type', 'data-lykar-id', 'data-testid', 'aria-label']) {

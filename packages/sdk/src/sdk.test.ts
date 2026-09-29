@@ -1,5 +1,6 @@
 import {afterEach, describe, expect, it, vi} from 'vitest';
 import {Lykar} from './sdk.js';
+import {validateAssetManifest, validateRuntimeAssetEntry} from './compatibility.js';
 
 function response(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -91,6 +92,53 @@ describe('Lykar SDK', () => {
 
     expect(result).toMatchObject({mode: 'native', reason: 'LINKS_ONLY_NATIVE'});
     expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it('restores a share only on its original pathname until this SDK is destroyed', async () => {
+    window.history.replaceState({}, '', '/a?version=1#lykar_share=share-code');
+    const access = {
+      token: 'share-token', expiresAt: new Date(Date.now() + 60_000).toISOString(),
+      projectId: 'project-test', pageId: 'page-a', releaseId: 'release-a', version: 1,
+    };
+    const fetch = vi.fn<typeof globalThis.fetch>(input => {
+      if (String(input) === 'https://api.test/api/share/exchange') {
+        return Promise.resolve(response({access}));
+      }
+      return Promise.resolve(new Response(null, {status: 204}));
+    });
+    const sdk = new Lykar({projectKey: 'pk_test', apiBaseUrl: 'https://api.test', document, fetch});
+
+    await expect(sdk.start()).resolves.toMatchObject({mode: 'share'});
+    expect(window.location.hash).toBe('');
+    window.history.pushState({}, '', '/b');
+    await expect(sdk.start()).resolves.toMatchObject({mode: 'native', reason: 'LINKS_ONLY_NATIVE'});
+    window.history.pushState({}, '', '/a?version=1');
+    await expect(sdk.start()).resolves.toMatchObject({mode: 'share'});
+    expect(fetch.mock.calls.filter(([input]) => String(input) === 'https://api.test/api/share/exchange')).toHaveLength(1);
+
+    window.history.replaceState({}, '', '/a?version=2');
+    await expect(sdk.refresh()).resolves.toMatchObject({mode: 'visitor'});
+    window.history.replaceState({}, '', '/a');
+    await expect(sdk.refresh()).resolves.toMatchObject({mode: 'share'});
+
+    await sdk.destroy();
+    await expect(sdk.start()).resolves.toMatchObject({mode: 'native', reason: 'LINKS_ONLY_NATIVE'});
+  });
+
+  it('rejects a missing or tampered runtime core entry in the compatible asset manifest', () => {
+    const manifest = validateAssetManifest(assetManifest());
+    expect(() => validateRuntimeAssetEntry(manifest)).toThrow();
+    const valid = {
+      ...manifest,
+      assets: {...manifest.assets, 'runtime-core.iife.js': {
+        path: 'runtime-core.iife.js', bytes: 1, sha256: 'a'.repeat(64),
+        integrity: 'sha256-qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqo=',
+        versionedPath: 'runtime-core-0.0.0.iife.js',
+      }},
+    };
+    expect(validateRuntimeAssetEntry(valid).path).toBe('runtime-core.iife.js');
+    valid.assets['runtime-core.iife.js'].integrity = 'sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=';
+    expect(() => validateRuntimeAssetEntry(valid)).toThrow();
   });
 
   it('returns the same in-flight start and creates only one replay', async () => {

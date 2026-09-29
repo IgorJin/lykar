@@ -1,4 +1,5 @@
 export const OPERATION_SCHEMA_VERSION = 1 as const;
+export const CONDITIONAL_OPERATION_SCHEMA_VERSION = 2 as const;
 
 export const PROTOCOL_LIMITS = {
   manifestBytes: 512 * 1024,
@@ -8,6 +9,10 @@ export const PROTOCOL_LIMITS = {
   serializedNodeDepth: 32,
   serializedNodeCount: 5_000,
   nodeReferenceDepth: 32,
+  conditionIdLength: 160,
+  conditionTextLength: 4_096,
+  conditionalGroups: 128,
+  conditionalGroupOperations: 16,
 } as const;
 
 export const OPERATION_KINDS = [
@@ -243,6 +248,34 @@ export type OperationV1 =
   | RemoveNodeOperationV1
   | MoveNodeOperationV1;
 
+export type OperationConditionV2 = {
+  id: string;
+  text: string;
+};
+
+type ConditionalOperationBaseV2 = Omit<OperationBaseV1, 'schemaVersion' | 'dependsOn' | 'precondition' | 'target'> & {
+  schemaVersion: typeof CONDITIONAL_OPERATION_SCHEMA_VERSION;
+  target: LocatorTargetDescriptor & { binding?: TargetBindingReferenceV1; nodeRef?: never };
+  condition: OperationConditionV2;
+  dependsOn?: never;
+  precondition?: never;
+};
+
+export type ConditionalSetTextOperationV2 = ConditionalOperationBaseV2 & {
+  kind: 'setText';
+  value: string;
+};
+
+export type ConditionalSetStyleOperationV2 = ConditionalOperationBaseV2 & {
+  kind: 'setStyle';
+  property: string;
+  value: string;
+  priority?: '' | 'important';
+};
+
+export type ConditionalOperationV2 = ConditionalSetTextOperationV2 | ConditionalSetStyleOperationV2;
+export type Operation = OperationV1 | ConditionalOperationV2;
+
 export const SOURCE_SNAPSHOT_ALGORITHM = 'lykar-dom-v1' as const;
 
 export type SourceSnapshotV1 = {
@@ -252,7 +285,7 @@ export type SourceSnapshotV1 = {
 };
 
 export type OperationValidationResult =
-  | { ok: true; value: OperationV1 }
+  | { ok: true; value: Operation }
   | { ok: false; errors: string[] };
 
 export type PublishedManifestV1 = {
@@ -266,7 +299,7 @@ export type PublishedManifestV1 = {
   sourceSnapshot?: SourceSnapshotV1;
   targetEnvironment?: TargetEnvironment;
   targetRegistry?: TargetRegistrySnapshotV1;
-  operations: OperationV1[];
+  operations: Operation[];
   createdAt: string;
 };
 
@@ -570,6 +603,7 @@ export function validateOperationV1(value: unknown): OperationValidationResult {
 
   if (!isRecord(value)) return { ok: false, errors: ['operation must be an object'] };
   if (value.schemaVersion !== OPERATION_SCHEMA_VERSION) errors.push('schemaVersion must be 1');
+  if (value.condition !== undefined) errors.push('condition requires operation schemaVersion 2');
   if (!isNonEmptyString(value.id)) errors.push('id must be a non-empty string');
   else if (value.id.length > PROTOCOL_LIMITS.operationIdLength) errors.push(`id must be at most ${PROTOCOL_LIMITS.operationIdLength} characters`);
   if (!isTargetDescriptor(value.target)) errors.push('target must contain marker, css, xpath, binding, or nodeRef');
@@ -625,6 +659,47 @@ export function validateOperationV1(value: unknown): OperationValidationResult {
     : { ok: false, errors };
 }
 
+/** Conditional text/style commands use schema 2 so older runtimes reject them safely. */
+export function validateOperation(value: unknown): OperationValidationResult {
+  if (!isRecord(value) || value.schemaVersion !== CONDITIONAL_OPERATION_SCHEMA_VERSION) {
+    return validateOperationV1(value);
+  }
+  const errors: string[] = [];
+  if (value.kind !== 'setText' && value.kind !== 'setStyle') {
+    errors.push('schemaVersion 2 supports only setText and setStyle');
+  }
+  if (!isRecord(value.condition)
+    || !isNonEmptyString(value.condition.id)
+    || value.condition.id.length > PROTOCOL_LIMITS.conditionIdLength
+    || typeof value.condition.text !== 'string'
+    || value.condition.text.length > PROTOCOL_LIMITS.conditionTextLength) {
+    errors.push('condition must have a bounded non-empty id and bounded text');
+  }
+  if (value.dependsOn !== undefined) errors.push('conditional operation cannot have dependsOn');
+  if (value.precondition !== undefined) errors.push('conditional operation cannot have precondition');
+  if (isRecord(value.revision) && value.revision.reason !== 'undo') {
+    errors.push('conditional operation revision must be undo');
+  }
+  if (isRecord(value.target) && value.target.nodeRef !== undefined) {
+    errors.push('conditional operation cannot target nodeRef');
+  }
+  const legacyShape: Record<string, unknown> = { ...value, schemaVersion: OPERATION_SCHEMA_VERSION };
+  delete legacyShape.condition;
+  delete legacyShape.dependsOn;
+  delete legacyShape.precondition;
+  const base = validateOperationV1(legacyShape);
+  if (!base.ok) errors.push(...base.errors);
+  return errors.length === 0
+    ? { ok: true, value: value as ConditionalOperationV2 }
+    : { ok: false, errors };
+}
+
+export function parseOperation(value: unknown): Operation {
+  const result = validateOperation(value);
+  if (!result.ok) throw new Error(`Invalid Lykar operation: ${result.errors.join('; ')}`);
+  return result.value;
+}
+
 export function parseOperationV1(value: unknown): OperationV1 {
   const result = validateOperationV1(value);
 
@@ -632,7 +707,7 @@ export function parseOperationV1(value: unknown): OperationV1 {
     throw new Error(`Invalid Lykar operation: ${result.errors.join('; ')}`);
   }
 
-  return result.value;
+  return result.value as OperationV1;
 }
 
 export function validatePublishedManifestV1(value: unknown): PublishedManifestValidationResult {
@@ -697,15 +772,28 @@ export function validatePublishedManifestV1(value: unknown): PublishedManifestVa
     if (value.operations.length > PROTOCOL_LIMITS.operations) {
       errors.push(`operations must contain at most ${PROTOCOL_LIMITS.operations} items`);
     }
-    const validatedOperations = new Map<string, { operation: OperationV1; index: number }>();
+    const validatedOperations = new Map<string, { operation: Operation; index: number }>();
+    const conditionGroups = new Map<string, {target: string; text: string; count: number}>();
+    const undoneConditional = new Set<string>();
     value.operations.forEach((operation, index) => {
-      const result = validateOperationV1(operation);
+      const result = validateOperation(operation);
       if (!result.ok) {
         errors.push(...result.errors.map(error => `operations[${index}]: ${error}`));
       } else {
         const existing = validatedOperations.get(result.value.id);
         if (existing) errors.push(`operations[${index}]: id duplicates operations[${existing.index}]`);
         else validatedOperations.set(result.value.id, { operation: result.value, index });
+        if (result.value.schemaVersion === CONDITIONAL_OPERATION_SCHEMA_VERSION) {
+          const {id, text} = result.value.condition;
+          const target = stableJson(result.value.target);
+          const group = conditionGroups.get(id);
+          if (!group) conditionGroups.set(id, {target, text, count: 1});
+          else if (group.target !== target || group.text !== text) {
+            errors.push(`operations[${index}]: condition ${id} disagrees on target or source text`);
+          } else if (++group.count > PROTOCOL_LIMITS.conditionalGroupOperations) {
+            errors.push(`operations[${index}]: condition ${id} has too many operations`);
+          }
+        }
         for (const descriptor of operationTargets(result.value)) {
           if (!descriptor.binding) continue;
           if (!registry) {
@@ -721,6 +809,10 @@ export function validatePublishedManifestV1(value: unknown): PublishedManifestVa
         }
       }
     });
+
+    if (conditionGroups.size > PROTOCOL_LIMITS.conditionalGroups) {
+      errors.push(`conditional groups must contain at most ${PROTOCOL_LIMITS.conditionalGroups} items`);
+    }
 
     for (const { operation, index } of validatedOperations.values()) {
       const dependencies = new Set(operation.dependsOn ?? []);
@@ -739,6 +831,18 @@ export function validatePublishedManifestV1(value: unknown): PublishedManifestVa
           errors.push(`operations[${index}]: revision references unknown operation ${operation.revision.previousOperationId}`);
         } else if (previous.index >= index) {
           errors.push(`operations[${index}]: revision must reference a preceding operation (${operation.revision.previousOperationId})`);
+        } else if (operation.schemaVersion === CONDITIONAL_OPERATION_SCHEMA_VERSION) {
+          const prior = previous.operation;
+          if (prior.schemaVersion !== CONDITIONAL_OPERATION_SCHEMA_VERSION
+            || prior.revision
+            || undoneConditional.has(prior.id)
+            || operation.condition.id !== prior.condition.id
+            || operation.condition.text !== prior.condition.text
+            || stableJson(operation.target) !== stableJson(prior.target)
+            || operation.kind !== prior.kind
+            || (operation.kind === 'setStyle' && prior.kind === 'setStyle' && operation.property !== prior.property)) {
+            errors.push(`operations[${index}]: conditional undo must match one active earlier conditional operation`);
+          } else undoneConditional.add(prior.id);
         }
       }
 
@@ -782,11 +886,17 @@ function utf8ByteLength(value: string | undefined): number {
   return new TextEncoder().encode(value).byteLength;
 }
 
-function operationTargets(operation: OperationV1): TargetDescriptor[] {
+function operationTargets(operation: Operation): TargetDescriptor[] {
   const targets = [operation.target];
   if (operation.precondition?.parent) targets.push(operation.precondition.parent);
   if (operation.kind === 'moveNode') targets.push(operation.destination);
   return targets;
+}
+
+function stableJson(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(stableJson).join(',')}]`;
+  if (isRecord(value)) return `{${Object.keys(value).sort().map(key => `${JSON.stringify(key)}:${stableJson(value[key])}`).join(',')}}`;
+  return JSON.stringify(value);
 }
 
 export function parsePublishedManifestV1(value: unknown): PublishedManifestV1 {

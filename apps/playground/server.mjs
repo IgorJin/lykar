@@ -2,6 +2,7 @@ import { createReadStream } from 'node:fs';
 import { createServer } from 'node:http';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {renderSpaFixture, routeFromPath} from '../../tests/fixtures/spa/server.mjs';
 
 const appDirectory = dirname(fileURLToPath(import.meta.url));
 const repositoryDirectory = join(appDirectory, '..', '..');
@@ -27,6 +28,10 @@ const routes = new Map([
     file: join(sdkDistDirectory, 'index.js'),
     type: 'text/javascript; charset=utf-8',
   }],
+  ['/runtime-core.iife.js', {
+    file: join(sdkDistDirectory, 'runtime-core.iife.js'),
+    type: 'text/javascript; charset=utf-8',
+  }],
   ['/editor.iife.js', {
     file: join(sdkDistDirectory, 'editor.iife.js'),
     type: 'text/javascript; charset=utf-8',
@@ -37,8 +42,29 @@ const routes = new Map([
   }],
 ]);
 
+for (const client of ['react-client.js', 'vue-client.js', 'sdk-client.js']) {
+  routes.set(`/__e2e__/s4-assets/${client}`, {
+    file: join(repositoryDirectory, 'tests', 'fixtures', 'spa', 'dist', client),
+    type: 'text/javascript; charset=utf-8',
+  });
+}
+
 const server = createServer((request, response) => {
   const pathname = new URL(request.url ?? '/', 'http://localhost').pathname;
+  if (routeFromPath(pathname)) {
+    void renderSpaFixture(pathname).then(html => {
+      response.writeHead(200, {
+        'Content-Type': 'text/html; charset=utf-8',
+        'Cache-Control': 'no-store',
+      });
+      response.end(html);
+    }).catch(error => {
+      console.error('S4 fixture render failed:', error);
+      response.writeHead(500, {'Content-Type': 'text/plain; charset=utf-8'});
+      response.end('S4 fixture render failed');
+    });
+    return;
+  }
   if (pathname === '/lykar-config.json') {
     response.writeHead(200, {
       'Content-Type': 'application/json; charset=utf-8',

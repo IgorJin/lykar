@@ -1,0 +1,35 @@
+{
+  "name": "@lykar/frameworks",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./bridge": {
+      "types": "./src/bridge.d.ts",
+      "import": "./src/bridge.js"
+    },
+    "./react-dom-client": {
+      "types": "./src/react-dom-client.d.ts",
+      "import": "./src/react-dom-client.js"
+    },
+    "./vue": {
+      "types": "./src/vue.d.ts",
+      "import": "./src/vue.js"
+    },
+    "./build": {
+      "types": "./src/build.d.ts",
+      "import": "./src/build.js"
+    }
+  },
+  "files": ["src", "README.md"],
+  "peerDependencies": {
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "vue": "^3.5.18"
+  },
+  "peerDependenciesMeta": {
+    "react": {"optional": true},
+    "react-dom": {"optional": true},
+    "vue": {"optional": true}
+  }
+}

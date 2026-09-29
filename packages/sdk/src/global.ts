@@ -17,6 +17,7 @@ function scriptOptions(script: HTMLScriptElement): LykarSdkOptions | null {
     mode: (script.dataset.lykarMode as LykarSdkOptions['mode']) ?? 'auto',
     delivery: (script.dataset.lykarDelivery as LykarSdkOptions['delivery']) ?? 'links-only',
     editorAssetUrl: scriptUrl ? new URL('editor.iife.js', scriptUrl).toString() : undefined,
+    runtimeAssetUrl: scriptUrl ? new URL('runtime-core.iife.js', scriptUrl).toString() : undefined,
     assetManifestUrl: scriptUrl ? new URL('asset-manifest.json', scriptUrl).toString() : undefined,
     editorAssetOrigin: scriptUrl?.origin,
   };

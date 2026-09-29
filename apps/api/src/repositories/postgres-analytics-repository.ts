@@ -1,4 +1,4 @@
-import { isSourceSnapshotV1, parseOperationV1 } from '@lykar/protocol';
+import { isSourceSnapshotV1, parseOperation } from '@lykar/protocol';
 import type { Pool, PoolClient } from 'pg';
 
 import {
@@ -245,7 +245,7 @@ function manifestFromRow(row: RuntimeVariantRow): ExperimentAssignment['manifest
     version: Number(row.version),
     manifestHash: row.manifest_hash.trim(),
     ...(sourceSnapshot ? { sourceSnapshot } : {}),
-    operations: row.manifest.map(parseOperationV1),
+    operations: row.manifest.map(parseOperation),
     createdAt: toIso(row.release_created_at),
   };
 }

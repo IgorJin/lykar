@@ -1,3 +1,4 @@
+import {observeNavigation} from './navigation.js';
 import {
   Lykar as RuntimeLykar,
   ManifestRequestError,
@@ -13,6 +14,8 @@ import {
 } from './access.js';
 import {
   validateAssetManifest,
+  validateRuntimeAssetEntry,
+  SDK_COMPATIBILITY,
   type SdkAssetManifest,
 } from './compatibility.js';
 import {
@@ -45,6 +48,20 @@ type EditorWindow = Window & {
   LykarEditor?: GlobalEditorApi;
   __LYKAR_VERIFIED_EDITOR_ASSETS__?: Record<string, string>;
 };
+
+type RuntimeCore = {
+  Lykar: new (options: unknown) => RuntimeLykar;
+  ManifestRequestError: typeof ManifestRequestError;
+  compatibility: typeof SDK_COMPATIBILITY;
+};
+
+const runtimeCoreKey = Symbol.for('@lykar/runtime-core/v1');
+const verifiedRuntimeAssets = new WeakMap<Window, Map<string, string>>();
+
+function runtimeCore(document: Document): RuntimeCore | undefined {
+  const view = document.defaultView;
+  return view ? (view as unknown as Record<symbol, RuntimeCore | undefined>)[runtimeCoreKey] : undefined;
+}
 
 type RuntimeRunOptions = {
   accessToken?: string;
@@ -109,11 +126,18 @@ export class Lykar {
   private startPromise?: Promise<LykarSdkResult>;
   private pageSession?: PageSession;
   private editor?: EditorHandle;
+  private readonly shareByPath = new Map<string, SdkShareAccess>();
+  private runtimeLoadPromise?: Promise<void>;
+  private runtimeLoadController?: AbortController;
+  get conditionalState() { return this.runtime?.conditionalState ?? {groups: [], stats: null}; }
+
   private runtime?: RuntimeLykar;
   private pathnameOverride?: string;
   private rootOverride?: Element;
   private rotateSession = false;
   private destroyed = false;
+  private stopNavigation?: () => void;
+  private observedPathname?: string;
 
   constructor(projectKey: string, options?: LykarSdkConstructorOptions);
   constructor(options: LykarSdkOptions);
@@ -142,6 +166,15 @@ export class Lykar {
       document = getBrowserDocument(this.options.document);
     } catch (error) {
       return this.fail(error);
+    }
+    if (!this.stopNavigation && document.defaultView) {
+      this.observedPathname = document.location.pathname;
+      this.stopNavigation = observeNavigation(document.defaultView, () => {
+        const pathname = document.location.pathname;
+        if (this.destroyed || pathname === this.observedPathname) return;
+        this.observedPathname = pathname;
+        void this.navigate({pathname, root: this.rootOverride ?? this.options.root}).catch(error => this.fail(error));
+      });
     }
     const context = this.startPageSession(document, this.rotateSession);
     this.rotateSession = false;
@@ -180,11 +213,17 @@ export class Lykar {
   }
 
   async destroy(): Promise<void> {
+    this.stopNavigation?.();
+    this.stopNavigation = undefined;
     this.pageSession?.destroy();
     this.cleanupActiveHandles();
     this.startPromise = undefined;
     this.rotateSession = false;
     this.destroyed = true;
+    this.shareByPath.clear();
+    this.runtimeLoadController?.abort();
+    this.runtimeLoadController = undefined;
+    this.runtimeLoadPromise = undefined;
   }
 
   async track(
@@ -272,6 +311,19 @@ export class Lykar {
       if (selectedMode === 'auto' || selectedMode === 'share') {
         shareAccess = await exchangeShareAccess(accessOptions);
         context.assertCurrent();
+      }
+      if (shareAccess) this.rememberShare(document, shareAccess);
+      else if (configuredMode === 'auto' && !selectors.editor && !selectors.share
+        && !selectors.variant && !selectors.experiment
+        && this.options.version === undefined && !this.options.variantToken
+        && !this.options.experimentToken && !this.options.accessToken
+        && this.options.delivery !== 'deployment') {
+        const cached = this.cachedShare(document);
+        const requestedVersions = new URLSearchParams(location.search).getAll('version');
+        if (cached && (!selectors.version || (requestedVersions.length === 1
+          && this.numberParam(requestedVersions[0]) === cached.version))) {
+          shareAccess = cached;
+        }
       }
       if (shareAccess) {
         const runtime = await this.runRuntime(context, {
@@ -367,6 +419,9 @@ export class Lykar {
     options: RuntimeRunOptions,
   ): Promise<LykarSdkResult> {
     try {
+      if ((RuntimeLykar as unknown as {external?: boolean}).external === true) {
+        await this.ensureRuntimeCore(getBrowserDocument(this.options.document), context);
+      }
       const runtimeInstance = new RuntimeLykar({
         projectKey: this.projectKey,
         apiBaseUrl: this.options.apiBaseUrl,
@@ -393,6 +448,7 @@ export class Lykar {
         draftId: context.draftId,
         registerCleanup: context.registerCleanup,
         onDiagnostic: this.options.onDiagnostic,
+        onConditionalDiagnostic: this.options.onConditionalDiagnostic,
         onReport: (report: ApplyReport) => {
           context.assertCurrent();
           this.options.onReport?.(report);
@@ -408,6 +464,9 @@ export class Lykar {
         runtime,
       };
     } catch (error) {
+      if (error instanceof LykarSdkError && error.code.startsWith('RUNTIME_ASSET_')) {
+        return {mode: 'native', reason: 'RUNTIME_ASSET_UNAVAILABLE'};
+      }
       if (
         error instanceof ManifestRequestError &&
         error.status !== undefined &&
@@ -471,6 +530,7 @@ export class Lykar {
       accessToken: capability.token,
       version: capability.baseVersion ?? undefined,
     });
+    if (runtime.mode === 'native' && runtime.reason === 'RUNTIME_ASSET_UNAVAILABLE') return runtime;
     context.assertCurrent();
     const editorApi = await this.loadEditorApi(document, editorAsset, context);
     context.assertCurrent();
@@ -669,6 +729,142 @@ export class Lykar {
     return new URL('/editor.iife.js', document.location.href).toString();
   }
 
+  private sharePath(document: Document): string {
+    return `${document.location.origin}${this.pathnameOverride ?? this.options.pathname ?? document.location.pathname}`;
+  }
+
+  private rememberShare(document: Document, access: SdkShareAccess): void {
+    const key = this.sharePath(document);
+    this.shareByPath.delete(key);
+    const expiry = Date.parse(access.expiresAt);
+    if (!Number.isFinite(expiry) || expiry <= Date.now()) return;
+    this.shareByPath.set(key, access);
+    while (this.shareByPath.size > 16) {
+      this.shareByPath.delete(this.shareByPath.keys().next().value!);
+    }
+  }
+
+  private cachedShare(document: Document): SdkShareAccess | null {
+    for (const [key, access] of this.shareByPath) {
+      if (!Number.isFinite(Date.parse(access.expiresAt)) || Date.parse(access.expiresAt) <= Date.now()) {
+        this.shareByPath.delete(key);
+      }
+    }
+    return this.shareByPath.get(this.sharePath(document)) ?? null;
+  }
+
+  private async ensureRuntimeCore(document: Document, context: PageSessionContext): Promise<void> {
+    if (!this.runtimeLoadPromise) {
+      const controller = new AbortController();
+      this.runtimeLoadController = controller;
+      const loading = this.resolveRuntimeAsset(document, controller.signal)
+        .then(asset => this.loadRuntimeCore(document, asset, controller.signal));
+      this.runtimeLoadPromise = loading;
+      void loading.catch(() => {
+        if (this.runtimeLoadPromise === loading) this.runtimeLoadPromise = undefined;
+      }).finally(() => {
+        if (this.runtimeLoadController === controller) this.runtimeLoadController = undefined;
+      });
+    }
+    await this.runtimeLoadPromise;
+    context.assertCurrent();
+  }
+
+  private async resolveRuntimeAsset(document: Document, signal: AbortSignal): Promise<EditorAsset> {
+    const assetUrl = new URL(
+      this.options.runtimeAssetUrl ?? 'runtime-core.iife.js',
+      this.editorAssetUrl(document),
+    );
+    const allowedOrigin = this.options.editorAssetOrigin
+      ? new URL(this.options.editorAssetOrigin, document.location.href).origin
+      : document.location.origin;
+    if (assetUrl.origin !== allowedOrigin) {
+      throw new LykarSdkError('RUNTIME_ASSET_ORIGIN_MISMATCH', 'Runtime asset origin is not allowed.');
+    }
+    const manifestUrl = new URL(this.options.assetManifestUrl ?? 'asset-manifest.json', assetUrl);
+    if (manifestUrl.origin !== allowedOrigin) {
+      throw new LykarSdkError('RUNTIME_ASSET_ORIGIN_MISMATCH', 'Runtime manifest origin is not allowed.');
+    }
+    const request = this.networkFetch(signal);
+    if (!request) throw new LykarSdkError('RUNTIME_ASSET_NO_FETCH', 'Runtime asset verification requires fetch.');
+    let response: Response;
+    try {
+      response = await request(manifestUrl.toString(), {headers: {Accept: 'application/json'}});
+    } catch (error) {
+      throw new LykarSdkError('RUNTIME_ASSET_MANIFEST_REQUEST_FAILED', 'Runtime asset manifest request failed.', error);
+    }
+    if (!response.ok) {
+      throw new LykarSdkError('RUNTIME_ASSET_MANIFEST_REQUEST_FAILED',
+        `Runtime asset manifest returned HTTP ${response.status}.`);
+    }
+    let manifest: SdkAssetManifest;
+    try {
+      manifest = validateAssetManifest(await response.json());
+    } catch (error) {
+      throw new LykarSdkError('RUNTIME_ASSET_INVALID', 'Runtime asset manifest is invalid.', error);
+    }
+    const entry = validateRuntimeAssetEntry(manifest);
+    const filename = assetUrl.pathname.split('/').at(-1);
+    if (filename !== entry.path && filename !== entry.versionedPath) {
+      throw new LykarSdkError('RUNTIME_ASSET_COMPATIBILITY_MISMATCH',
+        'Configured runtime asset is not in the compatible SDK asset set.');
+    }
+    return {url: assetUrl.toString(), integrity: entry.integrity};
+  }
+
+  private async loadRuntimeCore(document: Document, asset: EditorAsset, signal: AbortSignal): Promise<void> {
+    const view = document.defaultView;
+    if (!view) throw new LykarSdkError('RUNTIME_ASSET_INVALID', 'Runtime asset requires a browser window.');
+    const compatible = (core: RuntimeCore | undefined) => Boolean(core
+      && typeof core.Lykar === 'function'
+      && typeof core.ManifestRequestError === 'function'
+      && Object.entries(SDK_COMPATIBILITY).every(([key, value]) =>
+        core.compatibility?.[key as keyof typeof SDK_COMPATIBILITY] === value));
+    const existing = runtimeCore(document);
+    if (existing) {
+      if (compatible(existing) && verifiedRuntimeAssets.get(view)?.get(asset.url) === asset.integrity) return;
+      throw new LykarSdkError('RUNTIME_ASSET_COMPATIBILITY_MISMATCH',
+        'An unverified or incompatible runtime asset is already loaded.');
+    }
+
+    const script = document.createElement('script');
+    script.src = asset.url;
+    script.integrity = asset.integrity;
+    script.crossOrigin = 'anonymous';
+    script.async = true;
+    script.dataset.lykarRuntimeAsset = 'true';
+    const configuredTimeout = this.options.runtimeAssetTimeoutMs;
+    const timeoutMs = configuredTimeout !== undefined && Number.isFinite(configuredTimeout) && configuredTimeout > 0
+      ? Math.min(configuredTimeout, 30_000) : 10_000;
+    await new Promise<void>((resolve, reject) => {
+      let settled = false;
+      const finish = (error?: Error) => {
+        if (settled) return;
+        settled = true;
+        globalThis.clearTimeout(timer);
+        signal.removeEventListener('abort', aborted);
+        script.remove();
+        if (error) reject(error);
+        else resolve();
+      };
+      const aborted = () => finish(abortError());
+      const timer = globalThis.setTimeout(() => finish(new LykarSdkError('RUNTIME_ASSET_TIMEOUT',
+        `Runtime asset did not load within ${timeoutMs}ms.`)), timeoutMs);
+      signal.addEventListener('abort', aborted, {once: true});
+      script.addEventListener('load', () => finish());
+      script.addEventListener('error', () => finish(new LykarSdkError('RUNTIME_ASSET_LOAD_FAILED',
+        'Runtime asset failed to load.')));
+      if (signal.aborted) aborted();
+      else (document.head ?? document.documentElement).appendChild(script);
+    });
+    if (!compatible(runtimeCore(document))) {
+      throw new LykarSdkError('RUNTIME_ASSET_INVALID', 'Runtime asset did not expose a compatible core.');
+    }
+    const verified = verifiedRuntimeAssets.get(view) ?? new Map<string, string>();
+    verified.set(asset.url, asset.integrity);
+    verifiedRuntimeAssets.set(view, verified);
+  }
+
   private numberParam(value: string | null): number | undefined {
     if (value === null || value === '') return undefined;
     const parsed = Number(value);
@@ -689,6 +885,7 @@ export class Lykar {
   private cleanupActiveHandles(): void {
     this.editor?.destroy?.();
     this.editor = undefined;
+    this.runtime?.destroy();
     this.runtime = undefined;
   }
 

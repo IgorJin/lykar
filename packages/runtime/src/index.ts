@@ -1,4 +1,6 @@
 export {applyOperation, assertOperationPayloadSafe} from './dom-executor.js';
+export {ConditionalRuntime, compileConditionalGroups} from './conditional-runtime.js';
+export type {ConditionalEffect, ConditionalGroup, ConditionalGroupState, ConditionalRuntimeOptions, ConditionalRuntimeStats, ConditionalSource} from './conditional-runtime.js';
 export type { ApplyOperationOptions } from './dom-executor.js';
 export {MutationJournal} from './mutation-journal.js';
 export type {CompensationDiagnostic, JournalEntrySnapshot} from './mutation-journal.js';
@@ -39,3 +41,6 @@ export type {
   TargetResolutionReason,
   TargetResolutionStatus,
 } from './target-resolver.js';
+
+export {resolveConditionalTarget} from './conditional-target.js';
+export {frameworkRootFor, frameworkRoots, isFrameworkTargetReady, subscribeFrameworkRoots} from './framework-support.js';

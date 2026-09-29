@@ -53,7 +53,7 @@ test('browser runtime blocks ambiguous, missing, and invalid targets', async ({ 
       mode: 'visitor',
       version: 1,
       waitForDom: false,
-      fetch: async () => new Response(JSON.stringify({ manifest }), {
+      fetch: async (input: RequestInfo | URL) => String(input).includes('asset-manifest.json') ? window.fetch(input) : new Response(JSON.stringify({ manifest }), {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
       }),

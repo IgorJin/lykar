@@ -98,6 +98,7 @@ export type LykarRuntimeOptions = {
   draftId?: string;
   registerCleanup?: (cleanup: () => void) => () => void;
   onDiagnostic?: (diagnostic: CompensationDiagnostic) => void;
+  onConditionalDiagnostic?: (diagnostic: {groupId: string; code: string; message: string}) => void;
   onReport?: (report: ApplyReport) => void;
 };
 

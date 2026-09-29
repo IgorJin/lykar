@@ -91,7 +91,7 @@ test('replay keeps node identity, dependencies, and session compensation safe', 
       root,
       waitForDom: false,
       targetRetryMs: 0,
-      fetch: () => Promise.resolve(json()),
+      fetch: (input: RequestInfo | URL) => String(input).includes('asset-manifest.json') ? window.fetch(input) : Promise.resolve(json()),
     });
 
     const first = await sdk.start();

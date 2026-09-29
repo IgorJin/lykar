@@ -1,0 +1,5 @@
+
+> @lykar/sdk@0.0.0 verify:consumer
+> node ../../scripts/verify-sdk-consumer.mjs
+
+SDK consumer fixture passed
