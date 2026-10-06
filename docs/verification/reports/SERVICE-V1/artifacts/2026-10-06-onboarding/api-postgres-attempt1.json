@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "test:e2e:http"
+  ],
+  "startedAt": "2026-10-06T13:48:52.318563+00:00",
+  "durationSeconds": 15.24,
+  "exitCode": 1
+}

@@ -55,9 +55,10 @@ async function boot() {
   const Lykar = new URL(location.href).searchParams.get('lykar_sdk') === 'module'
     ? (await import('/sdk.esm.js')).Lykar : window.Lykar;
   sdk = new Lykar({
+    frameworkMode: 'static',
     projectKey: config.projectKey,
     apiBaseUrl: config.apiBaseUrl,
-    delivery: 'links-only',
+    delivery: new URL(location.href).searchParams.get('lykar_delivery') === 'deployment' ? 'deployment' : 'links-only',
     waitForDom: false,
     editorAssetUrl: new URL('/editor.iife.js', location.origin).toString(),
     editorAssetOrigin: location.origin,

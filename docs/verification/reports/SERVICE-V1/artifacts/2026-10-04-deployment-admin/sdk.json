@@ -1,0 +1,15 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "test",
+    "--workspace",
+    "@lykar/sdk",
+    "--",
+    "--maxWorkers=1"
+  ],
+  "startedAt": "2026-10-04T18:42:09.353Z",
+  "endedAt": "2026-10-04T18:42:13.679Z",
+  "code": 0,
+  "signal": null
+}

@@ -1,4 +1,5 @@
-import {makeInput, makeButton, makeFieldRow, makeSection, makeSelect} from '../controls/native.js';
+import {makeInput, makeButton, makeFieldRow, makeSection} from '../controls/native.js';
+import {Select} from '../controls/select.js';
 import {STYLE_FIELDS, STYLE_SECTIONS, normalizeCustomPropertyName} from './styles-config.js';
 import type {StyleFieldDefinition} from './types.js';
 import {
@@ -20,7 +21,104 @@ import {
 export {splitTopLevel};
 
 export type StyleChangePart = {property: string; value: string; priority?: '' | 'important'; reset?: true};
-export type StyleChange = StyleChangePart & {transactionId?: string; group?: readonly StyleChangePart[]};
+export type StyleChange = StyleChangePart & {transactionId?: string; intent?: 'priority'; group?: readonly StyleChangePart[]};
+
+function numericValue(value: string): {amount: string; unit: string} | null {
+  const match = /^([+-]?(?:\d+(?:\.\d*)?|\.\d+))([a-z%]*)$/i.exec(value.trim());
+  return match ? {amount: match[1], unit: match[2]} : null;
+}
+
+function optionLabel(field: string, value: string, fallback: string): string {
+  if (field === 'font-weight') {
+    const weights: Record<string, string> = {'100': 'Тонкий · 100', '200': 'Сверхлёгкий · 200', '300': 'Лёгкий · 300', '400': 'Обычный · 400', '500': 'Средний · 500', '600': 'Полужирный · 600', '700': 'Жирный · 700', '800': 'Сверхжирный · 800', '900': 'Чёрный · 900', normal: 'Обычный', bold: 'Жирный', bolder: 'Жирнее', lighter: 'Тоньше'};
+    return weights[value] ?? fallback;
+  }
+  if (field === 'text-align') return ({left: 'Слева', right: 'Справа', center: 'По центру', justify: 'По ширине', start: 'По началу', end: 'По концу'} as Record<string, string>)[value] ?? fallback;
+  if (field === 'font-style') return ({normal: 'Обычный', italic: 'Курсив', oblique: 'Наклонный'} as Record<string, string>)[value] ?? fallback;
+  return fallback;
+}
+
+// Presentation labels stay separate from the CSS catalog and stable aria-labels.
+const VISIBLE_FIELD_LABELS: Readonly<Record<string, string>> = {
+  'font-family': 'Шрифт',
+  'font-size': 'Размер',
+  'font-weight': 'Начертание',
+  'font-style': 'Стиль шрифта',
+  'line-height': 'Высота строки',
+  'letter-spacing': 'Межбуквенный интервал',
+  color: 'Цвет текста',
+  'text-align': 'Выравнивание',
+  'text-decoration': 'Оформление текста',
+  'text-transform': 'Регистр текста',
+  'white-space': 'Пробелы и переносы',
+  'word-break': 'Перенос слов',
+  'text-shadow': 'Тени текста',
+  display: 'Отображение',
+  'box-sizing': 'Расчёт размера',
+  visibility: 'Видимость',
+  overflow: 'Переполнение',
+  'overflow-x': 'По горизонтали',
+  'overflow-y': 'По вертикали',
+  'flex-direction': 'Направление',
+  'flex-wrap': 'Перенос элементов',
+  'justify-content': 'Распределение',
+  'align-items': 'Выравнивание элементов',
+  'align-content': 'Выравнивание строк',
+  'align-self': 'Выравнивание элемента',
+  'flex-basis': 'Базовый размер',
+  'flex-grow': 'Растяжение',
+  'flex-shrink': 'Сжатие',
+  order: 'Порядок',
+  'grid-template-columns': 'Колонки сетки',
+  'grid-template-rows': 'Строки сетки',
+  'grid-column': 'Колонка',
+  'grid-row': 'Строка',
+  gap: 'Промежуток',
+  'row-gap': 'Между строками',
+  'column-gap': 'Между колонками',
+  width: 'Ширина',
+  'min-width': 'Мин. ширина',
+  'max-width': 'Макс. ширина',
+  height: 'Высота',
+  'min-height': 'Мин. высота',
+  'max-height': 'Макс. высота',
+  'aspect-ratio': 'Пропорции',
+  margin: 'Внешние отступы',
+  'margin-top': 'Снаружи сверху',
+  'margin-right': 'Снаружи справа',
+  'margin-bottom': 'Снаружи снизу',
+  'margin-left': 'Снаружи слева',
+  padding: 'Внутренние отступы',
+  'padding-top': 'Внутри сверху',
+  'padding-right': 'Внутри справа',
+  'padding-bottom': 'Внутри снизу',
+  'padding-left': 'Внутри слева',
+  position: 'Позиционирование',
+  top: 'Сверху',
+  right: 'Справа',
+  bottom: 'Снизу',
+  left: 'Слева',
+  'z-index': 'Уровень слоя',
+  'background-color': 'Цвет фона',
+  'background-image': 'Изображение или градиент',
+  'background-repeat': 'Повтор фона',
+  'background-position': 'Положение фона',
+  'background-size': 'Размер фона',
+  'background-attachment': 'Прокрутка фона',
+  background: 'Слои фона',
+  border: 'Граница',
+  'border-width': 'Толщина границы',
+  'border-style': 'Стиль границы',
+  'border-color': 'Цвет границы',
+  'border-radius': 'Скругление',
+  opacity: 'Прозрачность',
+  'box-shadow': 'Тени блока',
+  transform: 'Трансформация',
+  'transform-origin': 'Центр трансформации',
+  filter: 'Фильтры',
+  'backdrop-filter': 'Фильтры подложки',
+  transition: 'Переходы',
+};
 
 /** A framework-independent, Shadow DOM-friendly view. All writes go through onChange. */
 export class StyleManager {
@@ -31,6 +129,7 @@ export class StyleManager {
   private readonly onCancel: () => void;
   private readonly isDirty: (element: Element, property: string) => boolean;
   private target: Element | null = null;
+  private targetObserver: MutationObserver | null = null;
   private readonly rows = new Map<string, HTMLElement>();
   private readonly inputs = new Map<string, HTMLInputElement>();
   private readonly sections = new Map<string, HTMLDetailsElement>();
@@ -43,12 +142,18 @@ export class StyleManager {
   private readonly customSection: HTMLDetailsElement;
   private editSequence = 0;
   private readonly search: HTMLInputElement;
+  private readonly selects = new Map<string, Select>();
+  private readonly unitSelects = new Map<string, Select>();
+  private readonly unitValues = new Map<string, string>();
+  private readonly customTransactions = new Map<string, string>();
   private readonly stacks = new Map<string, () => void>();
   private readonly flushers = new Set<() => void>();
   private readonly cancellers = new Set<() => void>();
 
   flush(): void { for (const flush of this.flushers) flush(); }
   destroy(): void {
+    this.targetObserver?.disconnect();
+    for (const select of [...this.selects.values(), ...this.unitSelects.values()]) select.destroy();
     for (const cancel of this.cancellers) cancel();
     this.target = null;
     this.element.remove();
@@ -61,6 +166,7 @@ export class StyleManager {
     onCancel: () => void = () => {},
     isDirty: (element: Element, property: string) => boolean = () => false,
     private readonly readStyle?: (element: Element) => CSSStyleDeclaration | undefined,
+    private readonly hasOverride: (element: Element, property: string) => boolean = isDirty,
   ) {
     this.document = document;
     this.onChange = onChange;
@@ -71,8 +177,12 @@ export class StyleManager {
     root.className = 'style-manager';
     this.element = root;
     this.search = this.makeInput('search', 'Найти CSS-свойство', 'Поиск свойства');
+    this.search.className = 'style-search-input';
     this.search.addEventListener('input', () => this.filter());
-    root.append(this.search);
+    const search = document.createElement('div');
+    search.className = 'style-search';
+    search.append(this.makeIcon('search'), this.search);
+    root.append(search);
 
     for (const section of STYLE_SECTIONS) {
       const details = makeSection(document, section.id, section.label, Boolean(section.initiallyOpen));
@@ -94,10 +204,9 @@ export class StyleManager {
     this.customProperty = this.makeInput('text', 'Свойство, например grid-column или --Accent', 'CSS property');
     this.customValue = this.makeInput('text', 'CSS-значение', 'CSS value');
     this.customPriority = this.makeInput('checkbox', '', '!important');
-    const priorityLabel = document.createElement('label');
-    priorityLabel.className = 'style-important';
-    priorityLabel.append(this.customPriority, document.createTextNode(' !important'));
+    const priorityLabel = this.makePriorityLabel(this.customPriority);
     const apply = this.makeButton('Добавить / изменить');
+    apply.className = 'style-custom-apply';
     const restoreCustom = this.makeButton('Вернуть исходный');
     restoreCustom.addEventListener('click', () => {
       const property = normalizeCustomPropertyName(this.customProperty.value);
@@ -119,14 +228,35 @@ export class StyleManager {
   }
 
   setTarget(target: Element | null): void {
+    this.closeSelects();
+    this.targetObserver?.disconnect();
+    this.targetObserver = null;
     this.target = target;
+    this.customTransactions.clear();
+    const Observer = this.document.defaultView?.MutationObserver;
+    if (target && Observer) {
+      this.targetObserver = new Observer(() => this.refresh());
+      this.targetObserver.observe(target, {attributes: true, childList: true, characterData: true, subtree: true});
+    }
     this.customProperty.value = '';
     this.customValue.value = '';
     this.customPriority.checked = false;
     this.refresh(true);
   }
 
-  refresh(forceCustom = false): void {
+  closeSelects(): void {
+    for (const select of [...this.selects.values(), ...this.unitSelects.values()]) select.close();
+  }
+
+  openSection(id: string): void {
+    const section = this.sections.get(id);
+    if (!section) return;
+    this.ensureRows(id);
+    section.open = true;
+    this.refresh();
+  }
+
+  refresh(forceCustom = false, forceProperty?: string): void {
     const target = this.target;
     const styled = this.styleFor(target);
     const computed = target && this.document.defaultView?.getComputedStyle(target);
@@ -135,8 +265,19 @@ export class StyleManager {
       const input = this.inputs.get(field.id);
       if (!row || !input) continue;
       const authored = styled?.getPropertyValue(field.property) ?? '';
-      if (forceCustom || (this.document.activeElement !== input && !this.focused(input))) input.value = authored.trim();
+      const computedValue = computed?.getPropertyValue(field.property).trim() || '';
+      const numeric = this.unitSelects.has(field.id) ? numericValue(authored.trim() || computedValue) : null;
+      const forceField = forceCustom || field.property === forceProperty;
+      if (forceField || (this.document.activeElement !== input && !this.focused(input))) input.value = authored.trim() ? numeric?.amount ?? authored.trim() : '';
+      row.dataset.source = authored ? 'override' : 'computed';
+      input.placeholder = authored ? field.ui.placeholder ?? 'CSS-значение' : numeric?.amount ?? (computedValue || field.ui.placeholder || 'CSS-значение');
       row.dataset.dirty = target && this.isDirty(target, field.property) ? 'true' : 'false';
+      const owned = Boolean(target && this.hasOverride(target, field.property));
+      row.dataset.override = String(owned);
+      const remove = row.querySelector<HTMLButtonElement>('[data-style-action="remove"]');
+      if (remove) remove.disabled = !owned;
+      const restore = row.querySelector<HTMLButtonElement>('[data-style-action="restore"]');
+      if (restore) restore.disabled = row.dataset.dirty !== 'true';
       row.title = authored
         ? `Задано: ${authored}${styled?.getPropertyPriority(field.property) ? ' !important' : ''}`
         : `Вычислено: ${computed?.getPropertyValue(field.property).trim() || '—'}`;
@@ -150,8 +291,14 @@ export class StyleManager {
         row.append(hint);
       }
       if (hint) { hint.textContent = inactive ? `Возможно не действует: ${field.applicability?.hint ?? 'проверьте условия layout'}` : ''; hint.hidden = !inactive; }
-      const select = row.querySelector<HTMLSelectElement>('select[data-role="preset"]');
-      if (select && this.document.activeElement !== select) select.value = field.control === 'select' && field.options.some(option => option.value === authored.trim()) ? authored.trim() : '';
+      this.selects.get(field.id)?.setValue(authored.trim() || computedValue);
+      this.selects.get(field.id)?.setDisabled(!target);
+      const units = this.unitSelects.get(field.id);
+      if (units) {
+        this.unitValues.set(field.id, numeric?.unit ?? '');
+        units.setValue(numeric?.unit ?? '', numeric ? numeric.unit || '—' : '—');
+        units.setDisabled(!target || Boolean((authored.trim() || computedValue) && !numeric));
+      }
       const swatch = row.querySelector<HTMLInputElement>('input[data-role="swatch"]');
       if (swatch) {
         const rgb = computed?.getPropertyValue(field.property).match(/^rgba?\(\s*(\d+(?:\.\d+)?)[,\s]+(\d+(?:\.\d+)?)[,\s]+(\d+(?:\.\d+)?)/i);
@@ -159,12 +306,12 @@ export class StyleManager {
         else if (rgb) swatch.value = '#' + rgb.slice(1, 4).map(value => Math.min(255, Math.round(Number(value))).toString(16).padStart(2, '0')).join('');
       }
       const priority = row.querySelector<HTMLInputElement>('input[data-role="priority"]');
-      if (priority && (forceCustom || !this.focused(priority))) priority.checked = styled?.getPropertyPriority(field.property) === 'important';
+      if (priority && (forceField || !this.focused(priority))) priority.checked = styled?.getPropertyPriority(field.property) === 'important';
       const parts = this.compositeInputs.get(field.id);
       if (parts && field.control === 'composite') {
         let hasUnreadablePart = false;
         field.parts.forEach((part, index) => {
-          if (forceCustom || !this.focused(parts[index])) {
+          if (forceField || !this.focused(parts[index])) {
             const value = styled
               ? readCompositePart(styled, field.property, part.affectedProperties[0])
               : '';
@@ -204,41 +351,70 @@ export class StyleManager {
       row.className = 'style-row';
       const label = this.document.createElement('label');
       label.textContent = property;
+      label.className = 'style-field-label';
       const value = this.makeInput('text', 'CSS-значение', property);
+      value.className = 'style-field-input';
       value.value = declaration.value.trim();
       const priority = this.makeInput('checkbox', '', `${property}: !important`);
       priority.checked = declaration.priority === 'important';
-      const priorityLabel = this.document.createElement('label');
-      priorityLabel.className = 'style-important';
-      priorityLabel.append(priority, this.document.createTextNode(' !important'));
+      const priorityLabel = this.makePriorityLabel(priority);
       value.addEventListener('change', () => {
-        if (this.validate(property, value.value, value)) this.onChange({property, value: value.value, priority: priority.checked ? 'important' : ''});
+        if (this.validate(property, value.value, value)) {
+          const transactionId = `edit-${++this.editSequence}`;
+          this.customTransactions.set(property, transactionId);
+          this.onChange({property, value: value.value, priority: priority.checked ? 'important' : '', transactionId});
+        }
       });
-      priority.addEventListener('change', () => this.onChange({property, value: value.value, priority: priority.checked ? 'important' : ''}));
-      const reset = this.makeButton('Удалить');
-      reset.setAttribute('aria-label', `Удалить inline CSS ${property}`);
-      reset.addEventListener('click', () => this.onChange({property, value: '', reset: true}));
-      const restore = this.makeButton('Вернуть исходный');
-      restore.setAttribute('aria-label', `Вернуть исходный ${property}`);
+      priority.addEventListener('change', () => {
+        const transactionId = this.customTransactions.get(property) ?? `edit-${++this.editSequence}`;
+        this.customTransactions.set(property, transactionId);
+        this.onChange({property, value: value.value, priority: priority.checked ? 'important' : '', transactionId, intent: 'priority'});
+      });
+      const reset = this.makeIconButton('remove', `Удалить правку ${property}`);
+      reset.disabled = !this.target || !this.hasOverride(this.target, property);
+      reset.addEventListener('click', () => { if (this.target && this.hasOverride(this.target, property)) this.onReset(property); });
+      const restore = this.makeIconButton('restore', `Вернуть исходный ${property}`);
+      restore.disabled = !this.target || !this.isDirty(this.target, property);
       restore.addEventListener('click', () => this.onReset(property));
-      row.append(label, value, priorityLabel, restore, reset);
+      const heading = this.document.createElement('div');
+      heading.className = 'style-field-heading';
+      const actions = this.document.createElement('div');
+      actions.className = 'style-field-actions';
+      actions.append(priorityLabel, restore, reset);
+      heading.append(label, actions);
+      const control = this.document.createElement('div');
+      control.className = 'style-field-value';
+      control.append(value);
+      row.append(heading, control);
       this.customRows.append(row);
     }
   }
 
   private makeRow(field: StyleFieldDefinition): HTMLElement {
     const row = makeFieldRow(this.document, field.id);
+    row.dataset.control = field.control;
     const label = this.document.createElement('label');
-    label.textContent = field.label;
+    label.textContent = VISIBLE_FIELD_LABELS[field.id] ?? field.label;
+    label.className = 'style-field-label';
     label.title = field.property;
     const input = this.makeInput('text', field.ui.placeholder ?? 'CSS-значение', field.label);
+    input.className = 'style-field-input';
+    input.id = `lykar-style-${field.id}`;
+    label.htmlFor = input.id;
     const priority = this.makeInput('checkbox', '', `${field.label}: !important`);
     priority.dataset.role = 'priority';
-    const priorityLabel = this.document.createElement('label');
-    priorityLabel.className = 'style-important';
-    priorityLabel.append(priority, this.document.createTextNode(' !important'));
+    const priorityLabel = this.makePriorityLabel(priority);
+    const heading = this.document.createElement('div');
+    heading.className = 'style-field-heading';
+    const actions = this.document.createElement('div');
+    actions.className = 'style-field-actions';
+    actions.append(priorityLabel);
+    heading.append(label, actions);
+    const control = this.document.createElement('div');
+    control.className = 'style-field-value';
     let composing = false;
     let activeTransaction: string | undefined;
+    let propertyTransaction: string | undefined;
     let lastPreview = '';
     let pendingFrame: number | null = null;
     let hasPreview = false;
@@ -246,9 +422,10 @@ export class StyleManager {
     let startValue = '';
     let startPriority = false;
     let focusedTarget: Element | null = null;
-    const change = () => {
+    const change = (intent?: 'priority') => {
       if (composing || cancelled || (activeTransaction && focusedTarget !== this.target)) return;
-      if (!this.validate(field.property, input.value, input)) return;
+      const value = this.fieldValue(field, input.value);
+      if (!this.validate(field.property, value, input)) return;
       if (this.hasMixedOverrides(field)) {
         this.setError(input, 'Заданы отдельные CSS-свойства этой группы. Изменяйте их по частям, чтобы сохранить исходные значения.');
         return;
@@ -259,11 +436,13 @@ export class StyleManager {
       }
       this.setError(input, '');
       const selectedPriority = priority.checked ? 'important' : '';
-      const signature = `${input.value}\u0000${selectedPriority}`;
+      const signature = `${value}\u0000${selectedPriority}`;
       if (activeTransaction && lastPreview === signature) return;
       if (activeTransaction) lastPreview = signature;
       if (activeTransaction) hasPreview = true;
-      this.onChange({property: field.property, value: input.value, priority: selectedPriority, transactionId: activeTransaction ?? `edit-${++this.editSequence}`});
+      const transactionId = activeTransaction ?? (intent ? propertyTransaction : undefined) ?? `edit-${++this.editSequence}`;
+      propertyTransaction = transactionId;
+      this.onChange({property: field.property, value, priority: selectedPriority, transactionId, ...(intent ? {intent} : {})});
     };
     const begin = () => {
       activeTransaction = `edit-${++this.editSequence}`;
@@ -293,6 +472,12 @@ export class StyleManager {
         pendingFrame = null;
         change();
       }
+      const numeric = this.unitSelects.has(field.id) ? numericValue(this.fieldValue(field, input.value)) : null;
+      if (numeric) {
+        input.value = numeric.amount;
+        this.unitValues.set(field.id, numeric.unit);
+        this.unitSelects.get(field.id)?.setValue(numeric.unit, numeric.unit || '—');
+      }
       activeTransaction = undefined;
       lastPreview = '';
       hasPreview = false;
@@ -302,13 +487,20 @@ export class StyleManager {
     input.addEventListener('compositionstart', () => { composing = true; });
     input.addEventListener('compositionend', () => { composing = false; });
     input.addEventListener('input', () => {
-      if (!input.value || composing || !this.validate(field.property, input.value, input)) return;
+      if (!input.value || composing || !this.validate(field.property, this.fieldValue(field, input.value), input)) return;
       const view = this.document.defaultView;
       if (!view?.requestAnimationFrame) { change(); return; }
       if (pendingFrame !== null) return;
       pendingFrame = view.requestAnimationFrame(() => { pendingFrame = null; change(); });
     });
-    priority.addEventListener('change', change);
+    priority.addEventListener('change', () => {
+      if (!input.value.trim() && this.target) {
+        const current = this.styleFor(this.target)?.getPropertyValue(field.property).trim()
+          || this.document.defaultView?.getComputedStyle(this.target).getPropertyValue(field.property).trim() || '';
+        input.value = this.unitSelects.has(field.id) ? numericValue(current)?.amount ?? current : current;
+      }
+      change('priority');
+    });
     input.addEventListener('change', () => {
       if (pendingFrame !== null) {
         this.document.defaultView?.cancelAnimationFrame(pendingFrame);
@@ -333,16 +525,17 @@ export class StyleManager {
         input.blur();
       }
     });
-    row.append(label);
+    row.append(heading);
     if (field.control === 'select') {
-      const select = makeSelect(this.document, `${field.label}: варианты`, [{value: '', label: 'Произвольное значение'}, ...field.options]);
-      select.dataset.role = 'preset';
-      select.addEventListener('change', () => {
-        if (!select.value) { input.focus(); return; }
-        input.value = select.value;
-        change();
+      const select = new Select(this.document, {
+        label: `${field.label}: варианты`, input,
+        options: field.options.map(option => ({...option, label: optionLabel(field.id, option.value, option.label)})),
+        searchable: true,
+        onChange: value => { input.value = value; change(); },
       });
-      row.append(select);
+      select.trigger.dataset.role = 'preset';
+      this.selects.set(field.id, select);
+      control.append(select.element);
     }
     if (field.control === 'color') {
       const swatch = this.makeInput('color', '#000000', `${field.label}: палитра`);
@@ -361,9 +554,10 @@ export class StyleManager {
         activeTransaction = undefined;
       });
       swatch.addEventListener('blur', () => { this.flush(); activeTransaction = undefined; });
-      row.append(swatch);
+      control.append(swatch);
     }
-    row.append(input, priorityLabel);
+    if (field.control !== 'select') control.append(input);
+    row.append(control);
     if (field.control === 'composite' && ['margin', 'padding', 'border-radius', 'border'].includes(field.id)) {
       const parts = this.document.createElement('div');
       parts.className = 'style-composite-parts';
@@ -393,6 +587,7 @@ export class StyleManager {
       const layers = this.document.createElement('div');
       layers.className = 'style-stack-items';
       const toggle = this.makeButton('Редактировать слои');
+      toggle.className = 'style-stack-toggle';
       toggle.setAttribute('aria-expanded', 'false');
       toggle.addEventListener('click', () => {
         layers.hidden = !layers.hidden;
@@ -410,35 +605,40 @@ export class StyleManager {
       });
     }
     if (field.control === 'number-unit' && field.units.length > 0) {
-      const units = this.document.createElement('select');
-      units.setAttribute('aria-label', `${field.label}: единица`);
-      const blank = this.document.createElement('option');
-      blank.value = '';
-      blank.textContent = 'ед.';
-      units.append(blank);
-      for (const unit of field.units) {
-        const item = this.document.createElement('option');
-        item.value = unit;
-        item.textContent = unit || 'без ед.';
-        units.append(item);
-      }
-      units.addEventListener('change', () => {
-        if (!units.value || !/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[a-z%]*)$/i.test(input.value.trim())) return;
-        input.value = input.value.trim().replace(/[a-z%]*$/i, units.value);
-        change();
+      const units = new Select(this.document, {
+        label: `${field.label}: единица`, searchable: false,
+        options: Array.from(new Set([...(field.unitless ? [''] : []), ...field.units])).map(unit => ({value: unit, label: unit || 'Без единицы'})),
+        onChange: unit => {
+          const amount = numericValue(input.value.trim() || input.placeholder);
+          if (!amount) return;
+          this.unitValues.set(field.id, unit);
+          input.value = amount.amount;
+          change();
+        },
       });
-      row.append(units);
+      units.element.classList.add('style-field-unit');
+      this.unitSelects.set(field.id, units);
+      this.unitValues.set(field.id, field.units.includes('px') ? 'px' : field.units[0] ?? '');
+      control.append(units.element);
     }
-    const reset = this.makeButton('Удалить');
-    reset.setAttribute('aria-label', `Удалить inline CSS ${field.label}`);
-    reset.addEventListener('click', () => { input.value = ''; this.onChange({property: field.property, value: '', reset: true}); });
-    const restore = this.makeButton('Вернуть исходный');
-    restore.setAttribute('aria-label', `Вернуть исходный ${field.label}`);
+    const reset = this.makeIconButton('remove', `Удалить правку ${field.label}`);
+    reset.disabled = true;
+    reset.title = 'Убрать правку Lykar и вернуть исходный стиль';
+    reset.addEventListener('click', () => { if (this.target && this.hasOverride(this.target, field.property)) this.onReset(field.property); });
+    const restore = this.makeIconButton('restore', `Вернуть исходный ${field.label}`);
+    restore.title = 'Отменить правку параметра и вернуть исходный стиль';
     restore.addEventListener('click', () => this.onReset(field.property));
-    row.append(restore, reset);
+    actions.append(restore, reset);
     this.rows.set(field.id, row);
     this.inputs.set(field.id, input);
     return row;
+  }
+
+  private fieldValue(field: StyleFieldDefinition, input: string): string {
+    if (field.control !== 'number-unit' || !this.unitSelects.has(field.id)) return input;
+    const parsed = numericValue(input.trim());
+    const unit = this.unitValues.get(field.id) || (!field.unitless && field.units.includes('px') ? 'px' : '');
+    return parsed && !parsed.unit ? `${parsed.amount}${unit}` : input;
   }
 
   private changeCompositePart(field: StyleFieldDefinition, property: string, input: HTMLInputElement): void {
@@ -704,7 +904,7 @@ export class StyleManager {
     for (const section of STYLE_SECTIONS) {
       const matches = section.fieldIds.filter(id => {
         const field = STYLE_FIELDS.find(candidate => candidate.id === id)!;
-        return !query || `${field.label} ${field.property}`.toLowerCase().includes(query);
+        return !query || `${field.label} ${VISIBLE_FIELD_LABELS[field.id] ?? ''} ${field.property}`.toLowerCase().includes(query);
       });
       const details = this.sections.get(section.id)!;
       matchCount += matches.length;
@@ -729,10 +929,16 @@ export class StyleManager {
     const section = STYLE_SECTIONS.find(candidate => candidate.id === sectionId);
     const details = this.sections.get(sectionId);
     if (!section || !details) return;
+    let fields = details.querySelector<HTMLElement>('.style-section-fields');
+    if (!fields) {
+      fields = this.document.createElement('div');
+      fields.className = 'style-section-fields';
+      details.append(fields);
+    }
     for (const id of section.fieldIds) {
       if (this.rows.has(id)) continue;
       const field = STYLE_FIELDS.find(candidate => candidate.id === id);
-      if (field) details.append(this.makeRow(field));
+      if (field) fields.append(this.makeRow(field));
     }
   }
 
@@ -756,6 +962,49 @@ export class StyleManager {
       container.append(error);
     }
     if (error) { error.textContent = message; error.hidden = !message; }
+  }
+
+  private makePriorityLabel(input: HTMLInputElement): HTMLLabelElement {
+    const label = this.document.createElement('label');
+    label.className = 'style-important';
+    label.title = 'Повысить приоритет значения (!important)';
+    input.title = label.title;
+    label.append(input, this.makeIcon('priority'));
+    return label;
+  }
+
+  private makeIconButton(icon: 'restore' | 'remove', label: string): HTMLButtonElement {
+    const button = this.makeButton('');
+    button.className = 'style-icon-button';
+    button.dataset.styleAction = icon;
+    button.setAttribute('aria-label', label);
+    button.title = label;
+    button.append(this.makeIcon(icon));
+    return button;
+  }
+
+  private makeIcon(icon: 'search' | 'restore' | 'remove' | 'priority'): SVGSVGElement {
+    const namespace = 'http://www.w3.org/2000/svg';
+    const svg = this.document.createElementNS(namespace, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('width', '16');
+    svg.setAttribute('height', '16');
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('stroke-width', '1.7');
+    svg.setAttribute('stroke-linecap', 'round');
+    svg.setAttribute('stroke-linejoin', 'round');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.setAttribute('focusable', 'false');
+    const path = this.document.createElementNS(namespace, 'path');
+    path.setAttribute('d', {
+      search: 'M21 21l-5-5M18 10.5a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z',
+      restore: 'M3 10V4m0 6h6M3.7 10a8.5 8.5 0 1 1 1.9 8',
+      remove: 'M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14M10 11v6m4-6v6',
+      priority: 'M12 5v9M12 18v.01',
+    }[icon]);
+    svg.append(path);
+    return svg;
   }
 
   private makeInput(type: string, placeholder: string, label: string): HTMLInputElement {

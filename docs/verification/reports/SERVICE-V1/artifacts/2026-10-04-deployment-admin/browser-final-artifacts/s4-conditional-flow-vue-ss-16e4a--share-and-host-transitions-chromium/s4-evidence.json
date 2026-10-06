@@ -1,0 +1,136 @@
+{
+  "framework": "vue",
+  "mode": "ssr",
+  "engine": "chromium",
+  "states": [
+    {
+      "text": "Далее",
+      "color": "rgb(0, 0, 128)",
+      "disabled": false
+    },
+    {
+      "text": "Далее",
+      "color": "rgb(0, 0, 128)",
+      "disabled": false
+    },
+    {
+      "text": "Далее",
+      "color": "rgb(0, 0, 128)",
+      "disabled": false
+    },
+    {
+      "text": "Далее",
+      "color": "rgb(0, 0, 128)",
+      "disabled": false
+    }
+  ],
+  "frames": {
+    "samples": [
+      {
+        "text": "Ожидаем",
+        "color": "rgb(128, 128, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Ожидаем",
+        "color": "rgb(128, 128, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Ожидаем",
+        "color": "rgb(128, 128, 128)"
+      }
+    ],
+    "sameTextNode": false
+  },
+  "resources": {
+    "groups": [
+      {
+        "id": "state-540bb289-8443-416d-bf59-8c8e8b51e9d5",
+        "status": "active"
+      }
+    ],
+    "stats": {
+      "groups": 1,
+      "active": 1,
+      "observedRecords": 120,
+      "ownRecords": 117,
+      "syncPasses": 34,
+      "suspended": false
+    }
+  }
+}

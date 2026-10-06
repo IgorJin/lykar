@@ -1,0 +1,136 @@
+{
+  "framework": "react",
+  "mode": "csr",
+  "engine": "chromium",
+  "states": [
+    {
+      "text": "Далее",
+      "color": "rgb(0, 0, 128)",
+      "disabled": false
+    },
+    {
+      "text": "Далее",
+      "color": "rgb(0, 0, 128)",
+      "disabled": false
+    },
+    {
+      "text": "Далее",
+      "color": "rgb(0, 0, 128)",
+      "disabled": false
+    },
+    {
+      "text": "Далее",
+      "color": "rgb(0, 0, 128)",
+      "disabled": false
+    }
+  ],
+  "frames": {
+    "samples": [
+      {
+        "text": "Ожидаем",
+        "color": "rgb(128, 128, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Ожидаем",
+        "color": "rgb(128, 128, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Ожидаем",
+        "color": "rgb(128, 128, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      }
+    ],
+    "sameTextNode": true
+  },
+  "resources": {
+    "groups": [
+      {
+        "id": "state-a02f170a-4de1-4c98-a3f9-5a6858d1cf52",
+        "status": "active"
+      }
+    ],
+    "stats": {
+      "groups": 1,
+      "active": 1,
+      "observedRecords": 223,
+      "ownRecords": 117,
+      "syncPasses": 38,
+      "suspended": false
+    }
+  }
+}

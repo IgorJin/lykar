@@ -1,0 +1,284 @@
+{
+  "generatedAt": "2026-10-03T20:43:20.770753+00:00",
+  "head": "e565328c339af5f12e488c37e0c972ae181d3dc9",
+  "scope": "Tracked and nonignored untracked apps/api files plus root package.json/package-lock.json; excludes generated/ignored dist and dependencies. Includes documentation.",
+  "hashMethod": "SHA256 of compact UTF-8 JSON ordered files array, ensure_ascii=false",
+  "sha256": "565355a3c8ee326f3515eb587b385f05ff0df66055a9a3b667892bc80658d6ef",
+  "files": [
+    {
+      "file": "apps/api/.env.example",
+      "sha256": "d431760a66f131fc83007bcbc6ee5390d1e12782bec9fae421b27237fa6d1991",
+      "bytes": 431
+    },
+    {
+      "file": "apps/api/.gitignore",
+      "sha256": "f1a2b181c1796942d9e0f993c6619d5e75e391cde0675fdeaeeecbc05f2ac20e",
+      "bytes": 960
+    },
+    {
+      "file": "apps/api/README.md",
+      "sha256": "2b85e4974542f8f4843334272cd275ebc7633136d25ed7e1dedcd5a16e3e30ca",
+      "bytes": 9192
+    },
+    {
+      "file": "apps/api/migrations/001_versioning_core.sql",
+      "sha256": "c2164e08db554777de27662e09d9a70c65fc9ee02261b9ead3d114bc432d4c13",
+      "bytes": 3408
+    },
+    {
+      "file": "apps/api/migrations/002_page_auth_and_sharing.sql",
+      "sha256": "f37f91dd5d9eb5593827a3159c31512912ebc43cabebf67ca7aa4d881d20c0ea",
+      "bytes": 5896
+    },
+    {
+      "file": "apps/api/migrations/003_project_members_and_invitations.sql",
+      "sha256": "d94f10990ceb5124fb039cff44e61771a64969266cabfd5269283b1df88f124f",
+      "bytes": 2419
+    },
+    {
+      "file": "apps/api/migrations/004_owner_invariant.sql",
+      "sha256": "2fdd0fa2d76a2c855785861d79abd7914f703eb87b900a7fe6d93a467588667e",
+      "bytes": 1129
+    },
+    {
+      "file": "apps/api/migrations/005_owner_invariant_trigger_fix.sql",
+      "sha256": "d87d54f42aaf12a58081da46e860cdb6219bc5c60807f7cf3f30fea543003fa3",
+      "bytes": 781
+    },
+    {
+      "file": "apps/api/migrations/006_experiments_and_source_snapshots.sql",
+      "sha256": "4cc770301961409efb3f049df511f138be91fa2e6562ace023be48bfd2936bfb",
+      "bytes": 2191
+    },
+    {
+      "file": "apps/api/migrations/007_analytics.sql",
+      "sha256": "684cbcdb04c0409875364266854cba89e6d328df53f59509d3d981373a8cd4ea",
+      "bytes": 2169
+    },
+    {
+      "file": "apps/api/migrations/008_analytics_rollups.sql",
+      "sha256": "0e39f81d06c8b53d54dfb80fc95fdfbf28dcc1f54e72829d729b6520811277f6",
+      "bytes": 813
+    },
+    {
+      "file": "apps/api/migrations/009_draft_save_idempotency.sql",
+      "sha256": "3810aa92ff3db83a939aff3afbbf802145c73282fa7cf9ba9356c109f4f43409",
+      "bytes": 1192
+    },
+    {
+      "file": "apps/api/migrations/010_page_deployments.sql",
+      "sha256": "eaa9f28cb8bbb4427d390a6704d4802884c3bf89eb620265e2d72c25a9aba165",
+      "bytes": 1419
+    },
+    {
+      "file": "apps/api/package.json",
+      "sha256": "dff562fa86029fba10debfc9c7970c03cad88059e97560a79f458ce7940e5c31",
+      "bytes": 1338
+    },
+    {
+      "file": "apps/api/src/app.test.ts",
+      "sha256": "e4a6bcc9504304c8ac5e35e7e9ef2d106f251a5553b79a8937125e0813f6c62e",
+      "bytes": 14799
+    },
+    {
+      "file": "apps/api/src/app.ts",
+      "sha256": "55a50dada757e6af5ec3a9c07f4c4ddb2548ae70747def5df8b0e64c3a78bc7a",
+      "bytes": 9850
+    },
+    {
+      "file": "apps/api/src/db/migrate.ts",
+      "sha256": "73c77fe506b622edf662cd4ed4fbe07ba0198e9800f70a4ff771c4bec2920864",
+      "bytes": 1792
+    },
+    {
+      "file": "apps/api/src/db/prune-analytics.ts",
+      "sha256": "00419965983d71815949be27a7df352bb149de72b186321dcf69cbdffb254a1c",
+      "bytes": 987
+    },
+    {
+      "file": "apps/api/src/domain/access.ts",
+      "sha256": "f2ee9f592d0207a7961521b28cbabe3b03d214c38ab4d7e928c62e5c8a8a9e0b",
+      "bytes": 10805
+    },
+    {
+      "file": "apps/api/src/domain/analytics.test.ts",
+      "sha256": "434660045ab555a9fe459a5606427f21a54807885cae93a4648a8c5afa28690f",
+      "bytes": 3465
+    },
+    {
+      "file": "apps/api/src/domain/analytics.ts",
+      "sha256": "a5fe26968bd6bbb59148527d8bbdb50428ccb4f717a6f43b10abfc684402cf74",
+      "bytes": 10469
+    },
+    {
+      "file": "apps/api/src/domain/auth.ts",
+      "sha256": "c9a2a592d039ba12541953df132b10a2f2d5064ffbcd104606561ebbc69973a5",
+      "bytes": 5293
+    },
+    {
+      "file": "apps/api/src/domain/deployments.test.ts",
+      "sha256": "55cda903327b82fb5345a2d5ab36c870e8d89774f8a727e61a91f08816900bb3",
+      "bytes": 7128
+    },
+    {
+      "file": "apps/api/src/domain/deployments.ts",
+      "sha256": "066cb32109da0990b5655f8e2bf33881ed3adfdf5bda94bcdfc3bb4c7a1ca032",
+      "bytes": 4691
+    },
+    {
+      "file": "apps/api/src/domain/experiments.test.ts",
+      "sha256": "faac9a16b5e1e7c19ba98170a07e5a1ac63a7a4b661bbdffb33ee48549f501d3",
+      "bytes": 4798
+    },
+    {
+      "file": "apps/api/src/domain/experiments.ts",
+      "sha256": "79b7bfae74d8295abd26b8eaa47cd14bc80c51b4318ef23ae3f6d2aaf864b58b",
+      "bytes": 10620
+    },
+    {
+      "file": "apps/api/src/domain/memberships.test.ts",
+      "sha256": "d232e3657dc649c9834af4e29d6e30fde35aebafcc55ad622220971eb7fa7085",
+      "bytes": 1037
+    },
+    {
+      "file": "apps/api/src/domain/memberships.ts",
+      "sha256": "296fd37163ff5a3e437ba8a3cdd0768661047969e3df8809c5d7b8a597c8ee10",
+      "bytes": 9259
+    },
+    {
+      "file": "apps/api/src/domain/versioning.test.ts",
+      "sha256": "046c6b4e0a43254e1d2ca6d3cd1fc21b809a7a54113e6404b12a8e7e76bcd328",
+      "bytes": 6399
+    },
+    {
+      "file": "apps/api/src/domain/versioning.ts",
+      "sha256": "f502f616f50743529dd60ccd6fd4b091025f1ec38267c9b80272165905b430e8",
+      "bytes": 13946
+    },
+    {
+      "file": "apps/api/src/integration/deployment-migration-postgres.test.ts",
+      "sha256": "46508bf8d6532564aca280ad972e6f69c9cd28f2ba08dd04558fd9eb4d12c0ae",
+      "bytes": 8504
+    },
+    {
+      "file": "apps/api/src/integration/deployments-postgres.test.ts",
+      "sha256": "a11a04943508ced9faddc135598a04817475d25a9def5c69797622af177370ff",
+      "bytes": 22487
+    },
+    {
+      "file": "apps/api/src/integration/experiments-postgres.test.ts",
+      "sha256": "1e35a0e5d95bcc7fd6f7e849173fda567137193876fa890a8aa277375b31f43c",
+      "bytes": 16067
+    },
+    {
+      "file": "apps/api/src/integration/memberships-postgres.test.ts",
+      "sha256": "34479a6e6a34ace87206cfb4c24891c813dc4361dd01bbdf856c063c82eafe1b",
+      "bytes": 13823
+    },
+    {
+      "file": "apps/api/src/integration/versioning-postgres.test.ts",
+      "sha256": "69cb87e5f67c1744878bdf5dee03caa36722a7e6a875ef36eadf05a8a4058a9b",
+      "bytes": 12931
+    },
+    {
+      "file": "apps/api/src/plugins/db.ts",
+      "sha256": "f33f513cb7dd33d9907640ccef5aff8af51b04ceb1ee49c50f57c222a3dba5bc",
+      "bytes": 325
+    },
+    {
+      "file": "apps/api/src/repositories/postgres-access-repository.ts",
+      "sha256": "f311e93b17350ca288b49971a40ff92dcf33a102e0c52d499729413ad131382d",
+      "bytes": 13149
+    },
+    {
+      "file": "apps/api/src/repositories/postgres-analytics-repository.ts",
+      "sha256": "b8b5d438e636e66161a5ed67b0b0d8aefba30302824ba0895124e385db321179",
+      "bytes": 10991
+    },
+    {
+      "file": "apps/api/src/repositories/postgres-auth-repository.ts",
+      "sha256": "fb18a11161914d56df37ceda968ba9e12bb9f79839559aa61e567e30098d4b3e",
+      "bytes": 3258
+    },
+    {
+      "file": "apps/api/src/repositories/postgres-deployment-repository.ts",
+      "sha256": "f5b8a8bf7058fdab79a90de940f77a113d8a9637e374f50b3e43c1f9d056c237",
+      "bytes": 8503
+    },
+    {
+      "file": "apps/api/src/repositories/postgres-experiment-repository.ts",
+      "sha256": "a314e5ba12ee586c7678cf43422bc4f9828e76b9f5609a6aa2a8e506f43b614b",
+      "bytes": 20017
+    },
+    {
+      "file": "apps/api/src/repositories/postgres-membership-repository.ts",
+      "sha256": "6e1422db7a81a6008b57f557e59548a50d57f1a0ff11dc678723d5d4d18a2604",
+      "bytes": 14237
+    },
+    {
+      "file": "apps/api/src/repositories/postgres-versioning-repository.ts",
+      "sha256": "3c3ebbc8b082573440797e05c1a8a3e7961356b355031ab1c11d452be759a64f",
+      "bytes": 22138
+    },
+    {
+      "file": "apps/api/src/routes/access/index.ts",
+      "sha256": "7f8658691280f03a66d82a51d1140c14dc3a16471944951c62cbb2fad34223ba",
+      "bytes": 3922
+    },
+    {
+      "file": "apps/api/src/routes/admin-ui.ts",
+      "sha256": "657395c3bef371a233f1a41a1196ff96bc40a2fd5665c3165e15b97db2e9f7fc",
+      "bytes": 1412
+    },
+    {
+      "file": "apps/api/src/routes/analytics/index.ts",
+      "sha256": "383f5a5bc14794d94ed3eeff257c4fd3332aa858ab8379b82da5b60c5c9e72f5",
+      "bytes": 3080
+    },
+    {
+      "file": "apps/api/src/routes/auth/index.ts",
+      "sha256": "a615f963af6e79cce9883cfa028af54f80142b13120c9dbf202fb514710ac351",
+      "bytes": 3791
+    },
+    {
+      "file": "apps/api/src/routes/deployments/index.ts",
+      "sha256": "0fff426c4dce3b62e1b7cb2c9532dcf6d6953cf5eb93a114df2996bfd41c43c0",
+      "bytes": 3178
+    },
+    {
+      "file": "apps/api/src/routes/experiments/index.ts",
+      "sha256": "751256c53ad343873010cbd33b249e830075747899d8d80c62bd27531e5d1651",
+      "bytes": 5335
+    },
+    {
+      "file": "apps/api/src/routes/memberships/index.ts",
+      "sha256": "97fbadcfbdc2b18168799070a0c3a7be18bf59c4f4bdc6764148b9c3e13b35a9",
+      "bytes": 4528
+    },
+    {
+      "file": "apps/api/src/routes/versioning/index.ts",
+      "sha256": "5d02a231e301434d0371f8dec651fda5f23e9a1bf5fa6faf6b70c1cb106bac71",
+      "bytes": 9423
+    },
+    {
+      "file": "apps/api/src/server.ts",
+      "sha256": "b1dbc24a9940b1cd51f037ae9247f6beda9af85a40da5a348adc0a7d6c019012",
+      "bytes": 2011
+    },
+    {
+      "file": "apps/api/tsconfig.json",
+      "sha256": "f230436f281268d1672b827165b08e42d43883bbee9283be461d3208b05d58d3",
+      "bytes": 12980
+    },
+    {
+      "file": "package-lock.json",
+      "sha256": "b6da11ea3c597393f28490fc4f9102b888558bdac826d6fc556f8b8b53a2e323",
+      "bytes": 230576
+    },
+    {
+      "file": "package.json",
+      "sha256": "73b08f86a5968acd5bf8a776eea673898caa06eee85896246e5685137bd9cb10",
+      "bytes": 1400
+    }
+  ]
+}

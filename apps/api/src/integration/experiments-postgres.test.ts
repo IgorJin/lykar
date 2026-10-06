@@ -13,7 +13,7 @@ test(
   async () => {
     let magicLink = '';
     const email = `experiments-${Date.now()}@example.com`;
-    const app = buildApp({
+    const app = buildApp({ emailLimits: false,
       logger: false,
       connectionString: databaseUrl,
       appOrigin: 'http://localhost:3000',

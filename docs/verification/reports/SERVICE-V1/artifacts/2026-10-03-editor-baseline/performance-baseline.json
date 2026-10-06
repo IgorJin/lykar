@@ -1,0 +1,67 @@
+{
+  "interpretation": "Legacy S1 budgets, measured for comparison; editor overflow is a known open decision for SERVICE-V1-02, not an approved new budget. Local jsdom timing is not a production SLA.",
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-03T15:33:56.792Z",
+  "environment": {
+    "node": "v22.23.1",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "method": {
+    "runs": 7,
+    "size": "raw bytes plus gzip level 9 and brotli bytes from built dist artifacts",
+    "replay": "sequential runtime applyOperation calls against fresh jsdom documents"
+  },
+  "sizes": {
+    "sdk.iife.js": {
+      "rawBytes": 28725,
+      "gzipBytes": 8674,
+      "brotliBytes": 7691
+    },
+    "index.js": {
+      "rawBytes": 192296,
+      "gzipBytes": 40546,
+      "brotliBytes": 33490
+    },
+    "runtime-core.iife.js": {
+      "rawBytes": 81653,
+      "gzipBytes": 24331,
+      "brotliBytes": 21077
+    },
+    "editor.iife.js": {
+      "rawBytes": 276518,
+      "gzipBytes": 71977,
+      "brotliBytes": 60116
+    }
+  },
+  "replay": [
+    {
+      "nodes": 100,
+      "operations": 25,
+      "runs": 7,
+      "minMs": 5.233,
+      "p50Ms": 6.782,
+      "p95Ms": 14.738,
+      "maxMs": 14.738
+    },
+    {
+      "nodes": 500,
+      "operations": 100,
+      "runs": 7,
+      "minMs": 53.714,
+      "p50Ms": 54.567,
+      "p95Ms": 57.896,
+      "maxMs": 57.896
+    }
+  ],
+  "budgets": {
+    "visitorIifeRawBytes": 80000,
+    "visitorIifeGzipBytes": 25000,
+    "editorIifeRawBytes": 100000,
+    "replayP95Ms": 250
+  },
+  "status": "FAIL",
+  "failures": [
+    "editor IIFE raw size"
+  ]
+}

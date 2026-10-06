@@ -1,4 +1,4 @@
-import {parsePublishedManifestV1, PROTOCOL_LIMITS} from '@lykar/protocol';
+import {parsePublishedManifestV1, PROTOCOL_LIMITS, resolveTargetRepairs} from '@lykar/protocol';
 import type { PublishedManifestV1, SourceSnapshotV1 } from '@lykar/protocol';
 
 import {applyOperation, assertOperationPayloadSafe} from './dom-executor.js';
@@ -10,9 +10,11 @@ import {MutationJournal} from './mutation-journal.js';
 import type {CompensationDiagnostic, JournalEntrySnapshot} from './mutation-journal.js';
 import {ReplayLedger} from './replay-ledger.js';
 import { resolveExperimentSelection, sendAnalyticsEvent } from './analytics-client.js';
+import {fetchDeployment} from './deployment-client.js';
 import { fetchManifest } from './manifest-client.js';
 import { visitorTokensFromLocation } from './visitor-url.js';
 import type {
+  DeploymentMetadata,
   ApplyManifestOptions,
   ApplyReport,
   AnalyticsConsent,
@@ -42,6 +44,8 @@ export class Lykar {
   readonly accessToken?: string;
   readonly credentials?: RequestCredentials;
 
+  private readonly deploymentDelivery: boolean;
+  private deployment?: DeploymentMetadata;
   private readonly document: Document;
   private readonly root: Document | Element;
   private readonly fetcher?: FetchLike;
@@ -97,6 +101,13 @@ export class Lykar {
     const globalFetch = globalThis.fetch;
     this.projectKey = options.projectKey.trim();
     this.apiBaseUrl = options.apiBaseUrl ?? '';
+    const search = new URLSearchParams(document.location?.search ?? '');
+    const hash = new URLSearchParams(document.location?.hash.replace(/^#/, '') ?? '');
+    const explicitSelection = ['version', 'lykar_variant', 'lykar_experiment', 'lykar_edit', 'lykar_share']
+      .some(name => search.has(name) || hash.has(name));
+    this.deploymentDelivery = options.delivery === 'deployment' && !explicitSelection
+      && options.version === undefined && options.variantToken === undefined
+      && options.experimentToken === undefined && options.accessToken === undefined;
     const locationTokens = visitorTokensFromLocation(document);
     this.version = options.version ?? versionFromLocation(document);
     this.variantToken = options.variantToken ?? locationTokens.variant;
@@ -217,11 +228,21 @@ export class Lykar {
       ...(this.draftId ? {draftId: this.draftId} : {}),
       ...(this.generation !== undefined ? {generation: this.generation} : {}),
     });
+    const effectiveIds = new Set(resolveTargetRepairs(validatedManifest.operations).map(operation => operation.id));
     const operations: OperationApplyResult[] = [];
     const outcomes = new Map<string, OperationApplyResult>();
     let timedOut = false;
     for (let index = 0; index < validatedManifest.operations.length; index += 1) {
       const operation = validatedManifest.operations[index];
+      if (!effectiveIds.has(operation.id)) {
+        const result: OperationApplyResult = {operationId: operation.id, kind: operation.kind,
+          target: operation.target, status: 'skipped', code: 'OPERATION_SUPERSEDED',
+          message: 'A later manual target repair replaces this operation.'};
+        operations.push(result);
+        outcomes.set(operation.id, result);
+        continue;
+      }
+
       if (Date.now() - replayStartedAt >= this.maxReplayMs) {
         timedOut = true;
         appendReplayLimitResults(validatedManifest.operations.slice(index), operations, outcomes);
@@ -275,7 +296,7 @@ export class Lykar {
       }
     }
 
-    if (timedOut) {
+    if (timedOut || (this.deploymentDelivery && replayFailed(operations))) {
       const compensation = this.journal.compensateFrom(journalCheckpoint);
       markReplayCompensated(operations, compensation);
     } else {
@@ -298,17 +319,32 @@ export class Lykar {
         this.conditional.start();
         const states = new Map(this.conditional.groupStates.map(state => [state.id, state]));
         for (const operation of validatedManifest.operations) {
-          if (operation.schemaVersion !== 2) continue;
+          if (operation.schemaVersion !== 2 || !effectiveIds.has(operation.id)) continue;
           const result = outcomes.get(operation.id)!;
           const state = states.get(operation.condition.id);
-          if (state?.status === 'active') {
+          if (this.deploymentDelivery && state?.status === 'unsafe') {
+            result.status = 'error'; result.code = state.reason ?? 'CONDITIONAL_UNSAFE';
+            result.message = 'Deployment conditional target is unsafe.';
+          } else if (state?.status === 'active') {
             result.status = 'applied'; result.code = 'CONDITIONAL_ACTIVE';
             result.message = 'Conditional group is active for the current source state.';
           }
         }
       }
-      releaseSet.add(validatedManifest.releaseId);
-      this.ownedReleaseIds.add(validatedManifest.releaseId);
+      if (this.deploymentDelivery && replayFailed(operations)) {
+        this.conditional?.dispose();
+        for (const result of operations) {
+          if (result.code !== 'CONDITIONAL_ACTIVE') continue;
+          result.status = 'skipped'; result.code = 'CONDITIONAL_COMPENSATED';
+          result.message = 'Conditional overlay removed after deployment replay failed.';
+        }
+        this.stopFrameworkSubscription?.();
+        const compensation = this.journal.compensateFrom(journalCheckpoint);
+        markReplayCompensated(operations, compensation);
+      } else {
+        releaseSet.add(validatedManifest.releaseId);
+        this.ownedReleaseIds.add(validatedManifest.releaseId);
+      }
     }
     return this.finishReport(
       validatedManifest,
@@ -325,6 +361,7 @@ export class Lykar {
   async start(): Promise<RuntimeStartResult> {
     this.assertActive();
     const startedAt = new Date().toISOString();
+    if (this.deploymentDelivery) return this.startDeployment(startedAt);
     if (this.version === undefined && !this.variantToken && !this.experimentToken) {
       return nativePageReport('NO_VARIANT_TOKEN', startedAt);
     }
@@ -349,6 +386,36 @@ export class Lykar {
       return nativePageReport('NATIVE_VARIANT', startedAt, selection);
     }
     return this.applyManifest(selection);
+  }
+
+  private async startDeployment(startedAt: string): Promise<RuntimeStartResult> {
+    let applying = false;
+    try {
+      if (this.waitForDom) await domReady(this.document, this.signal);
+      this.assertActive();
+      if (!this.fetcher) throw new Error('Deployment delivery requires fetch');
+      const selection = await fetchDeployment({projectKey: this.projectKey, apiBaseUrl: this.apiBaseUrl,
+        pathname: this.pathname, signal: this.signal, fetch: this.fetcher});
+      this.assertActive();
+      if (!selection) return nativePageReport('NO_ACTIVE_DEPLOYMENT', startedAt);
+      const {manifest, ...metadata} = selection;
+      this.deployment = metadata;
+      if (!manifest) return {...nativePageReport('NO_ACTIVE_DEPLOYMENT', startedAt), deployment: metadata};
+      applying = true;
+      const report = await this.applyManifest(manifest);
+      if (replayFailed(report.operations)) {
+        this.destroy();
+        return {...nativePageReport('DEPLOYMENT_APPLY_FAILED', startedAt), deployment: metadata, report};
+      }
+      return report;
+    } catch (error) {
+      // A retired page must never report or mutate as the current page.
+      const stale = this.signal?.aborted || this.isCurrent?.() === false;
+      this.destroy();
+      if (stale) throw error;
+      return {...nativePageReport(applying ? 'DEPLOYMENT_APPLY_FAILED' : 'DEPLOYMENT_UNAVAILABLE', startedAt),
+        ...(this.deployment ? {deployment: this.deployment} : {})};
+    }
   }
 
   async track(name: string, properties: Record<string, unknown> = {}): Promise<TrackEventResult> {
@@ -383,6 +450,7 @@ export class Lykar {
   ): ApplyReport {
     this.assertActive();
     const report: ApplyReport = {
+      ...(this.deployment ? {deployment: this.deployment} : {}),
       projectId: manifest.projectId,
       pageId: manifest.pageId,
       releaseId: manifest.releaseId,
@@ -801,4 +869,9 @@ function boundedInteger(value: number, name: string, minimum: number, maximum: n
 
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
+}
+
+function replayFailed(operations: OperationApplyResult[]): boolean {
+  return operations.some(operation => operation.status === 'error'
+    || (operation.status === 'skipped' && !['CONDITIONAL_REGISTERED', 'RELEASE_ALREADY_APPLIED', 'OPERATION_SUPERSEDED'].includes(operation.code ?? '')));
 }

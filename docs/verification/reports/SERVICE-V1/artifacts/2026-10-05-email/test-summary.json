@@ -1,0 +1,20 @@
+{
+  "apiPostgres": {
+    "tests": 63,
+    "passed": 63,
+    "skipped": 0,
+    "httpSmoke": "PASS"
+  },
+  "browser": {
+    "startTime": "2026-10-05T18:47:25.817Z",
+    "duration": 82099.164,
+    "expected": 21,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "externalDelivery": "NOT_RUN: user requested implementation without API keys",
+  "scope": "local email adapters, shared quotas/request limits, auth UI; real inbox/HTTPS staging remain open",
+  "typecheck": "PASS",
+  "diffCheck": "PASS"
+}

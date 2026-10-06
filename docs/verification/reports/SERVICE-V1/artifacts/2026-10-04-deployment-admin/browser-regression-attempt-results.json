@@ -1,0 +1,2915 @@
+{
+  "config": {
+    "argv": [
+      "/Users/igorjan/.hermes/node/bin/node",
+      "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/node_modules/.bin/playwright",
+      "test",
+      "tests/e2e/deployment-admin.spec.ts",
+      "tests/e2e/deployment-repair.spec.ts",
+      "tests/e2e/deployment-flow.spec.ts",
+      "tests/e2e/versioning-flow.spec.ts",
+      "tests/e2e/persistence-recovery.spec.ts",
+      "tests/e2e/s4-conditional-flow.spec.ts",
+      "tests/e2e/s4-spa-critical.spec.ts",
+      "tests/e2e/s3-acceptance.spec.ts",
+      "tests/e2e/auth-flow.spec.ts",
+      "--reporter=line,json"
+    ],
+    "configFile": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/playwright.config.ts",
+    "rootDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/global-setup.ts",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/(style-(editor-acceptance|matrix)|s4-(spa-critical|conditional-flow)|deployment-(flow|admin|repair))\\.spec\\.ts/"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/(style-(editor-acceptance|matrix)|s4-(spa-critical|conditional-flow)|deployment-(flow|admin|repair))\\.spec\\.ts/"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "deployment-admin.spec.ts",
+      "file": "deployment-admin.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Owner separately deploys, rolls back and disables; actor/reasons remain readable on mobile and keyboard",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1520,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:47:52.298Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "deployment-admin-mobile-390",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/deployment-admin-Owner-sep-bee26-able-on-mobile-and-keyboard-chromium/attachments/deployment-admin-mobile-390-0de47aeb43d71ba7a5d4a4a6acc73039ad6b7aeb.png"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e160dd93e89a99eec47e-5d75fc75e82d8fc60c43",
+          "file": "deployment-admin.spec.ts",
+          "line": 84,
+          "column": 5
+        },
+        {
+          "title": "real preview popup reports applicability; no report stays unchecked and missing target blocks deployment",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1668,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:47:54.175Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e160dd93e89a99eec47e-d3df7b55636486847289",
+          "file": "deployment-admin.spec.ts",
+          "line": 153,
+          "column": 5
+        },
+        {
+          "title": "a real second Owner revision conflict refreshes state and preserves the chosen release and reason",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 525,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:47:55.847Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e160dd93e89a99eec47e-4fafa795dead634ef025",
+          "file": "deployment-admin.spec.ts",
+          "line": 197,
+          "column": 5
+        },
+        {
+          "title": "a committed command with lost response retries the identical key and adds one history entry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 524,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:47:56.376Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e160dd93e89a99eec47e-0871596c01b5f3d28cf7",
+          "file": "deployment-admin.spec.ts",
+          "line": 230,
+          "column": 5
+        },
+        {
+          "title": "Owner separately deploys, rolls back and disables; actor/reasons remain readable on mobile and keyboard",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1765,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:36.214Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "deployment-admin-mobile-390",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/deployment-admin-Owner-sep-bee26-able-on-mobile-and-keyboard-firefox/attachments/deployment-admin-mobile-390-3d04b7a2b165db2504eba5b633b1ea3f31c3cd10.png"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e160dd93e89a99eec47e-f4ca49db5be0f87944a6",
+          "file": "deployment-admin.spec.ts",
+          "line": 84,
+          "column": 5
+        },
+        {
+          "title": "real preview popup reports applicability; no report stays unchecked and missing target blocks deployment",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1647,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:38.474Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e160dd93e89a99eec47e-03d66d8d7db30974ff88",
+          "file": "deployment-admin.spec.ts",
+          "line": 153,
+          "column": 5
+        },
+        {
+          "title": "a real second Owner revision conflict refreshes state and preserves the chosen release and reason",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 514,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:40.126Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e160dd93e89a99eec47e-f0600727cdd51dc3a239",
+          "file": "deployment-admin.spec.ts",
+          "line": 197,
+          "column": 5
+        },
+        {
+          "title": "a committed command with lost response retries the identical key and adds one history entry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 505,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:40.644Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e160dd93e89a99eec47e-55c3b4119553652b3b6a",
+          "file": "deployment-admin.spec.ts",
+          "line": 230,
+          "column": 5
+        },
+        {
+          "title": "Owner separately deploys, rolls back and disables; actor/reasons remain readable on mobile and keyboard",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1832,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:49:01.138Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "deployment-admin-mobile-390",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/deployment-admin-Owner-sep-bee26-able-on-mobile-and-keyboard-webkit/attachments/deployment-admin-mobile-390-9b46685bc03977bdb09cb032624d774c7b8efa12.png"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e160dd93e89a99eec47e-aa948d390992f10ada66",
+          "file": "deployment-admin.spec.ts",
+          "line": 84,
+          "column": 5
+        },
+        {
+          "title": "real preview popup reports applicability; no report stays unchecked and missing target blocks deployment",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1734,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:49:03.172Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e160dd93e89a99eec47e-b336b7614c173062ba82",
+          "file": "deployment-admin.spec.ts",
+          "line": 153,
+          "column": 5
+        },
+        {
+          "title": "a real second Owner revision conflict refreshes state and preserves the chosen release and reason",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 610,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:49:04.910Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e160dd93e89a99eec47e-400c69f006f9913782ab",
+          "file": "deployment-admin.spec.ts",
+          "line": 197,
+          "column": 5
+        },
+        {
+          "title": "a committed command with lost response retries the identical key and adds one history entry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 621,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:49:05.525Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e160dd93e89a99eec47e-abe9924dcfe0f54f7a40",
+          "file": "deployment-admin.spec.ts",
+          "line": 230,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "deployment-flow.spec.ts",
+      "file": "deployment-flow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "script: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1033,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:47:56.909Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-5bb69c97d801dd073ba3",
+          "file": "deployment-flow.spec.ts",
+          "line": 51,
+          "column": 7
+        },
+        {
+          "title": "module: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1018,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:47:57.946Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-5b88c67e59b260c12fe3",
+          "file": "deployment-flow.spec.ts",
+          "line": 51,
+          "column": 7
+        },
+        {
+          "title": "react csr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 508,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:47:58.969Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-14cb5305ee94f81c48b6",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "react ssr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 439,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:47:59.481Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-2b8f7ce29b6b5d42cfcd",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "vue csr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 528,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:47:59.924Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-5a3e86eef05127a67c30",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "vue ssr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 523,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:00.456Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-d56abb9cc38b5602424d",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "invalid deployment and unavailable runtime asset leave the original page visible",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 463,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:00.983Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-7a99578b876fa06e2fad",
+          "file": "deployment-flow.spec.ts",
+          "line": 149,
+          "column": 5
+        },
+        {
+          "title": "browser deadlines and retired requests leave the host available",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 427,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:01.450Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-3178e2316414b03ac64d",
+          "file": "deployment-flow.spec.ts",
+          "line": 164,
+          "column": 5
+        },
+        {
+          "title": "script: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1359,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:41.158Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-f48c5e3503e04d321f13",
+          "file": "deployment-flow.spec.ts",
+          "line": 51,
+          "column": 7
+        },
+        {
+          "title": "module: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1904,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:42.521Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-c4abad92676e5db2482e",
+          "file": "deployment-flow.spec.ts",
+          "line": 51,
+          "column": 7
+        },
+        {
+          "title": "react csr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 437,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:44.429Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-edc935aa883c801b0eea",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "react ssr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 710,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:44.870Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-9c721875d810c75be033",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "vue csr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 397,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:45.585Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-a4125afa273bb68ec803",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "vue ssr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 402,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:45.986Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-222a63b6948a50aab796",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "invalid deployment and unavailable runtime asset leave the original page visible",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 483,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:46.392Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-8235e3806efdca3d1522",
+          "file": "deployment-flow.spec.ts",
+          "line": 149,
+          "column": 5
+        },
+        {
+          "title": "browser deadlines and retired requests leave the host available",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 746,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:46.879Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-6c97201daa3f61fc8beb",
+          "file": "deployment-flow.spec.ts",
+          "line": 164,
+          "column": 5
+        },
+        {
+          "title": "script: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1485,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:49:06.154Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-6ab50907b552315bdac1",
+          "file": "deployment-flow.spec.ts",
+          "line": 51,
+          "column": 7
+        },
+        {
+          "title": "module: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1186,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:49:07.644Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-39d3e360ddf413a9ab3e",
+          "file": "deployment-flow.spec.ts",
+          "line": 51,
+          "column": 7
+        },
+        {
+          "title": "react csr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 589,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:49:08.834Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-02aa59281474cd45c6fe",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "react ssr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 603,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:49:09.427Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-6fbb90c057ce85e9f936",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "vue csr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 600,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:49:10.035Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-9b5cd78f3a7cd76a0fec",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "vue ssr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 591,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:49:10.640Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-8876755b63dc2df0c039",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "invalid deployment and unavailable runtime asset leave the original page visible",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 421,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:49:11.235Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-1657b49be7f74cf14819",
+          "file": "deployment-flow.spec.ts",
+          "line": 149,
+          "column": 5
+        },
+        {
+          "title": "browser deadlines and retired requests leave the host available",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 486,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:49:11.661Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-1e6f8adebf75cfd2f35a",
+          "file": "deployment-flow.spec.ts",
+          "line": 164,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "deployment-repair.spec.ts",
+      "file": "deployment-repair.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "SERVICE-V1-05: repair → save → new Release → preview → Deploy preserves the old Release",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2510,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:01.885Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5227e090ae3d60112050-7c7c9af7e2dd837bf238",
+          "file": "deployment-repair.spec.ts",
+          "line": 34,
+          "column": 5
+        },
+        {
+          "title": "SERVICE-V1-05: repair → save → new Release → preview → Deploy preserves the old Release",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2553,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:47.632Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5227e090ae3d60112050-d3333813b587454bc2f3",
+          "file": "deployment-repair.spec.ts",
+          "line": 34,
+          "column": 5
+        },
+        {
+          "title": "SERVICE-V1-05: repair → save → new Release → preview → Deploy preserves the old Release",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2577,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:49:12.154Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5227e090ae3d60112050-90eefb902a1b146674fd",
+          "file": "deployment-repair.spec.ts",
+          "line": 34,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "persistence-recovery.spec.ts",
+      "file": "persistence-recovery.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "two tabs expose revision conflict and preserve pending edits through reload",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 996,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:04.402Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72bdc013abdc2313d0ca-068688d52f071298badb",
+          "file": "persistence-recovery.spec.ts",
+          "line": 42,
+          "column": 5
+        },
+        {
+          "title": "lost response after commit reconciles on reload without duplicate operations",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 594,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:05.402Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72bdc013abdc2313d0ca-4756da453d12ea079114",
+          "file": "persistence-recovery.spec.ts",
+          "line": 80,
+          "column": 5
+        },
+        {
+          "title": "undo of a saved change appends a revision and survives save/reload",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 7776,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('[data-lykar-id=\"pricing-title\"]')\nExpected: \u001b[32m\"Простой тариф для первого релиза\"\u001b[39m\nReceived: \u001b[31m\"Second module\"\u001b[39m\nTimeout:  7000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" locator('[data-lykar-id=\"pricing-title\"]') with timeout 7000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-lykar-id=\"pricing-title\"]')\u001b[22m\n\u001b[2m    18 × locator resolved to <h1 data-lykar-id=\"pricing-title\">Second module</h1>\u001b[22m\n\u001b[2m       - unexpected value \"Second module\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('[data-lykar-id=\"pricing-title\"]')\nExpected: \u001b[32m\"Простой тариф для первого релиза\"\u001b[39m\nReceived: \u001b[31m\"Second module\"\u001b[39m\nTimeout:  7000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" locator('[data-lykar-id=\"pricing-title\"]') with timeout 7000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-lykar-id=\"pricing-title\"]')\u001b[22m\n\u001b[2m    18 × locator resolved to <h1 data-lykar-id=\"pricing-title\">Second module</h1>\u001b[22m\n\u001b[2m       - unexpected value \"Second module\"\u001b[22m\n\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/persistence-recovery.spec.ts:122:22",
+                    "location": {
+                      "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/persistence-recovery.spec.ts",
+                      "column": 22,
+                      "line": 122
+                    },
+                    "snippet": "  120 |   await expect(panel.locator('[data-field=\"status\"]')).toContainText('revision: 1');\n  121 |   await panel.locator('[data-action=\"undo\"]').click();\n> 122 |   await expect(hero).toHaveText(original);\n      |                      ^\n  123 |   await expect(panel.locator('[data-field=\"pending-count\"]')).toHaveText('1');\n  124 |   await panel.locator('[data-action=\"apply\"]').click();\n  125 |   await expect(panel.locator('[data-field=\"status\"]')).toContainText('revision: 2');"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/persistence-recovery.spec.ts",
+                        "column": 22,
+                        "line": 122
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  locator('[data-lykar-id=\"pricing-title\"]')\nExpected: \u001b[32m\"Простой тариф для первого релиза\"\u001b[39m\nReceived: \u001b[31m\"Second module\"\u001b[39m\nTimeout:  7000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" locator('[data-lykar-id=\"pricing-title\"]') with timeout 7000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-lykar-id=\"pricing-title\"]')\u001b[22m\n\u001b[2m    18 × locator resolved to <h1 data-lykar-id=\"pricing-title\">Second module</h1>\u001b[22m\n\u001b[2m       - unexpected value \"Second module\"\u001b[22m\n\n\n  120 |   await expect(panel.locator('[data-field=\"status\"]')).toContainText('revision: 1');\n  121 |   await panel.locator('[data-action=\"undo\"]').click();\n> 122 |   await expect(hero).toHaveText(original);\n      |                      ^\n  123 |   await expect(panel.locator('[data-field=\"pending-count\"]')).toHaveText('1');\n  124 |   await panel.locator('[data-action=\"apply\"]').click();\n  125 |   await expect(panel.locator('[data-field=\"status\"]')).toContainText('revision: 2');\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/persistence-recovery.spec.ts:122:22"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:06.000Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/persistence-recovery-undo--e5348-on-and-survives-save-reload-chromium/test-failed-1.png"
+                    },
+                    {
+                      "name": "browser-errors",
+                      "contentType": "application/json",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/persistence-recovery-undo--e5348-on-and-survives-save-reload-chromium/attachments/browser-errors-859e8afae5526abad15a9980e21bf6a15e6fc264.json"
+                    },
+                    {
+                      "name": "page-1",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/persistence-recovery-undo--e5348-on-and-survives-save-reload-chromium/attachments/page-1-ef5e73b868daeefabeda7ffec7eddf2009ccee7d.png"
+                    },
+                    {
+                      "name": "video-0",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/persistence-recovery-undo--e5348-on-and-survives-save-reload-chromium/attachments/video-0-1e3afa4939dfe2d400058eb7b1b759479836f0d9.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/persistence-recovery-undo--e5348-on-and-survives-save-reload-chromium/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/persistence-recovery-undo--e5348-on-and-survives-save-reload-chromium/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/persistence-recovery.spec.ts",
+                    "column": 22,
+                    "line": 122
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "72bdc013abdc2313d0ca-bbf8d98242a03d7843c3",
+          "file": "persistence-recovery.spec.ts",
+          "line": 109,
+          "column": 5
+        },
+        {
+          "title": "manual target repair previews the dependent chain and survives save/reload",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 665,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:14.128Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72bdc013abdc2313d0ca-7a05d540e06ea7525ce2",
+          "file": "persistence-recovery.spec.ts",
+          "line": 141,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "s3-acceptance.spec.ts",
+      "file": "s3-acceptance.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "S3 Admin → release/share → sticky experiment → consent-gated report",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 7864,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('revision 0')\nExpected: visible\nTimeout: 7000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('revision 0') with timeout 7000ms\u001b[22m\n\u001b[2m  - waiting for getByText('revision 0')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('revision 0')\nExpected: visible\nTimeout: 7000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('revision 0') with timeout 7000ms\u001b[22m\n\u001b[2m  - waiting for getByText('revision 0')\u001b[22m\n\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/s3-acceptance.spec.ts:79:47",
+                    "location": {
+                      "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/s3-acceptance.spec.ts",
+                      "column": 47,
+                      "line": 79
+                    },
+                    "snippet": "  77 |   await admin.getByRole('button', { name: `S3 Home ${rootPath}` }).click();\n  78 |   await admin.getByRole('button', { name: 'Создать черновик' }).click();\n> 79 |   await expect(admin.getByText('revision 0')).toBeVisible();\n     |                                               ^\n  80 |   await admin.getByRole('button', { name: 'Участники' }).click();\n  81 |   await expect(admin.getByRole('heading', { name: 'Пригласить участника' })).toBeVisible();\n  82 |   await expect(admin.locator('.member-row').getByText('owner@lykar.local')).toBeVisible();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/s3-acceptance.spec.ts",
+                        "column": 47,
+                        "line": 79
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('revision 0')\nExpected: visible\nTimeout: 7000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('revision 0') with timeout 7000ms\u001b[22m\n\u001b[2m  - waiting for getByText('revision 0')\u001b[22m\n\n\n  77 |   await admin.getByRole('button', { name: `S3 Home ${rootPath}` }).click();\n  78 |   await admin.getByRole('button', { name: 'Создать черновик' }).click();\n> 79 |   await expect(admin.getByText('revision 0')).toBeVisible();\n     |                                               ^\n  80 |   await admin.getByRole('button', { name: 'Участники' }).click();\n  81 |   await expect(admin.getByRole('heading', { name: 'Пригласить участника' })).toBeVisible();\n  82 |   await expect(admin.locator('.member-row').getByText('owner@lykar.local')).toBeVisible();\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/s3-acceptance.spec.ts:79:47"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:15.053Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/s3-acceptance-S3-Admin-→-r-42a1a-ment-→-consent-gated-report-chromium/test-failed-1.png"
+                    },
+                    {
+                      "name": "browser-errors",
+                      "contentType": "application/json",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/s3-acceptance-S3-Admin-→-r-42a1a-ment-→-consent-gated-report-chromium/attachments/browser-errors-7ed30b8bc73c3f6fbee438ee6264da37b079d145.json"
+                    },
+                    {
+                      "name": "page-1",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/s3-acceptance-S3-Admin-→-r-42a1a-ment-→-consent-gated-report-chromium/attachments/page-1-3807890ec0c7177082545a44abee751c43519ac3.png"
+                    },
+                    {
+                      "name": "video-0",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/s3-acceptance-S3-Admin-→-r-42a1a-ment-→-consent-gated-report-chromium/attachments/video-0-952523f5c723881eb6159f8a69ec14ffebffbd0c.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/s3-acceptance-S3-Admin-→-r-42a1a-ment-→-consent-gated-report-chromium/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/s3-acceptance-S3-Admin-→-r-42a1a-ment-→-consent-gated-report-chromium/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/s3-acceptance.spec.ts",
+                    "column": 47,
+                    "line": 79
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "4a33734ec72306a551e1-c008e51338d54c93939d",
+          "file": "s3-acceptance.spec.ts",
+          "line": 11,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "s4-conditional-flow.spec.ts",
+      "file": "s4-conditional-flow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "react csr: capture state, save/reload, Release/share and host transitions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2597,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:23.219Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "prepaint-frames",
+                      "contentType": "application/json",
+                      "body": "eyJzYW1wbGVzIjpbeyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn1dLCJzYW1lVGV4dE5vZGUiOnRydWV9"
+                    },
+                    {
+                      "name": "conditional-states",
+                      "contentType": "application/json",
+                      "body": "W3sidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSIsImRpc2FibGVkIjpmYWxzZX0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkiLCJkaXNhYmxlZCI6ZmFsc2V9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfV0="
+                    },
+                    {
+                      "name": "spa-analytics",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlcmltZW50SWQiOiJhN2U2ZTIxYi01ODIxLTQyNDQtOTIzZS1kYzQ4MmI5YjZiMTIiLCJnZW5lcmF0ZWRBdCI6IjIwMjYtMTAtMDRUMTg6NDg6MjUuOTE5WiIsInZhcmlhbnRzIjpbeyJrZXkiOiJBIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MCwidmlld3MiOjAsInVuaXF1ZUNvbnZlcnNpb25zIjowLCJjb252ZXJzaW9ucyI6MCwiY29udmVyc2lvblJhdGUiOm51bGwsInVwbGlmdFZzQSI6bnVsbH0seyJrZXkiOiJCIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MSwidmlld3MiOjEsInVuaXF1ZUNvbnZlcnNpb25zIjoxLCJjb252ZXJzaW9ucyI6MSwiY29udmVyc2lvblJhdGUiOjEsInVwbGlmdFZzQSI6bnVsbH1dfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "db91526852d1821ef0c1-17a24abd617d8b7c7cf8",
+          "file": "s4-conditional-flow.spec.ts",
+          "line": 5,
+          "column": 7
+        },
+        {
+          "title": "react ssr: capture state, save/reload, Release/share and host transitions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2307,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:26.010Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "prepaint-frames",
+                      "contentType": "application/json",
+                      "body": "eyJzYW1wbGVzIjpbeyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9XSwic2FtZVRleHROb2RlIjp0cnVlfQ=="
+                    },
+                    {
+                      "name": "conditional-states",
+                      "contentType": "application/json",
+                      "body": "W3sidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSIsImRpc2FibGVkIjpmYWxzZX0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkiLCJkaXNhYmxlZCI6ZmFsc2V9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfV0="
+                    },
+                    {
+                      "name": "spa-analytics",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlcmltZW50SWQiOiI4MDEwODQwNy05ZDQ0LTRkMjctYjBmZi00MmVkNzYwOTM2YjQiLCJnZW5lcmF0ZWRBdCI6IjIwMjYtMTAtMDRUMTg6NDg6MjguMjI3WiIsInZhcmlhbnRzIjpbeyJrZXkiOiJBIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MSwidmlld3MiOjEsInVuaXF1ZUNvbnZlcnNpb25zIjoxLCJjb252ZXJzaW9ucyI6MSwiY29udmVyc2lvblJhdGUiOjEsInVwbGlmdFZzQSI6bnVsbH0seyJrZXkiOiJCIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MCwidmlld3MiOjAsInVuaXF1ZUNvbnZlcnNpb25zIjowLCJjb252ZXJzaW9ucyI6MCwiY29udmVyc2lvblJhdGUiOm51bGwsInVwbGlmdFZzQSI6bnVsbH1dfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "db91526852d1821ef0c1-bf40be8f33028ace9a7d",
+          "file": "s4-conditional-flow.spec.ts",
+          "line": 5,
+          "column": 7
+        },
+        {
+          "title": "vue csr: capture state, save/reload, Release/share and host transitions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2230,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:28.322Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "prepaint-frames",
+                      "contentType": "application/json",
+                      "body": "eyJzYW1wbGVzIjpbeyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn1dLCJzYW1lVGV4dE5vZGUiOmZhbHNlfQ=="
+                    },
+                    {
+                      "name": "conditional-states",
+                      "contentType": "application/json",
+                      "body": "W3sidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSIsImRpc2FibGVkIjpmYWxzZX0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkiLCJkaXNhYmxlZCI6ZmFsc2V9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfV0="
+                    },
+                    {
+                      "name": "spa-analytics",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlcmltZW50SWQiOiI3M2ZiNzlmNy1mNjBlLTQ5YTItOTJkZS1hYjBmODFiMzlmYjAiLCJnZW5lcmF0ZWRBdCI6IjIwMjYtMTAtMDRUMTg6NDg6MzAuNDU4WiIsInZhcmlhbnRzIjpbeyJrZXkiOiJBIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MCwidmlld3MiOjAsInVuaXF1ZUNvbnZlcnNpb25zIjowLCJjb252ZXJzaW9ucyI6MCwiY29udmVyc2lvblJhdGUiOm51bGwsInVwbGlmdFZzQSI6bnVsbH0seyJrZXkiOiJCIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MSwidmlld3MiOjEsInVuaXF1ZUNvbnZlcnNpb25zIjoxLCJjb252ZXJzaW9ucyI6MSwiY29udmVyc2lvblJhdGUiOjEsInVwbGlmdFZzQSI6bnVsbH1dfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "db91526852d1821ef0c1-ebc099e6cd8db99cc287",
+          "file": "s4-conditional-flow.spec.ts",
+          "line": 5,
+          "column": 7
+        },
+        {
+          "title": "vue ssr: capture state, save/reload, Release/share and host transitions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2263,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:30.556Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "prepaint-frames",
+                      "contentType": "application/json",
+                      "body": "eyJzYW1wbGVzIjpbeyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn1dLCJzYW1lVGV4dE5vZGUiOmZhbHNlfQ=="
+                    },
+                    {
+                      "name": "conditional-states",
+                      "contentType": "application/json",
+                      "body": "W3sidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSIsImRpc2FibGVkIjpmYWxzZX0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkiLCJkaXNhYmxlZCI6ZmFsc2V9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfV0="
+                    },
+                    {
+                      "name": "spa-analytics",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlcmltZW50SWQiOiIwZGJkN2I1Zi0wMzhiLTRkZTktOTExOC01M2Q4OGI4MmNlZjYiLCJnZW5lcmF0ZWRBdCI6IjIwMjYtMTAtMDRUMTg6NDg6MzIuNzA2WiIsInZhcmlhbnRzIjpbeyJrZXkiOiJBIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MSwidmlld3MiOjEsInVuaXF1ZUNvbnZlcnNpb25zIjoxLCJjb252ZXJzaW9ucyI6MSwiY29udmVyc2lvblJhdGUiOjEsInVwbGlmdFZzQSI6bnVsbH0seyJrZXkiOiJCIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MCwidmlld3MiOjAsInVuaXF1ZUNvbnZlcnNpb25zIjowLCJjb252ZXJzaW9ucyI6MCwiY29udmVyc2lvblJhdGUiOm51bGwsInVwbGlmdFZzQSI6bnVsbH1dfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "db91526852d1821ef0c1-ee5c32758bf834dd7461",
+          "file": "s4-conditional-flow.spec.ts",
+          "line": 5,
+          "column": 7
+        },
+        {
+          "title": "react csr: capture state, save/reload, Release/share and host transitions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2190,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:50.192Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "prepaint-frames",
+                      "contentType": "application/json",
+                      "body": "eyJzYW1wbGVzIjpbeyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9XSwic2FtZVRleHROb2RlIjp0cnVlfQ=="
+                    },
+                    {
+                      "name": "conditional-states",
+                      "contentType": "application/json",
+                      "body": "W3sidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSIsImRpc2FibGVkIjpmYWxzZX0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkiLCJkaXNhYmxlZCI6ZmFsc2V9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfV0="
+                    },
+                    {
+                      "name": "spa-analytics",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlcmltZW50SWQiOiJlMWU4MjkyNy04NzNlLTQxNjItOWQ5OS1mNDFiMzEzNWUyYjQiLCJnZW5lcmF0ZWRBdCI6IjIwMjYtMTAtMDRUMTg6NDg6NTIuMjk0WiIsInZhcmlhbnRzIjpbeyJrZXkiOiJBIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MCwidmlld3MiOjAsInVuaXF1ZUNvbnZlcnNpb25zIjowLCJjb252ZXJzaW9ucyI6MCwiY29udmVyc2lvblJhdGUiOm51bGwsInVwbGlmdFZzQSI6bnVsbH0seyJrZXkiOiJCIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MSwidmlld3MiOjEsInVuaXF1ZUNvbnZlcnNpb25zIjoxLCJjb252ZXJzaW9ucyI6MSwiY29udmVyc2lvblJhdGUiOjEsInVwbGlmdFZzQSI6bnVsbH1dfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "db91526852d1821ef0c1-41656667060435b5c02b",
+          "file": "s4-conditional-flow.spec.ts",
+          "line": 5,
+          "column": 7
+        },
+        {
+          "title": "react ssr: capture state, save/reload, Release/share and host transitions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2250,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:52.387Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "prepaint-frames",
+                      "contentType": "application/json",
+                      "body": "eyJzYW1wbGVzIjpbeyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn0seyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn0seyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9XSwic2FtZVRleHROb2RlIjp0cnVlfQ=="
+                    },
+                    {
+                      "name": "conditional-states",
+                      "contentType": "application/json",
+                      "body": "W3sidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSIsImRpc2FibGVkIjpmYWxzZX0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkiLCJkaXNhYmxlZCI6ZmFsc2V9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfV0="
+                    },
+                    {
+                      "name": "spa-analytics",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlcmltZW50SWQiOiIxYzM2YzQ1ZC0wMTQ3LTRkNDAtYWFlMS0wZjUzMDcxZmY4Y2IiLCJnZW5lcmF0ZWRBdCI6IjIwMjYtMTAtMDRUMTg6NDg6NTQuNTY3WiIsInZhcmlhbnRzIjpbeyJrZXkiOiJBIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MSwidmlld3MiOjEsInVuaXF1ZUNvbnZlcnNpb25zIjoxLCJjb252ZXJzaW9ucyI6MSwiY29udmVyc2lvblJhdGUiOjEsInVwbGlmdFZzQSI6bnVsbH0seyJrZXkiOiJCIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MCwidmlld3MiOjAsInVuaXF1ZUNvbnZlcnNpb25zIjowLCJjb252ZXJzaW9ucyI6MCwiY29udmVyc2lvblJhdGUiOm51bGwsInVwbGlmdFZzQSI6bnVsbH1dfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "db91526852d1821ef0c1-022127d56524b1eebdbc",
+          "file": "s4-conditional-flow.spec.ts",
+          "line": 5,
+          "column": 7
+        },
+        {
+          "title": "vue csr: capture state, save/reload, Release/share and host transitions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2613,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:54.641Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "prepaint-frames",
+                      "contentType": "application/json",
+                      "body": "eyJzYW1wbGVzIjpbeyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifV0sInNhbWVUZXh0Tm9kZSI6ZmFsc2V9"
+                    },
+                    {
+                      "name": "conditional-states",
+                      "contentType": "application/json",
+                      "body": "W3sidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSIsImRpc2FibGVkIjpmYWxzZX0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkiLCJkaXNhYmxlZCI6ZmFsc2V9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfV0="
+                    },
+                    {
+                      "name": "spa-analytics",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlcmltZW50SWQiOiI0M2MyZWQ0Yi02Y2FhLTQ2YmQtYjhjZC05N2VlYWMzYThjMmMiLCJnZW5lcmF0ZWRBdCI6IjIwMjYtMTAtMDRUMTg6NDg6NTYuNzM3WiIsInZhcmlhbnRzIjpbeyJrZXkiOiJBIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MCwidmlld3MiOjAsInVuaXF1ZUNvbnZlcnNpb25zIjowLCJjb252ZXJzaW9ucyI6MCwiY29udmVyc2lvblJhdGUiOm51bGwsInVwbGlmdFZzQSI6bnVsbH0seyJrZXkiOiJCIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MSwidmlld3MiOjEsInVuaXF1ZUNvbnZlcnNpb25zIjoxLCJjb252ZXJzaW9ucyI6MSwiY29udmVyc2lvblJhdGUiOjEsInVwbGlmdFZzQSI6bnVsbH1dfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "db91526852d1821ef0c1-9ebe689ac904cb0abdb7",
+          "file": "s4-conditional-flow.spec.ts",
+          "line": 5,
+          "column": 7
+        },
+        {
+          "title": "vue ssr: capture state, save/reload, Release/share and host transitions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2099,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:57.258Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "prepaint-frames",
+                      "contentType": "application/json",
+                      "body": "eyJzYW1wbGVzIjpbeyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn0seyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9XSwic2FtZVRleHROb2RlIjpmYWxzZX0="
+                    },
+                    {
+                      "name": "conditional-states",
+                      "contentType": "application/json",
+                      "body": "W3sidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSIsImRpc2FibGVkIjpmYWxzZX0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkiLCJkaXNhYmxlZCI6ZmFsc2V9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfV0="
+                    },
+                    {
+                      "name": "spa-analytics",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlcmltZW50SWQiOiI2ODZkYzA4Ni1jOTY5LTQ5NWEtYmYxNC0yNGM1YmZiOTQ2NDQiLCJnZW5lcmF0ZWRBdCI6IjIwMjYtMTAtMDRUMTg6NDg6NTkuMjg1WiIsInZhcmlhbnRzIjpbeyJrZXkiOiJBIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MSwidmlld3MiOjEsInVuaXF1ZUNvbnZlcnNpb25zIjoxLCJjb252ZXJzaW9ucyI6MSwiY29udmVyc2lvblJhdGUiOjEsInVwbGlmdFZzQSI6bnVsbH0seyJrZXkiOiJCIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MCwidmlld3MiOjAsInVuaXF1ZUNvbnZlcnNpb25zIjowLCJjb252ZXJzaW9ucyI6MCwiY29udmVyc2lvblJhdGUiOm51bGwsInVwbGlmdFZzQSI6bnVsbH1dfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "db91526852d1821ef0c1-26201cfba17b68e0ab49",
+          "file": "s4-conditional-flow.spec.ts",
+          "line": 5,
+          "column": 7
+        },
+        {
+          "title": "react csr: capture state, save/reload, Release/share and host transitions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2911,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:49:14.739Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "prepaint-frames",
+                      "contentType": "application/json",
+                      "body": "eyJzYW1wbGVzIjpbeyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9XSwic2FtZVRleHROb2RlIjp0cnVlfQ=="
+                    },
+                    {
+                      "name": "conditional-states",
+                      "contentType": "application/json",
+                      "body": "W3sidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSIsImRpc2FibGVkIjpmYWxzZX0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkiLCJkaXNhYmxlZCI6ZmFsc2V9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfV0="
+                    },
+                    {
+                      "name": "spa-analytics",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlcmltZW50SWQiOiI0MDU1MTc1Zi0zYzU2LTQzYmMtOWMxMS1mMDhiODQyOTk1NjciLCJnZW5lcmF0ZWRBdCI6IjIwMjYtMTAtMDRUMTg6NDk6MTcuNTg4WiIsInZhcmlhbnRzIjpbeyJrZXkiOiJBIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MCwidmlld3MiOjAsInVuaXF1ZUNvbnZlcnNpb25zIjowLCJjb252ZXJzaW9ucyI6MCwiY29udmVyc2lvblJhdGUiOm51bGwsInVwbGlmdFZzQSI6bnVsbH0seyJrZXkiOiJCIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MSwidmlld3MiOjEsInVuaXF1ZUNvbnZlcnNpb25zIjoxLCJjb252ZXJzaW9ucyI6MSwiY29udmVyc2lvblJhdGUiOjEsInVwbGlmdFZzQSI6bnVsbH1dfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "db91526852d1821ef0c1-13b796af1698e4d1f69b",
+          "file": "s4-conditional-flow.spec.ts",
+          "line": 5,
+          "column": 7
+        },
+        {
+          "title": "react ssr: capture state, save/reload, Release/share and host transitions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2853,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:49:17.654Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "prepaint-frames",
+                      "contentType": "application/json",
+                      "body": "eyJzYW1wbGVzIjpbeyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9XSwic2FtZVRleHROb2RlIjp0cnVlfQ=="
+                    },
+                    {
+                      "name": "conditional-states",
+                      "contentType": "application/json",
+                      "body": "W3sidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSIsImRpc2FibGVkIjpmYWxzZX0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkiLCJkaXNhYmxlZCI6ZmFsc2V9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfV0="
+                    },
+                    {
+                      "name": "spa-analytics",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlcmltZW50SWQiOiI3ODFmNzMwZC02NGJjLTQ1M2ItOWIwMC0xYjlmOTE2NjM0YjYiLCJnZW5lcmF0ZWRBdCI6IjIwMjYtMTAtMDRUMTg6NDk6MjAuNDM5WiIsInZhcmlhbnRzIjpbeyJrZXkiOiJBIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MSwidmlld3MiOjEsInVuaXF1ZUNvbnZlcnNpb25zIjoxLCJjb252ZXJzaW9ucyI6MSwiY29udmVyc2lvblJhdGUiOjEsInVwbGlmdFZzQSI6bnVsbH0seyJrZXkiOiJCIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MCwidmlld3MiOjAsInVuaXF1ZUNvbnZlcnNpb25zIjowLCJjb252ZXJzaW9ucyI6MCwiY29udmVyc2lvblJhdGUiOm51bGwsInVwbGlmdFZzQSI6bnVsbH1dfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "db91526852d1821ef0c1-43e1eacb92426de41334",
+          "file": "s4-conditional-flow.spec.ts",
+          "line": 5,
+          "column": 7
+        },
+        {
+          "title": "vue csr: capture state, save/reload, Release/share and host transitions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2929,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:49:20.511Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "prepaint-frames",
+                      "contentType": "application/json",
+                      "body": "eyJzYW1wbGVzIjpbeyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn1dLCJzYW1lVGV4dE5vZGUiOmZhbHNlfQ=="
+                    },
+                    {
+                      "name": "conditional-states",
+                      "contentType": "application/json",
+                      "body": "W3sidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSIsImRpc2FibGVkIjpmYWxzZX0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkiLCJkaXNhYmxlZCI6ZmFsc2V9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfV0="
+                    },
+                    {
+                      "name": "spa-analytics",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlcmltZW50SWQiOiI3MGEwYTVkOC0yOTFhLTQ5NDItOTYyYS01ODhkOTliNDQzN2UiLCJnZW5lcmF0ZWRBdCI6IjIwMjYtMTAtMDRUMTg6NDk6MjMuMzgyWiIsInZhcmlhbnRzIjpbeyJrZXkiOiJBIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MCwidmlld3MiOjAsInVuaXF1ZUNvbnZlcnNpb25zIjowLCJjb252ZXJzaW9ucyI6MCwiY29udmVyc2lvblJhdGUiOm51bGwsInVwbGlmdFZzQSI6bnVsbH0seyJrZXkiOiJCIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MSwidmlld3MiOjEsInVuaXF1ZUNvbnZlcnNpb25zIjoxLCJjb252ZXJzaW9ucyI6MSwiY29udmVyc2lvblJhdGUiOjEsInVwbGlmdFZzQSI6bnVsbH1dfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "db91526852d1821ef0c1-b23fab80d722cee853f2",
+          "file": "s4-conditional-flow.spec.ts",
+          "line": 5,
+          "column": 7
+        },
+        {
+          "title": "vue ssr: capture state, save/reload, Release/share and host transitions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2912,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:49:23.445Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "prepaint-frames",
+                      "contentType": "application/json",
+                      "body": "eyJzYW1wbGVzIjpbeyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9XSwic2FtZVRleHROb2RlIjpmYWxzZX0="
+                    },
+                    {
+                      "name": "conditional-states",
+                      "contentType": "application/json",
+                      "body": "W3sidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSIsImRpc2FibGVkIjpmYWxzZX0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkiLCJkaXNhYmxlZCI6ZmFsc2V9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfV0="
+                    },
+                    {
+                      "name": "spa-analytics",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlcmltZW50SWQiOiI1MzI0MTBlNC0xNzU0LTQ4MzgtYmFkMy05Y2FkNDYyYzMzZmMiLCJnZW5lcmF0ZWRBdCI6IjIwMjYtMTAtMDRUMTg6NDk6MjYuMjk3WiIsInZhcmlhbnRzIjpbeyJrZXkiOiJBIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MSwidmlld3MiOjEsInVuaXF1ZUNvbnZlcnNpb25zIjoxLCJjb252ZXJzaW9ucyI6MSwiY29udmVyc2lvblJhdGUiOjEsInVwbGlmdFZzQSI6bnVsbH0seyJrZXkiOiJCIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MCwidmlld3MiOjAsInVuaXF1ZUNvbnZlcnNpb25zIjowLCJjb252ZXJzaW9ucyI6MCwiY29udmVyc2lvblJhdGUiOm51bGwsInVwbGlmdFZzQSI6bnVsbH1dfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "db91526852d1821ef0c1-6d0985bebf9d24404736",
+          "file": "s4-conditional-flow.spec.ts",
+          "line": 5,
+          "column": 7
+        }
+      ]
+    },
+    {
+      "title": "s4-spa-critical.spec.ts",
+      "file": "s4-spa-critical.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "react SSR commits before host interaction and survives route history",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 343,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:32.825Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-ba349c4e73e4e542a8c2",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 4,
+          "column": 7
+        },
+        {
+          "title": "vue SSR commits before host interaction and survives route history",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 296,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:33.173Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-469a98aafaa35a59cfc8",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 4,
+          "column": 7
+        },
+        {
+          "title": "react: ready rules leave server HTML untouched until real hydration commits",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 444,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:33.473Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-740880fea462e2b1c4dc",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 28,
+          "column": 7
+        },
+        {
+          "title": "vue: ready rules leave server HTML untouched until real hydration commits",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 380,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:33.921Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-dbbfc3bc04bde972fb54",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 28,
+          "column": 7
+        },
+        {
+          "title": "react SSR commits before host interaction and survives route history",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 303,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:59.362Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-c315542dae5e4dfa7742",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 4,
+          "column": 7
+        },
+        {
+          "title": "vue SSR commits before host interaction and survives route history",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 281,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:59.669Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-844e845547dab818fefc",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 4,
+          "column": 7
+        },
+        {
+          "title": "react: ready rules leave server HTML untouched until real hydration commits",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 374,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:59.953Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-e6ff3906be95515f5bec",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 28,
+          "column": 7
+        },
+        {
+          "title": "vue: ready rules leave server HTML untouched until real hydration commits",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 380,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:49:00.331Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-b3c3389e0dcb347b437a",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 28,
+          "column": 7
+        },
+        {
+          "title": "react SSR commits before host interaction and survives route history",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 361,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:49:26.362Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-e4bf0c967223b80d27a6",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 4,
+          "column": 7
+        },
+        {
+          "title": "vue SSR commits before host interaction and survives route history",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 339,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:49:26.728Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-787c2e7e516807f99175",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 4,
+          "column": 7
+        },
+        {
+          "title": "react: ready rules leave server HTML untouched until real hydration commits",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 419,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:49:27.072Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-6c49f3b6af9b1eb98d8d",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 28,
+          "column": 7
+        },
+        {
+          "title": "vue: ready rules leave server HTML untouched until real hydration commits",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 412,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:49:27.495Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-9d74cb73256ab17493f8",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 28,
+          "column": 7
+        }
+      ]
+    },
+    {
+      "title": "versioning-flow.spec.ts",
+      "file": "versioning-flow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "edit → save → reload → reopen → release → share keeps page scopes isolated",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1511,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('1 команд')\nExpected: visible\nError: strict mode violation: getByText('1 команд') resolved to 2 elements:\n    1) <option value=\"614016b9-dd50-4a5a-b9c3-5ee75523750f\">…</option> aka getByLabel('Версия для публикации')\n    2) <span class=\"muted\">1 команд</span> aka getByText('1 команд', { exact: true })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('1 команд') with timeout 7000ms\u001b[22m\n\u001b[2m  - waiting for getByText('1 команд')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('1 команд')\nExpected: visible\nError: strict mode violation: getByText('1 команд') resolved to 2 elements:\n    1) <option value=\"614016b9-dd50-4a5a-b9c3-5ee75523750f\">…</option> aka getByLabel('Версия для публикации')\n    2) <span class=\"muted\">1 команд</span> aka getByText('1 команд', { exact: true })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('1 команд') with timeout 7000ms\u001b[22m\n\u001b[2m  - waiting for getByText('1 команд')\u001b[22m\n\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/versioning-flow.spec.ts:63:45",
+                    "location": {
+                      "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/versioning-flow.spec.ts",
+                      "column": 45,
+                      "line": 63
+                    },
+                    "snippet": "  61 |   await admin.getByRole('button', { name: 'Зафиксировать версию' }).click();\n  62 |   await expect(admin.getByText('Версия 1', { exact: true })).toBeVisible();\n> 63 |   await expect(admin.getByText('1 команд')).toBeVisible();\n     |                                             ^\n  64 |\n  65 |   let shareUrl = '';\n  66 |   await admin.getByRole('button', { name: 'Ссылка на версию' }).click();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/versioning-flow.spec.ts",
+                        "column": 45,
+                        "line": 63
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('1 команд')\nExpected: visible\nError: strict mode violation: getByText('1 команд') resolved to 2 elements:\n    1) <option value=\"614016b9-dd50-4a5a-b9c3-5ee75523750f\">…</option> aka getByLabel('Версия для публикации')\n    2) <span class=\"muted\">1 команд</span> aka getByText('1 команд', { exact: true })\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('1 команд') with timeout 7000ms\u001b[22m\n\u001b[2m  - waiting for getByText('1 команд')\u001b[22m\n\n\n  61 |   await admin.getByRole('button', { name: 'Зафиксировать версию' }).click();\n  62 |   await expect(admin.getByText('Версия 1', { exact: true })).toBeVisible();\n> 63 |   await expect(admin.getByText('1 команд')).toBeVisible();\n     |                                             ^\n  64 |\n  65 |   let shareUrl = '';\n  66 |   await admin.getByRole('button', { name: 'Ссылка на версию' }).click();\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/versioning-flow.spec.ts:63:45"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T18:48:34.307Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/versioning-flow-edit-→-sav-c9de5--keeps-page-scopes-isolated-chromium/test-failed-1.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/versioning-flow-edit-→-sav-c9de5--keeps-page-scopes-isolated-chromium/test-failed-2.png"
+                    },
+                    {
+                      "name": "browser-errors",
+                      "contentType": "application/json",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/versioning-flow-edit-→-sav-c9de5--keeps-page-scopes-isolated-chromium/attachments/browser-errors-2669fc1ea34eb4ebe425f50fc6362da9b1bf9d01.json"
+                    },
+                    {
+                      "name": "page-1",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/versioning-flow-edit-→-sav-c9de5--keeps-page-scopes-isolated-chromium/attachments/page-1-ce9f0c39131278648e63f76d1b5acf8bd0de391c.png"
+                    },
+                    {
+                      "name": "page-2",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/versioning-flow-edit-→-sav-c9de5--keeps-page-scopes-isolated-chromium/attachments/page-2-b6c25acd2143b7fadbc505c2fe49d4cf897ba6c1.png"
+                    },
+                    {
+                      "name": "video-0",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/versioning-flow-edit-→-sav-c9de5--keeps-page-scopes-isolated-chromium/attachments/video-0-510a9f7a5be6d722aad6823bd02ce036496df4d0.webm"
+                    },
+                    {
+                      "name": "video-1",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/versioning-flow-edit-→-sav-c9de5--keeps-page-scopes-isolated-chromium/attachments/video-1-34015e14122a9b88767c4f776373989d4f4ab3a1.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/versioning-flow-edit-→-sav-c9de5--keeps-page-scopes-isolated-chromium/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/versioning-flow-edit-→-sav-c9de5--keeps-page-scopes-isolated-chromium/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/versioning-flow.spec.ts",
+                    "column": 45,
+                    "line": 63
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "8a985da1476b4acb6463-2c06797650bc0445435a",
+          "file": "versioning-flow.spec.ts",
+          "line": 6,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-04T18:47:40.534Z",
+    "duration": 107627.077,
+    "expected": 66,
+    "skipped": 0,
+    "unexpected": 3,
+    "flaky": 0
+  }
+}

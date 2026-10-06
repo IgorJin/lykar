@@ -29,6 +29,8 @@ const temporaryDirectory = isolatedMode
 const postgresDirectory = join(temporaryDirectory, 'postgres');
 const postgresLog = join(temporaryDirectory, 'postgres.log');
 const magicLinkFile = join(temporaryDirectory, 'magic-links.ndjson');
+const installDirectory = join(temporaryDirectory, 'installed-sites');
+await mkdir(installDirectory,{recursive:true});
 const children = [];
 const commands = new Set();
 let ownsPostgres = false;
@@ -69,12 +71,17 @@ try {
     LYKAR_APP_ORIGIN: apiBaseUrl,
     LYKAR_OWNER_EMAIL: OWNER_EMAIL,
     LYKAR_DEV_AUTH: '1',
-    LYKAR_MAGIC_LINK_FILE: '',
+    LYKAR_MAGIC_LINK_FILE: magicLinkFile,
+    LYKAR_EMAIL_MODE: 'file',
+    LYKAR_EMAIL_REQUEST_COOLDOWN_SECONDS: '1',
+    LYKAR_EMAIL_ACTOR_MAX: '1000',
+    LYKAR_EMAIL_PROVIDERS: '',
     CORS_ALLOWED_ORIGINS: `${playgroundBaseUrl},http://localhost:${playgroundPort}`,
     NODE_ENV: 'development',
   }));
   children.push(start('playground', 'node', ['apps/playground/server.mjs'], {
     LYKAR_PLAYGROUND_PORT: String(playgroundPort),
+    LYKAR_E2E_INSTALL_DIRECTORY: installDirectory,
     LYKAR_API_BASE_URL: apiBaseUrl,
     LYKAR_PLAYGROUND_PROJECT_KEY: PROJECT_KEY,
     LYKAR_OWNER_EMAIL: OWNER_EMAIL,
@@ -89,6 +96,10 @@ try {
       LYKAR_OWNER_EMAIL: OWNER_EMAIL,
       LYKAR_DEV_AUTH: '0',
       LYKAR_MAGIC_LINK_FILE: magicLinkFile,
+      LYKAR_EMAIL_MODE: 'file',
+      LYKAR_EMAIL_PROVIDERS: '',
+      LYKAR_EMAIL_REQUEST_COOLDOWN_SECONDS: '1',
+      LYKAR_EMAIL_ACTOR_MAX: '1000',
       NODE_ENV: 'test',
     }));
   }
@@ -116,6 +127,7 @@ try {
       magicApiBaseUrl,
       playgroundBaseUrl,
       magicLinkFile,
+      installDirectory,
     })}`);
   } else {
     console.log(`

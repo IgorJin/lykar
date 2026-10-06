@@ -353,7 +353,17 @@ export class PostgresVersioningRepository implements VersioningRepository {
       'SELECT data FROM operations WHERE draft_id = $1 ORDER BY ordinal ASC',
       [draftId],
     );
-    return { draft: mapDraft(draft), operations: operationsResult.rows.map(row => parseOperation(row.data)) };
+    let baseOperations: Operation[] = [];
+    if (draft.base_release_id) {
+      const base = await this.pool.query<{manifest: unknown}>(
+        'SELECT manifest FROM releases WHERE id = $1 AND page_id = $2',
+        [draft.base_release_id, draft.page_id],
+      );
+      if (!Array.isArray(base.rows[0]?.manifest)) throw new Error('Draft base release manifest is unavailable');
+      baseOperations = base.rows[0].manifest.map(parseOperation);
+    }
+    return {draft: mapDraft(draft), baseOperations,
+      operations: operationsResult.rows.map(row => parseOperation(row.data))};
   }
 
   async appendOperations(input: Parameters<VersioningRepository['appendOperations']>[0]): Promise<AppendOperationsResult> {

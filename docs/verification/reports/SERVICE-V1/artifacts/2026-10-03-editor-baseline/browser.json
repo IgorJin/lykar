@@ -1,0 +1,21 @@
+{
+  "command": [
+    "npx",
+    "playwright",
+    "test",
+    "tests/e2e/editor-design.spec.ts",
+    "tests/e2e/editor-style-reset.spec.ts",
+    "tests/e2e/style-editor-acceptance.spec.ts",
+    "tests/e2e/persistence-recovery.spec.ts",
+    "tests/e2e/versioning-flow.spec.ts",
+    "tests/e2e/s4-conditional-flow.spec.ts",
+    "tests/e2e/s4-spa-critical.spec.ts",
+    "tests/e2e/style-matrix.spec.ts",
+    "--reporter=line,json,html",
+    "--output=docs/verification/reports/SERVICE-V1/artifacts/2026-10-03-editor-baseline/browser-results"
+  ],
+  "startedAt": "2026-10-03T15:27:45.116Z",
+  "endedAt": "2026-10-03T15:29:56.553Z",
+  "code": 0,
+  "signal": null
+}

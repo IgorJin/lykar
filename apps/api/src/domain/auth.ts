@@ -1,5 +1,7 @@
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 
+import type { EmailRequestPolicy } from '../email/policy';
+import { EmailDeliveryError } from '../email/delivery';
 import { UnauthorizedError, ValidationError } from './versioning';
 
 export type UserRecord = { id: string; email: string; createdAt: string };
@@ -15,7 +17,7 @@ export interface AuthRepository {
   findUserByEmail(email: string): Promise<UserRecord | null>;
   createLoginToken(input: {
     id: string;
-    userId: string;
+    email: string;
     tokenHash: string;
     expiresAt: Date;
   }): Promise<void>;
@@ -31,7 +33,7 @@ export interface AuthRepository {
 }
 
 export interface MagicLinkSender {
-  send(input: { email: string; url: string; expiresAt: string }): Promise<void>;
+  send(input: { email: string; url: string; expiresAt: string; deliveryId?: string }): Promise<void>;
 }
 
 export type AuthServiceOptions = {
@@ -40,6 +42,7 @@ export type AuthServiceOptions = {
   loginTtlMs: number;
   sessionTtlMs: number;
   sender: MagicLinkSender;
+  emailPolicy?: EmailRequestPolicy;
   now?: () => Date;
 };
 
@@ -59,24 +62,28 @@ export class AuthService {
     this.now = options.now ?? (() => new Date());
   }
 
-  async requestMagicLink(emailValue: unknown): Promise<void> {
+  async requestMagicLink(emailValue: unknown, ip?: string): Promise<void> {
     const email = normalizeEmail(emailValue);
-    // The response remains identical for unknown addresses to avoid account discovery.
-    const user = email === this.ownerEmail
-      ? await this.repository.findOrCreateUser({ id: randomUUID(), email })
-      : await this.repository.findUserByEmail(email);
-    if (!user) return;
+    await this.options.emailPolicy?.check('login', email, ip);
+    // Registration and login have the same response. The account is created only
+    // when the one-use email challenge is consumed, never from an unverified request.
     const token = issueOpaqueToken();
     const expiresAt = new Date(this.now().getTime() + this.options.loginTtlMs);
+    const deliveryId = randomUUID();
     await this.repository.createLoginToken({
-      id: randomUUID(),
-      userId: user.id,
+      id: deliveryId,
+      email,
       tokenHash: hashToken(token),
       expiresAt,
     });
     const url = new URL('/api/auth/verify', this.appOrigin);
     url.searchParams.set('token', token);
-    await this.options.sender.send({ email, url: url.toString(), expiresAt: expiresAt.toISOString() });
+    try {
+      await this.options.sender.send({ email, url: url.toString(), expiresAt: expiresAt.toISOString(), deliveryId });
+    } catch (error) {
+      if (error instanceof EmailDeliveryError) throw error;
+      throw new EmailDeliveryError(deliveryId, 'unknown');
+    }
   }
 
   async verifyMagicLink(tokenValue: unknown): Promise<IssuedSession> {
@@ -117,8 +124,9 @@ export class AuthService {
 export class ConsoleMagicLinkSender implements MagicLinkSender {
   constructor(private readonly write: (message: string) => void = console.info) {}
 
-  async send(input: { email: string; url: string; expiresAt: string }): Promise<void> {
-    this.write(`[lykar] Magic link for ${input.email} (expires ${input.expiresAt}): ${input.url}`);
+  async send(input: { email: string; url: string; expiresAt: string; deliveryId?: string }): Promise<void> {
+    this.write('[lykar] Console email delivery is disabled; configure a local file sender.');
+    throw new EmailDeliveryError(input.deliveryId, 'unavailable');
   }
 }
 

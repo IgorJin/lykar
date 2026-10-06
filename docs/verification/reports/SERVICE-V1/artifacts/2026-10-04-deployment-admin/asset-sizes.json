@@ -1,0 +1,35 @@
+{
+  "generatedAt": "2026-10-05T08:05:44.811921+00:00",
+  "assets": [
+    {
+      "file": "packages/sdk/dist/sdk.iife.js",
+      "raw": 31420,
+      "gzip9": 9419,
+      "sha256": "408ca7b2e62e864a8499c2ec114e4c36fa09e67bb8aa587da48aff6455fefacb"
+    },
+    {
+      "file": "packages/sdk/dist/runtime-core.iife.js",
+      "raw": 86930,
+      "gzip9": 25572,
+      "sha256": "3fd3103382a00bc903def6c615d5471c5d34885bcace391264ca94f91fef6810"
+    },
+    {
+      "file": "packages/editor-bridge/dist/editor.iife.js",
+      "raw": 283731,
+      "gzip9": 73575,
+      "sha256": "e890361681407ac94b75c736f0eb1f5da5ef81a62cd1f888010c188c81b44523"
+    },
+    {
+      "file": "packages/sdk/dist/index.js",
+      "raw": 205549,
+      "gzip9": 43072,
+      "sha256": "f89eca814b585bfaa31bf63de7cc2a704f3edd355de116cdbef9e029a0159077"
+    },
+    {
+      "file": "apps/admin/dist/app.js",
+      "raw": 121471,
+      "gzip9": 23686,
+      "sha256": "74d4ac2a3ee48e014d8a98d20d70ec66f91e66e0d4202630606ef0382f28eba7"
+    }
+  ]
+}

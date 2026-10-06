@@ -36,7 +36,12 @@ release 3 and requires page-bound editor/share access. A public
 `#lykar_variant=<opaque-token>` resolves one exact QA variant. A public
 `#lykar_experiment=<opaque-token>` performs weighted A/B assignment and keeps it
 stable for 30 days. Without one of these parameters runtime returns immediately
-without fetching a manifest or changing the host DOM.
+without fetching a manifest or changing the host DOM, unless explicitly configured
+with `delivery: 'deployment'`. That mode resolves the anonymous active deployment
+with omitted credentials and no cache. For bounded network delivery, lazy assets,
+refresh/navigation and generation cleanup use `@lykar/sdk`; the low-level runtime
+accepts a caller-owned fetch/signal and does not add a network deadline. See the
+[SDK delivery contract](../sdk/README.md#explicit-deployment-delivery).
 
 ## ESM
 

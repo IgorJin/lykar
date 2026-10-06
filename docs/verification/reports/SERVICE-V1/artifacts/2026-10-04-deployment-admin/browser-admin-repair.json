@@ -1,0 +1,13 @@
+{
+  "command": [
+    "npx",
+    "playwright",
+    "test",
+    "tests/e2e/deployment-admin.spec.ts",
+    "tests/e2e/deployment-repair.spec.ts"
+  ],
+  "startedAt": "2026-10-04T18:45:41.506Z",
+  "endedAt": "2026-10-04T18:46:34.655Z",
+  "code": 1,
+  "signal": null
+}

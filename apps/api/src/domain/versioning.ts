@@ -113,6 +113,8 @@ export type AppendOperationsResult = {
 export const SAVE_RESULT_RETENTION_MS = 30 * 24 * 60 * 60 * 1_000;
 
 export type DraftDetails = {
+  /** Immutable base history; operations remains the saved Draft delta. */
+  baseOperations?: Operation[];
   draft: DraftRecord;
   operations: Operation[];
 };

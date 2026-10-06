@@ -1,0 +1,3466 @@
+{
+  "config": {
+    "argv": [
+      "/Users/igorjan/.hermes/node/bin/node",
+      "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/node_modules/.bin/playwright",
+      "test",
+      "tests/e2e/onboarding.spec.ts",
+      "tests/e2e/site-connection.spec.ts",
+      "tests/e2e/auth-and-editor.spec.ts",
+      "--reporter=line,json"
+    ],
+    "configFile": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/playwright.config.ts",
+    "rootDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/global-setup.ts",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/(style-(editor-acceptance|matrix)|s4-(spa-critical|conditional-flow)|deployment-(flow|admin|repair)|auth-and-editor|site-connection|onboarding)\\.spec\\.ts/"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/(style-(editor-acceptance|matrix)|s4-(spa-critical|conditional-flow)|deployment-(flow|admin|repair)|auth-and-editor|site-connection|onboarding)\\.spec\\.ts/"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "auth-and-editor.spec.ts",
+      "file": "auth-and-editor.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "local owner login survives reload and opens the editor from the Admin click",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7188,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:50:18.191Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-5f26553b21eb6e639dd1",
+          "file": "auth-and-editor.spec.ts",
+          "line": 5,
+          "column": 5
+        },
+        {
+          "title": "magic link signs in without dev auth and cannot be reused",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 424,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:50:26.096Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-599133154dbc27dde159",
+          "file": "auth-and-editor.spec.ts",
+          "line": 29,
+          "column": 5
+        },
+        {
+          "title": "playground without editor capability exposes a working Admin button",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 387,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:50:26.526Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-7f3eb27b61e1acd26ac2",
+          "file": "auth-and-editor.spec.ts",
+          "line": 46,
+          "column": 5
+        },
+        {
+          "title": "new independent customer signs up, resends, creates a site and logs out (desktop)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3908,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:50:26.916Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-e76b249500100ab38ad2",
+          "file": "auth-and-editor.spec.ts",
+          "line": 77,
+          "column": 7
+        },
+        {
+          "title": "new independent customer signs up, resends, creates a site and logs out (mobile)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3939,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:50:30.828Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-385c08828bb1bb253b1d",
+          "file": "auth-and-editor.spec.ts",
+          "line": 77,
+          "column": 7
+        },
+        {
+          "title": "signup send failure preserves email and permits retry without reporting success",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 370,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:50:34.772Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-871946c89a169e971edd",
+          "file": "auth-and-editor.spec.ts",
+          "line": 142,
+          "column": 5
+        },
+        {
+          "title": "email request limit shows cooldown and allows another address",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4368,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:50:35.147Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-abe40005868034271fbf",
+          "file": "auth-and-editor.spec.ts",
+          "line": 160,
+          "column": 5
+        },
+        {
+          "title": "local owner login survives reload and opens the editor from the Admin click",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 7885,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Northstar E2E' })\nExpected: visible\nTimeout: 7000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Northstar E2E' }) with timeout 7000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Northstar E2E' })\u001b[22m\n\u001b[2m    - waiting for \"http://127.0.0.1:61707/admin\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"http://127.0.0.1:61707/admin\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Northstar E2E' })\nExpected: visible\nTimeout: 7000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Northstar E2E' }) with timeout 7000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Northstar E2E' })\u001b[22m\n\u001b[2m    - waiting for \"http://127.0.0.1:61707/admin\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"http://127.0.0.1:61707/admin\"\u001b[22m\n\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/auth-and-editor.spec.ts:10:71",
+                    "location": {
+                      "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/auth-and-editor.spec.ts",
+                      "column": 71,
+                      "line": 10
+                    },
+                    "snippet": "   8 |   await admin.goto(`${required('LYKAR_E2E_API_BASE_URL')}/admin`);\n   9 |   await admin.getByRole('button', { name: 'Войти как локальный владелец' }).click();\n> 10 |   await expect(admin.getByRole('heading', { name: 'Northstar E2E' })).toBeVisible();\n     |                                                                       ^\n  11 |   await expect(admin.getByText('owner@lykar.local')).toBeVisible();\n  12 |   await admin.reload();\n  13 |   await expect(admin.getByRole('heading', { name: 'Northstar E2E' })).toBeVisible();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/auth-and-editor.spec.ts",
+                        "column": 71,
+                        "line": 10
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Northstar E2E' })\nExpected: visible\nTimeout: 7000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Northstar E2E' }) with timeout 7000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Northstar E2E' })\u001b[22m\n\u001b[2m    - waiting for \"http://127.0.0.1:61707/admin\" navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"http://127.0.0.1:61707/admin\"\u001b[22m\n\n\n   8 |   await admin.goto(`${required('LYKAR_E2E_API_BASE_URL')}/admin`);\n   9 |   await admin.getByRole('button', { name: 'Войти как локальный владелец' }).click();\n> 10 |   await expect(admin.getByRole('heading', { name: 'Northstar E2E' })).toBeVisible();\n     |                                                                       ^\n  11 |   await expect(admin.getByText('owner@lykar.local')).toBeVisible();\n  12 |   await admin.reload();\n  13 |   await expect(admin.getByRole('heading', { name: 'Northstar E2E' })).toBeVisible();\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/auth-and-editor.spec.ts:10:71"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:52:05.396Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/auth-and-editor-local-owne-4a115-editor-from-the-Admin-click-firefox/test-failed-1.png"
+                    },
+                    {
+                      "name": "browser-errors",
+                      "contentType": "application/json",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/auth-and-editor-local-owne-4a115-editor-from-the-Admin-click-firefox/attachments/browser-errors-1ba8fe7f687d3b177174c3b66d59fa4888037bc5.json"
+                    },
+                    {
+                      "name": "page-1",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/auth-and-editor-local-owne-4a115-editor-from-the-Admin-click-firefox/attachments/page-1-dec9dbdff93bdcd17d7150d4576ee59e9b251777.png"
+                    },
+                    {
+                      "name": "video-0",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/auth-and-editor-local-owne-4a115-editor-from-the-Admin-click-firefox/attachments/video-0-02257720f384211bfc17113ea91fa760a54cb792.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/auth-and-editor-local-owne-4a115-editor-from-the-Admin-click-firefox/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/auth-and-editor-local-owne-4a115-editor-from-the-Admin-click-firefox/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/auth-and-editor.spec.ts",
+                    "column": 71,
+                    "line": 10
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-22c55920e1d87a22a208",
+          "file": "auth-and-editor.spec.ts",
+          "line": 5,
+          "column": 5
+        },
+        {
+          "title": "magic link signs in without dev auth and cannot be reused",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 7986,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Northstar E2E' })\nExpected: visible\nTimeout: 7000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Northstar E2E' }) with timeout 7000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Northstar E2E' })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Northstar E2E' })\nExpected: visible\nTimeout: 7000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Northstar E2E' }) with timeout 7000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Northstar E2E' })\u001b[22m\n\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/auth-and-editor.spec.ts:41:70",
+                    "location": {
+                      "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/auth-and-editor.spec.ts",
+                      "column": 70,
+                      "line": 41
+                    },
+                    "snippet": "  39 |   const magicUrl = await waitForMagicLink(required('LYKAR_E2E_MAGIC_LINK_FILE'), 'owner@lykar.local');\n  40 |   await page.goto(magicUrl);\n> 41 |   await expect(page.getByRole('heading', { name: 'Northstar E2E' })).toBeVisible();\n     |                                                                      ^\n  42 |   const reused = await context.request.get(magicUrl, { maxRedirects: 0 });\n  43 |   expect(reused.status()).toBe(401);\n  44 | });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/auth-and-editor.spec.ts",
+                        "column": 70,
+                        "line": 41
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Northstar E2E' })\nExpected: visible\nTimeout: 7000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Northstar E2E' }) with timeout 7000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Northstar E2E' })\u001b[22m\n\n\n  39 |   const magicUrl = await waitForMagicLink(required('LYKAR_E2E_MAGIC_LINK_FILE'), 'owner@lykar.local');\n  40 |   await page.goto(magicUrl);\n> 41 |   await expect(page.getByRole('heading', { name: 'Northstar E2E' })).toBeVisible();\n     |                                                                      ^\n  42 |   const reused = await context.request.get(magicUrl, { maxRedirects: 0 });\n  43 |   expect(reused.status()).toBe(401);\n  44 | });\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/auth-and-editor.spec.ts:41:70"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:52:14.264Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/auth-and-editor-magic-link-39c3b-v-auth-and-cannot-be-reused-firefox/test-failed-1.png"
+                    },
+                    {
+                      "name": "browser-errors",
+                      "contentType": "application/json",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/auth-and-editor-magic-link-39c3b-v-auth-and-cannot-be-reused-firefox/attachments/browser-errors-06f5b38f28308f35de7542d781a975d855d2b49c.json"
+                    },
+                    {
+                      "name": "page-1",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/auth-and-editor-magic-link-39c3b-v-auth-and-cannot-be-reused-firefox/attachments/page-1-0f68e07a4b982a34064c0b1d6c4449b169ae102a.png"
+                    },
+                    {
+                      "name": "video-0",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/auth-and-editor-magic-link-39c3b-v-auth-and-cannot-be-reused-firefox/attachments/video-0-be740a5a6fca2d7eea2591140dc63f95669a375d.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/auth-and-editor-magic-link-39c3b-v-auth-and-cannot-be-reused-firefox/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/auth-and-editor-magic-link-39c3b-v-auth-and-cannot-be-reused-firefox/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/auth-and-editor.spec.ts",
+                    "column": 70,
+                    "line": 41
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-be356dd6eb62e3670fd1",
+          "file": "auth-and-editor.spec.ts",
+          "line": 29,
+          "column": 5
+        },
+        {
+          "title": "playground without editor capability exposes a working Admin button",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 974,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:52:23.087Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-02b5a9ba729245226770",
+          "file": "auth-and-editor.spec.ts",
+          "line": 46,
+          "column": 5
+        },
+        {
+          "title": "new independent customer signs up, resends, creates a site and logs out (desktop)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3675,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:52:24.513Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-f30b0612f770f2e92492",
+          "file": "auth-and-editor.spec.ts",
+          "line": 77,
+          "column": 7
+        },
+        {
+          "title": "new independent customer signs up, resends, creates a site and logs out (mobile)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3613,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:52:28.193Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-074371a35cd88bd6e987",
+          "file": "auth-and-editor.spec.ts",
+          "line": 77,
+          "column": 7
+        },
+        {
+          "title": "signup send failure preserves email and permits retry without reporting success",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 543,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:52:31.810Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-c567b13c095c4d607afe",
+          "file": "auth-and-editor.spec.ts",
+          "line": 142,
+          "column": 5
+        },
+        {
+          "title": "email request limit shows cooldown and allows another address",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4270,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:52:32.358Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-53ef64df324c2c2f9450",
+          "file": "auth-and-editor.spec.ts",
+          "line": 160,
+          "column": 5
+        },
+        {
+          "title": "local owner login survives reload and opens the editor from the Admin click",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 8,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 7744,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Northstar E2E' })\nExpected: visible\nTimeout: 7000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Northstar E2E' }) with timeout 7000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Northstar E2E' })\u001b[22m\n\u001b[2m    - waiting for navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"http://127.0.0.1:61707/admin\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Northstar E2E' })\nExpected: visible\nTimeout: 7000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Northstar E2E' }) with timeout 7000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Northstar E2E' })\u001b[22m\n\u001b[2m    - waiting for navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"http://127.0.0.1:61707/admin\"\u001b[22m\n\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/auth-and-editor.spec.ts:10:71",
+                    "location": {
+                      "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/auth-and-editor.spec.ts",
+                      "column": 71,
+                      "line": 10
+                    },
+                    "snippet": "   8 |   await admin.goto(`${required('LYKAR_E2E_API_BASE_URL')}/admin`);\n   9 |   await admin.getByRole('button', { name: 'Войти как локальный владелец' }).click();\n> 10 |   await expect(admin.getByRole('heading', { name: 'Northstar E2E' })).toBeVisible();\n     |                                                                       ^\n  11 |   await expect(admin.getByText('owner@lykar.local')).toBeVisible();\n  12 |   await admin.reload();\n  13 |   await expect(admin.getByRole('heading', { name: 'Northstar E2E' })).toBeVisible();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/auth-and-editor.spec.ts",
+                        "column": 71,
+                        "line": 10
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Northstar E2E' })\nExpected: visible\nTimeout: 7000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Northstar E2E' }) with timeout 7000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Northstar E2E' })\u001b[22m\n\u001b[2m    - waiting for navigation to finish...\u001b[22m\n\u001b[2m    - navigated to \"http://127.0.0.1:61707/admin\"\u001b[22m\n\n\n   8 |   await admin.goto(`${required('LYKAR_E2E_API_BASE_URL')}/admin`);\n   9 |   await admin.getByRole('button', { name: 'Войти как локальный владелец' }).click();\n> 10 |   await expect(admin.getByRole('heading', { name: 'Northstar E2E' })).toBeVisible();\n     |                                                                       ^\n  11 |   await expect(admin.getByText('owner@lykar.local')).toBeVisible();\n  12 |   await admin.reload();\n  13 |   await expect(admin.getByRole('heading', { name: 'Northstar E2E' })).toBeVisible();\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/auth-and-editor.spec.ts:10:71"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:53:24.356Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/auth-and-editor-local-owne-4a115-editor-from-the-Admin-click-webkit/test-failed-1.png"
+                    },
+                    {
+                      "name": "browser-errors",
+                      "contentType": "application/json",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/auth-and-editor-local-owne-4a115-editor-from-the-Admin-click-webkit/attachments/browser-errors-e881cb893cd7f52988a545236e3202c047084f51.json"
+                    },
+                    {
+                      "name": "page-1",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/auth-and-editor-local-owne-4a115-editor-from-the-Admin-click-webkit/attachments/page-1-61bf302fa386ecd22c1b9be03049f1bf3241ff45.png"
+                    },
+                    {
+                      "name": "video-0",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/auth-and-editor-local-owne-4a115-editor-from-the-Admin-click-webkit/attachments/video-0-d2beb2003ece41e6082be2135176879c9aa6b6ca.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/auth-and-editor-local-owne-4a115-editor-from-the-Admin-click-webkit/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/auth-and-editor-local-owne-4a115-editor-from-the-Admin-click-webkit/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/auth-and-editor.spec.ts",
+                    "column": 71,
+                    "line": 10
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-b4bff5e5a1854a6691cc",
+          "file": "auth-and-editor.spec.ts",
+          "line": 5,
+          "column": 5
+        },
+        {
+          "title": "magic link signs in without dev auth and cannot be reused",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 9,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 7683,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Northstar E2E' })\nExpected: visible\nTimeout: 7000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Northstar E2E' }) with timeout 7000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Northstar E2E' })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Northstar E2E' })\nExpected: visible\nTimeout: 7000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Northstar E2E' }) with timeout 7000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Northstar E2E' })\u001b[22m\n\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/auth-and-editor.spec.ts:41:70",
+                    "location": {
+                      "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/auth-and-editor.spec.ts",
+                      "column": 70,
+                      "line": 41
+                    },
+                    "snippet": "  39 |   const magicUrl = await waitForMagicLink(required('LYKAR_E2E_MAGIC_LINK_FILE'), 'owner@lykar.local');\n  40 |   await page.goto(magicUrl);\n> 41 |   await expect(page.getByRole('heading', { name: 'Northstar E2E' })).toBeVisible();\n     |                                                                      ^\n  42 |   const reused = await context.request.get(magicUrl, { maxRedirects: 0 });\n  43 |   expect(reused.status()).toBe(401);\n  44 | });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/auth-and-editor.spec.ts",
+                        "column": 70,
+                        "line": 41
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('heading', { name: 'Northstar E2E' })\nExpected: visible\nTimeout: 7000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByRole('heading', { name: 'Northstar E2E' }) with timeout 7000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('heading', { name: 'Northstar E2E' })\u001b[22m\n\n\n  39 |   const magicUrl = await waitForMagicLink(required('LYKAR_E2E_MAGIC_LINK_FILE'), 'owner@lykar.local');\n  40 |   await page.goto(magicUrl);\n> 41 |   await expect(page.getByRole('heading', { name: 'Northstar E2E' })).toBeVisible();\n     |                                                                      ^\n  42 |   const reused = await context.request.get(magicUrl, { maxRedirects: 0 });\n  43 |   expect(reused.status()).toBe(401);\n  44 | });\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/auth-and-editor.spec.ts:41:70"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:53:32.565Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/auth-and-editor-magic-link-39c3b-v-auth-and-cannot-be-reused-webkit/test-failed-1.png"
+                    },
+                    {
+                      "name": "browser-errors",
+                      "contentType": "application/json",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/auth-and-editor-magic-link-39c3b-v-auth-and-cannot-be-reused-webkit/attachments/browser-errors-60403eecb8709482bd7c8a6c7916aa2af62460f0.json"
+                    },
+                    {
+                      "name": "page-1",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/auth-and-editor-magic-link-39c3b-v-auth-and-cannot-be-reused-webkit/attachments/page-1-3bdec330fb60185712b3ab0c24a37f06dcca6891.png"
+                    },
+                    {
+                      "name": "video-0",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/auth-and-editor-magic-link-39c3b-v-auth-and-cannot-be-reused-webkit/attachments/video-0-3ee7934f6822090e1337d7867e009dc45ea28563.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/auth-and-editor-magic-link-39c3b-v-auth-and-cannot-be-reused-webkit/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/auth-and-editor-magic-link-39c3b-v-auth-and-cannot-be-reused-webkit/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/auth-and-editor.spec.ts",
+                    "column": 70,
+                    "line": 41
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-9c70300a524669b0208d",
+          "file": "auth-and-editor.spec.ts",
+          "line": 29,
+          "column": 5
+        },
+        {
+          "title": "playground without editor capability exposes a working Admin button",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 10,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 557,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:53:40.635Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-f63cf4d297e260ab12cd",
+          "file": "auth-and-editor.spec.ts",
+          "line": 46,
+          "column": 5
+        },
+        {
+          "title": "new independent customer signs up, resends, creates a site and logs out (desktop)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 10,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4032,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:53:41.383Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-bd74111a568355393176",
+          "file": "auth-and-editor.spec.ts",
+          "line": 77,
+          "column": 7
+        },
+        {
+          "title": "new independent customer signs up, resends, creates a site and logs out (mobile)",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 10,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1818,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/auth-and-editor.spec.ts:107:91",
+                    "location": {
+                      "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/auth-and-editor.spec.ts",
+                      "column": 91,
+                      "line": 107
+                    },
+                    "snippet": "  105 |     await page.reload();\n  106 |     await expect(page.getByRole('heading', { name: 'Мой независимый сайт', exact: true })).toBeVisible();\n> 107 |     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);\n      |                                                                                           ^\n  108 |     const other = await newContext();\n  109 |     const otherPage = await other.newPage();\n  110 |     const otherEmail = `other-${randomUUID()}@example.com`;"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/auth-and-editor.spec.ts",
+                        "column": 91,
+                        "line": 107
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\n  105 |     await page.reload();\n  106 |     await expect(page.getByRole('heading', { name: 'Мой независимый сайт', exact: true })).toBeVisible();\n> 107 |     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);\n      |                                                                                           ^\n  108 |     const other = await newContext();\n  109 |     const otherPage = await other.newPage();\n  110 |     const otherEmail = `other-${randomUUID()}@example.com`;\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/auth-and-editor.spec.ts:107:91"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:53:45.421Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/auth-and-editor-new-indepe-1485c-a-site-and-logs-out-mobile--webkit/test-failed-1.png"
+                    },
+                    {
+                      "name": "browser-errors",
+                      "contentType": "application/json",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/auth-and-editor-new-indepe-1485c-a-site-and-logs-out-mobile--webkit/attachments/browser-errors-6e7943f11d05950d81dd07dfe3256bdd53bff9b2.json"
+                    },
+                    {
+                      "name": "page-1",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/auth-and-editor-new-indepe-1485c-a-site-and-logs-out-mobile--webkit/attachments/page-1-c2d6da8f40d6f5356569a7ccabb640c2d8fac5f6.png"
+                    },
+                    {
+                      "name": "video-0",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/auth-and-editor-new-indepe-1485c-a-site-and-logs-out-mobile--webkit/attachments/video-0-5029084fcc96dba4d55894ac321f94a33e5007f4.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/auth-and-editor-new-indepe-1485c-a-site-and-logs-out-mobile--webkit/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/auth-and-editor-new-indepe-1485c-a-site-and-logs-out-mobile--webkit/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/auth-and-editor.spec.ts",
+                    "column": 91,
+                    "line": 107
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-b1442ebcfe672dd2cd5e",
+          "file": "auth-and-editor.spec.ts",
+          "line": 77,
+          "column": 7
+        },
+        {
+          "title": "signup send failure preserves email and permits retry without reporting success",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 11,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 459,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:53:47.463Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-61e39252cdbc393fd2a8",
+          "file": "auth-and-editor.spec.ts",
+          "line": 142,
+          "column": 5
+        },
+        {
+          "title": "email request limit shows cooldown and allows another address",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 11,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4403,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:53:48.090Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-ec210c6debfc0c72e4cf",
+          "file": "auth-and-editor.spec.ts",
+          "line": 160,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "onboarding.spec.ts",
+      "file": "onboarding.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "new customer installs copied snippet and saves first preview (desktop)",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 21246,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Проверка завершена:')\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('Проверка завершена:') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Проверка завершена:')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Проверка завершена:')\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('Проверка завершена:') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Проверка завершена:')\u001b[22m\n\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts:38:70",
+                    "location": {
+                      "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts",
+                      "column": 70,
+                      "line": 38
+                    },
+                    "snippet": "  36 |   await admin.getByRole('button',{name:'Далее: Проверить страницу'}).click();\n  37 |   await admin.getByRole('button',{name:'Проверить подключение',exact:true}).click();\n> 38 |   await expect(admin.getByText('Проверка завершена:',{exact:false})).toBeVisible({timeout:20000});\n     |                                                                      ^\n  39 |   await admin.screenshot({path:testInfo.outputPath(`onboarding-connection-${mobile?'mobile':'desktop'}.png`),fullPage:true});\n  40 |   expect(await admin.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);\n  41 |   await admin.getByRole('button',{name:'Далее: Первая правка'}).click();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts",
+                        "column": 70,
+                        "line": 38
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Проверка завершена:')\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('Проверка завершена:') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Проверка завершена:')\u001b[22m\n\n\n  36 |   await admin.getByRole('button',{name:'Далее: Проверить страницу'}).click();\n  37 |   await admin.getByRole('button',{name:'Проверить подключение',exact:true}).click();\n> 38 |   await expect(admin.getByText('Проверка завершена:',{exact:false})).toBeVisible({timeout:20000});\n     |                                                                      ^\n  39 |   await admin.screenshot({path:testInfo.outputPath(`onboarding-connection-${mobile?'mobile':'desktop'}.png`),fullPage:true});\n  40 |   expect(await admin.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);\n  41 |   await admin.getByRole('button',{name:'Далее: Первая правка'}).click();\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts:38:70"
+                    },
+                    {
+                      "location": {
+                        "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/fixtures.ts",
+                        "column": 65,
+                        "line": 74
+                      },
+                      "message": "Error: Unexpected page, network or HTTP failures\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 4\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"Request failed: GET /lykar-assets/dev/sdk.iife.js\",\u001b[39m\n\u001b[31m+   \"window.Lykar is not a constructor\",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n   at fixtures.ts:74\n\n  72 |       } else await rm(videoDirectory, { recursive: true, force: true });\n  73 |     }\n> 74 |     expect(errors, 'Unexpected page, network or HTTP failures').toEqual([]);\n     |                                                                 ^\n  75 |   },\n  76 | });\n  77 |\n    at Object.newContext (/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/fixtures.ts:74:65)"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:50:39.525Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--chromium/test-failed-1.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--chromium/test-failed-2.png"
+                    },
+                    {
+                      "name": "browser-errors",
+                      "contentType": "application/json",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--chromium/attachments/browser-errors-f8a042e78dd42ad55346e193312ed6eba667c221.json"
+                    },
+                    {
+                      "name": "page-1",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--chromium/attachments/page-1-e8a7e2e6086f185251a6642ae0e563c491810495.png"
+                    },
+                    {
+                      "name": "page-2",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--chromium/attachments/page-2-b0f49f068e5a06d0bb6a1699ce52862dd7d3eb60.png"
+                    },
+                    {
+                      "name": "video-0",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--chromium/attachments/video-0-8e374a91a9eb942d7f9e2a98eafefffb0bc09be6.webm"
+                    },
+                    {
+                      "name": "video-1",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--chromium/attachments/video-1-d024c5227abde94045e87128450b9d7a17f36312.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--chromium/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--chromium/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts",
+                    "column": 70,
+                    "line": 38
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-f23afdf93123c5f256a4",
+          "file": "onboarding.spec.ts",
+          "line": 5,
+          "column": 39
+        },
+        {
+          "title": "new customer installs copied snippet and saves first preview (mobile keyboard)",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 21347,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Проверка завершена:')\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('Проверка завершена:') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Проверка завершена:')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Проверка завершена:')\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('Проверка завершена:') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Проверка завершена:')\u001b[22m\n\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts:38:70",
+                    "location": {
+                      "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts",
+                      "column": 70,
+                      "line": 38
+                    },
+                    "snippet": "  36 |   await admin.getByRole('button',{name:'Далее: Проверить страницу'}).click();\n  37 |   await admin.getByRole('button',{name:'Проверить подключение',exact:true}).click();\n> 38 |   await expect(admin.getByText('Проверка завершена:',{exact:false})).toBeVisible({timeout:20000});\n     |                                                                      ^\n  39 |   await admin.screenshot({path:testInfo.outputPath(`onboarding-connection-${mobile?'mobile':'desktop'}.png`),fullPage:true});\n  40 |   expect(await admin.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);\n  41 |   await admin.getByRole('button',{name:'Далее: Первая правка'}).click();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts",
+                        "column": 70,
+                        "line": 38
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText('Проверка завершена:')\nExpected: visible\nTimeout: 20000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" getByText('Проверка завершена:') with timeout 20000ms\u001b[22m\n\u001b[2m  - waiting for getByText('Проверка завершена:')\u001b[22m\n\n\n  36 |   await admin.getByRole('button',{name:'Далее: Проверить страницу'}).click();\n  37 |   await admin.getByRole('button',{name:'Проверить подключение',exact:true}).click();\n> 38 |   await expect(admin.getByText('Проверка завершена:',{exact:false})).toBeVisible({timeout:20000});\n     |                                                                      ^\n  39 |   await admin.screenshot({path:testInfo.outputPath(`onboarding-connection-${mobile?'mobile':'desktop'}.png`),fullPage:true});\n  40 |   expect(await admin.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);\n  41 |   await admin.getByRole('button',{name:'Далее: Первая правка'}).click();\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts:38:70"
+                    },
+                    {
+                      "location": {
+                        "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/fixtures.ts",
+                        "column": 65,
+                        "line": 74
+                      },
+                      "message": "Error: Unexpected page, network or HTTP failures\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 4\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"Request failed: GET /lykar-assets/dev/sdk.iife.js\",\u001b[39m\n\u001b[31m+   \"window.Lykar is not a constructor\",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n   at fixtures.ts:74\n\n  72 |       } else await rm(videoDirectory, { recursive: true, force: true });\n  73 |     }\n> 74 |     expect(errors, 'Unexpected page, network or HTTP failures').toEqual([]);\n     |                                                                 ^\n  75 |   },\n  76 | });\n  77 |\n    at Object.newContext (/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/fixtures.ts:74:65)"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:51:01.107Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--chromium/test-failed-2.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--chromium/test-failed-1.png"
+                    },
+                    {
+                      "name": "browser-errors",
+                      "contentType": "application/json",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--chromium/attachments/browser-errors-c891f05fe202cf53f501705f216bc6aea75aab19.json"
+                    },
+                    {
+                      "name": "page-1",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--chromium/attachments/page-1-a2f48d48d04845084e7f727d191009a9f973081e.png"
+                    },
+                    {
+                      "name": "page-2",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--chromium/attachments/page-2-0c7e12054c3705c070c4271c1ff10b83bdde3cb8.png"
+                    },
+                    {
+                      "name": "video-0",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--chromium/attachments/video-0-3fb522efef95b9dfe29d38f5e05040cfb18350c7.webm"
+                    },
+                    {
+                      "name": "video-1",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--chromium/attachments/video-1-81dd8affd1717a7e0418d0402abf654d09c678d4.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--chromium/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--chromium/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts",
+                    "column": 70,
+                    "line": 38
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-8826a26e998e88248775",
+          "file": "onboarding.spec.ts",
+          "line": 5,
+          "column": 39
+        },
+        {
+          "title": "manual pages, origin management and selected sitemap preview stay in the current project",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1063,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:51:23.093Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-5d19f4dd368a949f1c3c",
+          "file": "onboarding.spec.ts",
+          "line": 61,
+          "column": 5
+        },
+        {
+          "title": "new customer installs copied snippet and saves first preview (desktop)",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1485,
+                  "error": {
+                    "message": "Error: locator.click: Error: strict mode violation: locator('h1') resolved to 2 elements:\n    1) <h1>Мой первый заголовок</h1> aka getByRole('heading', { name: 'Мой первый заголовок' })\n    2) <h1 aria-label=\"Lykar Editor\">LYKAR</h1> aka getByRole('heading', { name: 'Lykar Editor' })\n\nCall log:\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n",
+                    "stack": "Error: locator.click: Error: strict mode violation: locator('h1') resolved to 2 elements:\n    1) <h1>Мой первый заголовок</h1> aka getByRole('heading', { name: 'Мой первый заголовок' })\n    2) <h1 aria-label=\"Lykar Editor\">LYKAR</h1> aka getByRole('heading', { name: 'Lykar Editor' })\n\nCall log:\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts:46:30",
+                    "location": {
+                      "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts",
+                      "column": 30,
+                      "line": 46
+                    },
+                    "snippet": "  44 |   const panel=editor.locator('[data-lykar-editor-root=\"panel\"]');\n  45 |   await expect(panel.getByRole('heading',{name:'Lykar Editor'})).toBeVisible();\n> 46 |   await editor.locator('h1').click();await panel.locator('[data-field=\"text\"]').fill('Моя первая сохранённая правка');\n     |                              ^\n  47 |   await panel.locator('[data-action=\"apply\"]').click();\n  48 |   await expect(panel.locator('[data-field=\"status\"]')).toContainText('Сохранено команд: 1');\n  49 |   await editor.reload();await expect(editor.locator('h1')).toHaveText('Моя первая сохранённая правка');"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts",
+                        "column": 30,
+                        "line": 46
+                      },
+                      "message": "Error: locator.click: Error: strict mode violation: locator('h1') resolved to 2 elements:\n    1) <h1>Мой первый заголовок</h1> aka getByRole('heading', { name: 'Мой первый заголовок' })\n    2) <h1 aria-label=\"Lykar Editor\">LYKAR</h1> aka getByRole('heading', { name: 'Lykar Editor' })\n\nCall log:\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\n\n  44 |   const panel=editor.locator('[data-lykar-editor-root=\"panel\"]');\n  45 |   await expect(panel.getByRole('heading',{name:'Lykar Editor'})).toBeVisible();\n> 46 |   await editor.locator('h1').click();await panel.locator('[data-field=\"text\"]').fill('Моя первая сохранённая правка');\n     |                              ^\n  47 |   await panel.locator('[data-action=\"apply\"]').click();\n  48 |   await expect(panel.locator('[data-field=\"status\"]')).toContainText('Сохранено команд: 1');\n  49 |   await editor.reload();await expect(editor.locator('h1')).toHaveText('Моя первая сохранённая правка');\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts:46:30"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:52:36.637Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--firefox/test-failed-1.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--firefox/test-failed-2.png"
+                    },
+                    {
+                      "name": "browser-errors",
+                      "contentType": "application/json",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--firefox/attachments/browser-errors-092d035bd383ee522f4c9ddd96ffe534425653cb.json"
+                    },
+                    {
+                      "name": "page-1",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--firefox/attachments/page-1-88d25a3ce5eef2bf7b0fb1e06353c21bb2ed812f.png"
+                    },
+                    {
+                      "name": "page-2",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--firefox/attachments/page-2-8031748ac10c6ff049677e18aad0eae73763724a.png"
+                    },
+                    {
+                      "name": "video-0",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--firefox/attachments/video-0-7dab71e62f623f94577fbbd1ed9b0ffbb165f906.webm"
+                    },
+                    {
+                      "name": "video-1",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--firefox/attachments/video-1-1d222aa80966aefb30e2a27f35cb2da90131efe9.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--firefox/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--firefox/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts",
+                    "column": 30,
+                    "line": 46
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-65e749be2cd9d6bc223f",
+          "file": "onboarding.spec.ts",
+          "line": 5,
+          "column": 39
+        },
+        {
+          "title": "new customer installs copied snippet and saves first preview (mobile keyboard)",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 2056,
+                  "error": {
+                    "message": "Error: locator.click: Error: strict mode violation: locator('h1') resolved to 2 elements:\n    1) <h1>Мой первый заголовок</h1> aka getByRole('heading', { name: 'Мой первый заголовок' })\n    2) <h1 aria-label=\"Lykar Editor\">LYKAR</h1> aka getByRole('heading', { name: 'Lykar Editor' })\n\nCall log:\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n",
+                    "stack": "Error: locator.click: Error: strict mode violation: locator('h1') resolved to 2 elements:\n    1) <h1>Мой первый заголовок</h1> aka getByRole('heading', { name: 'Мой первый заголовок' })\n    2) <h1 aria-label=\"Lykar Editor\">LYKAR</h1> aka getByRole('heading', { name: 'Lykar Editor' })\n\nCall log:\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts:46:30",
+                    "location": {
+                      "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts",
+                      "column": 30,
+                      "line": 46
+                    },
+                    "snippet": "  44 |   const panel=editor.locator('[data-lykar-editor-root=\"panel\"]');\n  45 |   await expect(panel.getByRole('heading',{name:'Lykar Editor'})).toBeVisible();\n> 46 |   await editor.locator('h1').click();await panel.locator('[data-field=\"text\"]').fill('Моя первая сохранённая правка');\n     |                              ^\n  47 |   await panel.locator('[data-action=\"apply\"]').click();\n  48 |   await expect(panel.locator('[data-field=\"status\"]')).toContainText('Сохранено команд: 1');\n  49 |   await editor.reload();await expect(editor.locator('h1')).toHaveText('Моя первая сохранённая правка');"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts",
+                        "column": 30,
+                        "line": 46
+                      },
+                      "message": "Error: locator.click: Error: strict mode violation: locator('h1') resolved to 2 elements:\n    1) <h1>Мой первый заголовок</h1> aka getByRole('heading', { name: 'Мой первый заголовок' })\n    2) <h1 aria-label=\"Lykar Editor\">LYKAR</h1> aka getByRole('heading', { name: 'Lykar Editor' })\n\nCall log:\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\n\n  44 |   const panel=editor.locator('[data-lykar-editor-root=\"panel\"]');\n  45 |   await expect(panel.getByRole('heading',{name:'Lykar Editor'})).toBeVisible();\n> 46 |   await editor.locator('h1').click();await panel.locator('[data-field=\"text\"]').fill('Моя первая сохранённая правка');\n     |                              ^\n  47 |   await panel.locator('[data-action=\"apply\"]').click();\n  48 |   await expect(panel.locator('[data-field=\"status\"]')).toContainText('Сохранено команд: 1');\n  49 |   await editor.reload();await expect(editor.locator('h1')).toHaveText('Моя первая сохранённая правка');\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts:46:30"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:52:38.543Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--firefox/test-failed-1.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--firefox/test-failed-2.png"
+                    },
+                    {
+                      "name": "browser-errors",
+                      "contentType": "application/json",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--firefox/attachments/browser-errors-b518cfeb2b90350252826815e4f9296500302e2e.json"
+                    },
+                    {
+                      "name": "page-1",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--firefox/attachments/page-1-d71a4a4faff8aac186fde8c9130868b5b5062a25.png"
+                    },
+                    {
+                      "name": "page-2",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--firefox/attachments/page-2-c5afd173c7c3c3a3764b8da6cd968f8b48400e7e.png"
+                    },
+                    {
+                      "name": "video-0",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--firefox/attachments/video-0-31c646b57cf7a367e555644742922efb9bc51e5e.webm"
+                    },
+                    {
+                      "name": "video-1",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--firefox/attachments/video-1-40c6fd411c24437710271a03ea9fe207641a008d.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--firefox/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--firefox/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts",
+                    "column": 30,
+                    "line": 46
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-1d8dbab4ee0f737a6380",
+          "file": "onboarding.spec.ts",
+          "line": 5,
+          "column": 39
+        },
+        {
+          "title": "manual pages, origin management and selected sitemap preview stay in the current project",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1291,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:52:41.421Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-c13501caa267940aaa62",
+          "file": "onboarding.spec.ts",
+          "line": 61,
+          "column": 5
+        },
+        {
+          "title": "new customer installs copied snippet and saves first preview (desktop)",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 11,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1678,
+                  "error": {
+                    "message": "Error: locator.click: Error: strict mode violation: locator('h1') resolved to 2 elements:\n    1) <h1>Мой первый заголовок</h1> aka getByRole('heading', { name: 'Мой первый заголовок' })\n    2) <h1 aria-label=\"Lykar Editor\">LYKAR</h1> aka getByRole('heading', { name: 'Lykar Editor' })\n\nCall log:\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n",
+                    "stack": "Error: locator.click: Error: strict mode violation: locator('h1') resolved to 2 elements:\n    1) <h1>Мой первый заголовок</h1> aka getByRole('heading', { name: 'Мой первый заголовок' })\n    2) <h1 aria-label=\"Lykar Editor\">LYKAR</h1> aka getByRole('heading', { name: 'Lykar Editor' })\n\nCall log:\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts:46:30",
+                    "location": {
+                      "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts",
+                      "column": 30,
+                      "line": 46
+                    },
+                    "snippet": "  44 |   await expect(admin.getByText('Проверка завершена:',{exact:false})).toBeVisible({timeout:20000});\n  45 |   await admin.screenshot({path:testInfo.outputPath(`onboarding-connection-${mobile?'mobile':'desktop'}.png`),fullPage:true});\n> 46 |   expect(await admin.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);\n     |                              ^\n  47 |   await admin.getByRole('button',{name:'Далее: Первая правка'}).click();\n  48 |   await admin.getByRole('button',{name:'Создать черновик',exact:true}).click();\n  49 |   const popup=context.waitForEvent('page');await admin.getByRole('button',{name:'Открыть редактор',exact:true}).click();const editor=await popup;"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts",
+                        "column": 30,
+                        "line": 46
+                      },
+                      "message": "Error: locator.click: Error: strict mode violation: locator('h1') resolved to 2 elements:\n    1) <h1>Мой первый заголовок</h1> aka getByRole('heading', { name: 'Мой первый заголовок' })\n    2) <h1 aria-label=\"Lykar Editor\">LYKAR</h1> aka getByRole('heading', { name: 'Lykar Editor' })\n\nCall log:\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\n\n  44 |   await expect(admin.getByText('Проверка завершена:',{exact:false})).toBeVisible({timeout:20000});\n  45 |   await admin.screenshot({path:testInfo.outputPath(`onboarding-connection-${mobile?'mobile':'desktop'}.png`),fullPage:true});\n> 46 |   expect(await admin.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);\n     |                              ^\n  47 |   await admin.getByRole('button',{name:'Далее: Первая правка'}).click();\n  48 |   await admin.getByRole('button',{name:'Создать черновик',exact:true}).click();\n  49 |   const popup=context.waitForEvent('page');await admin.getByRole('button',{name:'Открыть редактор',exact:true}).click();const editor=await popup;\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts:46:30"
+                    },
+                    {
+                      "location": {
+                        "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/fixtures.ts",
+                        "column": 65,
+                        "line": 74
+                      },
+                      "message": "Error: Unexpected page, network or HTTP failures\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 4\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"/127.0.0.1:61708/' from frame with URL 'http://127.0.0.1:61707/admin/?project=ccd879e9-71a6-4512-afe2-5b5f04485b88&section=onboarding&page=56ff55e3-251f-409f-91e4-83938dd96f17'. The frame attempting navigation is neither same-origin with the target, nor is it the target's parent or opener.\u001b[39m\n\u001b[31m+ \",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n   at fixtures.ts:74\n\n  72 |       } else await rm(videoDirectory, { recursive: true, force: true });\n  73 |     }\n> 74 |     expect(errors, 'Unexpected page, network or HTTP failures').toEqual([]);\n     |                                                                 ^\n  75 |   },\n  76 | });\n  77 |\n    at Object.newContext (/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/fixtures.ts:74:65)"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:53:52.502Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--webkit/test-failed-2.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--webkit/test-failed-1.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--webkit/test-failed-3.png"
+                    },
+                    {
+                      "name": "browser-errors",
+                      "contentType": "application/json",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--webkit/attachments/browser-errors-10b27d064f77b5b3dcd3dd4296d7d484f270cd30.json"
+                    },
+                    {
+                      "name": "page-1",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--webkit/attachments/page-1-23db4a014544f4447e1924043903e57bb47ca172.png"
+                    },
+                    {
+                      "name": "page-2",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--webkit/attachments/page-2-9a885705e1f3ebf05d5b6943a482bfd045be4913.png"
+                    },
+                    {
+                      "name": "page-3",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--webkit/attachments/page-3-27287d115184f5797bdf75f0da6d6fff22256ed2.png"
+                    },
+                    {
+                      "name": "video-0",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--webkit/attachments/video-0-c7aec8337e10393c259a101e3b37c295e5ca61b0.webm"
+                    },
+                    {
+                      "name": "video-1",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--webkit/attachments/video-1-7495cd854d20e69a6a7766cc1ed313334433b197.webm"
+                    },
+                    {
+                      "name": "video-2",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--webkit/attachments/video-2-7ed2abe86913e4e0bba1fbd730a6d3a29792ffca.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--webkit/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--webkit/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts",
+                    "column": 30,
+                    "line": 46
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-d52cb0b18a1b11e3b35f",
+          "file": "onboarding.spec.ts",
+          "line": 5,
+          "column": 39
+        },
+        {
+          "title": "new customer installs copied snippet and saves first preview (mobile keyboard)",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 12,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1615,
+                  "error": {
+                    "message": "Error: locator.click: Error: strict mode violation: locator('h1') resolved to 2 elements:\n    1) <h1>Мой первый заголовок</h1> aka getByRole('heading', { name: 'Мой первый заголовок' })\n    2) <h1 aria-label=\"Lykar Editor\">LYKAR</h1> aka getByRole('heading', { name: 'Lykar Editor' })\n\nCall log:\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n",
+                    "stack": "Error: locator.click: Error: strict mode violation: locator('h1') resolved to 2 elements:\n    1) <h1>Мой первый заголовок</h1> aka getByRole('heading', { name: 'Мой первый заголовок' })\n    2) <h1 aria-label=\"Lykar Editor\">LYKAR</h1> aka getByRole('heading', { name: 'Lykar Editor' })\n\nCall log:\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts:46:30",
+                    "location": {
+                      "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts",
+                      "column": 30,
+                      "line": 46
+                    },
+                    "snippet": "  44 |   await expect(admin.getByText('Проверка завершена:',{exact:false})).toBeVisible({timeout:20000});\n  45 |   await admin.screenshot({path:testInfo.outputPath(`onboarding-connection-${mobile?'mobile':'desktop'}.png`),fullPage:true});\n> 46 |   expect(await admin.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);\n     |                              ^\n  47 |   await admin.getByRole('button',{name:'Далее: Первая правка'}).click();\n  48 |   await admin.getByRole('button',{name:'Создать черновик',exact:true}).click();\n  49 |   const popup=context.waitForEvent('page');await admin.getByRole('button',{name:'Открыть редактор',exact:true}).click();const editor=await popup;"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts",
+                        "column": 30,
+                        "line": 46
+                      },
+                      "message": "Error: locator.click: Error: strict mode violation: locator('h1') resolved to 2 elements:\n    1) <h1>Мой первый заголовок</h1> aka getByRole('heading', { name: 'Мой первый заголовок' })\n    2) <h1 aria-label=\"Lykar Editor\">LYKAR</h1> aka getByRole('heading', { name: 'Lykar Editor' })\n\nCall log:\n\u001b[2m  - waiting for locator('h1')\u001b[22m\n\n\n  44 |   await expect(admin.getByText('Проверка завершена:',{exact:false})).toBeVisible({timeout:20000});\n  45 |   await admin.screenshot({path:testInfo.outputPath(`onboarding-connection-${mobile?'mobile':'desktop'}.png`),fullPage:true});\n> 46 |   expect(await admin.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);\n     |                              ^\n  47 |   await admin.getByRole('button',{name:'Далее: Первая правка'}).click();\n  48 |   await admin.getByRole('button',{name:'Создать черновик',exact:true}).click();\n  49 |   const popup=context.waitForEvent('page');await admin.getByRole('button',{name:'Открыть редактор',exact:true}).click();const editor=await popup;\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts:46:30"
+                    },
+                    {
+                      "location": {
+                        "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/fixtures.ts",
+                        "column": 65,
+                        "line": 74
+                      },
+                      "message": "Error: Unexpected page, network or HTTP failures\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 4\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"/127.0.0.1:61708/' from frame with URL 'http://127.0.0.1:61707/admin/?project=acba5241-1dc8-44ec-9458-d34bee31d1bb&section=onboarding&page=300c08c8-6b2b-4868-aa41-31d6f7b93982'. The frame attempting navigation is neither same-origin with the target, nor is it the target's parent or opener.\u001b[39m\n\u001b[31m+ \",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n   at fixtures.ts:74\n\n  72 |       } else await rm(videoDirectory, { recursive: true, force: true });\n  73 |     }\n> 74 |     expect(errors, 'Unexpected page, network or HTTP failures').toEqual([]);\n     |                                                                 ^\n  75 |   },\n  76 | });\n  77 |\n    at Object.newContext (/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/fixtures.ts:74:65)"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:53:54.436Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/test-failed-2.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/test-failed-3.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/test-failed-1.png"
+                    },
+                    {
+                      "name": "browser-errors",
+                      "contentType": "application/json",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/attachments/browser-errors-c59630519c0fb0659f25745fabb0bb42dcfca751.json"
+                    },
+                    {
+                      "name": "page-1",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/attachments/page-1-f9878d81d0a5348091b17566b79724b34e15af46.png"
+                    },
+                    {
+                      "name": "page-2",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/attachments/page-2-63a288ef124b9054ca1c1cda24b53abefa28d0c2.png"
+                    },
+                    {
+                      "name": "page-3",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/attachments/page-3-72e8f612456684013cc5ac8bef6b4a3248fc8d57.png"
+                    },
+                    {
+                      "name": "video-0",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/attachments/video-0-d16975566fe8c871e5e87f8d62a22682ff0792d4.webm"
+                    },
+                    {
+                      "name": "video-1",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/attachments/video-1-cd059778d9a01c9e6822854b063a0a8b1ef2d95d.webm"
+                    },
+                    {
+                      "name": "video-2",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/attachments/video-2-30a970b69d19e79258034c3b536315e95aebc700.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts",
+                    "column": 30,
+                    "line": 46
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-6b7aa551a99e69665d0f",
+          "file": "onboarding.spec.ts",
+          "line": 5,
+          "column": 39
+        },
+        {
+          "title": "manual pages, origin management and selected sitemap preview stay in the current project",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 13,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1079,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:53:56.471Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-26b2376f85ea10a29831",
+          "file": "onboarding.spec.ts",
+          "line": 61,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "site-connection.spec.ts",
+      "file": "site-connection.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "connection probe: ok",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 732,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:51:24.432Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-92a24db527dbc9115817",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: wrong-key",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 754,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:51:25.170Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-74bf8258ad03f5ca9a1d",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: runtime-missing",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 770,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:51:25.929Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-7e7ea24969c95e3fd24f",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: editor-missing",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 736,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:51:26.704Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-0d91d7b78bdb50bbb427",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: csp-connect",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 740,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:51:27.446Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-e64e79c24c7737bc428f",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: csp-script",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 721,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:51:28.192Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-015e8cd7e35e0463695f",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: csp-style",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 741,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:51:28.918Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-ba76c1ef36336e9284a9",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: streaming",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 756,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:51:29.665Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-741c53c182bbab56ff30",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: missing-sdk",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1397,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:51:30.427Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-51e5b02d517fac1482da",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: react-csr",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 784,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:51:31.829Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-bbf6c570fd76b3cc0604",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: react-ssr",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 820,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:51:32.618Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-d6b0269b071eae6297f8",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: vue-csr",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 764,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:51:33.444Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-d76e52b851df8d43b193",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: vue-ssr",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 770,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:51:34.213Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-4851f83d725a638cf612",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "Admin connection tab verifies loopback explicitly and shows a dated probe result",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 30093,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/site-connection.spec.ts",
+                        "column": 65,
+                        "line": 64
+                      },
+                      "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Подтвердить localhost' })\u001b[22m\n\n\n  62 |   await page.goto(`${base}/admin/`);\n  63 |   await page.getByRole('button',{name:'Подключение',exact:true}).click();\n> 64 |   await page.getByRole('button',{name:'Подтвердить localhost'}).click();\n     |                                                                 ^\n  65 |   await expect(page.getByText('Локальный адрес подтверждён.',{exact:true})).toBeVisible();\n  66 |   await page.getByRole('button',{name:'Проверить подключение',exact:true}).click();\n  67 |   await expect(page.getByText('Проверка завершена:',{exact:false})).toBeVisible({timeout:20000});\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/site-connection.spec.ts:64:65"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:51:34.989Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/site-connection-Admin-conn-732c3--shows-a-dated-probe-result-chromium/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/site-connection-Admin-conn-732c3--shows-a-dated-probe-result-chromium/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/site-connection-Admin-conn-732c3--shows-a-dated-probe-result-chromium/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "3e87961feb8005929615-f410ef882b8db536da44",
+          "file": "site-connection.spec.ts",
+          "line": 59,
+          "column": 5
+        },
+        {
+          "title": "connection probe: ok",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 736,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:52:43.162Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-f05d05450ba4da7bb784",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: wrong-key",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 717,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:52:43.902Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-837d33582cd237feb308",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: runtime-missing",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 726,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:52:44.624Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-4d8a9bf86404e32cde91",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: editor-missing",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 688,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:52:45.355Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-6075606734b00997cd62",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: csp-connect",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 684,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:52:46.048Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-4336638fdb9c53ebefc2",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: csp-script",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 733,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:52:46.736Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-e1c3ca56f656d395386e",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: csp-style",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 800,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:52:47.474Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-46cbf2077f4e01c318e7",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: streaming",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 697,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:52:48.279Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-ecf252a183194b411cf6",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: missing-sdk",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1738,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:52:48.980Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-9c2844aac9c70741eb38",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: react-csr",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 734,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:52:50.723Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-014a47a3c7bc242448a3",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: react-ssr",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 724,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:52:51.461Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-ac33116eb1373a7e6ba8",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: vue-csr",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 736,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:52:52.189Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-463eb599e6104b829a72",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: vue-ssr",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 704,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:52:52.929Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-7fd07e4d941e6874b041",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "Admin connection tab verifies loopback explicitly and shows a dated probe result",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 30204,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/site-connection.spec.ts",
+                        "column": 65,
+                        "line": 64
+                      },
+                      "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Подтвердить localhost' })\u001b[22m\n\n\n  62 |   await page.goto(`${base}/admin/`);\n  63 |   await page.getByRole('button',{name:'Подключение',exact:true}).click();\n> 64 |   await page.getByRole('button',{name:'Подтвердить localhost'}).click();\n     |                                                                 ^\n  65 |   await expect(page.getByText('Локальный адрес подтверждён.',{exact:true})).toBeVisible();\n  66 |   await page.getByRole('button',{name:'Проверить подключение',exact:true}).click();\n  67 |   await expect(page.getByText('Проверка завершена:',{exact:false})).toBeVisible({timeout:20000});\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/site-connection.spec.ts:64:65"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:52:53.638Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/site-connection-Admin-conn-732c3--shows-a-dated-probe-result-firefox/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/site-connection-Admin-conn-732c3--shows-a-dated-probe-result-firefox/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/site-connection-Admin-conn-732c3--shows-a-dated-probe-result-firefox/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "3e87961feb8005929615-fa6e48e6cf9d84d48894",
+          "file": "site-connection.spec.ts",
+          "line": 59,
+          "column": 5
+        },
+        {
+          "title": "connection probe: ok",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 13,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 796,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:53:57.727Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-94b4dde62d34b235062c",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: wrong-key",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 13,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 770,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:53:58.528Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-be72a34bfbdceb1d8905",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: runtime-missing",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 13,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 769,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:53:59.303Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-efead91f4fcff095b28b",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: editor-missing",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 13,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 779,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:54:00.078Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-901599db139f202e7f22",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: csp-connect",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 13,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 753,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:54:00.862Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-1919a55c0d4c9e1bf7fc",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: csp-script",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 13,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 746,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:54:01.619Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-7d3b9875c081e8a3892f",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: csp-style",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 13,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 30085,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/site-connection.spec.ts",
+                        "column": 26,
+                        "line": 33
+                      },
+                      "message": "Error: browserContext.waitForEvent: Test timeout of 30000ms exceeded.\n\n  31 |       };\n  32 |     },{url:probe.pageUrl,nonce:probe.nonce});\n> 33 |     const opened=context.waitForEvent('page');\n     |                          ^\n  34 |     await page.locator('#launch-probe').click();\n  35 |     const host=await opened;await host.waitForLoadState('load');\n  36 |     if(framework)await host.waitForFunction(()=>{const roots=(window as any)[Symbol.for('@lykar/framework-roots/v1')];return roots?.size>0&&[...roots.values()].every((root:any)=>root.phase==='ready');});\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/site-connection.spec.ts:33:26"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:54:02.370Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/site-connection-connection-probe-csp-style-webkit/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/site-connection-connection-probe-csp-style-webkit/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/site-connection-connection-probe-csp-style-webkit/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "3e87961feb8005929615-1e72d6fd01bfcceb8f07",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: streaming",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 14,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 916,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:54:32.688Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-2501165ef32a4e76fc94",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: missing-sdk",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 14,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1397,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:54:33.783Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-dcb80945595f1fe32fbd",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: react-csr",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 14,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 810,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:54:35.187Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-1aceab95802a9e14e976",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: react-ssr",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 14,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 791,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:54:36.002Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-079b7f025e2f9714d780",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: vue-csr",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 14,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 784,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:54:36.797Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-c1efa61219fb0608c1e2",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: vue-ssr",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 14,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 796,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:54:37.586Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-3065e08038cb3e161edb",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "Admin connection tab verifies loopback explicitly and shows a dated probe result",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 14,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 30086,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/site-connection.spec.ts",
+                        "column": 65,
+                        "line": 64
+                      },
+                      "message": "Error: locator.click: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Подтвердить localhost' })\u001b[22m\n\n\n  62 |   await page.goto(`${base}/admin/`);\n  63 |   await page.getByRole('button',{name:'Подключение',exact:true}).click();\n> 64 |   await page.getByRole('button',{name:'Подтвердить localhost'}).click();\n     |                                                                 ^\n  65 |   await expect(page.getByText('Локальный адрес подтверждён.',{exact:true})).toBeVisible();\n  66 |   await page.getByRole('button',{name:'Проверить подключение',exact:true}).click();\n  67 |   await expect(page.getByText('Проверка завершена:',{exact:false})).toBeVisible({timeout:20000});\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/site-connection.spec.ts:64:65"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:54:38.387Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/site-connection-Admin-conn-732c3--shows-a-dated-probe-result-webkit/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/site-connection-Admin-conn-732c3--shows-a-dated-probe-result-webkit/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/site-connection-Admin-conn-732c3--shows-a-dated-probe-result-webkit/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "3e87961feb8005929615-981a66644eb47317b194",
+          "file": "site-connection.spec.ts",
+          "line": 59,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-06T13:50:06.087Z",
+    "duration": 302615.506,
+    "expected": 57,
+    "skipped": 0,
+    "unexpected": 15,
+    "flaky": 0
+  }
+}

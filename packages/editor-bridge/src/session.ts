@@ -1,6 +1,6 @@
 import type { ConditionalOperationV2, Operation, SerializedNode, SourceSnapshotV1, TargetDescriptor } from '@lykar/protocol';
-import { isSourceSnapshotV1, validateOperation } from '@lykar/protocol';
-import { applyOperation, assertOperationPayloadSafe, captureSourceSnapshot, ReplayLedger, resolveTarget, sha256Text, ConditionalRuntime, compileConditionalGroups, resolveConditionalTarget, frameworkRootFor, isFrameworkTargetReady, subscribeFrameworkRoots } from '@lykar/runtime';
+import { isSourceSnapshotV1, validateOperation, resolveTargetRepairs } from '@lykar/protocol';
+import { applyOperation, assertOperationPayloadSafe, captureSourceSnapshot, MutationJournal, ReplayLedger, resolveTarget, sha256Text, ConditionalRuntime, compileConditionalGroups, resolveConditionalTarget, frameworkRootFor, isFrameworkTargetReady, subscribeFrameworkRoots } from '@lykar/runtime';
 import type { OperationApplyResult } from '@lykar/runtime';
 
 import {styleSnapshot, styleMutation, restoreStyle, type StyleMutation} from './style-history.js';
@@ -48,6 +48,7 @@ export type EditorChange = {
   targetResolution?: OperationApplyResult['targetResolution'];
   resolutionEvidence?: OperationApplyResult['resolutionEvidence'];
   committed: boolean;
+  origin?: 'release' | 'draft' | 'local';
 };
 export type EditorSessionState = {
   canUndo: boolean;
@@ -72,15 +73,20 @@ export type PendingSaveBatch = {
 
 type AppliedRecord = EditorChange & {
   key?: string;
+  priorityOnly?: boolean;
+  localOnly?: boolean;
+  redo?: () => boolean;
   undo: () => boolean;
   inverse?: () => Operation | Operation[] | null | Promise<Operation | Operation[] | null>;
   styleMutation?: StyleMutation;
   beforeStyle?: {value: string; priority: '' | 'important'};
   afterStyle?: {value: string; priority: '' | 'important'};
 };
-type AppliedBatch = { id: string; records: AppliedRecord[] };
+type AppliedBatch = { id: string; records: AppliedRecord[]; localReset?: {before: AppliedBatch[]; after: AppliedBatch[]} };
 type UndoAction = { styleMutation?: StyleMutation; undo: () => boolean; inverse?: () => Operation | Operation[] | null | Promise<Operation | Operation[] | null>; afterStyle?: AppliedRecord['afterStyle'] };
 type UndoCapture = { element: Element | null; finalize: () => UndoAction; beforeStyle?: AppliedRecord['beforeStyle'] };
+type StyleValue = {value: string; priority: '' | 'important'};
+type StyleOwner = StyleValue & {operationId: string};
 
 export class EditorSession {
   readonly page: EditorPageRef;
@@ -95,6 +101,7 @@ export class EditorSession {
   private readonly storageKey: string;
   private readonly sourceSnapshotPromise: Promise<SourceSnapshotV1>;
   private readonly ledger: ReplayLedger;
+  private readonly baseJournal = new MutationJournal();
   private inFlightSave: PendingSaveBatch | null = null;
   private recoveryWarningMessage?: string;
   private readonly conditional: ConditionalRuntime;
@@ -126,7 +133,10 @@ export class EditorSession {
       isCurrent: () => !this.disposed,
       onDiagnostic: options.onConditionalDiagnostic,
     });
-    this.stopFrameworkSubscription = subscribeFrameworkRoots(document, () => this.conditional.sync());
+    this.stopFrameworkSubscription = subscribeFrameworkRoots(document, () => {
+      this.conditional.sync();
+      if (!this.disposed) this.notify();
+    });
     this.conditional.start();
   }
 
@@ -137,11 +147,11 @@ export class EditorSession {
     const source = this.conditional.readSource(element);
     if (!source) return;
     const target = buildConditionalTargetDescriptor(element);
-    const previous = this.history.flatMap(batch => batch.records).find(record =>
-      record.operation.schemaVersion === 2 && record.operation.condition.text === source.text
-      && JSON.stringify(record.operation.target) === JSON.stringify(target));
+    const previous = resolveTargetRepairs(this.exportDraft().operations).find(operation =>
+      operation.schemaVersion === 2 && operation.revision?.reason !== 'undo'
+      && operation.condition.text === source.text && JSON.stringify(operation.target) === JSON.stringify(target));
     this.selectionConditions.set(element, {
-      id: previous?.operation.schemaVersion === 2 ? previous.operation.condition.id : createOperationId('state'),
+      id: previous?.schemaVersion === 2 ? previous.condition.id : createOperationId('state'),
       text: source.text, target,
     });
   }
@@ -149,6 +159,7 @@ export class EditorSession {
   destroy(): void {
     if (this.disposed) return;
     this.conditional.dispose();
+    this.baseJournal.compensateAll();
     this.disposed = true;
     this.stopFrameworkSubscription();
     this.listeners.clear();
@@ -222,15 +233,67 @@ export class EditorSession {
       operation.schemaVersion === 2 && operation.revision?.reason === 'undo' ? [operation.revision.previousOperationId] : []));
   }
 
+  /** Cancel a field's local edits without saving an edit/reset pair. Keep a
+   * local history checkpoint so Undo can recover the cancelled draft. */
+  discardPendingStyle(element: Element, property: string): EditorApplyReport | null {
+    const normalized = normalizeStyleProperty(property);
+    const source = frameworkRootFor(element) ? this.conditional.readSource(element) : null;
+    const locked = new Set(this.inFlightSave?.operations.map(operation => operation.id));
+    const records = this.history.flatMap(batch => batch.records);
+    const pending = records.filter(record => {
+      const operation = record.operation;
+      if (record.committed || record.localOnly || locked.has(record.id) || operation.kind !== 'setStyle'
+        || normalizeStyleProperty(operation.property) !== normalized) return false;
+      return operation.schemaVersion === 2
+        ? operation.condition.text === source?.text && resolveConditionalTarget(this.document, operation.target, {root: this.root}) === element
+        : record.nodeElement === element;
+    });
+    if (!pending.length) return null;
+    const ids = new Map(pending.map(record => [record.id, record.id]));
+    if (records.some(record => !record.localOnly && !pending.includes(record)
+      && (operationReferencesAny(record.operation, ids) || ids.has(record.operation.revision?.previousOperationId ?? '')))) return null;
+    if (!this.preflightStyleUndo(pending)) throw new Error('Стиль изменён страницей; локальную правку нельзя безопасно отменить.');
+    const before = cloneHistory(this.history);
+    const native = (element as HTMLElement).style;
+    const beforeStyle = styleSnapshot(native);
+    for (const record of [...pending].reverse()) {
+      if (record.status === 'applied' && !record.undo()) throw new Error('Стиль изменён страницей; сброс остановлен.');
+    }
+    for (const batch of this.history) batch.records = batch.records.filter(record => !pending.includes(record));
+    this.history.splice(0, this.history.length, ...this.history.filter(batch => batch.records.length));
+    this.conditional.replaceGroups(compileConditionalGroups(this.exportDraft().operations));
+    const after = cloneHistory(this.history);
+    const mutation = styleMutation(beforeStyle, styleSnapshot(native));
+    const last = pending[pending.length - 1].operation;
+    if (last.kind !== 'setStyle') return null;
+    const id = createOperationId('cancel-local-style');
+    const operation: Operation = last.schemaVersion === 2
+      ? {...last, id, revision: {previousOperationId: last.id, reason: 'undo'}, meta: humanMeta()}
+      : {schemaVersion: 1, id, kind: 'setStyle', target: last.target, property: normalized,
+        value: native.getPropertyValue(normalized), priority: native.getPropertyPriority(normalized) === 'important' ? 'important' : ''};
+    const record: AppliedRecord = {
+      id, operation, nodeElement: element, status: 'applied', code: 'LOCAL_STYLE_RESET',
+      message: 'Несохранённая правка параметра отменена.', committed: false, localOnly: true,
+      ...(last.schemaVersion === 1 ? {styleMutation: mutation} : {}),
+      undo: () => last.schemaVersion === 2 || restoreStyle(native, mutation),
+      redo: () => last.schemaVersion === 2 || restoreStyle(native, {before: mutation.after, after: mutation.before, touched: mutation.touched}),
+    };
+    const batch: AppliedBatch = {id, records: [record], localReset: {before, after}};
+    this.history.push(batch);
+    this.redoStack.length = 0;
+    this.changed();
+    return reportFor(id, this.page, [resultFrom(record)]);
+  }
+
   async resetConditionalStyle(element: Element, property: string): Promise<EditorApplyReport | null> {
     if (!frameworkRootFor(element)) return null;
     const source = this.conditional.readSource(element);
     const target = buildConditionalTargetDescriptor(element);
     const undone = this.undoneConditionalIds();
-    const operations = this.exportDraft().operations.filter((operation): operation is ConditionalOperationV2 =>
+    const operations = resolveTargetRepairs(this.exportDraft().operations).filter((operation): operation is ConditionalOperationV2 =>
       operation.schemaVersion === 2 && operation.kind === 'setStyle'
       && normalizeStyleProperty(operation.property) === normalizeStyleProperty(property)
-      && operation.condition.text === source?.text && !operation.revision
+      && operation.condition.text === source?.text && operation.revision?.reason !== 'undo'
       && !undone.has(operation.id) && JSON.stringify(operation.target) === JSON.stringify(target));
     if (!operations.length) return reportFor('no-op-state-reset', this.page, []);
     return this.apply({operations: [...operations].reverse().map(operation => ({...structuredClone(operation),
@@ -243,19 +306,19 @@ export class EditorSession {
     return this.sourceSnapshotPromise;
   }
 
-  async restore(committedOperations: Operation[] = [], signal?: AbortSignal): Promise<EditorApplyReport | null> {
+  async restore(committedOperations: Operation[] = [], signal?: AbortSignal, baseOperations: Operation[] = []): Promise<EditorApplyReport | null> {
     // Read pending edits before remote replay can update their storage key.
     let pending: Operation[] = [];
     try {
       const raw = this.storage?.getItem(this.storageKey);
       const value = raw ? JSON.parse(raw) as { operations?: unknown; inFlight?: unknown } : null;
       if (Array.isArray(value?.operations)) {
-        const committedIds = new Set(committedOperations.map(operation => operation.id));
+        const committedIds = new Set([...baseOperations, ...committedOperations].map(operation => operation.id));
         pending = value.operations.filter(operation => validateOperation(operation).ok && !committedIds.has(operation.id));
         if (value.inFlight !== undefined) {
           const recovered = parsePendingSaveBatch(value.inFlight);
           if (recovered) {
-            const savedIds = new Set(committedOperations.map(operation => operation.id));
+            const savedIds = new Set([...baseOperations, ...committedOperations].map(operation => operation.id));
             const recoveredIds = recovered.operations.map(operation => operation.id);
             if (recoveredIds.every(id => savedIds.has(id))) this.inFlightSave = null;
             else {
@@ -275,23 +338,42 @@ export class EditorSession {
     }
 
     const batchId = createOperationId('restore');
-    const remote = await this.runBatch(batchId, committedOperations, undefined, undefined, signal);
-    for (const record of remote.records) record.committed = true;
-    this.history.push(...restoreHistoryBatches(`${batchId}:remote`, remote.records));
-    const local = await this.runBatch(batchId, pending, undefined, undefined, signal);
-    const records = [...remote.records, ...local.records];
-    this.history.push(...restoreHistoryBatches(`${batchId}:local`, local.records));
-    if (records.length > 0) this.redoStack.length = 0;
+    const baseIds = new Set(baseOperations.map(operation => operation.id));
+    const committedIds = new Set([...baseOperations, ...committedOperations].map(operation => operation.id));
+    // Resolve the complete chain before replay so an old broken target never runs on reload.
+    const restored = await this.runBatch(batchId, [...baseOperations, ...committedOperations, ...pending], undefined, undefined, signal, baseIds);
+    for (const record of restored.records) {
+      record.committed = committedIds.has(record.operation.id);
+      record.origin = baseIds.has(record.operation.id) ? 'release' : record.committed ? 'draft' : 'local';
+    }
+    this.history.push(...restoreHistoryBatches(batchId, restored.records));
+    if (restored.records.length > 0) this.redoStack.length = 0;
     this.changed();
-    return records.length ? reportFor(batchId, this.page, records.map(record => resultFrom(record))) : null;
+    return restored.records.length ? reportFor(batchId, this.page, restored.records.map(record => resultFrom(record))) : null;
   }
 
-  async preview(operation: Operation, key?: string, nodeElement?: Element | null): Promise<EditorApplyReport> {
+  async preview(operation: Operation, key?: string, nodeElement?: Element | null, intent?: 'priority'): Promise<EditorApplyReport> {
     operation = this.prepareConditional(operation, nodeElement);
     const previousHistory = [...this.history];
+    const locked = new Set(this.inFlightSave?.operations.map(item => item.id));
+    const previous = key ? this.history.flatMap(batch => batch.records).reverse().find(record => record.key === key && !record.committed && !locked.has(record.id)) : undefined;
     if (key && !this.removeReplaceableChange(key)) throw new Error('Предыдущий preview изменён страницей; заменять его небезопасно.');
+    if (intent && previous?.priorityOnly && operation.kind === 'setStyle') {
+      this.conditional.replaceGroups(compileConditionalGroups(this.exportDraft().operations));
+      const target = nodeElement ?? previous.nodeElement;
+      const style = target && this.styleView(target);
+      const value = style?.getPropertyValue(operation.property).trim() || '';
+      const computed = target && this.document.defaultView?.getComputedStyle(target).getPropertyValue(operation.property).trim();
+      if ((value === operation.value || (!value && computed === operation.value))
+        && (style?.getPropertyPriority(operation.property) || '') === (operation.priority || '')) {
+        this.redoStack.length = 0;
+        this.changed();
+        return reportFor('no-op-priority', this.page, []);
+      }
+    }
     const batchId = createOperationId('change');
     const appliedBatch = await this.runBatch(batchId, [operation], key, nodeElement);
+    for (const record of appliedBatch.records) record.priorityOnly = Boolean(intent && (!previous || previous.priorityOnly));
     this.history.push(appliedBatch);
     this.redoStack.length = 0;
     this.changed();
@@ -553,6 +635,13 @@ export class EditorSession {
     const batch = this.history.at(-1);
     if (!batch || batch.records.every(record => record.committed)) return false;
     if (!this.preflightStyleUndo(batch.records)) return false;
+    if (batch.localReset) {
+      for (const record of [...batch.records].reverse()) if (!record.undo()) return false;
+      this.history.splice(0, this.history.length, ...cloneHistory(batch.localReset.before));
+      this.redoStack.push(batch);
+      this.changed();
+      return true;
+    }
     this.history.pop();
     for (const record of [...batch.records].reverse()) {
       if (!record.committed && record.status === 'applied') record.undo();
@@ -566,9 +655,10 @@ export class EditorSession {
 
   async undoCommitted(): Promise<EditorApplyReport | null> {
     const undone = this.undoneConditionalIds();
-    const batch = [...this.history].reverse().find(candidate => candidate.records.some(record => record.committed && record.status === 'applied' && record.inverse && !undone.has(record.id)));
+    const effectiveIds = new Set(resolveTargetRepairs(this.exportDraft().operations).map(operation => operation.id));
+    const batch = [...this.history].reverse().find(candidate => candidate.records.some(record => record.committed && effectiveIds.has(record.id) && record.status === 'applied' && record.inverse && !undone.has(record.id)));
     if (!batch) return null;
-    const records = batch.records.filter(record => record.committed && record.status === 'applied' && !undone.has(record.id));
+    const records = batch.records.filter(record => record.committed && effectiveIds.has(record.id) && record.status === 'applied' && !undone.has(record.id));
     if (records.some(record => !record.inverse) || !this.preflightStyleUndo(records)) return null;
     const operations: Operation[] = [];
     for (const record of [...records].reverse()) {
@@ -589,12 +679,37 @@ export class EditorSession {
     const originalIndex = changes.findIndex(change => change.operation.id === operationId);
     if (originalIndex < 0) throw new Error(`Изменение ${operationId} не найдено.`);
     const original = changes[originalIndex];
-    if (original.status === 'applied') throw new Error('Repair доступен только для неприменённого изменения.');
+    const visible = this.getChanges().find(change => change.id === operationId);
+    if (visible?.status === 'applied' || visible?.code === 'OPERATION_SUPERSEDED'
+      || this.undoneConditionalIds().has(operationId)
+      || (original.operation.schemaVersion === 2 && visible?.code === 'CONDITIONAL_REGISTERED')) {
+      throw new Error('Repair доступен только для неприменённого изменения.');
+    }
+    if (original.operation.schemaVersion === 2) {
+      if (!isFrameworkTargetReady(element)) throw new Error('Приложение ещё не завершило mount/hydration.');
+      const source = this.conditional.readSource(element);
+      if (!source || source.text !== original.operation.condition.text) {
+        throw new Error('Выбранный target не имеет безопасного исходного состояния условия.');
+      }
+      const target = buildConditionalTargetDescriptor(element) as ConditionalOperationV2['target'];
+      if (resolveConditionalTarget(this.document, target, {root: this.root}) !== element) {
+        throw new Error('Выбранный target неоднозначен.');
+      }
+      const groupId = original.operation.condition.id;
+      const members = resolveTargetRepairs(this.exportDraft().operations).filter((operation): operation is ConditionalOperationV2 =>
+        operation.schemaVersion === 2 && operation.condition.id === groupId
+        && operation.revision?.reason !== 'undo' && !this.undoneConditionalIds().has(operation.id));
+      const operations = members.map(operation => ({...structuredClone(operation), id: createOperationId('repair-state'),
+        target, revision: {previousOperationId: operation.id, reason: 'target-repair' as const}, meta: humanMeta()}));
+      return this.apply({id: createOperationId('repair-preview'), operations});
+    }
 
     const replacementIds = new Map<string, string>();
     replacementIds.set(original.operation.id, createOperationId('repair'));
     const operations: Operation[] = [];
+    const effectiveIds = new Set(resolveTargetRepairs(this.exportDraft().operations).map(operation => operation.id));
     for (const record of changes.slice(originalIndex)) {
+      if (!effectiveIds.has(record.operation.id)) continue;
       const isOriginal = record.operation.id === original.operation.id;
       const dependsOnRepair = isOriginal || operationReferencesAny(record.operation, replacementIds);
       if (!dependsOnRepair) continue;
@@ -614,6 +729,12 @@ export class EditorSession {
   async redo(): Promise<EditorApplyReport | null> {
     const batch = this.redoStack.pop();
     if (!batch) return null;
+    if (batch.localReset) {
+      for (const record of batch.records) if (record.redo && !record.redo()) { this.redoStack.push(batch); return null; }
+      this.history.splice(0, this.history.length, ...cloneHistory(batch.localReset.after), batch);
+      this.changed();
+      return reportFor(batch.id, this.page, batch.records.map(record => resultFrom(record)));
+    }
     if (batch.records.length > 1 && batch.records.every(record => record.operation.kind === 'setStyle')) {
       const remaining = [...this.redoStack];
       const result = await this.previewGroup(batch.records.map(record => record.operation), {id: batch.id});
@@ -630,11 +751,11 @@ export class EditorSession {
   }
 
   exportDraft(): EditorPageDraft {
-    return { page: this.page, operations: this.history.flatMap(batch => batch.records.map(record => record.operation)) };
+    return { page: this.page, operations: this.history.flatMap(batch => batch.records.filter(record => !record.localOnly).map(record => record.operation)) };
   }
 
   pendingOperations(): Operation[] {
-    return this.history.flatMap(batch => batch.records.filter(record => !record.committed).map(record => record.operation));
+    return this.history.flatMap(batch => batch.records.filter(record => !record.committed && !record.localOnly).map(record => record.operation));
   }
 
   styleView(element: Element): CSSStyleDeclaration | undefined {
@@ -657,19 +778,83 @@ export class EditorSession {
       const value = this.conditional.readSource(element)?.styles[normalized];
       return value ? {value: value.value, priority: value.priority === 'important' ? 'important' : ''} : null;
     }
-    const records = this.history.flatMap(batch => batch.records).filter(record =>
-      record.status === 'applied'
-      && record.nodeElement === element
-      && record.operation.kind === 'setStyle'
-      && normalizeStyleProperty(record.operation.property) === normalized,
-    );
-    const first = records[0];
-    const last = records.at(-1);
+    return this.nativeStyleOwnership(element, normalized)?.baseline ?? null;
+  }
+
+  /** A saved/local Lykar write may own a declaration even when it equals the
+   * source value. Host inline declarations and computed styles never do. */
+  hasStyleOverride(element: Element, property: string): boolean {
+    return this.styleOverrideOperationId(element, property) !== undefined;
+  }
+
+  /** Reset returns to the source before the first Lykar write at the current
+   * baseline, including when a later write removed the declaration. */
+  styleResetOperationId(element: Element, property: string): string | undefined {
+    if (this.disposed || !element.isConnected || frameworkRootFor(element)) return undefined;
+    return this.nativeStyleOwnership(element, normalizeStyleProperty(property))?.baselineOperationId;
+  }
+
+  styleOverrideOperationId(element: Element, property: string): string | undefined {
+    if (this.disposed || !element.isConnected) return undefined;
+    const normalized = normalizeStyleProperty(property);
+    if (!frameworkRootFor(element)) return this.nativeStyleOwnership(element, normalized)?.owner?.operationId;
+
+    this.conditional.sync();
+    const active = new Set(this.conditional.groupStates.filter(state => state.status === 'active').map(state => state.id));
+    // Conditional undo is a tombstone: its payload is not a new style write.
+    const operations = new Map<string, ConditionalOperationV2>();
+    const effectiveIds = new Set(resolveTargetRepairs(this.exportDraft().operations).map(operation => operation.id));
+    for (const record of this.history.flatMap(batch => batch.records)) {
+      const operation = record.operation;
+      if (!effectiveIds.has(operation.id) || record.localOnly || record.status !== 'applied' || operation.schemaVersion !== 2) continue;
+      if (operation.revision?.reason === 'undo') operations.delete(operation.revision.previousOperationId);
+      else operations.set(operation.id, operation);
+    }
+    let latest: ConditionalOperationV2 | undefined;
+    for (const operation of operations.values()) {
+      if (operation.kind !== 'setStyle' || normalizeStyleProperty(operation.property) !== normalized
+        || !active.has(operation.condition.id)
+        || resolveConditionalTarget(this.document, operation.target, {root: this.root}) !== element) continue;
+      latest = operation;
+    }
+    return latest?.kind === 'setStyle' && latest.value.trim() ? latest.id : undefined;
+  }
+
+  private nativeStyleOwnership(element: Element, property: string): {baseline: StyleValue; baselineOperationId: string; owner: StyleOwner | undefined} | null {
     const style = (element as HTMLElement).style;
-    if (!first?.beforeStyle || !last?.afterStyle || !style) return null;
-    if (style.getPropertyValue(normalized) !== last.afterStyle.value
-      || style.getPropertyPriority(normalized) !== last.afterStyle.priority) return null;
-    return first.beforeStyle;
+    if (!style || !element.isConnected) return null;
+    let baseline: StyleValue | undefined;
+    let after: StyleValue | undefined;
+    let owner: StyleOwner | undefined;
+    let baselineOperationId: string | undefined;
+    const previousOwners = new Map<string, StyleOwner | undefined>();
+    for (const record of this.history.flatMap(batch => batch.records)) {
+      const operation = record.operation;
+      if (record.localOnly || record.status !== 'applied' || record.nodeElement !== element || operation.schemaVersion !== 1
+        || operation.kind !== 'setStyle') continue;
+      const states = styleRecordStates(this.document, record, property);
+      if (!states) continue;
+      // A host write between Lykar operations starts a new baseline. A reset
+      // must restore that newer host value rather than an earlier snapshot.
+      if (!baseline || (after && !sameStyleValue(after, states.before))) {
+        baseline = states.before;
+        baselineOperationId = operation.id;
+        owner = undefined;
+      }
+      const beforeOwner = owner;
+      if (!states.after.value) {
+        owner = undefined;
+      } else if (operation.revision?.reason === 'undo') {
+        const prior = previousOwners.get(operation.revision.previousOperationId);
+        owner = prior && sameStyleValue(prior, states.after) ? prior : undefined;
+      } else {
+        owner = {operationId: operation.id, ...states.after};
+      }
+      previousOwners.set(operation.id, beforeOwner);
+      after = states.after;
+    }
+    if (!baseline || !after || !baselineOperationId || !sameStyleValue(after, readStyleValue(style, property))) return null;
+    return {baseline, baselineOperationId, owner};
   }
 
   isStyleDirty(element: Element, property: string): boolean {
@@ -682,9 +867,10 @@ export class EditorSession {
     }
     const baseline = this.styleBaseline(element, property);
     const style = (element as HTMLElement).style;
+    const normalized = normalizeStyleProperty(property);
     return Boolean(baseline && style && (
-      style.getPropertyValue(property) !== baseline.value
-      || style.getPropertyPriority(property) !== baseline.priority
+      style.getPropertyValue(normalized) !== baseline.value
+      || style.getPropertyPriority(normalized) !== baseline.priority
     ));
   }
 
@@ -711,11 +897,13 @@ export class EditorSession {
     this.changed();
   }
 
-  resolveSaveConflict(committedOperations: Operation[]): void {
-    const committedIds = new Set(committedOperations.map(operation => operation.id));
+  resolveSaveConflict(committedOperations: Operation[], baseOperations: Operation[] = []): void {
+    const baseIds = new Set(baseOperations.map(operation => operation.id));
+    const committedIds = new Set([...baseOperations, ...committedOperations].map(operation => operation.id));
     for (const batch of this.history) {
       for (const record of batch.records) {
         if (committedIds.has(record.operation.id)) record.committed = true;
+        if (baseIds.has(record.operation.id)) record.origin = 'release';
       }
     }
     this.inFlightSave = null;
@@ -737,25 +925,38 @@ export class EditorSession {
   }
 
   getChanges(): EditorChange[] {
+    const effectiveIds = new Set(resolveTargetRepairs(this.exportDraft().operations).map(operation => operation.id));
+    const conditionalStates = new Map(this.conditional.groupStates.map(state => [state.id, state]));
     return this.history.flatMap(batch => batch.records.map(({
-      undo: _undo,
-      inverse: _inverse,
-      styleMutation: _styleMutation,
-      key: _key,
-      ...change
-    }) => change));
+      undo: _undo, inverse: _inverse, styleMutation: _styleMutation, key: _key,
+      priorityOnly: _priorityOnly, localOnly: _localOnly, redo: _redo, ...change
+    }) => {
+      if (!effectiveIds.has(change.operation.id) && !_localOnly) return {...change, status: 'skipped' as const,
+        code: 'OPERATION_SUPERSEDED', message: 'Заменено ручным исправлением target.'};
+      if (change.operation.schemaVersion === 2 && change.operation.revision?.reason !== 'undo') {
+        const state = conditionalStates.get(change.operation.condition.id);
+        if (state?.status === 'unsafe' || state?.status === 'missing') return {...change,
+          status: state.status === 'unsafe' ? 'error' as const : 'skipped' as const,
+          code: state.status === 'missing' ? 'TARGET_NOT_FOUND' : state.reason ?? 'CONDITIONAL_UNSAFE',
+          message: state.status === 'missing' ? 'Условный target не найден.' : 'Условный target небезопасен.'};
+        if (state?.status === 'inactive' || state?.status === 'not-ready') return {...change,
+          status: 'skipped' as const, code: 'CONDITIONAL_REGISTERED', message: 'Ожидает исходного состояния приложения.'};
+      }
+      return change;
+    }));
   }
 
   getState(): EditorSessionState {
     const changes = this.getChanges();
     const undone = this.undoneConditionalIds();
+    const effectiveIds = new Set(resolveTargetRepairs(this.exportDraft().operations).map(operation => operation.id));
     return {
       canUndo: this.history.some(batch => batch.records.some(record => !record.committed))
-        || this.history.some(batch => batch.records.some(record => record.committed && record.status === 'applied' && record.inverse && !undone.has(record.id))),
+        || this.history.some(batch => batch.records.some(record => record.committed && effectiveIds.has(record.id) && record.status === 'applied' && record.inverse && !undone.has(record.id))),
       canRedo: this.redoStack.length > 0,
       appliedBatches: this.history.length,
       operationCount: changes.length,
-      pendingOperationCount: changes.filter(change => !change.committed).length,
+      pendingOperationCount: this.pendingOperations().length,
     };
   }
 
@@ -796,15 +997,16 @@ export class EditorSession {
   }
 
   private removeReplaceableChange(key: string): boolean {
+    const locked = new Set(this.inFlightSave?.operations.map(operation => operation.id));
     for (let batchIndex = this.history.length - 1; batchIndex >= 0; batchIndex--) {
       const batch = this.history[batchIndex];
-      const replaceable = batch.records.filter(record => record.key === key && !record.committed);
+      const replaceable = batch.records.filter(record => record.key === key && !record.committed && !locked.has(record.id));
       if (replaceable.length === 0) continue;
       if (!this.preflightStyleUndo(replaceable)) return false;
       for (const record of replaceable.reverse()) {
         if (record.status === 'applied' && !record.undo()) return false;
       }
-      batch.records = batch.records.filter(record => record.key !== key || record.committed);
+      batch.records = batch.records.filter(record => !replaceable.includes(record));
       if (batch.records.length === 0) this.history.splice(batchIndex, 1);
       return true;
     }
@@ -817,13 +1019,24 @@ export class EditorSession {
     key?: string,
     nodeElement?: Element | null,
     signal?: AbortSignal,
+    baseIds: ReadonlySet<string> = new Set(),
   ): Promise<AppliedBatch> {
     const records: AppliedRecord[] = [];
+    const previousOperations = this.history.flatMap(batch => batch.records.filter(record => !record.localOnly).map(record => record.operation));
+    const effectiveIds = new Set(resolveTargetRepairs([...previousOperations, ...operations]).map(operation => operation.id));
     const outcomes = new Map(
       this.history.flatMap(batch => batch.records).map(record => [record.operation.id, record] as const),
     );
     for (const operation of operations) {
       signal?.throwIfAborted();
+      if (!effectiveIds.has(operation.id)) {
+        const record: AppliedRecord = {id: operation.id, operation, nodeElement: null,
+          status: 'skipped', code: 'OPERATION_SUPERSEDED', message: 'Заменено ручным исправлением target.',
+          committed: false, undo: () => true};
+        records.push(record);
+        outcomes.set(operation.id, record);
+        continue;
+      }
       const validation = validateOperation(operation);
       if (!validation.ok) {
         records.push({
@@ -877,7 +1090,8 @@ export class EditorSession {
       }
       const capture = await captureUndo(this.document, operation, this.root, this.ledger);
       signal?.throwIfAborted();
-      const result = await applyOperation(this.document, operation, {root: this.root, signal, ledger: this.ledger});
+      const result = await applyOperation(this.document, operation, {root: this.root, signal, ledger: this.ledger,
+        ...(baseIds.has(operation.id) ? {journal: this.baseJournal} : {})});
       const action = result.status === 'applied' ? capture.finalize() : {undo: () => false};
       const record: AppliedRecord = {
         id: operation.id,
@@ -904,7 +1118,7 @@ export class EditorSession {
 
   private changed(): void {
     this.conditional.replaceGroups(compileConditionalGroups(this.history.flatMap(batch =>
-      batch.records.filter(record => record.status !== 'error').map(record => record.operation))));
+      batch.records.filter(record => record.status !== 'error' && !record.localOnly).map(record => record.operation))));
     this.persistRecovery(false);
     this.notify();
   }
@@ -934,6 +1148,10 @@ export class EditorSession {
     const changes = this.getChanges();
     for (const listener of this.changeListeners) listener(changes);
   }
+}
+
+function cloneHistory(history: AppliedBatch[]): AppliedBatch[] {
+  return history.map(batch => ({...batch, records: [...batch.records]}));
 }
 
 function parsePendingSaveBatch(value: unknown): PendingSaveBatch | null {
@@ -1247,6 +1465,35 @@ function operationDescriptors(operation: Operation): TargetDescriptor[] {
 function normalizeStyleProperty(property: string): string {
   const trimmed = property.trim();
   return trimmed.startsWith('--') ? trimmed : trimmed.replace(/([A-Z])/g, '-$1').toLowerCase();
+}
+
+function readStyleValue(style: CSSStyleDeclaration, property: string): StyleValue {
+  return {value: style.getPropertyValue(property), priority: style.getPropertyPriority(property) === 'important' ? 'important' : ''};
+}
+
+function sameStyleValue(a: StyleValue, b: StyleValue): boolean {
+  return a.value === b.value && a.priority === b.priority;
+}
+
+/** CSSOM snapshots also cover longhands affected by an authored shorthand.
+ * Unrelated property families cannot transfer ownership to host declarations. */
+function styleRecordStates(document: Document, record: AppliedRecord, property: string): {before: StyleValue; after: StyleValue} | null {
+  if (record.operation.kind !== 'setStyle') return null;
+  const authored = normalizeStyleProperty(record.operation.property);
+  if (authored === property) {
+    return record.beforeStyle && record.afterStyle ? {before: record.beforeStyle, after: record.afterStyle} : null;
+  }
+  if (!record.styleMutation || authored.startsWith('--') || property.startsWith('--')) return null;
+  const family = property.split('-')[0];
+  if (authored.split('-')[0] !== family && !record.styleMutation.touched.includes(property)) return null;
+  const snapshot = (declarations: StyleMutation['before']): StyleValue => {
+    const probe = document.createElement('span').style;
+    for (const declaration of declarations) probe.setProperty(declaration.property, declaration.value, declaration.priority);
+    return readStyleValue(probe, property);
+  };
+  const before = snapshot(record.styleMutation.before);
+  const after = snapshot(record.styleMutation.after);
+  return sameStyleValue(before, after) ? null : {before, after};
 }
 
 function resultFrom(record: AppliedRecord): OperationApplyResult {

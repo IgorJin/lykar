@@ -1,6 +1,6 @@
 import { useState } from 'preact/hooks';
 
-import { del, patch, post } from './api';
+import { ApiError, del, patch, post } from './api';
 import type { ProjectAccess, ProjectInvitation, ProjectMember, ProjectRole } from './api';
 import { errorMessage, useAsyncAction } from './use-async-action';
 
@@ -25,11 +25,22 @@ export function MembersPanel({ access, currentUserId, projectId, reload }: {
       setActionError(`Не удалось обновить данные: ${errorMessage(reason)}`);
     }
   }
+  async function sendEmail(path: string, payload: unknown) {
+    setStatus('');
+    try { await post(path, payload); }
+    catch (reason) {
+      // The invitation mutation may have committed before delivery failed.
+      if (reason instanceof ApiError && ['EMAIL_UNAVAILABLE', 'EMAIL_DELIVERY_UNKNOWN'].includes(reason.code ?? '')) {
+        try { await reload(); } catch { /* The refresh button remains available. */ }
+      }
+      throw reason;
+    }
+  }
   async function invite(event: Event) {
     event.preventDefault();
     await runAction('invite', async () => {
-      await post(`/api/admin/projects/${projectId}/invitations`, { email, role });
-      setStatus(`Приглашение для ${email} создано.`);
+      await sendEmail(`/api/admin/projects/${projectId}/invitations`, { email, role });
+      setStatus(`Запрос на отправку приглашения для ${email} принят.`);
       setEmail('');
     });
   }
@@ -46,8 +57,8 @@ export function MembersPanel({ access, currentUserId, projectId, reload }: {
   }
   async function resend(invitation: ProjectInvitation) {
     await runAction('resend', async () => {
-      await post(`/api/admin/invitations/${invitation.id}/resend`, {});
-      setStatus(`Новая ссылка для ${invitation.email} создана.`);
+      await sendEmail(`/api/admin/invitations/${invitation.id}/resend`, {});
+      setStatus(`Запрос на повторную отправку для ${invitation.email} принят.`);
     });
   }
   async function cancel(invitation: ProjectInvitation) {

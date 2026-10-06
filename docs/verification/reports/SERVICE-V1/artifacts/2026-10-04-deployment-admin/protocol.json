@@ -1,0 +1,13 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "test",
+    "--workspace",
+    "@lykar/protocol"
+  ],
+  "startedAt": "2026-10-04T18:40:40.141Z",
+  "endedAt": "2026-10-04T18:40:41.039Z",
+  "code": 0,
+  "signal": null
+}

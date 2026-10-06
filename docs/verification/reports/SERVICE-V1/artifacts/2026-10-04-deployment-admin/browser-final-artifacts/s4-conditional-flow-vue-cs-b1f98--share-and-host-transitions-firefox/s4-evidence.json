@@ -1,0 +1,264 @@
+{
+  "framework": "vue",
+  "mode": "csr",
+  "engine": "firefox",
+  "states": [
+    {
+      "text": "Далее",
+      "color": "rgb(0, 0, 128)",
+      "disabled": false
+    },
+    {
+      "text": "Далее",
+      "color": "rgb(0, 0, 128)",
+      "disabled": false
+    },
+    {
+      "text": "Далее",
+      "color": "rgb(0, 0, 128)",
+      "disabled": false
+    },
+    {
+      "text": "Далее",
+      "color": "rgb(0, 0, 128)",
+      "disabled": false
+    }
+  ],
+  "frames": {
+    "samples": [
+      {
+        "text": "Ожидаем",
+        "color": "rgb(128, 128, 128)"
+      },
+      {
+        "text": "Ожидаем",
+        "color": "rgb(128, 128, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Ожидаем",
+        "color": "rgb(128, 128, 128)"
+      },
+      {
+        "text": "Ожидаем",
+        "color": "rgb(128, 128, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Ожидаем",
+        "color": "rgb(128, 128, 128)"
+      },
+      {
+        "text": "Ожидаем",
+        "color": "rgb(128, 128, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Ожидаем",
+        "color": "rgb(128, 128, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Ожидаем",
+        "color": "rgb(128, 128, 128)"
+      },
+      {
+        "text": "Ожидаем",
+        "color": "rgb(128, 128, 128)"
+      }
+    ],
+    "sameTextNode": false
+  },
+  "resources": {
+    "groups": [
+      {
+        "id": "state-f50a9d32-d710-46a2-aa20-6c7623a8324d",
+        "status": "active"
+      }
+    ],
+    "stats": {
+      "groups": 1,
+      "active": 1,
+      "observedRecords": 120,
+      "ownRecords": 117,
+      "syncPasses": 34,
+      "suspended": false
+    }
+  }
+}

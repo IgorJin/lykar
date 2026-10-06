@@ -110,7 +110,7 @@ export class LykarEditor {
       document,
       this.session.page.pathname,
       {
-        preview: (operation, key, nodeElement) => this.preview(operation, key, nodeElement),
+        preview: (operation, key, nodeElement, intent) => this.preview(operation, key, nodeElement, intent),
         previewGroup: (operations, key) => this.previewGroup(operations, key),
         commit: () => this.commit(),
         resolveConflict: () => this.resolveConflict(),
@@ -119,6 +119,15 @@ export class LykarEditor {
         repair: (operationId, element) => this.repair(operationId, element),
         close: () => this.destroy(),
         captureDestination: callback => this.inspector.captureNextSelection(callback),
+        cancelCapture: () => this.inspector.cancelCapture(),
+        elementAt: (x, y) => this.inspector.elementAt(x, y),
+        selectElement: element => this.inspector.select(element),
+        setDragging: active => this.inspector.setDragging(active),
+        setPreviewMode: active => this.inspector.setPreview(active),
+        highlightInsertion: (element, position) => {
+          if (element) this.overlay.showInsertion(element, position);
+          else this.overlay.hideInsertion();
+        },
         highlightChange: element => {
           if (element?.isConnected) this.overlay.show('proposal', element, 'change');
           else this.overlay.hide('proposal');
@@ -129,27 +138,10 @@ export class LykarEditor {
           this.inspector.select(parent);
           return true;
         },
-        resetStyle: async (element, property) => {
-          const conditional = await this.session.resetConditionalStyle(element, property);
-          if (conditional) return conditional;
-          const baseline = this.session.styleBaseline(element, property);
-          if (!baseline) throw new Error('Исходное значение недоступно или стиль изменён страницей после правки Lykar.');
-          const style = (element as HTMLElement).style;
-          if (style?.getPropertyValue(property) === baseline.value && style.getPropertyPriority(property) === baseline.priority) {
-            return Promise.resolve({batchId: 'no-op-reset', page: this.session.page, applied: 0, skipped: 0, errors: 0, operations: []});
-          }
-          return this.preview({
-            schemaVersion: 1,
-            id: createOperationId('reset-style'),
-            kind: 'setStyle',
-            target: buildTargetDescriptor(element),
-            property,
-            value: baseline.value,
-            ...(baseline.priority ? {priority: baseline.priority} : {}),
-          }, undefined, element);
-        },
+        resetStyle: (element, property) => this.resetStyle(element, property),
         readStyle: element => this.session.styleView(element),
         isStyleDirty: (element, property) => this.session.isStyleDirty(element, property),
+        hasStyleOverride: (element, property) => this.session.hasStyleOverride(element, property),
       },
       options.proposalProvider ?? new DummyProposalProvider(),
     );
@@ -175,7 +167,7 @@ export class LykarEditor {
         this.panel.setStatus(message, 'error');
       } else if (recoveryWarning) this.panel.setStatus(recoveryWarning, 'error');
       else if (restored > 0) this.panel.setStatus(`Восстановлено команд: ${restored}.`, 'success');
-      else this.panel.setStatus('Изменения показываются локально. «Применить» сохраняет их в draft.');
+      else this.panel.setStatus('Изменения показываются локально. «Сохранить черновик» сохраняет их в draft.');
     }).catch(error => {
       if (!this.destroyed) this.panel.setStatus(errorMessage(error), 'error');
     });
@@ -198,17 +190,17 @@ export class LykarEditor {
     this.unsubscribeSession?.();
     this.unsubscribeChanges?.();
     this.inspector.destroy();
-    this.overlay.destroy();
     this.panel.destroy();
+    this.overlay.destroy();
     this.session.destroy();
   }
 
-  private preview(operation: Operation, key?: string, nodeElement?: Element | null): Promise<EditorApplyReport> {
+  private preview(operation: Operation, key?: string, nodeElement?: Element | null, intent?: 'priority'): Promise<EditorApplyReport> {
     this.assertActive();
     const next = this.previewQueue.then(async () => {
       await this.restoration;
       this.assertActive();
-      return this.session.preview(operation, key, nodeElement);
+      return this.session.preview(operation, key, nodeElement, intent);
     });
     this.previewQueue = next.then(() => undefined, () => undefined);
     return next.then(report => {
@@ -216,6 +208,32 @@ export class LykarEditor {
       this.overlay.refresh();
       return report;
     });
+  }
+
+  private resetStyle(element: Element, property: string): Promise<EditorApplyReport> {
+    const next = this.previewQueue.then(async () => {
+      await this.restoration;
+      this.assertActive();
+      const local = this.session.discardPendingStyle(element, property);
+      if (local && !this.session.hasStyleOverride(element, property)) return local;
+      const conditional = await this.session.resetConditionalStyle(element, property);
+      if (conditional) return conditional;
+      const baseline = this.session.styleBaseline(element, property);
+      if (!baseline) throw new Error('Исходное значение недоступно или стиль изменён страницей после правки Lykar.');
+      const style = (element as HTMLElement).style;
+      const ownerId = this.session.styleOverrideOperationId(element, property);
+      if (!ownerId && style.getPropertyValue(property) === baseline.value && style.getPropertyPriority(property) === baseline.priority) {
+        return {batchId: 'no-op-reset', page: this.session.page, applied: 0, skipped: 0, errors: 0, operations: []};
+      }
+      const previousOperationId = this.session.styleResetOperationId(element, property);
+      return this.session.preview({
+        schemaVersion: 1, id: createOperationId('reset-style'), kind: 'setStyle',
+        target: buildTargetDescriptor(element), property, value: baseline.value, priority: baseline.priority,
+        ...(previousOperationId ? {revision: {previousOperationId, reason: 'undo' as const}} : {}),
+      }, undefined, element);
+    });
+    this.previewQueue = next.then(() => undefined, () => undefined);
+    return next.then(report => { this.overlay.refresh(); return report; });
   }
 
   private previewGroup(operations: Operation[], key?: string): Promise<EditorGroupedPreviewReport> {
@@ -235,13 +253,15 @@ export class LykarEditor {
 
   private async restore(): Promise<number> {
     let operations: Operation[] = [];
+    let baseOperations: Operation[] = [];
     if (this.persistence) {
       const remote = await loadPersistedDraft(this.persistence, this.options.capability?.token, this.restoreController.signal);
       this.assertActive();
       this.expectedRevision = remote.revision;
       operations = remote.operations;
+      baseOperations = remote.baseOperations;
     }
-    const restored = await this.session.restore(operations, this.restoreController.signal);
+    const restored = await this.session.restore(operations, this.restoreController.signal, baseOperations);
     return restored?.operations.length ?? 0;
   }
 
@@ -311,7 +331,7 @@ export class LykarEditor {
     );
     this.assertActive();
     this.expectedRevision = remote.revision;
-    this.session.resolveSaveConflict(remote.operations);
+    this.session.resolveSaveConflict(remote.operations, remote.baseOperations);
   }
 
   private async undo(): Promise<void> {
@@ -447,7 +467,7 @@ async function loadPersistedDraft(
   persistence: EditorDraftPersistence,
   capabilityToken?: string,
   signal?: AbortSignal,
-): Promise<{ revision: number; operations: Operation[] }> {
+): Promise<{ revision: number; operations: Operation[]; baseOperations: Operation[] }> {
   const fetcher = persistence.fetch ?? globalThis.fetch;
   const token = persistence.accessToken ?? capabilityToken;
   if (!fetcher || !token) throw new Error('Editor persistence requires an editing capability token');
@@ -457,11 +477,13 @@ async function loadPersistedDraft(
     signal,
   });
   if (!response.ok) throw new Error(`Не удалось загрузить draft: HTTP ${response.status}`);
-  const payload = await response.json() as { draft?: { revision?: number }; operations?: unknown };
-  if (!Number.isSafeInteger(payload.draft?.revision) || !Array.isArray(payload.operations)) {
+  const payload = await response.json() as { draft?: { revision?: number }; operations?: unknown; baseOperations?: unknown };
+  if (!Number.isSafeInteger(payload.draft?.revision) || !Array.isArray(payload.operations)
+    || (payload.baseOperations !== undefined && !Array.isArray(payload.baseOperations))) {
     throw new Error('Backend returned an invalid draft');
   }
-  return { revision: payload.draft!.revision!, operations: payload.operations as Operation[] };
+  return {revision: payload.draft!.revision!, operations: payload.operations as Operation[],
+    baseOperations: (payload.baseOperations ?? []) as Operation[]};
 }
 
 function reportForPending(

@@ -1,0 +1,172 @@
+{
+  "framework": "react",
+  "mode": "ssr",
+  "engine": "webkit",
+  "states": [
+    {
+      "text": "Далее",
+      "color": "rgb(0, 0, 128)",
+      "disabled": false
+    },
+    {
+      "text": "Далее",
+      "color": "rgb(0, 0, 128)",
+      "disabled": false
+    },
+    {
+      "text": "Далее",
+      "color": "rgb(0, 0, 128)",
+      "disabled": false
+    },
+    {
+      "text": "Далее",
+      "color": "rgb(0, 0, 128)",
+      "disabled": false
+    }
+  ],
+  "frames": {
+    "samples": [
+      {
+        "text": "Ожидаем",
+        "color": "rgb(128, 128, 128)"
+      },
+      {
+        "text": "Ожидаем",
+        "color": "rgb(128, 128, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Ожидаем",
+        "color": "rgb(128, 128, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Ожидаем",
+        "color": "rgb(128, 128, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Ожидаем",
+        "color": "rgb(128, 128, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      },
+      {
+        "text": "Далее",
+        "color": "rgb(0, 0, 128)"
+      }
+    ],
+    "sameTextNode": true
+  },
+  "resources": {
+    "groups": [
+      {
+        "id": "state-e1f613ec-23cf-4fb0-9a1d-608822bf5053",
+        "status": "active"
+      }
+    ],
+    "stats": {
+      "groups": 1,
+      "active": 1,
+      "observedRecords": 215,
+      "ownRecords": 117,
+      "syncPasses": 34,
+      "suspended": false
+    }
+  }
+}

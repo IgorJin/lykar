@@ -1,15 +1,18 @@
-import type { InsertPosition, Operation } from '@lykar/protocol';
+import type { InsertPosition, Operation, SerializedNode } from '@lykar/protocol';
 import { validateOperation } from '@lykar/protocol';
-import {StyleManager} from '@lykar/editor-ui';
+import {StyleManager, Select, SELECT_CSS} from '@lykar/editor-ui';
 import type {StyleChange} from '@lykar/editor-ui';
 
 import { createOperationId } from './operation-id.js';
+import { InsertDragController } from './insert-drag.js';
+import { PanelDragController } from './panel-drag.js';
+import { PANEL_CSS, panelMarkup } from './panel-view.js';
 import type { EditorProposal, ProposalProvider } from './proposal.js';
 import type { EditorApplyReport, EditorChange, EditorGroupedPreviewReport, EditorSessionState } from './session.js';
 import { buildTargetDescriptor, serializeEditableElement } from './target-builder.js';
 
 export type SidePanelActions = {
-  preview: (operation: Operation, key?: string, nodeElement?: Element | null) => Promise<EditorApplyReport>;
+  preview: (operation: Operation, key?: string, nodeElement?: Element | null, intent?: 'priority') => Promise<EditorApplyReport>;
   previewGroup: (operations: Operation[], key?: string, nodeElement?: Element | null) => Promise<EditorGroupedPreviewReport>;
   commit: () => Promise<{ saved: number; revision?: number }>;
   resolveConflict: () => Promise<void>;
@@ -18,11 +21,18 @@ export type SidePanelActions = {
   repair: (operationId: string, element: Element) => Promise<EditorApplyReport>;
   close: () => void;
   captureDestination: (callback: (element: Element) => void) => void;
+  cancelCapture: () => void;
+  elementAt: (x: number, y: number) => Element | null;
+  selectElement: (element: Element | null) => void;
+  setDragging: (active: boolean) => void;
+  setPreviewMode: (active: boolean) => void;
+  highlightInsertion: (element: Element | null, position: InsertPosition) => void;
   highlightChange: (element: Element | null) => void;
   selectParent: (element: Element) => boolean;
   readStyle?: (element: Element) => CSSStyleDeclaration | undefined;
   resetStyle: (element: Element, property: string) => Promise<EditorApplyReport>;
   isStyleDirty: (element: Element, property: string) => boolean;
+  hasStyleOverride: (element: Element, property: string) => boolean;
 };
 
 export class SidePanel {
@@ -34,6 +44,14 @@ export class SidePanel {
   private readonly shadow: ShadowRoot | HTMLDivElement;
   private readonly controller = new AbortController();
   private readonly styles: StyleManager;
+  private readonly drag: InsertDragController;
+  private readonly panelDrag: PanelDragController;
+  private readonly positionSelects: Select[] = [];
+  private insertPosition: InsertPosition = 'after';
+  private movePosition: InsertPosition = 'append';
+  private mode: 'edit' | 'add' | 'history' = 'edit';
+  private previewMode = false;
+  private capturingDestination = false;
   private selected: Element | null = null;
   private proposal: EditorProposal | null = null;
   private selectionKey = 'selection-0';
@@ -54,12 +72,50 @@ export class SidePanel {
       () => void this.actions.undo(),
       (element, property) => this.actions.isStyleDirty(element, property),
       this.actions.readStyle,
+      this.actions.hasStyleOverride,
     );
     this.get('[data-view="styles"]').append(this.styles.element);
+    const sectionLabels: Record<string, string> = {layout: 'Раскладка', size: 'Размеры', space: 'Отступы', position: 'Позиционирование', typography: 'Типографика', background: 'Фон', borders: 'Границы', effects: 'Эффекты', advanced: 'Дополнительно'};
+    for (const section of this.styles.element.querySelectorAll<HTMLDetailsElement>('.style-section')) {
+      const name = section.dataset.section ?? '';
+      const summary = section.querySelector('summary');
+      if (summary && sectionLabels[name]) summary.textContent = sectionLabels[name];
+      if (name !== 'custom') section.open = name === 'typography';
+    }
+    this.styles.openSection('typography');
+    const typography = this.styles.element.querySelector('.style-section[data-section="typography"] .style-section-fields');
+    for (const field of ['text-align', 'color', 'letter-spacing', 'line-height', 'font-size', 'font-weight', 'font-family']) {
+      const row = typography?.querySelector(`[data-field="${field}"]`);
+      if (row) typography?.prepend(row);
+    }
+    // Put the everyday text controls first while retaining the complete catalog.
+    const search = this.styles.element.querySelector('.style-search');
+    for (const name of ['advanced', 'effects', 'position', 'layout', 'borders', 'background', 'size', 'space', 'typography']) {
+      const section = this.styles.element.querySelector(`[data-section="${name}"]`);
+      if (section) search?.after(section);
+    }
+    this.drag = new InsertDragController(document, this.shadow, {
+      resolveTarget: actions.elementAt,
+      highlight: actions.highlightInsertion,
+      suspend: active => {
+        if (active) this.cancelDestination();
+        actions.setDragging(active);
+      },
+      drop: (template, target, position) => void this.insertTemplate(template, target, position),
+      choose: template => this.chooseTemplate(template),
+      getPosition: () => this.insertPosition,
+    });
+    this.replacePositionSelect('insert-position', value => { this.insertPosition = value; });
+    this.replacePositionSelect('move-position', value => { this.movePosition = value; });
     // A host page may zoom or transform BODY. Keep fixed editor chrome outside
     // that coordinate system while its ShadowRoot still isolates host CSS.
     document.documentElement.appendChild(this.host);
+    this.panelDrag = new PanelDragController(document, this.get('.panel'), this.get('[data-panel-drag-handle]'), active => {
+      if (active) { this.cancelDestination(); this.closeSelects(); }
+      actions.setDragging(active);
+    });
     this.bindEvents();
+    this.updateViewport();
     this.setSelected(null);
   }
 
@@ -70,16 +126,20 @@ export class SidePanel {
     this.get<HTMLElement>('[data-view="empty"]').hidden = Boolean(element);
     this.get<HTMLElement>('[data-view="editor"]').hidden = !element;
     this.styles.setTarget(element);
-    if (!element) return;
+    this.get<HTMLElement>('[data-field="selection-path"]').textContent = element ? elementPath(element) : 'Выберите элемент на странице';
+    this.get<HTMLElement>('[data-field="insert-selection"]').textContent = element ? describeElement(element) : 'Место выбирается на странице';
+    this.get<HTMLButtonElement>('[data-action="insert"]').disabled = !element;
+    if (!element) { this.renderProposal(); return; }
 
     this.get<HTMLElement>('[data-field="selected-label"]').textContent = describeElement(element);
+    this.get<HTMLElement>('[data-field="selected-tag"]').textContent = element.tagName;
     this.get<HTMLButtonElement>('[data-action="select-parent"]').disabled = !element.parentElement || ['BODY', 'HTML'].includes(element.parentElement.tagName);
     const text = this.get<HTMLTextAreaElement>('[data-field="text"]');
     text.value = element.textContent ?? '';
     text.disabled = element.childElementCount > 0;
     this.get<HTMLElement>('[data-field="text-help"]').textContent = text.disabled
       ? 'Сложный элемент содержит вложенную разметку: его текст не заменяется целиком.'
-      : 'Изменение показывается на странице сразу и остаётся локальным до «Применить».';
+      : 'Изменение сразу видно на странице. Сохраните черновик, когда всё готово.';
 
     const attribute = element.tagName === 'A' ? 'href' : element.tagName === 'IMG' ? 'src' : 'class';
     this.get<HTMLInputElement>('[data-field="attribute-name"]').value = attribute;
@@ -89,10 +149,12 @@ export class SidePanel {
   }
 
   updateSession(state: EditorSessionState): void {
+    if (this.selected && !this.selected.isConnected) this.actions.selectElement(null);
     this.get<HTMLButtonElement>('[data-action="undo"]').disabled = !state.canUndo;
     this.get<HTMLButtonElement>('[data-action="redo"]').disabled = !state.canRedo;
     this.get<HTMLElement>('[data-field="history-count"]').textContent = String(state.operationCount);
     this.get<HTMLElement>('[data-field="pending-count"]').textContent = String(state.pendingOperationCount);
+    this.get<HTMLElement>('[data-field="pending-label"]').dataset.empty = String(state.pendingOperationCount === 0);
     this.get<HTMLButtonElement>('[data-action="apply"]').disabled = state.pendingOperationCount === 0;
     this.styles.refresh();
   }
@@ -115,17 +177,33 @@ export class SidePanel {
       summary.type = 'button';
       summary.className = 'change-summary';
       const title = this.document.createElement('strong');
-      title.textContent = `${index + 1}. ${change.operation.kind} · ${change.status}`;
+      title.textContent = `${index + 1}. ${operationLabel(change.operation)}`;
       const id = this.document.createElement('code');
       id.textContent = change.operation.id;
       const target = this.document.createElement('span');
       target.textContent = `target: ${describeTarget(change.operation.target)}`;
       const detail = this.document.createElement('span');
       detail.textContent = `${change.code ?? (change.committed ? 'SAVED' : 'PENDING')}${change.message ? ` — ${change.message}` : ''}`;
-      summary.append(title, id, target, detail);
+      const value = this.document.createElement('span');
+      value.textContent = operationValue(change.operation);
+      summary.append(title, value);
       summary.addEventListener('mouseenter', () => this.actions.highlightChange(change.nodeElement));
       summary.addEventListener('mouseleave', () => this.actions.highlightChange(null));
+      summary.addEventListener('click', () => { if (change.nodeElement?.isConnected) this.actions.selectElement(change.nodeElement); });
       item.appendChild(summary);
+      const status = this.document.createElement('div');
+      status.className = 'change-status';
+      status.textContent = change.committed ? 'Сохранено' : ({applied: 'Локально', skipped: 'Пропущено', error: 'Ошибка'}[change.status]);
+      item.appendChild(status);
+      const diagnostics = this.document.createElement('details');
+      diagnostics.className = 'change-details';
+      diagnostics.open = change.status !== 'applied';
+      const caption = this.document.createElement('summary');
+      caption.textContent = 'Детали операции';
+      const protocol = this.document.createElement('p');
+      protocol.textContent = `${change.operation.kind} · ${change.status}`;
+      diagnostics.append(caption, protocol, id, target, detail);
+      item.appendChild(diagnostics);
       const candidates = change.resolutionEvidence?.candidates ?? [];
       if (candidates.length > 0) {
         const list = this.document.createElement('ul');
@@ -164,6 +242,11 @@ export class SidePanel {
   }
 
   destroy(): void {
+    for (const select of this.positionSelects) select.destroy();
+    this.panelDrag.destroy();
+    this.drag.destroy();
+    this.actions.cancelCapture();
+    if (this.previewMode) this.actions.setPreviewMode(false);
     this.controller.abort();
     this.styles.destroy();
     this.host.remove();
@@ -174,6 +257,31 @@ export class SidePanel {
   private bindEvents(): void {
     const { signal } = this.controller;
     this.get('[data-action="close"]').addEventListener('click', () => this.actions.close(), { signal });
+    for (const tab of this.shadow.querySelectorAll<HTMLButtonElement>('[data-mode]')) {
+      tab.addEventListener('click', () => this.setMode(tab.dataset.mode as typeof this.mode), {signal});
+      tab.addEventListener('keydown', event => {
+        const modes = ['edit', 'add', 'history'] as const;
+        if (!['ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) return;
+        event.preventDefault();
+        const index = event.key === 'Home' ? 0 : event.key === 'End' ? 2 : (modes.indexOf(this.mode) + (event.key === 'ArrowDown' ? 1 : 2)) % 3;
+        this.setMode(modes[index]!);
+        this.get<HTMLButtonElement>(`[data-mode="${this.mode}"]`).focus();
+      }, {signal});
+    }
+    this.get('[data-action="preview"]').addEventListener('click', () => this.setPreview(!this.previewMode), {signal});
+    this.document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && this.previewMode) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        this.setPreview(false);
+      } else if (event.key === 'Escape' && this.capturingDestination) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        this.cancelDestination();
+        this.setStatus('Выбор места отменён.');
+      }
+    }, {capture: true, signal});
+    this.document.defaultView?.addEventListener('resize', () => this.updateViewport(), {signal});
     this.get('[data-action="select-parent"]').addEventListener('click', () => {
       if (this.selected && !this.actions.selectParent(this.selected)) this.setStatus('Родитель вне области редактора.', 'error');
     }, {signal});
@@ -192,6 +300,65 @@ export class SidePanel {
     this.get('[data-action="accept-proposal"]').addEventListener('click', () => void this.acceptProposal(), { signal });
   }
 
+  private setMode(mode: typeof this.mode): void {
+    this.styles.flush();
+    this.closeSelects();
+    if (this.capturingDestination) this.setStatus('Выбор места отменён.');
+    this.cancelDestination();
+    this.mode = mode;
+    if (this.previewMode) this.setPreview(false);
+    this.drag.setEnabled(mode === 'add');
+    for (const tab of this.shadow.querySelectorAll<HTMLButtonElement>('[data-mode]')) {
+      const active = tab.dataset.mode === mode;
+      tab.setAttribute('aria-selected', String(active));
+      tab.tabIndex = active ? 0 : -1;
+    }
+    for (const view of this.shadow.querySelectorAll<HTMLElement>('[data-mode-view]')) view.hidden = view.dataset.modeView !== mode;
+    this.get<HTMLElement>('[data-field="mode-title"]').textContent = {edit: 'Редактирование', add: 'Добавление', history: 'История изменений'}[mode];
+  }
+
+  private setPreview(active: boolean): void {
+    this.styles.flush();
+    this.closeSelects();
+    this.cancelDestination();
+    this.previewMode = active;
+    const panel = this.get<HTMLElement>('.panel');
+    if (active) panel.dataset.preview = 'true';
+    else delete panel.dataset.preview;
+    this.drag.setEnabled(!active && this.mode === 'add');
+    this.get('[data-action="preview"]').setAttribute('aria-pressed', String(active));
+    this.actions.setPreviewMode(active);
+    this.panelDrag.reflow();
+  }
+
+  private updateViewport(): void {
+    this.get<HTMLElement>('[data-field="viewport"]').textContent = `${this.document.defaultView?.innerWidth ?? this.document.documentElement.clientWidth} px`;
+  }
+
+  private chooseTemplate(template: string): void {
+    const position = this.insertPosition;
+    this.setStatus('Кликните по элементу страницы, рядом с которым нужно вставить блок. Escape — отмена.');
+    this.capturingDestination = true;
+    this.actions.captureDestination(target => void this.insertTemplate(template, target, position));
+  }
+
+  private async insertTemplate(template: string, target: Element, position: InsertPosition): Promise<void> {
+    this.cancelDestination();
+    const node = templateNode(template);
+    if (!node || !target.isConnected) return;
+    const id = createOperationId('insert');
+    const report = await this.preview({schemaVersion: 1, id, kind: 'insertNode', target: buildTargetDescriptor(target), position, node}, undefined, target);
+    if (report?.applied) {
+      const inserted = this.document.querySelector(`[data-lykar-operation-id="${id}"]`);
+      if (inserted) this.actions.selectElement(inserted);
+    }
+  }
+
+  private cancelDestination(): void {
+    this.capturingDestination = false;
+    this.actions.cancelCapture();
+  }
+
   private async previewText(): Promise<void> {
     const element = this.selected;
     const text = this.get<HTMLTextAreaElement>('[data-field="text"]');
@@ -206,7 +373,7 @@ export class SidePanel {
   }
 
   private async previewStyle(change: StyleChange): Promise<void> {
-    const {property, value, priority = '', transactionId} = change;
+    const {property, value, priority = '', transactionId, intent} = change;
     const element = this.selected;
     if (!element || !property) return;
     const style = (element as Element & {style?: CSSStyleDeclaration}).style;
@@ -250,7 +417,7 @@ export class SidePanel {
       property,
       value,
       ...(priority ? {priority} : {}),
-    }, transactionId ? `${this.selectionKey}:style:${property}:${transactionId}` : undefined, element);
+    }, transactionId ? `${this.selectionKey}:style:${property}:${transactionId}` : undefined, element, intent);
     if (this.selected !== element) return;
     if (!report || report.errors || report.skipped) {
       const failure = report?.operations.find(operation => operation.status !== 'applied');
@@ -277,8 +444,10 @@ export class SidePanel {
 
   private async resetStyle(property: string): Promise<void> {
     if (!this.selected) return;
+    this.styles.flush();
     try {
       const report = await this.actions.resetStyle(this.selected, property);
+      this.styles.refresh(false, property);
       this.setStatus(report.errors ? report.operations[0]?.message ?? 'Сброс не выполнен.' : 'Исходное значение восстановлено.', report.errors ? 'error' : 'success');
     } catch (error) {
       this.setStatus(errorMessage(error), 'error');
@@ -333,7 +502,7 @@ export class SidePanel {
     if (!this.selected) return;
     const tag = this.get<HTMLInputElement>('[data-field="insert-tag"]').value.trim().toLowerCase();
     const text = this.get<HTMLInputElement>('[data-field="insert-text"]').value;
-    const position = this.get<HTMLSelectElement>('[data-field="insert-position"]').value as InsertPosition;
+    const position = this.insertPosition;
     await this.preview({
       schemaVersion: 1,
       id: createOperationId('insert'),
@@ -347,9 +516,11 @@ export class SidePanel {
   private chooseDestination(): void {
     if (!this.selected) return;
     const source = this.selected;
-    const position = this.get<HTMLSelectElement>('[data-field="move-position"]').value as InsertPosition;
+    const position = this.movePosition;
     this.setStatus('Кликните по элементу назначения на странице.');
+    this.capturingDestination = true;
     this.actions.captureDestination(destination => {
+      this.capturingDestination = false;
       if (destination === source || source.contains(destination)) {
         this.setStatus('Нельзя переместить элемент внутрь самого себя.', 'error');
         return;
@@ -367,7 +538,9 @@ export class SidePanel {
 
   private beginRepair(change: EditorChange): void {
     this.setStatus(`Выберите новый target для ${change.operation.id}. Старое изменение останется неизменным.`);
+    this.capturingDestination = true;
     this.actions.captureDestination(element => {
+      this.capturingDestination = false;
       void this.actions.repair(change.operation.id, element).then(report => {
         const failed = report.errors + report.skipped;
         this.setStatus(
@@ -411,14 +584,14 @@ export class SidePanel {
     for (const operation of proposal.operations) await this.preview(operation, undefined, element);
   }
 
-  private async preview(operation: Operation, key?: string, element?: Element | null): Promise<EditorApplyReport | null> {
+  private async preview(operation: Operation, key?: string, element?: Element | null, intent?: 'priority'): Promise<EditorApplyReport | null> {
     try {
-      const report = await this.actions.preview(operation, key, element);
+      const report = await this.actions.preview(operation, key, element, intent);
       const tone = report.errors > 0 ? 'error' : 'success';
       this.setStatus(
         report.errors > 0
           ? report.operations[0]?.message ?? 'Изменение не выполнено.'
-          : 'Локальный preview обновлён. Для сохранения нажмите «Применить».',
+          : 'Изменение видно на странице. Сохраните черновик, когда всё готово.',
         tone,
       );
       return report;
@@ -454,7 +627,7 @@ export class SidePanel {
       await this.actions.resolveConflict();
       this.get<HTMLElement>('[data-view="save-conflict"]').hidden = true;
       this.setStatus(
-        'Revision обновлена. Локальные pending-изменения сохранены; проверьте их и нажмите «Применить» для нового save key.',
+        'Версия обновлена. Проверьте локальные изменения и сохраните черновик.',
         'neutral',
       );
     } catch (error) {
@@ -486,53 +659,7 @@ export class SidePanel {
 
   private buildStyle(): HTMLStyleElement {
     const style = this.document.createElement('style');
-    style.textContent = `
-      :host { all: initial; } *, *::before, *::after { box-sizing: border-box; }
-      .panel { position: fixed; top: 12px; right: 12px; bottom: 12px; width:min(380px,calc(100vw - 24px)); z-index:2147483647; display:flex; flex-direction:column; overflow:hidden; border:1px solid #e5e7eb; border-radius:14px; background:#fff; color:#111827; box-shadow:0 20px 60px rgba(15,23,42,.25); font:13px/1.45 ui-sans-serif,system-ui,-apple-system,sans-serif; }
-      header { padding:14px 16px 10px; border-bottom:1px solid #e5e7eb; background:#fafafa; } h1 { margin:0; font-size:16px; }
-      .path { margin-top:3px; color:#6b7280; font-size:11px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-      .toolbar,.actions,.footer-actions { display:flex; flex-wrap:wrap; gap:7px; } .toolbar { margin-top:10px; }
-      .body { flex:1; overflow:auto; padding:14px 16px 90px; } section { margin:0 0 18px; padding-bottom:16px; border-bottom:1px solid #eef0f3; }
-      h2 { margin:0 0 9px; font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:#6b7280; }
-      label { display:block; margin:8px 0 4px; font-weight:600; } input,textarea,select,button { font:inherit; }
-      input,textarea,select { width:100%; border:1px solid #d1d5db; border-radius:7px; padding:8px 9px; background:#fff; color:#111827; }
-      textarea { min-height:82px; resize:vertical; } button { border:1px solid #d1d5db; border-radius:7px; padding:7px 10px; background:#fff; color:#111827; cursor:pointer; }
-      button:hover { background:#f3f4f6; } button:disabled { opacity:.45; cursor:default; } button.primary { border-color:#7c3aed; background:#7c3aed; color:#fff; font-weight:700; }
-      button.danger { color:#b91c1c; } .row { display:grid; grid-template-columns:1fr 1.35fr; gap:8px; } .help { margin:5px 0 0; color:#6b7280; font-size:11px; }
-      .selected { padding:8px 10px; border-radius:8px; background:#f5f3ff; color:#5b21b6; font-family:ui-monospace,monospace; }
-      .check { display:flex; align-items:center; gap:7px; font-weight:400; } .check input { width:auto; }
-      .status { position:absolute; left:12px; right:12px; bottom:12px; padding:10px 12px; border:1px solid #e5e7eb; border-radius:9px; background:rgba(255,255,255,.96); box-shadow:0 5px 20px rgba(15,23,42,.12); }
-      .status[data-tone="success"] { border-color:#86efac; color:#166534; } .status[data-tone="error"] { border-color:#fca5a5; color:#991b1b; }
-      .proposal { padding:10px; border:1px solid #fcd34d; border-radius:8px; background:#fffbeb; }
-      .conflict { padding:10px; border:1px solid #fca5a5; border-radius:8px; background:#fff1f2; color:#991b1b; }
-      .change { width:100%; margin:0 0 8px; padding:7px; border:1px solid #d1d5db; border-radius:8px; text-align:left; }
-      .change-summary { width:100%; display:grid; gap:3px; padding:0; border:0; text-align:left; background:transparent; }
-      .change-summary:hover { background:transparent; } .change code { overflow-wrap:anywhere; color:#4b5563; font-size:10px; }
-      .change span { color:#6b7280; overflow-wrap:anywhere; } .change-error { border-color:#ef4444; background:#fef2f2; } .change-skipped { border-color:#f59e0b; background:#fffbeb; }
-      .candidates { margin:7px 0; padding-left:18px; color:#6b7280; font-size:11px; } .repair { width:100%; margin-top:6px; border-color:#f59e0b; }
-      .footer-actions .primary { flex:1; } [hidden] { display:none !important; }
-      .style-manager { display:grid; gap:8px; } .style-section { border:1px solid #e5e7eb; border-radius:8px; padding:5px 8px; }
-      .style-section summary { cursor:pointer; font-weight:700; padding:4px; }
-      .style-row { display:grid; grid-template-columns:1fr 1.25fr auto; gap:5px; align-items:center; margin:7px 0; }
-      .style-row label { margin:0; font-size:11px; overflow-wrap:anywhere; }
-      .style-row[data-dirty="true"] > label:first-child::after { content:' •'; color:#7c3aed; }
-      .style-row input[data-role="swatch"] { width:36px; height:32px; padding:2px; }
-      .style-row select { grid-column:2 / -1; } .style-row input { min-width:0; }
-      .style-row button { padding:6px; font-size:11px; } .style-row input[aria-invalid="true"] { border-color:#dc2626; }
-      .style-row .style-important, .style-important { display:flex; align-items:center; gap:4px; grid-column:2 / -1; font-size:11px; font-weight:400; margin:0; }
-      .style-important input { width:auto; }
-      .style-stack-items { grid-column:1 / -1; display:grid; gap:5px; }
-      .style-layer { display:grid; grid-template-columns:1fr auto auto auto; gap:4px; }
-      .style-layer input { min-width:0; }
-      .style-composite-parts { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:4px; grid-column:1 / -1; }
-      .style-composite-parts label { margin:0; font-size:11px; font-weight:400; }
-      .style-linked-control { display:flex; align-items:center; gap:6px; grid-column:1 / -1; margin:0; font-size:11px; font-weight:400; }
-      .style-linked-control input { width:auto; }
-      .style-error { grid-column:1 / -1; color:#b91c1c; font-size:11px; }
-      .style-applicability { grid-column:1 / -1; color:#92400e; font-size:11px; }
-      .style-custom-row { display:grid; gap:6px; margin:8px 0; }
-      @media (max-width:520px) { .panel { top:6px; right:6px; bottom:6px; width:calc(100vw - 12px); border-radius:10px; } .body { padding-inline:12px; } }
-    `;
+    style.textContent = SELECT_CSS + PANEL_CSS;
     return style;
   }
 
@@ -541,32 +668,29 @@ export class SidePanel {
     panel.className = 'panel';
     panel.setAttribute('aria-label', 'Lykar visual editor');
     panel.setAttribute('role', 'dialog');
-    panel.innerHTML = `
-      <header><h1>Lykar Editor</h1><div class="path"></div><div class="toolbar">
-        <button type="button" data-action="undo" aria-label="Отменить последнее изменение" title="Отменить">↶</button><button type="button" data-action="redo" aria-label="Повторить последнее изменение" title="Повторить">↷</button><button type="button" data-action="close">Закрыть</button>
-        <span style="margin-left:auto;color:#6b7280">Команд: <b data-field="history-count">0</b></span>
-      </div></header>
-      <div class="body">
-        <div data-view="empty"><p>Наведите курсор и кликните по элементу страницы.</p></div>
-        <div data-view="editor">
-          <section><h2>Выбранный элемент</h2><div class="selected" data-field="selected-label"></div><button type="button" data-action="select-parent" style="margin-top:6px">Выбрать родителя</button></section>
-          <section><h2>Текст</h2><textarea data-field="text" aria-label="Element text"></textarea><p class="help" data-field="text-help"></p></section>
-          <section><h2>Стили</h2><p class="help">«Вернуть исходный» восстанавливает стиль до правок Lykar. «Удалить» убирает inline-декларацию и возвращает управление каскаду.</p><div data-view="styles"></div></section>
-          <section><h2>Атрибут</h2><div class="row"><input data-field="attribute-name" aria-label="Attribute name"><input data-field="attribute-value" aria-label="Attribute value"></div><label class="check"><input type="checkbox" data-field="attribute-remove"> Удалить атрибут</label></section>
-          <section><h2>Структура</h2><div class="actions"><button type="button" data-action="duplicate">Дублировать</button><button type="button" class="danger" data-action="delete">Удалить</button></div><p class="help">Копируются только безопасные статические HTML/атрибуты. Обработчики, component state и бизнес-логика не переносятся.</p>
-            <label>Добавить элемент</label><div class="row"><input data-field="insert-tag" value="div"><input data-field="insert-text" placeholder="Текст"></div>
-            <div class="row" style="margin-top:8px"><select data-field="insert-position"><option value="after">После</option><option value="before">До</option><option value="append">Внутрь, в конец</option><option value="prepend">Внутрь, в начало</option></select><button type="button" data-action="insert">Добавить</button></div>
-            <label>Переместить</label><div class="row"><select data-field="move-position"><option value="append">Внутрь назначения</option><option value="before">Перед назначением</option><option value="after">После назначения</option><option value="prepend">В начало назначения</option></select><button type="button" data-action="choose-destination">Выбрать место</button></div>
-          </section>
-          <section><h2>Предложение агента</h2><button type="button" data-action="dummy-proposal">Создать dummy-предложение</button><div class="proposal" data-view="proposal" hidden style="margin-top:8px"><strong data-field="proposal-title"></strong><span data-field="proposal-description"></span><ul data-field="proposal-operations"></ul><button type="button" data-action="accept-proposal" style="margin-top:8px">Принять явно</button></div></section>
-        </div>
-        <section><h2>Дерево изменений</h2><div data-view="change-tree"></div></section>
-        <section class="conflict" data-view="save-conflict" hidden><h2>Конфликт revision</h2><p data-field="conflict-message"></p><p class="help">Автоматический rebase не выполняется. Pending operations останутся локально.</p><button type="button" data-action="resolve-conflict">Загрузить revision и проверить</button></section>
-        <section><div class="footer-actions"><button type="button" class="primary" data-action="apply">Применить (<span data-field="pending-count">0</span>)</button></div></section>
-      </div>
-      <div class="status" data-field="status" data-tone="neutral" role="status" aria-live="polite">Изменения показываются локально. «Применить» сохраняет их в draft.</div>`;
-    panel.querySelector<HTMLElement>('.path')!.textContent = pagePath;
+    panel.innerHTML = panelMarkup();
+    const pageName = panel.querySelector<HTMLElement>('[data-field="page-name"]')!;
+    pageName.textContent = pagePath === '/' ? 'Главная страница' : this.document.title.trim() || pagePath.split('/').filter(Boolean).join(' › ');
+    pageName.title = `Страница: ${pageName.textContent}`;
     return panel;
+  }
+
+  private replacePositionSelect(field: string, onChange: (position: InsertPosition) => void): void {
+    const native = this.get<HTMLSelectElement>(`[data-field="${field}"]`);
+    const select = new Select(this.document, {
+      label: native.getAttribute('aria-label') ?? field, searchable: false,
+      options: Array.from(native.options).map(option => ({value: option.value, label: option.textContent ?? option.value})),
+      onChange: value => onChange(value as InsertPosition),
+    });
+    select.element.dataset.field = field;
+    select.setValue(native.value);
+    native.replaceWith(select.element);
+    this.positionSelects.push(select);
+  }
+
+  private closeSelects(): void {
+    this.styles.closeSelects();
+    for (const select of this.positionSelects) select.close();
   }
 }
 
@@ -574,6 +698,42 @@ function describeElement(element: Element): string {
   const id = element.getAttribute('id');
   const classes = Array.from(element.classList).slice(0, 3).join('.');
   return `${element.tagName.toLowerCase()}${id ? `#${id}` : ''}${classes ? `.${classes}` : ''}`;
+}
+
+function elementPath(element: Element): string {
+  const path: string[] = [];
+  for (let node: Element | null = element; node && node.tagName !== 'BODY' && path.length < 4; node = node.parentElement) path.unshift(node.tagName.toLowerCase());
+  return path.join(' › ');
+}
+
+function operationLabel(operation: Operation): string {
+  switch (operation.kind) {
+    case 'setText': return 'Текст изменён';
+    case 'setStyle': return `Стиль · ${operation.property}`;
+    case 'setAttribute': return `Атрибут · ${operation.name}`;
+    case 'removeAttribute': return `Атрибут удалён · ${operation.name}`;
+    case 'insertNode': return `Добавлен ${operation.node.type === 'element' ? `<${operation.node.tag}>` : 'текст'}`;
+    case 'removeNode': return 'Элемент удалён';
+    case 'moveNode': return 'Элемент перемещён';
+  }
+}
+
+function operationValue(operation: Operation): string {
+  if ('value' in operation) return String(operation.value).slice(0, 120) || 'Значение удалено';
+  return describeTarget(operation.target);
+}
+
+function templateNode(template: string): SerializedNode | null {
+  const text = (value: string): SerializedNode => ({type: 'text', value});
+  switch (template) {
+    case 'text': return {type: 'element', tag: 'p', children: [text('Новый текст')]};
+    case 'button': return {type: 'element', tag: 'button', attributes: {type: 'button'}, children: [text('Новая кнопка')]};
+    // The image starts with an accessible placeholder; its URL is editable in
+    // the attribute field and passes through the runtime's URL validation.
+    case 'image': return {type: 'element', tag: 'img', attributes: {alt: 'Новое изображение', width: '320', height: '180'}};
+    case 'container': return {type: 'element', tag: 'div', children: [{type: 'element', tag: 'p', children: [text('Новый блок')]}]};
+    default: return null;
+  }
 }
 
 function describeTarget(target: Operation['target']): string {

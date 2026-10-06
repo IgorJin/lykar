@@ -17,6 +17,9 @@ const LEGACY_SEEDED_SESSION_ID = '10000000-0000-4000-8000-000000000002';
 const MEMBERSHIP_ID = '20000000-0000-4000-8000-000000000002';
 
 export async function seedPlayground(options) {
+  if (process.env.NODE_ENV === 'production' || !['127.0.0.1','localhost','[::1]'].includes(new URL(options.playgroundOrigin).hostname)) {
+    throw new Error('Playground seed is restricted to local non-production origins');
+  }
   const pool = new pg.Pool({ connectionString: options.databaseUrl });
   const origin = new URL(options.playgroundOrigin).origin;
   const localhostOrigin = origin.replace('127.0.0.1', 'localhost');
@@ -48,9 +51,9 @@ export async function seedPlayground(options) {
       ['21000000-0000-4000-8000-000000000002', localhostOrigin],
     ]) {
       await client.query(
-        `INSERT INTO project_origins (id, project_id, origin, verified_at)
-         VALUES ($1, $2, $3, NOW())
-         ON CONFLICT (id) DO UPDATE SET origin = EXCLUDED.origin, verified_at = NOW()`,
+        `INSERT INTO project_origins (id, project_id, origin, verified_at, verification_method)
+         VALUES ($1, $2, $3, NOW(), 'local-development')
+         ON CONFLICT (id) DO UPDATE SET origin = EXCLUDED.origin, verified_at = NOW(), verification_method = 'local-development'`,
         [id, PROJECT_ID, value],
       );
     }

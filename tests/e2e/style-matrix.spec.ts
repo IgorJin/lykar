@@ -258,7 +258,7 @@ test('S2 editor acceptance: keyboard controls, zoom, nested scroll and static co
     const body = await page.screenshot();
     await testInfo.attach(name, {body, contentType: 'image/png'});
     if (testInfo.project.name === 'chromium') {
-      const directory = resolve(process.cwd(), 'docs/verification/reports/S2/assets');
+      const directory = resolve(process.env.LYKAR_STYLE_SCREENSHOT_DIR ?? 'docs/verification/reports/S2/assets');
       await mkdir(directory, {recursive: true});
       await writeFile(resolve(directory, name), body);
     }
@@ -286,6 +286,8 @@ test('S2 editor acceptance: keyboard controls, zoom, nested scroll and static co
   await page.keyboard.press('Enter');
   await expect(hero).toHaveCSS('width', '300px');
   await panel.locator('[data-action="undo"]').focus();
+  await expect(width).toHaveValue('300');
+  await expect(panel.getByRole('combobox', {name: 'Width: единица', exact: true})).toHaveText('px');
   await page.keyboard.press('Enter');
   await expect.poll(() => hero.evaluate(element => (element as HTMLElement).style.getPropertyValue('width'))).not.toBe('300px');
   await panel.locator('[data-action="redo"]').focus();

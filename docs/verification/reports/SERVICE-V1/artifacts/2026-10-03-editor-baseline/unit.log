@@ -1,0 +1,525 @@
+
+> lykar@0.0.0 test
+> node --test scripts/*.test.mjs && npm run test --workspaces --if-present
+
+TAP version 13
+# Subtest: isolated runs never use inherited working database URLs
+ok 1 - isolated runs never use inherited working database URLs
+  ---
+  duration_ms: 0.62425
+  type: 'test'
+  ...
+# Subtest: dev mode preserves explicit existing database support
+ok 2 - dev mode preserves explicit existing database support
+  ---
+  duration_ms: 0.062167
+  type: 'test'
+  ...
+# Subtest: cleanup waits for graceful exit instead of a fixed 200 ms sleep
+ok 3 - cleanup waits for graceful exit instead of a fixed 200 ms sleep
+  ---
+  duration_ms: 337.349167
+  type: 'test'
+  ...
+# Subtest: cleanup signals the compiler subprocess as well as its npm parent
+ok 4 - cleanup signals the compiler subprocess as well as its npm parent
+  ---
+  duration_ms: 77.396166
+  type: 'test'
+  ...
+# Subtest: versioned SDK assets cannot be overwritten with different content
+ok 5 - versioned SDK assets cannot be overwritten with different content
+  ---
+  duration_ms: 6.760958
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 455.303833
+
+> lykar-lib-server@1.0.0 pretest
+> npm run build
+
+
+> lykar-lib-server@1.0.0 prebuild
+> npm run build --workspace @lykar/protocol
+
+
+> @lykar/protocol@0.0.0 build
+> tsc -p tsconfig.json && esbuild src/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs
+
+
+  dist/index.cjs  27.9kb
+
+⚡ Done in 2ms
+
+> lykar-lib-server@1.0.0 build
+> npm run clean && tsc
+
+
+> lykar-lib-server@1.0.0 clean
+> node -e "require('node:fs').rmSync('dist', { recursive: true, force: true })"
+
+
+> lykar-lib-server@1.0.0 test
+> node --test "dist/**/*.test.js"
+
+TAP version 13
+# Subtest: admin endpoints fail closed without a session cookie
+ok 1 - admin endpoints fail closed without a session cookie
+  ---
+  duration_ms: 95.710959
+  type: 'test'
+  ...
+# Subtest: development login is disabled unless the local development mode is enabled
+ok 2 - development login is disabled unless the local development mode is enabled
+  ---
+  duration_ms: 29.38425
+  type: 'test'
+  ...
+# Subtest: local development login creates a normal owner session
+ok 3 - local development login creates a normal owner session
+  ---
+  duration_ms: 16.636041
+  type: 'test'
+  ...
+# Subtest: development login refuses production and non-loopback origins
+ok 4 - development login refuses production and non-loopback origins
+  ---
+  duration_ms: 0.245541
+  type: 'test'
+  ...
+# Subtest: owner signs in through a one-use magic link and creates a project
+ok 5 - owner signs in through a one-use magic link and creates a project
+  ---
+  duration_ms: 17.95675
+  type: 'test'
+  ...
+# Subtest: explicit immutable versions require a page-scoped editor or share token
+ok 6 - explicit immutable versions require a page-scoped editor or share token
+  ---
+  duration_ms: 14.323708
+  type: 'test'
+  ...
+# Subtest: runtime without an explicit version or variant token leaves the native page untouched
+ok 7 - runtime without an explicit version or variant token leaves the native page untouched
+  ---
+  duration_ms: 12.043167
+  type: 'test'
+  ...
+# Subtest: invalid persisted operation is rejected before repository append
+ok 8 - invalid persisted operation is rejected before repository append
+  ---
+  duration_ms: 13.069541
+  type: 'test'
+  ...
+# Subtest: experiment selection hashes the browser ID and issues a scoped event capability
+ok 9 - experiment selection hashes the browser ID and issues a scoped event capability
+  ---
+  duration_ms: 2.394833
+  type: 'test'
+  ...
+# Subtest: analytics capability rejects tampering and event properties reject page data
+ok 10 - analytics capability rejects tampering and event properties reject page data
+  ---
+  duration_ms: 0.538292
+  type: 'test'
+  ...
+# Subtest: assignment bucket is deterministic and bounded
+ok 11 - assignment bucket is deterministic and bounded
+  ---
+  duration_ms: 0.088417
+  type: 'test'
+  ...
+# Subtest: experiment creation requires exactly A and B with at least one immutable release
+ok 12 - experiment creation requires exactly A and B with at least one immutable release
+  ---
+  duration_ms: 1.811791
+  type: 'test'
+  ...
+# Subtest: partial variant updates preserve omitted fields and retain explicit nulls
+ok 13 - partial variant updates preserve omitted fields and retain explicit nulls
+  ---
+  duration_ms: 0.148667
+  type: 'test'
+  ...
+# Subtest: variant URLs expose an opaque token while repositories receive only its hash
+ok 14 - variant URLs expose an opaque token while repositories receive only its hash
+  ---
+  duration_ms: 0.558958
+  type: 'test'
+  ...
+# Subtest: project roles map to the agreed permission boundaries
+ok 15 - project roles map to the agreed permission boundaries
+  ---
+  duration_ms: 0.914459
+  type: 'test'
+  ...
+# Subtest: owner can only be assigned through ownership transfer
+ok 16 - owner can only be assigned through ownership transfer
+  ---
+  duration_ms: 0.277166
+  type: 'test'
+  ...
+# Subtest: createProject normalizes and deduplicates origins
+ok 17 - createProject normalizes and deduplicates origins
+  ---
+  duration_ms: 1.848667
+  type: 'test'
+  ...
+# Subtest: appendOperations validates protocol v1 before touching the repository
+ok 18 - appendOperations validates protocol v1 before touching the repository
+  ---
+  duration_ms: 0.403958
+  type: 'test'
+  ...
+# Subtest: appendOperations accepts the complete static-page operation set
+ok 19 - appendOperations accepts the complete static-page operation set
+  ---
+  duration_ms: 7.466
+  type: 'test'
+  ...
+# Subtest: save payload hash is canonical and includes expected revision
+ok 20 - save payload hash is canonical and includes expected revision
+  ---
+  duration_ms: 0.150541
+  type: 'test'
+  ...
+# Subtest: PostgreSQL experiments expose only active A/B variant links and preserve the native default
+ok 21 - PostgreSQL experiments expose only active A/B variant links and preserve the native default # SKIP LYKAR_TEST_DATABASE_URL is not configured
+  ---
+  duration_ms: 0.352167
+  type: 'test'
+  ...
+# Subtest: project invitations enforce roles, revoke editor capabilities, and transfer ownership
+ok 22 - project invitations enforce roles, revoke editor capabilities, and transfer ownership # SKIP LYKAR_TEST_DATABASE_URL is not configured
+  ---
+  duration_ms: 0.335042
+  type: 'test'
+  ...
+# Subtest: PostgreSQL workflow freezes immutable versions without changing the native page
+ok 23 - PostgreSQL workflow freezes immutable versions without changing the native page # SKIP LYKAR_TEST_DATABASE_URL is not configured
+  ---
+  duration_ms: 0.312208
+  type: 'test'
+  ...
+1..23
+# tests 23
+# suites 0
+# pass 20
+# fail 0
+# cancelled 0
+# skipped 3
+# todo 0
+# duration_ms 333.266708
+
+> @lykar/editor-bridge@0.0.0 pretest
+> npm run build --workspace @lykar/protocol && npm run build --workspace @lykar/runtime && npm run build --workspace @lykar/editor-ui
+
+
+> @lykar/protocol@0.0.0 build
+> tsc -p tsconfig.json && esbuild src/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs
+
+
+  dist/index.cjs  27.9kb
+
+⚡ Done in 2ms
+
+> @lykar/runtime@0.0.0 prebuild
+> npm run build --workspace @lykar/protocol
+
+
+> @lykar/protocol@0.0.0 build
+> tsc -p tsconfig.json && esbuild src/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs
+
+
+  dist/index.cjs  27.9kb
+
+⚡ Done in 2ms
+
+> @lykar/runtime@0.0.0 build
+> npm run clean && npm run build:types && esbuild src/index.ts --bundle --platform=browser --format=esm --target=es2018 --sourcemap --outfile=dist/runtime.js && esbuild src/global.ts --bundle --platform=browser --format=iife --target=es2018 --minify --sourcemap --outfile=dist/runtime.iife.js
+
+
+> @lykar/runtime@0.0.0 clean
+> node -e "require('node:fs').rmSync('dist', { recursive: true, force: true })"
+
+
+> @lykar/runtime@0.0.0 build:types
+> tsc --emitDeclarationOnly -p tsconfig.json
+
+
+  dist/runtime.js      142.5kb
+  dist/runtime.js.map  255.1kb
+
+⚡ Done in 5ms
+
+  dist/runtime.iife.js       79.8kb
+  dist/runtime.iife.js.map  264.9kb
+
+⚡ Done in 5ms
+
+> @lykar/editor-ui@0.0.0 build
+> npm run clean && tsc -p tsconfig.json
+
+
+> @lykar/editor-ui@0.0.0 clean
+> node -e "require('node:fs').rmSync('dist', { recursive: true, force: true })"
+
+
+> @lykar/editor-bridge@0.0.0 test
+> vitest run
+
+
+ RUN  v4.1.10 /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/packages/editor-bridge
+
+
+ Test Files  5 passed (5)
+      Tests  78 passed (78)
+   Start at  18:24:11
+   Duration  7.74s (transform 820ms, setup 0ms, import 1.03s, tests 8.03s, environment 3.39s)
+
+
+> @lykar/editor-ui@0.0.0 test
+> vitest run
+
+
+ RUN  v4.1.10 /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/packages/editor-ui
+
+
+ Test Files  1 passed (1)
+      Tests  10 passed (10)
+   Start at  18:24:19
+   Duration  165ms (transform 70ms, setup 0ms, import 87ms, tests 10ms, environment 0ms)
+
+
+> lykar-lib@1.0.0 test
+> vitest run
+
+
+ RUN  v4.1.10 /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/packages/lykar-lib
+
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  18:24:20
+   Duration  440ms (transform 41ms, setup 0ms, import 53ms, tests 51ms, environment 268ms)
+
+
+> @lykar/protocol@0.0.0 test
+> npm run build && node --test test/*.test.mjs
+
+
+> @lykar/protocol@0.0.0 build
+> tsc -p tsconfig.json && esbuild src/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs
+
+
+  dist/index.cjs  27.9kb
+
+⚡ Done in 2ms
+TAP version 13
+# Subtest: conditional text/style require operation schema 2 and share one source state
+ok 1 - conditional text/style require operation schema 2 and share one source state
+  ---
+  duration_ms: 1.316334
+  type: 'test'
+  ...
+# Subtest: conditional undo is a matched tombstone and cannot undo another tombstone
+ok 2 - conditional undo is a matched tombstone and cannot undo another tombstone
+  ---
+  duration_ms: 0.571083
+  type: 'test'
+  ...
+# Subtest: accepts every operation kind in schema version 1
+ok 3 - accepts every operation kind in schema version 1
+  ---
+  duration_ms: 0.606208
+  type: 'test'
+  ...
+# Subtest: accepts optional style priority while keeping legacy style operations valid
+ok 4 - accepts optional style priority while keeping legacy style operations valid
+  ---
+  duration_ms: 0.077917
+  type: 'test'
+  ...
+# Subtest: rejects operations without a stable target locator
+ok 5 - rejects operations without a stable target locator
+  ---
+  duration_ms: 0.127583
+  type: 'test'
+  ...
+# Subtest: rejects malformed markers even when a selector fallback exists
+ok 6 - rejects malformed markers even when a selector fallback exists
+  ---
+  duration_ms: 0.051667
+  type: 'test'
+  ...
+# Subtest: serializes a scoped logical target with immutable environment bindings
+ok 7 - serializes a scoped logical target with immutable environment bindings
+  ---
+  duration_ms: 0.459541
+  type: 'test'
+  ...
+# Subtest: rejects duplicate binding versions and bindings for unknown targets
+ok 8 - rejects duplicate binding versions and bindings for unknown targets
+  ---
+  duration_ms: 0.06225
+  type: 'test'
+  ...
+# Subtest: appends a rebind revision without changing the frozen registry bytes
+ok 9 - appends a rebind revision without changing the frozen registry bytes
+  ---
+  duration_ms: 0.464875
+  type: 'test'
+  ...
+# Subtest: keeps mutable before-state separate from locator identity and desired-state
+ok 10 - keeps mutable before-state separate from locator identity and desired-state
+  ---
+  duration_ms: 0.311833
+  type: 'test'
+  ...
+# Subtest: rejects unknown schema versions and operation kinds
+ok 11 - rejects unknown schema versions and operation kinds
+  ---
+  duration_ms: 0.247
+  type: 'test'
+  ...
+# Subtest: accepts a published manifest containing protocol v1 operations
+ok 12 - accepts a published manifest containing protocol v1 operations
+  ---
+  duration_ms: 0.080875
+  type: 'test'
+  ...
+# Subtest: accepts append-only undo/repair revisions and rejects forward revision references
+ok 13 - accepts append-only undo/repair revisions and rejects forward revision references
+  ---
+  duration_ms: 0.129334
+  type: 'test'
+  ...
+# Subtest: requires an exact frozen binding and matching release environment
+ok 14 - requires an exact frozen binding and matching release environment
+  ---
+  duration_ms: 0.142541
+  type: 'test'
+  ...
+# Subtest: rejects malformed source compatibility snapshots
+ok 15 - rejects malformed source compatibility snapshots
+  ---
+  duration_ms: 0.09275
+  type: 'test'
+  ...
+# Subtest: reports indexed operation failures in malformed manifests
+ok 16 - reports indexed operation failures in malformed manifests
+  ---
+  duration_ms: 0.105875
+  type: 'test'
+  ...
+# Subtest: accepts explicit dependencies and serializable references to inserted element and text nodes
+ok 17 - accepts explicit dependencies and serializable references to inserted element and text nodes
+  ---
+  duration_ms: 0.084541
+  type: 'test'
+  ...
+# Subtest: rejects unavailable, forward, and implicit node dependencies
+ok 18 - rejects unavailable, forward, and implicit node dependencies
+  ---
+  duration_ms: 0.071334
+  type: 'test'
+  ...
+# Subtest: bounds operation count and serialized node depth before replay
+ok 19 - bounds operation count and serialized node depth before replay
+  ---
+  duration_ms: 1.622417
+  type: 'test'
+  ...
+1..19
+# tests 19
+# suites 0
+# pass 19
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 52.109084
+
+> @lykar/runtime@0.0.0 pretest
+> npm run build --workspace @lykar/protocol
+
+
+> @lykar/protocol@0.0.0 build
+> tsc -p tsconfig.json && esbuild src/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs
+
+
+  dist/index.cjs  27.9kb
+
+⚡ Done in 2ms
+
+> @lykar/runtime@0.0.0 test
+> vitest run
+
+
+ RUN  v4.1.10 /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/packages/runtime
+
+
+ Test Files  3 passed (3)
+      Tests  65 passed (65)
+   Start at  18:24:22
+   Duration  715ms (transform 222ms, setup 0ms, import 282ms, tests 346ms, environment 1.08s)
+
+
+> @lykar/sdk@0.0.0 pretest
+> npm run build --workspace @lykar/runtime
+
+
+> @lykar/runtime@0.0.0 prebuild
+> npm run build --workspace @lykar/protocol
+
+
+> @lykar/protocol@0.0.0 build
+> tsc -p tsconfig.json && esbuild src/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs
+
+
+  dist/index.cjs  27.9kb
+
+⚡ Done in 2ms
+
+> @lykar/runtime@0.0.0 build
+> npm run clean && npm run build:types && esbuild src/index.ts --bundle --platform=browser --format=esm --target=es2018 --sourcemap --outfile=dist/runtime.js && esbuild src/global.ts --bundle --platform=browser --format=iife --target=es2018 --minify --sourcemap --outfile=dist/runtime.iife.js
+
+
+> @lykar/runtime@0.0.0 clean
+> node -e "require('node:fs').rmSync('dist', { recursive: true, force: true })"
+
+
+> @lykar/runtime@0.0.0 build:types
+> tsc --emitDeclarationOnly -p tsconfig.json
+
+
+  dist/runtime.js      142.5kb
+  dist/runtime.js.map  255.1kb
+
+⚡ Done in 4ms
+
+  dist/runtime.iife.js       79.8kb
+  dist/runtime.iife.js.map  264.9kb
+
+⚡ Done in 5ms
+
+> @lykar/sdk@0.0.0 test
+> vitest run
+
+
+ RUN  v4.1.10 /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/packages/sdk
+
+
+ Test Files  3 passed (3)
+      Tests  23 passed (23)
+   Start at  18:24:24
+   Duration  837ms (transform 164ms, setup 0ms, import 199ms, tests 294ms, environment 1.07s)
+

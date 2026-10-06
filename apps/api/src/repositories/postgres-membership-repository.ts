@@ -135,6 +135,15 @@ export class PostgresMembershipRepository implements MembershipRepository {
     });
   }
 
+  async getInvitationForResend(actorUserId: string, invitationId: string): Promise<{ email: string }> {
+    const result = await this.pool.query<{ project_id: string; email: string }>(
+      `SELECT project_id, email FROM project_invitations WHERE id = $1 AND accepted_at IS NULL AND revoked_at IS NULL`, [invitationId]);
+    const invitation = result.rows[0];
+    if (!invitation) throw new NotFoundError('Active invitation was not found');
+    assertCanManage(await requireActorRole(this.pool, actorUserId, invitation.project_id));
+    return { email: invitation.email };
+  }
+
   async resendInvitation(
     input: Parameters<MembershipRepository['resendInvitation']>[0],
   ): ReturnType<MembershipRepository['resendInvitation']> {

@@ -1,0 +1,43 @@
+
+> @lykar/sdk@0.0.0 pretest
+> npm run build --workspace @lykar/runtime
+
+
+> @lykar/runtime@0.0.0 prebuild
+> npm run build --workspace @lykar/protocol
+
+
+> @lykar/protocol@0.0.0 build
+> tsc -p tsconfig.json && esbuild src/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs
+
+
+  dist/index.cjs  27.9kb
+
+⚡ Done in 2ms
+
+> @lykar/runtime@0.0.0 build
+> npm run clean && npm run build:types && esbuild src/index.ts --bundle --platform=browser --format=esm --target=es2018 --sourcemap --outfile=dist/runtime.js && esbuild src/global.ts --bundle --platform=browser --format=iife --target=es2018 --minify --sourcemap --outfile=dist/runtime.iife.js
+
+
+> @lykar/runtime@0.0.0 clean
+> node -e "require('node:fs').rmSync('dist', { recursive: true, force: true })"
+
+
+> @lykar/runtime@0.0.0 build:types
+> tsc --emitDeclarationOnly -p tsconfig.json
+
+
+  dist/runtime.js      148.1kb
+  dist/runtime.js.map  264.2kb
+
+⚡ Done in 4ms
+
+  dist/runtime.iife.js       83.3kb
+  dist/runtime.iife.js.map  274.4kb
+
+⚡ Done in 4ms
+
+> @lykar/sdk@0.0.0 test
+> vitest run --maxWorkers=1 --reporter=json --outputFile=/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/docs/verification/reports/SERVICE-V1/artifacts/2026-10-04-deployment-delivery/sdk-complete-results.json
+
+JSON report written to /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/docs/verification/reports/SERVICE-V1/artifacts/2026-10-04-deployment-delivery/sdk-complete-results.json

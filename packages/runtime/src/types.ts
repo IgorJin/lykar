@@ -24,7 +24,16 @@ export type OperationApplyResult = {
   compensation?: CompensationDiagnostic;
 };
 
+export type DeploymentMetadata = {
+  pageId: string;
+  revision: number;
+  activeReleaseId: string | null;
+};
+
+export type DeploymentSelection = DeploymentMetadata & {manifest: PublishedManifestV1 | null};
+
 export type ApplyReport = {
+  deployment?: DeploymentMetadata;
   projectId: string;
   pageId: string;
   releaseId: string;
@@ -51,7 +60,10 @@ export type ApplyReport = {
 
 export type NativePageReport = {
   mode: 'native';
-  reason: 'NO_VARIANT_TOKEN' | 'NATIVE_VARIANT' | 'VARIANT_UNAVAILABLE';
+  reason: 'NO_VARIANT_TOKEN' | 'NATIVE_VARIANT' | 'VARIANT_UNAVAILABLE'
+    | 'NO_ACTIVE_DEPLOYMENT' | 'DEPLOYMENT_UNAVAILABLE' | 'DEPLOYMENT_APPLY_FAILED';
+  deployment?: DeploymentMetadata;
+  report?: ApplyReport;
   experimentId?: string;
   variantKey?: 'A' | 'B';
   startedAt: string;
@@ -72,6 +84,7 @@ export type AnalyticsConsent = 'pending' | 'granted' | 'denied';
 export type AnalyticsProperties = Record<string, string | number | boolean | null>;
 
 export type LykarRuntimeOptions = {
+  delivery?: 'links-only' | 'deployment';
   projectKey: string;
   apiBaseUrl?: string;
   version?: number;

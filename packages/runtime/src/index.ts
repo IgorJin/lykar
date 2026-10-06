@@ -6,6 +6,7 @@ export {MutationJournal} from './mutation-journal.js';
 export type {CompensationDiagnostic, JournalEntrySnapshot} from './mutation-journal.js';
 export {ReplayLedger} from './replay-ledger.js';
 export type {LedgerNodeHandle, ReplayIdentityScope} from './replay-ledger.js';
+export {fetchDeployment} from './deployment-client.js';
 export { ManifestRequestError, fetchManifest } from './manifest-client.js';
 export { Lykar, LykarRuntime, consent, init, track } from './runtime.js';
 export { captureSourceSnapshot } from './dom-fingerprint.js';
@@ -13,6 +14,8 @@ export { resolveTarget } from './target-resolver.js';
 export { matchesSha256, normalizeSha256, sha256Text } from './hash.js';
 export { visitorTokensFromLocation } from './visitor-url.js';
 export type {
+  DeploymentMetadata,
+  DeploymentSelection,
   ApplyManifestOptions,
   ApplyReport,
   AnalyticsConsent,

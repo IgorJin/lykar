@@ -18,7 +18,7 @@ test(
     const viewerEmail = `roles-viewer-${suffix}@example.com`;
     let magicLink = '';
     const invitations: InvitationDelivery[] = [];
-    const app = buildApp({
+    const app = buildApp({ emailLimits: false,
       logger: false,
       connectionString: databaseUrl,
       appOrigin: 'http://localhost:3000',

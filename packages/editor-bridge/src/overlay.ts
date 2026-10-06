@@ -1,3 +1,5 @@
+import type { InsertPosition } from '@lykar/protocol';
+
 export type OverlayLayerName = 'hover' | 'selection' | 'destination' | 'proposal';
 
 type LayerStyle = {
@@ -7,9 +9,9 @@ type LayerStyle = {
 };
 
 const LAYER_STYLES: Record<OverlayLayerName, LayerStyle> = {
-  hover: { color: '#60a5fa', background: 'rgba(96, 165, 250, .10)', zIndex: 1 },
-  selection: { color: '#8b5cf6', background: 'rgba(139, 92, 246, .12)', zIndex: 2 },
-  destination: { color: '#10b981', background: 'rgba(16, 185, 129, .14)', zIndex: 3 },
+  hover: { color: '#a78bfa', background: 'rgba(139, 92, 246, .06)', zIndex: 1 },
+  selection: { color: '#7519ff', background: 'transparent', zIndex: 2 },
+  destination: { color: '#8b5cf6', background: 'rgba(139, 92, 246, .08)', zIndex: 3 },
   proposal: { color: '#f59e0b', background: 'rgba(245, 158, 11, .12)', zIndex: 4 },
 };
 
@@ -25,6 +27,10 @@ export class OverlayService {
 
   private readonly document: Document;
   private readonly layers = new Map<OverlayLayerName, LayerState>();
+  private readonly insertionGuide: HTMLDivElement;
+  private readonly insertionBadge: HTMLDivElement;
+  private insertion: {target: Element; position: InsertPosition} | null = null;
+  private visible = true;
   private frame: number | null = null;
 
   constructor(document: Document) {
@@ -44,6 +50,9 @@ export class OverlayService {
       :host { all: initial; }
       .box { position: fixed; display: none; box-sizing: border-box; pointer-events: none; border: 2px solid; border-radius: 4px; }
       .badge { position: fixed; display: none; padding: 3px 7px; border-radius: 4px; color: white; font: 600 11px/16px ui-sans-serif, system-ui, sans-serif; pointer-events: none; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .insertion-guide { position: fixed; display: none; box-sizing: border-box; pointer-events: none; border: 2px dashed #7519ff; border-radius: 4px; background: rgba(117,25,255,.04); z-index: 10; }
+      .insertion-guide[data-position="before"], .insertion-guide[data-position="after"] { border: 0; border-top: 2px solid #7519ff; border-radius: 0; background: transparent; }
+      .insertion-badge { background: #7519ff; z-index: 20; }
     `;
     root.appendChild(style);
 
@@ -65,6 +74,16 @@ export class OverlayService {
       this.layers.set(name, { element: null, label: '', box, badge });
     }
 
+    this.insertionGuide = document.createElement('div');
+    this.insertionGuide.className = 'insertion-guide';
+    this.insertionGuide.setAttribute('data-drop-guide', '');
+    this.insertionGuide.setAttribute('aria-hidden', 'true');
+    this.insertionBadge = document.createElement('div');
+    this.insertionBadge.className = 'badge insertion-badge';
+    this.insertionBadge.setAttribute('data-drop-guide-label', '');
+    this.insertionBadge.setAttribute('aria-hidden', 'true');
+    root.append(this.insertionGuide, this.insertionBadge);
+
     document.documentElement.appendChild(this.host);
   }
 
@@ -82,22 +101,47 @@ export class OverlayService {
     layer.badge.style.display = 'none';
   }
 
+  showInsertion(target: Element, position: InsertPosition): void {
+    this.insertion = {target, position};
+    this.insertionGuide.dataset.position = position;
+    this.scheduleRender();
+  }
+
+  hideInsertion(): void {
+    this.insertion = null;
+    this.insertionGuide.style.display = 'none';
+    this.insertionBadge.style.display = 'none';
+  }
+
+  setVisible(visible: boolean): void {
+    if (this.visible === visible) return;
+    this.visible = visible;
+    this.host.style.display = visible ? '' : 'none';
+    if (visible) this.scheduleRender();
+    else this.cancelFrame();
+  }
+
   refresh(): void {
     this.scheduleRender();
   }
 
   destroy(): void {
+    this.cancelFrame();
+    this.hideInsertion();
+    this.host.remove();
+    this.layers.clear();
+  }
+
+  private cancelFrame(): void {
     if (this.frame !== null) {
       this.document.defaultView?.cancelAnimationFrame?.(this.frame);
       this.document.defaultView?.clearTimeout(this.frame);
       this.frame = null;
     }
-    this.host.remove();
-    this.layers.clear();
   }
 
   private scheduleRender(): void {
-    if (this.frame !== null) return;
+    if (!this.visible || this.frame !== null) return;
     const view = this.document.defaultView;
     const render = () => {
       this.frame = null;
@@ -109,6 +153,7 @@ export class OverlayService {
   }
 
   private render(): void {
+    if (!this.visible) return;
     for (const layer of this.layers.values()) {
       const element = layer.element;
       if (!element?.isConnected) {
@@ -132,5 +177,33 @@ export class OverlayService {
         top: `${Math.max(0, rect.top - 22)}px`,
       });
     }
+    this.renderInsertion();
+  }
+
+  private renderInsertion(): void {
+    const insertion = this.insertion;
+    if (!insertion?.target.isConnected) {
+      this.insertionGuide.style.display = 'none';
+      this.insertionBadge.style.display = 'none';
+      return;
+    }
+    const rect = insertion.target.getBoundingClientRect();
+    const outside = insertion.position === 'before' || insertion.position === 'after';
+    const top = insertion.position === 'after' ? rect.bottom : rect.top;
+    Object.assign(this.insertionGuide.style, {
+      display: 'block',
+      left: `${rect.left}px`,
+      top: `${top}px`,
+      width: `${rect.width}px`,
+      height: `${outside ? 2 : rect.height}px`,
+    });
+    this.insertionBadge.textContent = outside
+      ? insertion.position === 'before' ? 'Вставить перед' : 'Вставить после'
+      : 'Вставить внутрь';
+    Object.assign(this.insertionBadge.style, {
+      display: 'block',
+      left: `${Math.max(0, rect.left)}px`,
+      top: `${Math.max(0, top - 24)}px`,
+    });
   }
 }

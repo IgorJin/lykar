@@ -1,0 +1,11 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "typecheck:e2e"
+  ],
+  "startedAt": "2026-10-03T15:33:56.906Z",
+  "endedAt": "2026-10-03T15:33:57.662Z",
+  "code": 0,
+  "signal": null
+}

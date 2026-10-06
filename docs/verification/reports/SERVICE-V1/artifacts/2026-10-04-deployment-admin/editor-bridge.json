@@ -1,0 +1,15 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "test",
+    "--workspace",
+    "@lykar/editor-bridge",
+    "--",
+    "--maxWorkers=1"
+  ],
+  "startedAt": "2026-10-04T18:40:49.907Z",
+  "endedAt": "2026-10-04T18:41:03.473Z",
+  "code": 1,
+  "signal": null
+}

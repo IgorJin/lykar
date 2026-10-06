@@ -7,6 +7,7 @@ export const SESSION_COOKIE = 'lykar_session';
 
 type AuthRoutesOptions = {
   service: AuthService;
+  emailCooldownSeconds: number;
   devAuth: boolean;
   secureCookies: boolean;
   sessionTtlSeconds: number;
@@ -57,6 +58,9 @@ export function sessionCookie(token: string, maxAge: number, secure: boolean): s
 
 const authRoutes: FastifyPluginAsync<AuthRoutesOptions> = async (fastify, options) => {
   const requireSession = createSessionGuard(options.service);
+  fastify.addHook('onRequest', async (request, reply) => {
+    if (request.url.startsWith('/api/auth/')) reply.header('Cache-Control', 'no-store');
+  });
 
   fastify.get('/api/auth/dev-login', async () => ({ enabled: options.devAuth }));
 
@@ -81,18 +85,27 @@ const authRoutes: FastifyPluginAsync<AuthRoutesOptions> = async (fastify, option
       },
     },
     async (request, reply) => {
-      await options.service.requestMagicLink(request.body.email);
-      return reply.code(202).send({ accepted: true });
+      reply.header('Cache-Control', 'no-store');
+      await options.service.requestMagicLink(request.body.email, request.ip);
+      return reply.code(202).send({ accepted: true, ...(options.emailCooldownSeconds ? { retryAfterSeconds: options.emailCooldownSeconds } : {}) });
     },
   );
 
   fastify.get<{ Querystring: { token?: string } }>(
     '/api/auth/verify',
     async (request, reply) => {
-      const session = await options.service.verifyMagicLink(request.query.token);
-      reply.header('Set-Cookie', sessionCookie(session.token, options.sessionTtlSeconds, options.secureCookies));
+      reply.header('Cache-Control', 'no-store');
       reply.header('Referrer-Policy', 'no-referrer');
-      return reply.redirect('/admin/');
+      try {
+        const session = await options.service.verifyMagicLink(request.query.token);
+        reply.header('Set-Cookie', sessionCookie(session.token, options.sessionTtlSeconds, options.secureCookies));
+        return reply.redirect('/admin/');
+      } catch (error) {
+        if (error instanceof UnauthorizedError && request.headers.accept?.includes('text/html')) {
+          return reply.redirect('/admin/?authError=invalid-link');
+        }
+        throw error;
+      }
     },
   );
 

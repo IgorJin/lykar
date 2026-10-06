@@ -1,0 +1,12 @@
+{
+  "command": [
+    "npx",
+    "playwright",
+    "test",
+    "tests/e2e/onboarding.spec.ts",
+    "--reporter=line,json"
+  ],
+  "startedAt": "2026-10-06T19:56:27.561237+00:00",
+  "durationSeconds": 45.85,
+  "exitCode": 1
+}

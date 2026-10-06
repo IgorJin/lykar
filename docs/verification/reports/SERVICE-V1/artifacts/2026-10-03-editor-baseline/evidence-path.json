@@ -1,0 +1,16 @@
+{
+  "command": [
+    "npx",
+    "playwright",
+    "test",
+    "tests/e2e/style-editor-acceptance.spec.ts",
+    "tests/e2e/style-matrix.spec.ts",
+    "--project=chromium",
+    "--reporter=line,json,html",
+    "--output=docs/verification/reports/SERVICE-V1/artifacts/2026-10-03-editor-baseline/evidence-path-results"
+  ],
+  "startedAt": "2026-10-03T15:32:47.059Z",
+  "endedAt": "2026-10-03T15:33:24.564Z",
+  "code": 0,
+  "signal": null
+}

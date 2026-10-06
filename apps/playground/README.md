@@ -4,6 +4,18 @@ Static test site for real editor/runtime interaction. It contains `/` and
 `/pricing`; each pathname maps to an independent backend page with its own
 draft and immutable release sequence.
 
+The included React application is served at
+<http://127.0.0.1:4173/__e2e__/s4-react-csr-a> (Alpha) and
+<http://127.0.0.1:4173/__e2e__/s4-react-csr-b> (Beta). Its source is
+`tests/fixtures/spa/react-app.mjs`. It provides routing, controlled inputs,
+state-dependent buttons, rerendering and component remounting. The fixture
+uses the React adapter from `@lykar/frameworks` and the same SDK/editor assets
+as the normal playground.
+
+To edit it, create/select a page in the local admin with the matching pathname
+and click **Открыть редактор**. In the editor, the eye icon enables preview so
+the React application's inputs and buttons receive their normal events.
+
 The recommended workflow starts the whole stack from the repository root:
 
 ```sh

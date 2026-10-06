@@ -1,0 +1,4 @@
+
+> lykar@0.0.0 typecheck:e2e
+> tsc --noEmit -p tests/e2e/tsconfig.json
+

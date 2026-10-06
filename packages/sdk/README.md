@@ -54,6 +54,44 @@ the former single SDK asset.
 See [COMPATIBILITY.md](./COMPATIBILITY.md) for the supported entry-point matrix
 and version boundaries.
 
+## Explicit deployment delivery
+
+Set `delivery: 'deployment'` to resolve the active Release for ordinary visits.
+The default `links-only` still leaves ordinary pages unchanged. Publish freezes a
+Release; only the separate Deploy action selects it for visitors.
+
+The SDK requests `GET /api/runtime/projects/:projectKey/deployment?pathname=...`
+with `credentials: 'omit'` and `cache: 'no-store'`. The browser supplies Origin;
+the API requires a verified project origin. No authorization token, editor asset,
+assignment, exposure or conversion event is used for this delivery mode.
+
+There is no shared SDK pointer cache or live push. Concurrent/repeated `start()`
+calls share the same page generation. `refresh()`, navigation and a new page load
+resolve the latest committed revision, first cleaning up the old generation.
+Disable returns the original page; Rollback resolves the selected older Release.
+Cleanup preserves newer host-owned changes. Report metadata is available as
+`result.runtime.deployment` (`pageId`, `revision`, `activeReleaseId`).
+
+Explicit editor/share/version/QA/experiment selection is isolated from deployment,
+including empty, repeated, invalid and conflicting selectors. Native A remains
+native. Invalid selection reports an access error without changing the host page
+or falling back to the active deployment.
+
+Deployment transport/validation failure returns native `DEPLOYMENT_UNAVAILABLE`;
+no active pointer returns `NO_ACTIVE_DEPLOYMENT`. Failed or partial unconditional
+replay compensates owned mutations and returns `DEPLOYMENT_APPLY_FAILED`, with
+`runtime.report` when replay diagnostics exist. Conditional rules retain their
+existing readiness/source-state semantics; inactive or not-yet-mounted targets
+can become active later. The SDK does not hide the host page.
+
+The existing defaults remain: network deadline 5000 ms, replay 2000 ms, lazy
+runtime asset loading 10000 ms (in addition to asset-manifest resolution). These
+are separate phase limits, not a combined delivery SLA. A finite positive
+`networkTimeoutMs` overrides the network default; invalid values use the default.
+The deadline covers response body reading and settles even if a custom fetch
+ignores cancellation. A stale generation cannot apply its late response.
+New service performance budgets remain subject to SERVICE-V1-02/18 agreement.
+
 ## PageSession lifecycle
 
 Every SDK instance owns one generation-scoped `PageSession`. `start()` is
@@ -94,3 +132,46 @@ remains native. Internal conditions with identical original text are not inferre
 
 See [COMPATIBILITY.md](./COMPATIBILITY.md) for tested versions, SSR boundaries,
 style/CSP constraints and `conditionalState` diagnostics.
+
+## Admin preview diagnostics
+
+Authenticated explicit-version previews install a read-only `postMessage` report
+bridge for their current PageSession. The request must come from the API/Admin
+origin and match the Page and Release, with a bounded nonce. The reply contains
+only IDs, operation kind/status/code, structural compatibility and check time;
+capabilities, selectors, text and values are not sent. Ordinary deployment,
+experiment traffic and native visits do not install this bridge.
+
+Admin binds the report to the popup it opened, an allowed project origin, the
+nonce and the selected Release. It labels absent reports as unchecked. The report
+is advisory for that one preview: it is not server authorization, continuous
+monitoring, CSS drift detection or a guarantee for every visitor. Known mutation
+errors and missing targets block activation of that checked version in the panel.
+
+EditorSession now owns replay of base Release commands and Draft commands together.
+This lets manual repairs supersede a missing base target before replay, without a
+second runtime applying stale commands underneath the editor. Imported base writes
+are compensated when the editor is destroyed, preserving newer host/Draft writes.
+
+## Explicit connection diagnostics
+
+SERVICE-V1-08 adds a passive `lykar:connection-check` listener scoped to the
+configured API origin and current pathname/generation. Ordinary visits perform
+no diagnostic network calls. On a valid Admin popup challenge, the SDK checks
+anonymous API connectivity, runtime/editor assets and CSP; it loads verified
+bundles but does not start the editor or apply a manifest. Destroy/navigation
+invalidates the listener and suppresses late reports. Reports contain no page
+query/hash, capabilities or raw exception messages.
+
+For a genuinely static page use `frameworkMode: 'static'`. Supported instrumented
+React/Vue CSR and ordinary hydration use the existing framework-root readiness
+registry; optional `frameworkMode: 'csr' | 'hydrated'` constrains the expected mode.
+Without a declaration or instrumented ready root, readiness remains pending.
+`streaming`/`rsc` are reported unsupported; this is not automatic detection of every
+framework. Static mode is a caller declaration, not proof that no framework exists.
+
+The report distinguishes API reachability, runtime/editor asset availability,
+readiness and observed enforcing CSP connect/script/style restrictions. Report-only
+CSP is not a failure. A blocked or absent SDK cannot respond: Admin reports the
+check as inconclusive. Asset availability and a ready root do not prove that every
+future edit or editor session will succeed. This diagnostic does not grant ownership.

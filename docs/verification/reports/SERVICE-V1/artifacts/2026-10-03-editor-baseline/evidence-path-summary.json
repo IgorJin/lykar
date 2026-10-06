@@ -1,0 +1,42 @@
+{
+  "stats": {
+    "startTime": "2026-10-03T15:32:47.557Z",
+    "duration": 36964.027,
+    "expected": 6,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "tests": [
+    {
+      "title": "S2-06.8 script: SDK style families, keyboard, persistence and visitor share",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "S2-06.8 module: SDK style families, keyboard, persistence and visitor share",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "S2 style matrix: layers, priorities, raw fallback, SVG, invalid input and share",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "S2 style budget: 1000 node selection and input preview p95",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "S2 style budget: native visitor never requests editor UI",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "S2 editor acceptance: keyboard controls, zoom, nested scroll and static copy warning",
+      "project": "chromium",
+      "status": "expected"
+    }
+  ]
+}

@@ -1,0 +1,2651 @@
+{
+  "config": {
+    "argv": [
+      "/Users/igorjan/.hermes/node/bin/node",
+      "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/node_modules/.bin/playwright",
+      "test",
+      "tests/e2e/onboarding.spec.ts",
+      "tests/e2e/site-connection.spec.ts",
+      "tests/e2e/auth-and-editor.spec.ts",
+      "--reporter=line,json"
+    ],
+    "configFile": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/playwright.config.ts",
+    "rootDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/global-setup.ts",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/(style-(editor-acceptance|matrix)|s4-(spa-critical|conditional-flow)|deployment-(flow|admin|repair)|auth-and-editor|site-connection|onboarding)\\.spec\\.ts/"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/(style-(editor-acceptance|matrix)|s4-(spa-critical|conditional-flow)|deployment-(flow|admin|repair)|auth-and-editor|site-connection|onboarding)\\.spec\\.ts/"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "auth-and-editor.spec.ts",
+      "file": "auth-and-editor.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "local owner login survives reload and opens the editor from the Admin click",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7111,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T19:59:05.064Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-5f26553b21eb6e639dd1",
+          "file": "auth-and-editor.spec.ts",
+          "line": 5,
+          "column": 5
+        },
+        {
+          "title": "magic link signs in without dev auth and cannot be reused",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 439,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T19:59:12.754Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-599133154dbc27dde159",
+          "file": "auth-and-editor.spec.ts",
+          "line": 29,
+          "column": 5
+        },
+        {
+          "title": "playground without editor capability exposes a working Admin button",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 383,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T19:59:13.198Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-7f3eb27b61e1acd26ac2",
+          "file": "auth-and-editor.spec.ts",
+          "line": 46,
+          "column": 5
+        },
+        {
+          "title": "new independent customer signs up, resends, creates a site and logs out (desktop)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3932,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T19:59:13.586Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-e76b249500100ab38ad2",
+          "file": "auth-and-editor.spec.ts",
+          "line": 77,
+          "column": 7
+        },
+        {
+          "title": "new independent customer signs up, resends, creates a site and logs out (mobile)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3826,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T19:59:17.523Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-385c08828bb1bb253b1d",
+          "file": "auth-and-editor.spec.ts",
+          "line": 77,
+          "column": 7
+        },
+        {
+          "title": "signup send failure preserves email and permits retry without reporting success",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 361,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T19:59:21.353Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-871946c89a169e971edd",
+          "file": "auth-and-editor.spec.ts",
+          "line": 142,
+          "column": 5
+        },
+        {
+          "title": "email request limit shows cooldown and allows another address",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4336,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T19:59:21.718Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-abe40005868034271fbf",
+          "file": "auth-and-editor.spec.ts",
+          "line": 160,
+          "column": 5
+        },
+        {
+          "title": "local owner login survives reload and opens the editor from the Admin click",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7413,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T19:59:42.930Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-22c55920e1d87a22a208",
+          "file": "auth-and-editor.spec.ts",
+          "line": 5,
+          "column": 5
+        },
+        {
+          "title": "magic link signs in without dev auth and cannot be reused",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 413,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T19:59:50.838Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-be356dd6eb62e3670fd1",
+          "file": "auth-and-editor.spec.ts",
+          "line": 29,
+          "column": 5
+        },
+        {
+          "title": "playground without editor capability exposes a working Admin button",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 396,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T19:59:51.254Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-02b5a9ba729245226770",
+          "file": "auth-and-editor.spec.ts",
+          "line": 46,
+          "column": 5
+        },
+        {
+          "title": "new independent customer signs up, resends, creates a site and logs out (desktop)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4002,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T19:59:51.655Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-f30b0612f770f2e92492",
+          "file": "auth-and-editor.spec.ts",
+          "line": 77,
+          "column": 7
+        },
+        {
+          "title": "new independent customer signs up, resends, creates a site and logs out (mobile)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3648,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T19:59:55.662Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-074371a35cd88bd6e987",
+          "file": "auth-and-editor.spec.ts",
+          "line": 77,
+          "column": 7
+        },
+        {
+          "title": "signup send failure preserves email and permits retry without reporting success",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 299,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T19:59:59.315Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-c567b13c095c4d607afe",
+          "file": "auth-and-editor.spec.ts",
+          "line": 142,
+          "column": 5
+        },
+        {
+          "title": "email request limit shows cooldown and allows another address",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4264,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T19:59:59.618Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-53ef64df324c2c2f9450",
+          "file": "auth-and-editor.spec.ts",
+          "line": 160,
+          "column": 5
+        },
+        {
+          "title": "local owner login survives reload and opens the editor from the Admin click",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7283,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:21.997Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-b4bff5e5a1854a6691cc",
+          "file": "auth-and-editor.spec.ts",
+          "line": 5,
+          "column": 5
+        },
+        {
+          "title": "magic link signs in without dev auth and cannot be reused",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 440,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:29.479Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-9c70300a524669b0208d",
+          "file": "auth-and-editor.spec.ts",
+          "line": 29,
+          "column": 5
+        },
+        {
+          "title": "playground without editor capability exposes a working Admin button",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 397,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:29.924Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-f63cf4d297e260ab12cd",
+          "file": "auth-and-editor.spec.ts",
+          "line": 46,
+          "column": 5
+        },
+        {
+          "title": "new independent customer signs up, resends, creates a site and logs out (desktop)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3846,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:30.327Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-bd74111a568355393176",
+          "file": "auth-and-editor.spec.ts",
+          "line": 77,
+          "column": 7
+        },
+        {
+          "title": "new independent customer signs up, resends, creates a site and logs out (mobile)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3766,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:34.179Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-b1442ebcfe672dd2cd5e",
+          "file": "auth-and-editor.spec.ts",
+          "line": 77,
+          "column": 7
+        },
+        {
+          "title": "signup send failure preserves email and permits retry without reporting success",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 355,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:37.951Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-61e39252cdbc393fd2a8",
+          "file": "auth-and-editor.spec.ts",
+          "line": 142,
+          "column": 5
+        },
+        {
+          "title": "email request limit shows cooldown and allows another address",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4336,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:38.309Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-ec210c6debfc0c72e4cf",
+          "file": "auth-and-editor.spec.ts",
+          "line": 160,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "onboarding.spec.ts",
+      "file": "onboarding.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "new customer installs copied snippet and saves first preview (desktop)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2192,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T19:59:26.064Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-f23afdf93123c5f256a4",
+          "file": "onboarding.spec.ts",
+          "line": 6,
+          "column": 39
+        },
+        {
+          "title": "new customer installs copied snippet and saves first preview (mobile keyboard)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2209,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T19:59:28.261Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-8826a26e998e88248775",
+          "file": "onboarding.spec.ts",
+          "line": 6,
+          "column": 39
+        },
+        {
+          "title": "manual pages, origin management and selected sitemap preview stay in the current project",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 884,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T19:59:30.475Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-5d19f4dd368a949f1c3c",
+          "file": "onboarding.spec.ts",
+          "line": 68,
+          "column": 5
+        },
+        {
+          "title": "new customer installs copied snippet and saves first preview (desktop)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2915,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:03.891Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-65e749be2cd9d6bc223f",
+          "file": "onboarding.spec.ts",
+          "line": 6,
+          "column": 39
+        },
+        {
+          "title": "new customer installs copied snippet and saves first preview (mobile keyboard)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2543,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:06.810Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-1d8dbab4ee0f737a6380",
+          "file": "onboarding.spec.ts",
+          "line": 6,
+          "column": 39
+        },
+        {
+          "title": "manual pages, origin management and selected sitemap preview stay in the current project",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 832,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:09.358Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-c13501caa267940aaa62",
+          "file": "onboarding.spec.ts",
+          "line": 68,
+          "column": 5
+        },
+        {
+          "title": "new customer installs copied snippet and saves first preview (desktop)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2629,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:42.654Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-d52cb0b18a1b11e3b35f",
+          "file": "onboarding.spec.ts",
+          "line": 6,
+          "column": 39
+        },
+        {
+          "title": "new customer installs copied snippet and saves first preview (mobile keyboard)",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1370,
+                  "error": {
+                    "message": "Error: {\"width\":390,\"actual\":609,\"elements\":[{\"tag\":\"DIV\",\"cls\":\"\",\"scroll\":609,\"client\":390,\"width\":390,\"text\":\"LykarУправление сайтамиonboarding-469e5ef1-ad3c-49f7-890c-38e0b4daafc4@example.c\"},{\"tag\":\"MAIN\",\"cls\":\"shell\",\"scroll\":609,\"client\":390,\"width\":390,\"text\":\"LykarУправление сайтамиonboarding-469e5ef1-ad3c-49f7-890c-38e0b4daafc4@example.c\"},{\"tag\":\"DIV\",\"cls\":\"grid\",\"scroll\":587,\"client\":346,\"width\":346,\"text\":\"Новый сайтНазвание сайтаАдрес сайтаСоздатьСайтыНовый сайт onboardinghttp://127.0\"},{\"tag\":\"SECTION\",\"cls\":\"card\",\"scroll\":586,\"client\":344,\"width\":346,\"text\":\"Новый сайт onboardingpk_H3Lc77k9asaPgN6yB9utO3klOwnerМастер подключенияСтраницыУ\"},{\"tag\":\"SECTION\",\"cls\":\"onboarding\",\"scroll\":568,\"client\":308,\"width\":308,\"text\":\"От сайта до первой правкиРазработчик один раз устанавливает SDK на ваш сайт. Пос\"},{\"tag\":\"LABEL\",\"cls\":\"\",\"scroll\":568,\"client\":308,\"width\":308,\"text\":\"Страница для проверки и правкиHome · /Моя страница · /__e2e__/onboarding/c310071\"}]}\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m390\u001b[39m\nReceived:    \u001b[31m609\u001b[39m",
+                    "stack": "Error: {\"width\":390,\"actual\":609,\"elements\":[{\"tag\":\"DIV\",\"cls\":\"\",\"scroll\":609,\"client\":390,\"width\":390,\"text\":\"LykarУправление сайтамиonboarding-469e5ef1-ad3c-49f7-890c-38e0b4daafc4@example.c\"},{\"tag\":\"MAIN\",\"cls\":\"shell\",\"scroll\":609,\"client\":390,\"width\":390,\"text\":\"LykarУправление сайтамиonboarding-469e5ef1-ad3c-49f7-890c-38e0b4daafc4@example.c\"},{\"tag\":\"DIV\",\"cls\":\"grid\",\"scroll\":587,\"client\":346,\"width\":346,\"text\":\"Новый сайтНазвание сайтаАдрес сайтаСоздатьСайтыНовый сайт onboardinghttp://127.0\"},{\"tag\":\"SECTION\",\"cls\":\"card\",\"scroll\":586,\"client\":344,\"width\":346,\"text\":\"Новый сайт onboardingpk_H3Lc77k9asaPgN6yB9utO3klOwnerМастер подключенияСтраницыУ\"},{\"tag\":\"SECTION\",\"cls\":\"onboarding\",\"scroll\":568,\"client\":308,\"width\":308,\"text\":\"От сайта до первой правкиРазработчик один раз устанавливает SDK на ваш сайт. Пос\"},{\"tag\":\"LABEL\",\"cls\":\"\",\"scroll\":568,\"client\":308,\"width\":308,\"text\":\"Страница для проверки и правкиHome · /Моя страница · /__e2e__/onboarding/c310071\"}]}\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m390\u001b[39m\nReceived:    \u001b[31m609\u001b[39m\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts:47:52",
+                    "location": {
+                      "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts",
+                      "column": 52,
+                      "line": 47
+                    },
+                    "snippet": "  45 |   await admin.screenshot({path:testInfo.outputPath(`onboarding-connection-${mobile?'mobile':'desktop'}.png`),fullPage:true});\n  46 |   const overflow=await admin.evaluate(()=>({width:innerWidth,actual:document.documentElement.scrollWidth,elements:[...document.querySelectorAll('body *')].filter(el=>el.getBoundingClientRect().right>innerWidth+1||el.scrollWidth>el.clientWidth+1).slice(0,12).map(el=>({tag:el.tagName,cls:el.className,scroll:el.scrollWidth,client:el.clientWidth,width:el.getBoundingClientRect().width,text:el.textContent?.slice(0,80)}))}));\n> 47 |   expect(overflow.actual,JSON.stringify(overflow)).toBeLessThanOrEqual(overflow.width);\n     |                                                    ^\n  48 |   await admin.getByRole('button',{name:'Далее: Первая правка'}).click();\n  49 |   await admin.getByRole('button',{name:'Создать черновик',exact:true}).click();\n  50 |   const popup=context.waitForEvent('page');await admin.getByRole('button',{name:'Открыть редактор',exact:true}).click();const editor=await popup;"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts",
+                        "column": 52,
+                        "line": 47
+                      },
+                      "message": "Error: {\"width\":390,\"actual\":609,\"elements\":[{\"tag\":\"DIV\",\"cls\":\"\",\"scroll\":609,\"client\":390,\"width\":390,\"text\":\"LykarУправление сайтамиonboarding-469e5ef1-ad3c-49f7-890c-38e0b4daafc4@example.c\"},{\"tag\":\"MAIN\",\"cls\":\"shell\",\"scroll\":609,\"client\":390,\"width\":390,\"text\":\"LykarУправление сайтамиonboarding-469e5ef1-ad3c-49f7-890c-38e0b4daafc4@example.c\"},{\"tag\":\"DIV\",\"cls\":\"grid\",\"scroll\":587,\"client\":346,\"width\":346,\"text\":\"Новый сайтНазвание сайтаАдрес сайтаСоздатьСайтыНовый сайт onboardinghttp://127.0\"},{\"tag\":\"SECTION\",\"cls\":\"card\",\"scroll\":586,\"client\":344,\"width\":346,\"text\":\"Новый сайт onboardingpk_H3Lc77k9asaPgN6yB9utO3klOwnerМастер подключенияСтраницыУ\"},{\"tag\":\"SECTION\",\"cls\":\"onboarding\",\"scroll\":568,\"client\":308,\"width\":308,\"text\":\"От сайта до первой правкиРазработчик один раз устанавливает SDK на ваш сайт. Пос\"},{\"tag\":\"LABEL\",\"cls\":\"\",\"scroll\":568,\"client\":308,\"width\":308,\"text\":\"Страница для проверки и правкиHome · /Моя страница · /__e2e__/onboarding/c310071\"}]}\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m390\u001b[39m\nReceived:    \u001b[31m609\u001b[39m\n\n  45 |   await admin.screenshot({path:testInfo.outputPath(`onboarding-connection-${mobile?'mobile':'desktop'}.png`),fullPage:true});\n  46 |   const overflow=await admin.evaluate(()=>({width:innerWidth,actual:document.documentElement.scrollWidth,elements:[...document.querySelectorAll('body *')].filter(el=>el.getBoundingClientRect().right>innerWidth+1||el.scrollWidth>el.clientWidth+1).slice(0,12).map(el=>({tag:el.tagName,cls:el.className,scroll:el.scrollWidth,client:el.clientWidth,width:el.getBoundingClientRect().width,text:el.textContent?.slice(0,80)}))}));\n> 47 |   expect(overflow.actual,JSON.stringify(overflow)).toBeLessThanOrEqual(overflow.width);\n     |                                                    ^\n  48 |   await admin.getByRole('button',{name:'Далее: Первая правка'}).click();\n  49 |   await admin.getByRole('button',{name:'Создать черновик',exact:true}).click();\n  50 |   const popup=context.waitForEvent('page');await admin.getByRole('button',{name:'Открыть редактор',exact:true}).click();const editor=await popup;\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts:47:52"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:45.288Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/test-failed-2.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/test-failed-1.png"
+                    },
+                    {
+                      "name": "browser-errors",
+                      "contentType": "application/json",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/attachments/browser-errors-c59630519c0fb0659f25745fabb0bb42dcfca751.json"
+                    },
+                    {
+                      "name": "page-1",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/attachments/page-1-f9878d81d0a5348091b17566b79724b34e15af46.png"
+                    },
+                    {
+                      "name": "page-2",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/attachments/page-2-63a288ef124b9054ca1c1cda24b53abefa28d0c2.png"
+                    },
+                    {
+                      "name": "video-0",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/attachments/video-0-8ff5727fb6ca8cd6e2905bba4099c940b5f1c303.webm"
+                    },
+                    {
+                      "name": "video-1",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/attachments/video-1-bdfb05408acc297b43d0616fa736090814de95e7.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts",
+                    "column": 52,
+                    "line": 47
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-6b7aa551a99e69665d0f",
+          "file": "onboarding.spec.ts",
+          "line": 6,
+          "column": 39
+        },
+        {
+          "title": "manual pages, origin management and selected sitemap preview stay in the current project",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1139,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:46.937Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-26b2376f85ea10a29831",
+          "file": "onboarding.spec.ts",
+          "line": 68,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "site-connection.spec.ts",
+      "file": "site-connection.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "connection probe: ok",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 735,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T19:59:31.368Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-92a24db527dbc9115817",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: wrong-key",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 712,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T19:59:32.108Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-74bf8258ad03f5ca9a1d",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: runtime-missing",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 721,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T19:59:32.826Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-7e7ea24969c95e3fd24f",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: editor-missing",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 724,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T19:59:33.551Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-0d91d7b78bdb50bbb427",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: csp-connect",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 724,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T19:59:34.280Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-e64e79c24c7737bc428f",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: csp-script",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 739,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T19:59:35.010Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-015e8cd7e35e0463695f",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: csp-style",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 745,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T19:59:35.754Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-ba76c1ef36336e9284a9",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: streaming",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 734,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T19:59:36.504Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-741c53c182bbab56ff30",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: missing-sdk",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1395,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T19:59:37.244Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-51e5b02d517fac1482da",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: react-csr",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 804,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T19:59:38.645Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-bbf6c570fd76b3cc0604",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: react-ssr",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 786,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T19:59:39.455Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-d6b0269b071eae6297f8",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: vue-csr",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 747,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T19:59:40.245Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-d76e52b851df8d43b193",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: vue-ssr",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 759,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T19:59:40.996Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-4851f83d725a638cf612",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "Admin connection tab verifies loopback explicitly and shows a dated probe result",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 846,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T19:59:41.761Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-f410ef882b8db536da44",
+          "file": "site-connection.spec.ts",
+          "line": 59,
+          "column": 5
+        },
+        {
+          "title": "connection probe: ok",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 699,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:10.198Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-f05d05450ba4da7bb784",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: wrong-key",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 769,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:10.902Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-837d33582cd237feb308",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: runtime-missing",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 730,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:11.677Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-4d8a9bf86404e32cde91",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: editor-missing",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 721,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:12.412Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-6075606734b00997cd62",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: csp-connect",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 689,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:13.139Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-4336638fdb9c53ebefc2",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: csp-script",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 728,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:13.832Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-e1c3ca56f656d395386e",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: csp-style",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 730,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:14.565Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-46cbf2077f4e01c318e7",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: streaming",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1073,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:15.300Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-ecf252a183194b411cf6",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: missing-sdk",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1357,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:16.379Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-9c2844aac9c70741eb38",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: react-csr",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 754,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:17.741Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-014a47a3c7bc242448a3",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: react-ssr",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 734,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:18.500Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-ac33116eb1373a7e6ba8",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: vue-csr",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 742,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:19.238Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-463eb599e6104b829a72",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: vue-ssr",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 744,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:19.985Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-7fd07e4d941e6874b041",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "Admin connection tab verifies loopback explicitly and shows a dated probe result",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 812,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:20.734Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-fa6e48e6cf9d84d48894",
+          "file": "site-connection.spec.ts",
+          "line": 59,
+          "column": 5
+        },
+        {
+          "title": "connection probe: ok",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 796,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:48.255Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-94b4dde62d34b235062c",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: wrong-key",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 771,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:49.056Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-be72a34bfbdceb1d8905",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: runtime-missing",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 764,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:49.832Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-efead91f4fcff095b28b",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: editor-missing",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 771,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:50.601Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-901599db139f202e7f22",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: csp-connect",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 770,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:51.377Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-1919a55c0d4c9e1bf7fc",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: csp-script",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 503,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:52.152Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-7d3b9875c081e8a3892f",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: csp-style",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 764,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:52.659Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-1e72d6fd01bfcceb8f07",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: streaming",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 775,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:53.429Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-2501165ef32a4e76fc94",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: missing-sdk",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1388,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:54.209Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-dcb80945595f1fe32fbd",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: react-csr",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 808,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:55.602Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-1aceab95802a9e14e976",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: react-ssr",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 798,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:56.414Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-079b7f025e2f9714d780",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: vue-csr",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 789,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:57.217Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-c1efa61219fb0608c1e2",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "connection probe: vue-ssr",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 784,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:58.011Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-3065e08038cb3e161edb",
+          "file": "site-connection.spec.ts",
+          "line": 8,
+          "column": 7
+        },
+        {
+          "title": "Admin connection tab verifies loopback explicitly and shows a dated probe result",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 774,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T20:00:58.800Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3e87961feb8005929615-981a66644eb47317b194",
+          "file": "site-connection.spec.ts",
+          "line": 59,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-06T19:58:51.990Z",
+    "duration": 127781.605,
+    "expected": 71,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

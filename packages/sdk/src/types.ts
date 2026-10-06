@@ -83,6 +83,8 @@ export type LykarSdkOptions = {
   editorAssetOrigin?: string;
   editorAssetTimeoutMs?: number;
   runtimeAssetTimeoutMs?: number;
+  /** Explicit supported page mode; omitted/uninstrumented pages report readiness as pending. */
+  frameworkMode?: 'static' | 'csr' | 'hydrated' | 'streaming' | 'rsc';
   onReport?: (report: ApplyReport) => void;
   onDiagnostic?: (diagnostic: CompensationDiagnostic) => void;
   onConditionalDiagnostic?: (diagnostic: {groupId: string; code: string; message: string}) => void;

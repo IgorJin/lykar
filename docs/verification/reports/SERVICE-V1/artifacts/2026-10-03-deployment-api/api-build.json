@@ -1,0 +1,13 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "build",
+    "--workspace",
+    "lykar-lib-server"
+  ],
+  "startedAt": "2026-10-03T20:39:21.199Z",
+  "endedAt": "2026-10-03T20:39:23.079Z",
+  "code": 0,
+  "signal": null
+}

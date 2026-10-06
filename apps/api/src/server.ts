@@ -2,11 +2,15 @@ import dotenv from 'dotenv';
 import { appendFile } from 'node:fs/promises';
 
 import { buildApp } from './app';
+import { emailRuntimeFromEnvironment } from './email/config';
 
 dotenv.config();
 
 const port = Number(process.env.PORT ?? 3000);
 const devAuth = process.env.LYKAR_DEV_AUTH === '1';
+if (devAuth && process.env.NODE_ENV === 'production') {
+  throw new Error('LYKAR_DEV_AUTH is only available outside production');
+}
 const host = process.env.HOST ?? (devAuth ? '127.0.0.1' : '0.0.0.0');
 if (devAuth && !isLoopbackHost(host)) {
   throw new Error('LYKAR_DEV_AUTH requires HOST to be localhost or a loopback address');
@@ -21,16 +25,23 @@ const allowedOrigins = (process.env.CORS_ALLOWED_ORIGINS ?? '')
   .map(origin => origin.trim())
   .filter(Boolean);
 
+const emailRuntime = emailRuntimeFromEnvironment(process.env);
+const fileSender = emailRuntime.mode === 'file' ? {
+  async send(input: { email: string; url: string; expiresAt: string; deliveryId?: string }) {
+    await appendFile(magicLinkFile!, `${JSON.stringify(input)}\n`, { encoding: 'utf8', mode: 0o600 });
+  },
+} : undefined;
 const server = buildApp({
+  siteAllowLoopback: devAuth && process.env.NODE_ENV !== 'production',
+  emailProviders: emailRuntime.providers,
+  emailLimitSecret: emailRuntime.limitSecret,
+  emailLimits: emailRuntime.limits,
   connectionString: process.env.DATABASE_URL,
   appOrigin,
   ownerEmail: process.env.LYKAR_OWNER_EMAIL ?? 'owner@lykar.local',
   devAuth,
-  magicLinkSender: magicLinkFile ? {
-    async send(input) {
-      await appendFile(magicLinkFile, `${JSON.stringify(input)}\n`, { encoding: 'utf8', mode: 0o600 });
-    },
-  } : undefined,
+  magicLinkSender: fileSender,
+  invitationSender: fileSender,
   allowedOrigins,
   logger: true,
   analyticsSigningSecret: process.env.LYKAR_ANALYTICS_SIGNING_SECRET,

@@ -154,6 +154,10 @@ pointer определяет гарантируемую задержку deploy/
 все уже открытые вкладки: новые resolve получают новый pointer, открытая SPA
 обновляется на согласованном lifecycle event/refresh. Live push — отдельная задача.
 
+SERVICE-V1 уточняет эту целевую модель в [контракте сервиса](./service-v1-contract.md).
+Приоритет после S4 — SERVICE-V1. Предложение 60 секунд выше не утверждено;
+вариант без shared decision cache и новые delivery budgets вынесены на решение D03–D05.
+
 ## 5. SPA — отдельный lifecycle
 
 Текущий runtime сохраняет `pathname` в constructor и отмечает release как
@@ -379,9 +383,9 @@ session, editing capability — scoped permission. Эти четыре поня�
 operations: создать задание с ожидаемым состоянием и проверить реализацию в source.
 Ветка X1–X3 включена в план 2026-09-20; модуль ещё не реализован. X1 использует
 core S2 и версии/share S3. X2 использует frozen contract, строгий resolver и
-browser harness; рабочий приоритет — после первого adapter S4. Static-only
+browser harness; с 2026-10-03 X1/X2 отложены за пределы SERVICE-V1. Static-only
 validator технически не зависит от React; SPA contexts требуют S4. X3 решает
-вопрос включения полноценной функции в обязательную V1.
+вопрос дальнейшего развития функции отдельно от SERVICE-V1.
 
 Архитектурные границы для прототипа:
 

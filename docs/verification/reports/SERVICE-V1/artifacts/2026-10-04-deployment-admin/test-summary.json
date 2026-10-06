@@ -1,0 +1,805 @@
+{
+  "generatedAt": "2026-10-05T08:05:44.811921+00:00",
+  "checks": {
+    "build-final": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "startedAt": "2026-10-05T08:00:37.445Z",
+      "endedAt": "2026-10-05T08:01:00.806Z",
+      "code": 0,
+      "signal": null
+    },
+    "typecheck-final": {
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "startedAt": "2026-10-05T08:01:36.327Z",
+      "endedAt": "2026-10-05T08:01:48.849Z",
+      "code": 0,
+      "signal": null
+    },
+    "protocol": {
+      "command": [
+        "npm",
+        "run",
+        "test",
+        "--workspace",
+        "@lykar/protocol"
+      ],
+      "startedAt": "2026-10-04T18:40:40.141Z",
+      "endedAt": "2026-10-04T18:40:41.039Z",
+      "code": 0,
+      "signal": null
+    },
+    "editor-bridge-final": {
+      "command": [
+        "npm",
+        "run",
+        "test",
+        "--workspace",
+        "@lykar/editor-bridge",
+        "--",
+        "--maxWorkers=1"
+      ],
+      "startedAt": "2026-10-04T18:43:23.522Z",
+      "endedAt": "2026-10-04T18:43:36.703Z",
+      "code": 0,
+      "signal": null
+    },
+    "runtime-final": {
+      "command": [
+        "npm",
+        "run",
+        "test",
+        "--workspace",
+        "@lykar/runtime",
+        "--",
+        "--maxWorkers=1"
+      ],
+      "startedAt": "2026-10-04T18:44:06.054Z",
+      "endedAt": "2026-10-04T18:44:09.462Z",
+      "code": 0,
+      "signal": null
+    },
+    "sdk": {
+      "command": [
+        "npm",
+        "run",
+        "test",
+        "--workspace",
+        "@lykar/sdk",
+        "--",
+        "--maxWorkers=1"
+      ],
+      "startedAt": "2026-10-04T18:42:09.353Z",
+      "endedAt": "2026-10-04T18:42:13.679Z",
+      "code": 0,
+      "signal": null
+    },
+    "api-http": {
+      "command": [
+        "npm",
+        "run",
+        "test:e2e:http"
+      ],
+      "startedAt": "2026-10-04T18:44:50.393Z",
+      "endedAt": "2026-10-04T18:45:14.822Z",
+      "code": 0,
+      "signal": null
+    },
+    "browser-final": {
+      "command": [
+        "env",
+        "PLAYWRIGHT_JSON_OUTPUT_FILE=docs/verification/reports/SERVICE-V1/artifacts/2026-10-04-deployment-admin/browser-results.json",
+        "npx",
+        "playwright",
+        "test",
+        "tests/e2e/deployment-admin.spec.ts",
+        "tests/e2e/deployment-repair.spec.ts",
+        "tests/e2e/deployment-flow.spec.ts",
+        "tests/e2e/versioning-flow.spec.ts",
+        "tests/e2e/persistence-recovery.spec.ts",
+        "tests/e2e/s4-conditional-flow.spec.ts",
+        "tests/e2e/s4-spa-critical.spec.ts",
+        "tests/e2e/s3-acceptance.spec.ts",
+        "tests/e2e/auth-and-editor.spec.ts",
+        "tests/e2e/page-session-lifecycle.spec.ts",
+        "tests/e2e/replay-safety.spec.ts",
+        "--reporter=line,json"
+      ],
+      "startedAt": "2026-10-05T08:03:00.737Z",
+      "endedAt": "2026-10-05T08:04:46.398Z",
+      "code": 0,
+      "signal": null
+    }
+  },
+  "unit": {
+    "protocol": 23,
+    "editorBridge": 86,
+    "runtime": 109,
+    "sdk": 84
+  },
+  "apiPostgres": 31,
+  "httpSmoke": "PASS",
+  "browser": {
+    "total": 74,
+    "projects": {
+      "chromium": 32,
+      "firefox": 21,
+      "webkit": 21
+    },
+    "cases": [
+      {
+        "file": "auth-and-editor.spec.ts",
+        "title": "local owner login survives reload and opens the editor from the Admin click",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "auth-and-editor.spec.ts",
+        "title": "magic link signs in without dev auth and cannot be reused",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "auth-and-editor.spec.ts",
+        "title": "playground without editor capability exposes a working Admin button",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-admin.spec.ts",
+        "title": "Owner separately deploys, rolls back and disables; actor/reasons remain readable on mobile and keyboard",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-admin.spec.ts",
+        "title": "real preview popup reports applicability; no report stays unchecked and missing target blocks deployment",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-admin.spec.ts",
+        "title": "a real second Owner revision conflict refreshes state and preserves the chosen release and reason",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-admin.spec.ts",
+        "title": "a committed command with lost response retries the identical key and adds one history entry",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-admin.spec.ts",
+        "title": "Owner separately deploys, rolls back and disables; actor/reasons remain readable on mobile and keyboard",
+        "project": "firefox",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-admin.spec.ts",
+        "title": "real preview popup reports applicability; no report stays unchecked and missing target blocks deployment",
+        "project": "firefox",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-admin.spec.ts",
+        "title": "a real second Owner revision conflict refreshes state and preserves the chosen release and reason",
+        "project": "firefox",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-admin.spec.ts",
+        "title": "a committed command with lost response retries the identical key and adds one history entry",
+        "project": "firefox",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-admin.spec.ts",
+        "title": "Owner separately deploys, rolls back and disables; actor/reasons remain readable on mobile and keyboard",
+        "project": "webkit",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-admin.spec.ts",
+        "title": "real preview popup reports applicability; no report stays unchecked and missing target blocks deployment",
+        "project": "webkit",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-admin.spec.ts",
+        "title": "a real second Owner revision conflict refreshes state and preserves the chosen release and reason",
+        "project": "webkit",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-admin.spec.ts",
+        "title": "a committed command with lost response retries the identical key and adds one history entry",
+        "project": "webkit",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "script: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "module: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "react csr: deployment respects host hydration, route transitions, remount and disable",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "react ssr: deployment respects host hydration, route transitions, remount and disable",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "vue csr: deployment respects host hydration, route transitions, remount and disable",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "vue ssr: deployment respects host hydration, route transitions, remount and disable",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "invalid deployment and unavailable runtime asset leave the original page visible",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "browser deadlines and retired requests leave the host available",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "script: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation",
+        "project": "firefox",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "module: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation",
+        "project": "firefox",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "react csr: deployment respects host hydration, route transitions, remount and disable",
+        "project": "firefox",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "react ssr: deployment respects host hydration, route transitions, remount and disable",
+        "project": "firefox",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "vue csr: deployment respects host hydration, route transitions, remount and disable",
+        "project": "firefox",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "vue ssr: deployment respects host hydration, route transitions, remount and disable",
+        "project": "firefox",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "invalid deployment and unavailable runtime asset leave the original page visible",
+        "project": "firefox",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "browser deadlines and retired requests leave the host available",
+        "project": "firefox",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "script: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation",
+        "project": "webkit",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "module: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation",
+        "project": "webkit",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "react csr: deployment respects host hydration, route transitions, remount and disable",
+        "project": "webkit",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "react ssr: deployment respects host hydration, route transitions, remount and disable",
+        "project": "webkit",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "vue csr: deployment respects host hydration, route transitions, remount and disable",
+        "project": "webkit",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "vue ssr: deployment respects host hydration, route transitions, remount and disable",
+        "project": "webkit",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "invalid deployment and unavailable runtime asset leave the original page visible",
+        "project": "webkit",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "browser deadlines and retired requests leave the host available",
+        "project": "webkit",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-repair.spec.ts",
+        "title": "SERVICE-V1-05: repair → save → new Release → preview → Deploy preserves the old Release",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-repair.spec.ts",
+        "title": "SERVICE-V1-05: repair → save → new Release → preview → Deploy preserves the old Release",
+        "project": "firefox",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "deployment-repair.spec.ts",
+        "title": "SERVICE-V1-05: repair → save → new Release → preview → Deploy preserves the old Release",
+        "project": "webkit",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "page-session-lifecycle.spec.ts",
+        "title": "PageSession cancels A→B late work, scopes roots, retries late nodes, and cleans up",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "persistence-recovery.spec.ts",
+        "title": "two tabs expose revision conflict and preserve pending edits through reload",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "persistence-recovery.spec.ts",
+        "title": "lost response after commit reconciles on reload without duplicate operations",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "persistence-recovery.spec.ts",
+        "title": "undo of a saved change appends a revision and survives save/reload",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "persistence-recovery.spec.ts",
+        "title": "manual target repair previews the dependent chain and survives save/reload",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "replay-safety.spec.ts",
+        "title": "replay keeps node identity, dependencies, and session compensation safe",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "s3-acceptance.spec.ts",
+        "title": "S3 Admin → release/share → sticky experiment → consent-gated report",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "s4-conditional-flow.spec.ts",
+        "title": "react csr: capture state, save/reload, Release/share and host transitions",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "s4-conditional-flow.spec.ts",
+        "title": "react ssr: capture state, save/reload, Release/share and host transitions",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "s4-conditional-flow.spec.ts",
+        "title": "vue csr: capture state, save/reload, Release/share and host transitions",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "s4-conditional-flow.spec.ts",
+        "title": "vue ssr: capture state, save/reload, Release/share and host transitions",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "s4-conditional-flow.spec.ts",
+        "title": "react csr: capture state, save/reload, Release/share and host transitions",
+        "project": "firefox",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "s4-conditional-flow.spec.ts",
+        "title": "react ssr: capture state, save/reload, Release/share and host transitions",
+        "project": "firefox",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "s4-conditional-flow.spec.ts",
+        "title": "vue csr: capture state, save/reload, Release/share and host transitions",
+        "project": "firefox",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "s4-conditional-flow.spec.ts",
+        "title": "vue ssr: capture state, save/reload, Release/share and host transitions",
+        "project": "firefox",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "s4-conditional-flow.spec.ts",
+        "title": "react csr: capture state, save/reload, Release/share and host transitions",
+        "project": "webkit",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "s4-conditional-flow.spec.ts",
+        "title": "react ssr: capture state, save/reload, Release/share and host transitions",
+        "project": "webkit",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "s4-conditional-flow.spec.ts",
+        "title": "vue csr: capture state, save/reload, Release/share and host transitions",
+        "project": "webkit",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "s4-conditional-flow.spec.ts",
+        "title": "vue ssr: capture state, save/reload, Release/share and host transitions",
+        "project": "webkit",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "s4-spa-critical.spec.ts",
+        "title": "react SSR commits before host interaction and survives route history",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "s4-spa-critical.spec.ts",
+        "title": "vue SSR commits before host interaction and survives route history",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "s4-spa-critical.spec.ts",
+        "title": "react: ready rules leave server HTML untouched until real hydration commits",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "s4-spa-critical.spec.ts",
+        "title": "vue: ready rules leave server HTML untouched until real hydration commits",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "s4-spa-critical.spec.ts",
+        "title": "react SSR commits before host interaction and survives route history",
+        "project": "firefox",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "s4-spa-critical.spec.ts",
+        "title": "vue SSR commits before host interaction and survives route history",
+        "project": "firefox",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "s4-spa-critical.spec.ts",
+        "title": "react: ready rules leave server HTML untouched until real hydration commits",
+        "project": "firefox",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "s4-spa-critical.spec.ts",
+        "title": "vue: ready rules leave server HTML untouched until real hydration commits",
+        "project": "firefox",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "s4-spa-critical.spec.ts",
+        "title": "react SSR commits before host interaction and survives route history",
+        "project": "webkit",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "s4-spa-critical.spec.ts",
+        "title": "vue SSR commits before host interaction and survives route history",
+        "project": "webkit",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "s4-spa-critical.spec.ts",
+        "title": "react: ready rules leave server HTML untouched until real hydration commits",
+        "project": "webkit",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "s4-spa-critical.spec.ts",
+        "title": "vue: ready rules leave server HTML untouched until real hydration commits",
+        "project": "webkit",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      },
+      {
+        "file": "versioning-flow.spec.ts",
+        "title": "edit → save → reload → reopen → release → share keeps page scopes isolated",
+        "project": "chromium",
+        "status": "expected",
+        "results": [
+          "passed"
+        ]
+      }
+    ]
+  }
+}

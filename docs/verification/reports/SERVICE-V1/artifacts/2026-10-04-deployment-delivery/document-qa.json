@@ -1,0 +1,54 @@
+[
+  {
+    "name": "report",
+    "label": "desktop",
+    "width": 1440,
+    "scrollWidth": 1440,
+    "status": true,
+    "broken": [],
+    "pendingReports": [],
+    "screenshot": "report-desktop-qa.png"
+  },
+  {
+    "name": "report",
+    "label": "mobile",
+    "width": 390,
+    "scrollWidth": 390,
+    "status": true,
+    "broken": [],
+    "pendingReports": [],
+    "screenshot": "report-mobile-qa.png"
+  },
+  {
+    "name": "plan",
+    "label": "desktop",
+    "width": 1440,
+    "scrollWidth": 1440,
+    "status": true,
+    "broken": [],
+    "pendingReports": [
+      "../../docs/verification/reports/SERVICE-V1/onboarding.html",
+      "../../docs/verification/reports/SERVICE-V1/experiments.html",
+      "../../docs/verification/reports/SERVICE-V1/operations.html",
+      "../../docs/verification/reports/SERVICE-V1/release-acceptance.html",
+      "../../docs/verification/reports/SERVICE-V1/pilot-readiness.html"
+    ],
+    "screenshot": "plan-desktop-qa.png"
+  },
+  {
+    "name": "plan",
+    "label": "mobile",
+    "width": 390,
+    "scrollWidth": 390,
+    "status": true,
+    "broken": [],
+    "pendingReports": [
+      "../../docs/verification/reports/SERVICE-V1/onboarding.html",
+      "../../docs/verification/reports/SERVICE-V1/experiments.html",
+      "../../docs/verification/reports/SERVICE-V1/operations.html",
+      "../../docs/verification/reports/SERVICE-V1/release-acceptance.html",
+      "../../docs/verification/reports/SERVICE-V1/pilot-readiness.html"
+    ],
+    "screenshot": "plan-mobile-qa.png"
+  }
+]

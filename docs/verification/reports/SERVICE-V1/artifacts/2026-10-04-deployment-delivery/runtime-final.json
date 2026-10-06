@@ -1,0 +1,17 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "test",
+    "--workspace",
+    "@lykar/runtime",
+    "--",
+    "--maxWorkers=1",
+    "--reporter=json",
+    "--outputFile=/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/docs/verification/reports/SERVICE-V1/artifacts/2026-10-04-deployment-delivery/runtime-results.json"
+  ],
+  "startedAt": "2026-10-04T07:17:51.792Z",
+  "endedAt": "2026-10-04T07:17:54.623Z",
+  "code": 1,
+  "signal": null
+}

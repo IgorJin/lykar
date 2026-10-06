@@ -1,0 +1,12 @@
+import {spawn} from 'node:child_process';
+import fs from 'node:fs';
+const [label,command,...args]=process.argv.slice(2);
+if(!/^[a-z0-9-]+$/.test(label)||!command)throw Error('Invalid arguments');
+const base=new URL('.',import.meta.url);
+const log=new URL(label+'.log',base);
+const fd=fs.openSync(log,'w');
+const redact=text=>text.replace(/(\/share\/)[A-Za-z0-9_-]{20,}/g,'$1[redacted]').replace(/([?&#](?:token|lykar_editor|lykar_share|lykar_variant|lykar_experiment|code|access_token)=)[^&\s"'<>]+/g,'$1[redacted]');
+const startedAt=new Date().toISOString();
+const child=spawn(command,args,{stdio:['ignore',fd,fd],env:process.env});
+child.on('error',e=>{fs.writeSync(fd,String(e));});
+child.on('close',(code,signal)=>{fs.closeSync(fd);const result={command:[command,...args],startedAt,endedAt:new Date().toISOString(),code,signal};fs.writeFileSync(new URL(label+'.json',base),JSON.stringify(result,null,2)+'\n');const text=redact(fs.readFileSync(log,'utf8'));fs.writeFileSync(log,text);console.log(JSON.stringify(result));console.log(text.split('\n').filter(line=>!line.startsWith('{"level":')).slice(-30).join('\n'));process.exitCode=code??1;});

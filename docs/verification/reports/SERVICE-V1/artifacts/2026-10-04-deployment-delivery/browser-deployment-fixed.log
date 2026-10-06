@@ -1,0 +1,1646 @@
+The files belonging to this database system will be owned by user "igorjan".
+This user must also own the server process.
+
+The database cluster will be initialized with locale "C".
+The default text search configuration will be set to "english".
+
+Data page checksums are disabled.
+
+fixing permissions on existing directory /var/folders/8s/bm2zf75s7t5c95ztfq7j19rw0000gn/T/lykar-e2e-QOsRlw/postgres ... ok
+creating subdirectories ... ok
+selecting dynamic shared memory implementation ... posix
+selecting default max_connections ... 100
+selecting default shared_buffers ... 128MB
+selecting default time zone ... Europe/Moscow
+creating configuration files ... ok
+running bootstrap script ... ok
+performing post-bootstrap initialization ... ok
+syncing data to disk ... ok
+
+Success. You can now start the database server using:
+
+    pg_ctl -D /var/folders/8s/bm2zf75s7t5c95ztfq7j19rw0000gn/T/lykar-e2e-QOsRlw/postgres -l logfile start
+
+waiting for server to start.... done
+server started
+
+> @lykar/admin@0.0.0 build
+> npm run clean && esbuild src/main.tsx --bundle --format=esm --target=es2022 --outfile=dist/app.js && node scripts/copy-static.mjs
+
+
+> @lykar/admin@0.0.0 clean
+> node -e "require('node:fs').rmSync('dist', { recursive: true, force: true })"
+
+
+  dist/app.js  83.4kb
+
+⚡ Done in 5ms
+
+> @lykar/sdk@0.0.0 prebuild
+> npm run build --workspace @lykar/runtime && npm run build --workspace @lykar/editor-bridge
+
+
+> @lykar/runtime@0.0.0 prebuild
+> npm run build --workspace @lykar/protocol
+
+
+> @lykar/protocol@0.0.0 build
+> tsc -p tsconfig.json && esbuild src/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs
+
+
+  dist/index.cjs  27.9kb
+
+⚡ Done in 1ms
+
+> @lykar/runtime@0.0.0 build
+> npm run clean && npm run build:types && esbuild src/index.ts --bundle --platform=browser --format=esm --target=es2018 --sourcemap --outfile=dist/runtime.js && esbuild src/global.ts --bundle --platform=browser --format=iife --target=es2018 --minify --sourcemap --outfile=dist/runtime.iife.js
+
+
+> @lykar/runtime@0.0.0 clean
+> node -e "require('node:fs').rmSync('dist', { recursive: true, force: true })"
+
+
+> @lykar/runtime@0.0.0 build:types
+> tsc --emitDeclarationOnly -p tsconfig.json
+
+
+  dist/runtime.js      147.1kb
+  dist/runtime.js.map  263.0kb
+
+⚡ Done in 4ms
+
+  dist/runtime.iife.js       82.7kb
+  dist/runtime.iife.js.map  273.2kb
+
+⚡ Done in 5ms
+
+> @lykar/editor-bridge@0.0.0 prebuild
+> npm run build --workspace @lykar/protocol && npm run build --workspace @lykar/runtime && npm run build --workspace @lykar/editor-ui
+
+
+> @lykar/protocol@0.0.0 build
+> tsc -p tsconfig.json && esbuild src/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs
+
+
+  dist/index.cjs  27.9kb
+
+⚡ Done in 2ms
+
+> @lykar/runtime@0.0.0 prebuild
+> npm run build --workspace @lykar/protocol
+
+
+> @lykar/protocol@0.0.0 build
+> tsc -p tsconfig.json && esbuild src/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs
+
+
+  dist/index.cjs  27.9kb
+
+⚡ Done in 2ms
+
+> @lykar/runtime@0.0.0 build
+> npm run clean && npm run build:types && esbuild src/index.ts --bundle --platform=browser --format=esm --target=es2018 --sourcemap --outfile=dist/runtime.js && esbuild src/global.ts --bundle --platform=browser --format=iife --target=es2018 --minify --sourcemap --outfile=dist/runtime.iife.js
+
+
+> @lykar/runtime@0.0.0 clean
+> node -e "require('node:fs').rmSync('dist', { recursive: true, force: true })"
+
+
+> @lykar/runtime@0.0.0 build:types
+> tsc --emitDeclarationOnly -p tsconfig.json
+
+
+  dist/runtime.js      147.1kb
+  dist/runtime.js.map  263.0kb
+
+⚡ Done in 4ms
+
+  dist/runtime.iife.js       82.7kb
+  dist/runtime.iife.js.map  273.2kb
+
+⚡ Done in 4ms
+
+> @lykar/editor-ui@0.0.0 build
+> npm run clean && tsc -p tsconfig.json
+
+
+> @lykar/editor-ui@0.0.0 clean
+> node -e "require('node:fs').rmSync('dist', { recursive: true, force: true })"
+
+
+> @lykar/editor-bridge@0.0.0 build
+> npm run clean && npm run build:types && esbuild src/index.ts --bundle --platform=browser --format=esm --target=es2018 --sourcemap --outfile=dist/editor.js && esbuild src/global.ts --bundle --platform=browser --format=iife --target=es2018 --minify --sourcemap --outfile=dist/editor.iife.js
+
+
+> @lykar/editor-bridge@0.0.0 clean
+> node -e "require('node:fs').rmSync('dist', { recursive: true, force: true })"
+
+
+> @lykar/editor-bridge@0.0.0 build:types
+> tsc --emitDeclarationOnly -p tsconfig.json
+
+
+  dist/editor.js      411.5kb
+  dist/editor.js.map  779.4kb
+
+⚡ Done in 13ms
+
+  dist/editor.iife.js      270.0kb
+  dist/editor.iife.js.map  797.3kb
+
+⚡ Done in 14ms
+
+> @lykar/sdk@0.0.0 build
+> npm run clean && npm run build:types && rollup -c && node scripts/build-assets.mjs
+
+
+> @lykar/sdk@0.0.0 clean
+> node -e "require('node:fs').rmSync('dist',{recursive:true,force:true})"
+
+
+> @lykar/sdk@0.0.0 build:types
+> tsc --emitDeclarationOnly -p tsconfig.json
+
+
+src/index.ts → dist/index.js...
+created dist/index.js in 159ms
+
+src/global.ts → dist/sdk.iife.js...
+created dist/sdk.iife.js in 37ms
+
+src/runtime-core-global.ts → dist/runtime-core.iife.js...
+created dist/runtime-core.iife.js in 79ms
+
+> lykar@0.0.0 db:migrate
+> npm run migrate --workspace lykar-lib-server
+
+
+> lykar-lib-server@1.0.0 migrate
+> npm run build && node dist/db/migrate.js
+
+
+> lykar-lib-server@1.0.0 prebuild
+> npm run build --workspace @lykar/protocol
+
+
+> @lykar/protocol@0.0.0 build
+> tsc -p tsconfig.json && esbuild src/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs
+
+
+  dist/index.cjs  27.9kb
+
+⚡ Done in 2ms
+
+> lykar-lib-server@1.0.0 build
+> npm run clean && tsc
+
+
+> lykar-lib-server@1.0.0 clean
+> node -e "require('node:fs').rmSync('dist', { recursive: true, force: true })"
+
+Applied migration 001_versioning_core.sql
+Applied migration 002_page_auth_and_sharing.sql
+Applied migration 003_project_members_and_invitations.sql
+Applied migration 004_owner_invariant.sql
+Applied migration 005_owner_invariant_trigger_fix.sql
+Applied migration 006_experiments_and_source_snapshots.sql
+Applied migration 007_analytics.sql
+Applied migration 008_analytics_rollups.sql
+Applied migration 009_draft_save_idempotency.sql
+Applied migration 010_page_deployments.sql
+Seeded pk_playground_local for http://127.0.0.1:56627
+Lykar playground: http://127.0.0.1:56627
+{"level":30,"time":1791098089213,"pid":80337,"hostname":"MacBook-Pro-Igorjan.local","msg":"Server listening at http://127.0.0.1:56629"}
+{"level":30,"time":1791098089215,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","msg":"Server listening at http://127.0.0.1:56626"}
+{"level":30,"time":1791098089247,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1","req":{"method":"GET","url":"/api/health","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56907},"msg":"incoming request"}
+{"level":30,"time":1791098089248,"pid":80337,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1","req":{"method":"GET","url":"/api/health","host":"127.0.0.1:56629","remoteAddress":"127.0.0.1","remotePort":56924},"msg":"incoming request"}
+{"level":30,"time":1791098089249,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1","res":{"statusCode":200},"responseTime":2.2724999999999795,"msg":"request completed"}
+{"level":30,"time":1791098089250,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2","req":{"method":"GET","url":"/admin","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56908},"msg":"incoming request"}
+{"level":30,"time":1791098089250,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3","req":{"method":"GET","url":"/admin/","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56909},"msg":"incoming request"}
+{"level":30,"time":1791098089250,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4","req":{"method":"GET","url":"/admin/app.js","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56910},"msg":"incoming request"}
+{"level":30,"time":1791098089250,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5","req":{"method":"GET","url":"/admin/styles.css","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56911},"msg":"incoming request"}
+{"level":30,"time":1791098089251,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2","res":{"statusCode":200},"responseTime":1.2175420000000088,"msg":"request completed"}
+{"level":30,"time":1791098089251,"pid":80337,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1","res":{"statusCode":200},"responseTime":2.4740830000000074,"msg":"request completed"}
+{"level":30,"time":1791098089251,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3","res":{"statusCode":200},"responseTime":1.2007910000000095,"msg":"request completed"}
+{"level":30,"time":1791098089251,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4","res":{"statusCode":200},"responseTime":1.176290999999992,"msg":"request completed"}
+{"level":30,"time":1791098089251,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5","res":{"statusCode":200},"responseTime":1.218041999999997,"msg":"request completed"}
+LYKAR_E2E_READY {"apiBaseUrl":"http://127.0.0.1:56626","magicApiBaseUrl":"http://127.0.0.1:56629","playgroundBaseUrl":"http://127.0.0.1:56627","magicLinkFile":"/var/folders/8s/bm2zf75s7t5c95ztfq7j19rw0000gn/T/lykar-e2e-QOsRlw/magic-links.ndjson"}
+
+Running 21 tests using 1 worker
+
+(node:80340) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/21] [chromium] › tests/e2e/deployment-flow.spec.ts:51:7 › script: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation
+{"level":30,"time":1791098089885,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6","req":{"method":"POST","url":"/api/auth/dev-login","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56953},"msg":"incoming request"}
+{"level":30,"time":1791098089893,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6","res":{"statusCode":200},"responseTime":7.843166999999994,"msg":"request completed"}
+{"level":30,"time":1791098089899,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7","req":{"method":"GET","url":"/api/admin/projects","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56953},"msg":"incoming request"}
+{"level":30,"time":1791098089901,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7","res":{"statusCode":200},"responseTime":2.365415999999982,"msg":"request completed"}
+{"level":30,"time":1791098089904,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8","req":{"method":"GET","url":"/api/admin/projects/20000000-0000-4000-8000-000000000001/pages","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56953},"msg":"incoming request"}
+{"level":30,"time":1791098089905,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8","res":{"statusCode":200},"responseTime":1.8056249999999636,"msg":"request completed"}
+{"level":30,"time":1791098089908,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9","req":{"method":"GET","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56953},"msg":"incoming request"}
+{"level":30,"time":1791098089910,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9","res":{"statusCode":200},"responseTime":2.3812500000000227,"msg":"request completed"}
+{"level":30,"time":1791098089912,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-a","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/disable","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56953},"msg":"incoming request"}
+{"level":30,"time":1791098089915,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-a","res":{"statusCode":200},"responseTime":2.9007080000000087,"msg":"request completed"}
+{"level":30,"time":1791098089918,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-b","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/drafts","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56953},"msg":"incoming request"}
+{"level":30,"time":1791098089920,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-b","res":{"statusCode":201},"responseTime":2.1881250000000136,"msg":"request completed"}
+{"level":30,"time":1791098089922,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-c","req":{"method":"POST","url":"/api/admin/drafts/213e1cc6-1636-4c25-9235-a6f69460ffcb/operations","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56953},"msg":"incoming request"}
+{"level":30,"time":1791098089931,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-c","res":{"statusCode":200},"responseTime":9.270416999999952,"msg":"request completed"}
+{"level":30,"time":1791098089933,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-d","req":{"method":"POST","url":"/api/admin/drafts/213e1cc6-1636-4c25-9235-a6f69460ffcb/publish","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56953},"msg":"incoming request"}
+{"level":30,"time":1791098089936,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-d","res":{"statusCode":201},"responseTime":2.6137500000000955,"msg":"request completed"}
+{"level":30,"time":1791098089938,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-e","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/drafts","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56953},"msg":"incoming request"}
+{"level":30,"time":1791098089940,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-e","res":{"statusCode":201},"responseTime":1.3312919999999622,"msg":"request completed"}
+{"level":30,"time":1791098089942,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-f","req":{"method":"POST","url":"/api/admin/drafts/ae11f81c-b619-4fa6-9f90-a879aa554250/operations","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56953},"msg":"incoming request"}
+{"level":30,"time":1791098089944,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-f","res":{"statusCode":200},"responseTime":1.7838749999999663,"msg":"request completed"}
+{"level":30,"time":1791098089947,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-g","req":{"method":"POST","url":"/api/admin/drafts/ae11f81c-b619-4fa6-9f90-a879aa554250/publish","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56953},"msg":"incoming request"}
+{"level":30,"time":1791098089950,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-g","res":{"statusCode":201},"responseTime":2.1575840000000426,"msg":"request completed"}
+{"level":30,"time":1791098090166,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-i","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/deploy","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56953},"msg":"incoming request"}
+{"level":30,"time":1791098090169,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-i","res":{"statusCode":200},"responseTime":2.8663329999999405,"msg":"request completed"}
+{"level":30,"time":1791098090189,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-k","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/deploy","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56953},"msg":"incoming request"}
+{"level":30,"time":1791098090190,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-k","res":{"statusCode":200},"responseTime":1.8941670000001523,"msg":"request completed"}
+{"level":30,"time":1791098090329,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-m","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/shares","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56953},"msg":"incoming request"}
+{"level":30,"time":1791098090331,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-m","res":{"statusCode":201},"responseTime":2.1106250000000273,"msg":"request completed"}
+{"level":30,"time":1791098090360,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-n","req":{"method":"GET","url":"/share/[redacted]","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56977},"msg":"incoming request"}
+{"level":30,"time":1791098090362,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-n","res":{"statusCode":302},"responseTime":1.7058329999999842,"msg":"request completed"}
+{"level":30,"time":1791098090390,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-o","req":{"method":"OPTIONS","url":"/api/share/exchange","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56971},"msg":"incoming request"}
+{"level":30,"time":1791098090390,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-o","res":{"statusCode":204},"responseTime":0.19983400000000984,"msg":"request completed"}
+{"level":30,"time":1791098090390,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-p","req":{"method":"POST","url":"/api/share/exchange","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56971},"msg":"incoming request"}
+{"level":30,"time":1791098090393,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-p","res":{"statusCode":200},"responseTime":2.3740419999999176,"msg":"request completed"}
+{"level":30,"time":1791098090398,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-q","req":{"method":"OPTIONS","url":"/api/runtime/projects/pk_playground_local/manifest?pathname=%2Fpricing&version=1","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56971},"msg":"incoming request"}
+{"level":30,"time":1791098090398,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-q","res":{"statusCode":204},"responseTime":0.09304199999996854,"msg":"request completed"}
+{"level":30,"time":1791098090508,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-s","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/experiments","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56953},"msg":"incoming request"}
+{"level":30,"time":1791098090512,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-s","res":{"statusCode":201},"responseTime":4.079917000000023,"msg":"request completed"}
+{"level":30,"time":1791098090514,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-t","req":{"method":"POST","url":"/api/admin/experiments/26d24e46-073a-4814-8dd6-2ffdb0a5fed1/activate","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56953},"msg":"incoming request"}
+{"level":30,"time":1791098090516,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-t","res":{"statusCode":200},"responseTime":2.2712079999998878,"msg":"request completed"}
+{"level":30,"time":1791098090518,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-u","req":{"method":"POST","url":"/api/admin/experiments/26d24e46-073a-4814-8dd6-2ffdb0a5fed1/variants/A/links","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56953},"msg":"incoming request"}
+{"level":30,"time":1791098090519,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-u","res":{"statusCode":201},"responseTime":1.5568329999998696,"msg":"request completed"}
+{"level":30,"time":1791098090582,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-v","req":{"method":"OPTIONS","url":"/api/runtime/projects/pk_playground_local/manifest?pathname=%2Fpricing","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56971},"msg":"incoming request"}
+{"level":30,"time":1791098090582,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-v","res":{"statusCode":204},"responseTime":0.1021659999998974,"msg":"request completed"}
+{"level":30,"time":1791098090700,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-x","req":{"method":"POST","url":"/api/admin/experiments/26d24e46-073a-4814-8dd6-2ffdb0a5fed1/complete","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56953},"msg":"incoming request"}
+{"level":30,"time":1791098090703,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-x","res":{"statusCode":200},"responseTime":2.9414580000000115,"msg":"request completed"}
+{"level":30,"time":1791098090783,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-y","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/disable","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56953},"msg":"incoming request"}
+{"level":30,"time":1791098090785,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-y","res":{"statusCode":200},"responseTime":1.4927500000001146,"msg":"request completed"}
+{"level":30,"time":1791098090793,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-10","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/rollback","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56953},"msg":"incoming request"}
+{"level":30,"time":1791098090795,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-10","res":{"statusCode":200},"responseTime":1.921291999999994,"msg":"request completed"}
+{"level":30,"time":1791098090805,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-12","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/disable","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56953},"msg":"incoming request"}
+{"level":30,"time":1791098090807,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-12","res":{"statusCode":200},"responseTime":1.9415839999999207,"msg":"request completed"}
+[2/21] [chromium] › tests/e2e/deployment-flow.spec.ts:51:7 › module: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation
+{"level":30,"time":1791098091020,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-13","req":{"method":"POST","url":"/api/auth/dev-login","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56993},"msg":"incoming request"}
+{"level":30,"time":1791098091021,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-13","res":{"statusCode":200},"responseTime":0.9569589999998698,"msg":"request completed"}
+{"level":30,"time":1791098091023,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-14","req":{"method":"GET","url":"/api/admin/projects","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56993},"msg":"incoming request"}
+{"level":30,"time":1791098091024,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-14","res":{"statusCode":200},"responseTime":0.7432920000001104,"msg":"request completed"}
+{"level":30,"time":1791098091025,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-15","req":{"method":"GET","url":"/api/admin/projects/20000000-0000-4000-8000-000000000001/pages","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56993},"msg":"incoming request"}
+{"level":30,"time":1791098091025,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-15","res":{"statusCode":200},"responseTime":0.6940830000000915,"msg":"request completed"}
+{"level":30,"time":1791098091026,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-16","req":{"method":"GET","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56993},"msg":"incoming request"}
+{"level":30,"time":1791098091027,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-16","res":{"statusCode":200},"responseTime":0.5883750000000418,"msg":"request completed"}
+{"level":30,"time":1791098091028,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-17","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/disable","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56993},"msg":"incoming request"}
+{"level":30,"time":1791098091029,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-17","res":{"statusCode":200},"responseTime":1.209875000000011,"msg":"request completed"}
+{"level":30,"time":1791098091030,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-18","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/drafts","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56993},"msg":"incoming request"}
+{"level":30,"time":1791098091032,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-18","res":{"statusCode":201},"responseTime":1.3362079999999423,"msg":"request completed"}
+{"level":30,"time":1791098091033,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-19","req":{"method":"POST","url":"/api/admin/drafts/af30fe1d-5046-4482-bc68-b80f1aa96e3a/operations","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56993},"msg":"incoming request"}
+{"level":30,"time":1791098091034,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-19","res":{"statusCode":200},"responseTime":1.4382920000000468,"msg":"request completed"}
+{"level":30,"time":1791098091036,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1a","req":{"method":"POST","url":"/api/admin/drafts/af30fe1d-5046-4482-bc68-b80f1aa96e3a/publish","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56993},"msg":"incoming request"}
+{"level":30,"time":1791098091038,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1a","res":{"statusCode":201},"responseTime":1.760541000000103,"msg":"request completed"}
+{"level":30,"time":1791098091039,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1b","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/drafts","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56993},"msg":"incoming request"}
+{"level":30,"time":1791098091040,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1b","res":{"statusCode":201},"responseTime":1.1583749999999782,"msg":"request completed"}
+{"level":30,"time":1791098091041,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1c","req":{"method":"POST","url":"/api/admin/drafts/e0009f69-927b-4bd4-8911-592b3e82a0a1/operations","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56993},"msg":"incoming request"}
+{"level":30,"time":1791098091043,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1c","res":{"statusCode":200},"responseTime":1.4132499999998345,"msg":"request completed"}
+{"level":30,"time":1791098091044,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1d","req":{"method":"POST","url":"/api/admin/drafts/e0009f69-927b-4bd4-8911-592b3e82a0a1/publish","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56993},"msg":"incoming request"}
+{"level":30,"time":1791098091046,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1d","res":{"statusCode":201},"responseTime":1.570417000000134,"msg":"request completed"}
+{"level":30,"time":1791098091182,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1f","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/deploy","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56993},"msg":"incoming request"}
+{"level":30,"time":1791098091185,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1f","res":{"statusCode":200},"responseTime":2.1903330000000096,"msg":"request completed"}
+{"level":30,"time":1791098091201,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1h","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/deploy","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56993},"msg":"incoming request"}
+{"level":30,"time":1791098091203,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1h","res":{"statusCode":200},"responseTime":1.8619589999998425,"msg":"request completed"}
+{"level":30,"time":1791098091241,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1j","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/shares","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56993},"msg":"incoming request"}
+{"level":30,"time":1791098091242,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1j","res":{"statusCode":201},"responseTime":1.1044160000001284,"msg":"request completed"}
+{"level":30,"time":1791098091270,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1k","req":{"method":"GET","url":"/share/[redacted]","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57007},"msg":"incoming request"}
+{"level":30,"time":1791098091271,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1k","res":{"statusCode":302},"responseTime":1.071374999999989,"msg":"request completed"}
+{"level":30,"time":1791098091301,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1l","req":{"method":"OPTIONS","url":"/api/share/exchange","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57004},"msg":"incoming request"}
+{"level":30,"time":1791098091301,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1l","res":{"statusCode":204},"responseTime":0.118333999999777,"msg":"request completed"}
+{"level":30,"time":1791098091302,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1m","req":{"method":"POST","url":"/api/share/exchange","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57004},"msg":"incoming request"}
+{"level":30,"time":1791098091303,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1m","res":{"statusCode":200},"responseTime":1.5739159999998265,"msg":"request completed"}
+{"level":30,"time":1791098091309,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1n","req":{"method":"OPTIONS","url":"/api/runtime/projects/pk_playground_local/manifest?pathname=%2Fpricing&version=3","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57004},"msg":"incoming request"}
+{"level":30,"time":1791098091309,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1n","res":{"statusCode":204},"responseTime":0.0967080000000351,"msg":"request completed"}
+{"level":30,"time":1791098091422,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1p","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/experiments","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56993},"msg":"incoming request"}
+{"level":30,"time":1791098091424,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1p","res":{"statusCode":201},"responseTime":2.380583000000115,"msg":"request completed"}
+{"level":30,"time":1791098091426,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1q","req":{"method":"POST","url":"/api/admin/experiments/297705aa-a3d3-4b65-8f04-054e40000244/activate","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56993},"msg":"incoming request"}
+{"level":30,"time":1791098091427,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1q","res":{"statusCode":200},"responseTime":1.666374999999789,"msg":"request completed"}
+{"level":30,"time":1791098091429,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1r","req":{"method":"POST","url":"/api/admin/experiments/297705aa-a3d3-4b65-8f04-054e40000244/variants/A/links","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56993},"msg":"incoming request"}
+{"level":30,"time":1791098091430,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1r","res":{"statusCode":201},"responseTime":1.4665830000003552,"msg":"request completed"}
+{"level":30,"time":1791098091492,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1s","req":{"method":"OPTIONS","url":"/api/runtime/projects/pk_playground_local/manifest?pathname=%2Fpricing","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57004},"msg":"incoming request"}
+{"level":30,"time":1791098091492,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1s","res":{"statusCode":204},"responseTime":0.1833329999999478,"msg":"request completed"}
+{"level":30,"time":1791098091509,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1u","req":{"method":"POST","url":"/api/admin/experiments/297705aa-a3d3-4b65-8f04-054e40000244/complete","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56993},"msg":"incoming request"}
+{"level":30,"time":1791098091511,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1u","res":{"statusCode":200},"responseTime":1.9073749999997744,"msg":"request completed"}
+{"level":30,"time":1791098091589,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1v","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/disable","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56993},"msg":"incoming request"}
+{"level":30,"time":1791098091591,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1v","res":{"statusCode":200},"responseTime":1.793999999999869,"msg":"request completed"}
+{"level":30,"time":1791098091602,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1x","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/rollback","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56993},"msg":"incoming request"}
+{"level":30,"time":1791098091604,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1x","res":{"statusCode":200},"responseTime":2.1370420000002923,"msg":"request completed"}
+{"level":30,"time":1791098091615,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1z","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/disable","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":56993},"msg":"incoming request"}
+{"level":30,"time":1791098091617,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1z","res":{"statusCode":200},"responseTime":1.760124999999789,"msg":"request completed"}
+[3/21] [chromium] › tests/e2e/deployment-flow.spec.ts:120:7 › react csr: deployment respects host hydration, route transitions, remount and disable
+{"level":30,"time":1791098091823,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-20","req":{"method":"POST","url":"/api/auth/dev-login","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57021},"msg":"incoming request"}
+{"level":30,"time":1791098091824,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-20","res":{"statusCode":200},"responseTime":0.9113330000000133,"msg":"request completed"}
+{"level":30,"time":1791098091826,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-21","req":{"method":"GET","url":"/api/admin/projects","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57021},"msg":"incoming request"}
+{"level":30,"time":1791098091827,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-21","res":{"statusCode":200},"responseTime":0.7707500000001346,"msg":"request completed"}
+{"level":30,"time":1791098091828,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-22","req":{"method":"GET","url":"/api/admin/projects/20000000-0000-4000-8000-000000000001/pages","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57021},"msg":"incoming request"}
+{"level":30,"time":1791098091829,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-22","res":{"statusCode":200},"responseTime":0.7228340000001481,"msg":"request completed"}
+{"level":30,"time":1791098091830,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-23","req":{"method":"POST","url":"/api/admin/projects/20000000-0000-4000-8000-000000000001/pages","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57021},"msg":"incoming request"}
+{"level":30,"time":1791098091831,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-23","res":{"statusCode":201},"responseTime":1.1890419999999722,"msg":"request completed"}
+{"level":30,"time":1791098091832,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-24","req":{"method":"GET","url":"/api/admin/pages/dec61a03-786c-4381-90a7-c2ec7b08e08d/deployment","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57021},"msg":"incoming request"}
+{"level":30,"time":1791098091833,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-24","res":{"statusCode":200},"responseTime":0.897457999999915,"msg":"request completed"}
+{"level":30,"time":1791098091835,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-25","req":{"method":"POST","url":"/api/admin/pages/dec61a03-786c-4381-90a7-c2ec7b08e08d/drafts","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57021},"msg":"incoming request"}
+{"level":30,"time":1791098091836,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-25","res":{"statusCode":201},"responseTime":1.2539160000001175,"msg":"request completed"}
+{"level":30,"time":1791098091837,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-26","req":{"method":"POST","url":"/api/admin/drafts/3b07a613-9087-4659-98bb-09a355fc0d8c/operations","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57021},"msg":"incoming request"}
+{"level":30,"time":1791098091839,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-26","res":{"statusCode":200},"responseTime":1.7296249999999418,"msg":"request completed"}
+{"level":30,"time":1791098091840,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-27","req":{"method":"POST","url":"/api/admin/drafts/3b07a613-9087-4659-98bb-09a355fc0d8c/publish","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57021},"msg":"incoming request"}
+{"level":30,"time":1791098091842,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-27","res":{"statusCode":201},"responseTime":1.5358329999999114,"msg":"request completed"}
+{"level":30,"time":1791098091843,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-28","req":{"method":"POST","url":"/api/admin/pages/dec61a03-786c-4381-90a7-c2ec7b08e08d/deployment/deploy","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57021},"msg":"incoming request"}
+{"level":30,"time":1791098091844,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-28","res":{"statusCode":200},"responseTime":1.2453749999999673,"msg":"request completed"}
+{"level":30,"time":1791098092160,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2c","req":{"method":"POST","url":"/api/admin/pages/dec61a03-786c-4381-90a7-c2ec7b08e08d/deployment/disable","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57021},"msg":"incoming request"}
+{"level":30,"time":1791098092162,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2c","res":{"statusCode":200},"responseTime":1.8829169999999067,"msg":"request completed"}
+[4/21] [chromium] › tests/e2e/deployment-flow.spec.ts:120:7 › react ssr: deployment respects host hydration, route transitions, remount and disable
+{"level":30,"time":1791098092278,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2e","req":{"method":"POST","url":"/api/auth/dev-login","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57040},"msg":"incoming request"}
+{"level":30,"time":1791098092279,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2e","res":{"statusCode":200},"responseTime":0.7560000000003129,"msg":"request completed"}
+{"level":30,"time":1791098092281,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2f","req":{"method":"GET","url":"/api/admin/projects","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57040},"msg":"incoming request"}
+{"level":30,"time":1791098092281,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2f","res":{"statusCode":200},"responseTime":0.6812499999996362,"msg":"request completed"}
+{"level":30,"time":1791098092282,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2g","req":{"method":"GET","url":"/api/admin/projects/20000000-0000-4000-8000-000000000001/pages","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57040},"msg":"incoming request"}
+{"level":30,"time":1791098092283,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2g","res":{"statusCode":200},"responseTime":0.6335830000002716,"msg":"request completed"}
+{"level":30,"time":1791098092284,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2h","req":{"method":"POST","url":"/api/admin/projects/20000000-0000-4000-8000-000000000001/pages","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57040},"msg":"incoming request"}
+{"level":30,"time":1791098092285,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2h","res":{"statusCode":201},"responseTime":0.9092499999997017,"msg":"request completed"}
+{"level":30,"time":1791098092286,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2i","req":{"method":"GET","url":"/api/admin/pages/de048130-8539-410b-aa5b-f477bedaf3a8/deployment","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57040},"msg":"incoming request"}
+{"level":30,"time":1791098092287,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2i","res":{"statusCode":200},"responseTime":0.6891669999999976,"msg":"request completed"}
+{"level":30,"time":1791098092287,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2j","req":{"method":"POST","url":"/api/admin/pages/de048130-8539-410b-aa5b-f477bedaf3a8/drafts","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57040},"msg":"incoming request"}
+{"level":30,"time":1791098092289,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2j","res":{"statusCode":201},"responseTime":1.2029999999999745,"msg":"request completed"}
+{"level":30,"time":1791098092290,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2k","req":{"method":"POST","url":"/api/admin/drafts/4cbb2b9d-c73d-46bf-a195-86d74dcc714f/operations","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57040},"msg":"incoming request"}
+{"level":30,"time":1791098092291,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2k","res":{"statusCode":200},"responseTime":1.3546660000001793,"msg":"request completed"}
+{"level":30,"time":1791098092292,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2l","req":{"method":"POST","url":"/api/admin/drafts/4cbb2b9d-c73d-46bf-a195-86d74dcc714f/publish","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57040},"msg":"incoming request"}
+{"level":30,"time":1791098092294,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2l","res":{"statusCode":201},"responseTime":1.2427499999998872,"msg":"request completed"}
+{"level":30,"time":1791098092295,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2m","req":{"method":"POST","url":"/api/admin/pages/de048130-8539-410b-aa5b-f477bedaf3a8/deployment/deploy","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57040},"msg":"incoming request"}
+{"level":30,"time":1791098092296,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2m","res":{"statusCode":200},"responseTime":1.3052499999998872,"msg":"request completed"}
+{"level":30,"time":1791098092599,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2q","req":{"method":"POST","url":"/api/admin/pages/de048130-8539-410b-aa5b-f477bedaf3a8/deployment/disable","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57040},"msg":"incoming request"}
+{"level":30,"time":1791098092601,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2q","res":{"statusCode":200},"responseTime":1.4637499999998909,"msg":"request completed"}
+[5/21] [chromium] › tests/e2e/deployment-flow.spec.ts:120:7 › vue csr: deployment respects host hydration, route transitions, remount and disable
+{"level":30,"time":1791098092737,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2s","req":{"method":"POST","url":"/api/auth/dev-login","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57059},"msg":"incoming request"}
+{"level":30,"time":1791098092738,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2s","res":{"statusCode":200},"responseTime":0.7390409999998155,"msg":"request completed"}
+{"level":30,"time":1791098092739,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2t","req":{"method":"GET","url":"/api/admin/projects","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57059},"msg":"incoming request"}
+{"level":30,"time":1791098092740,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2t","res":{"statusCode":200},"responseTime":0.7279160000002776,"msg":"request completed"}
+{"level":30,"time":1791098092741,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2u","req":{"method":"GET","url":"/api/admin/projects/20000000-0000-4000-8000-000000000001/pages","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57059},"msg":"incoming request"}
+{"level":30,"time":1791098092741,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2u","res":{"statusCode":200},"responseTime":0.7449590000001081,"msg":"request completed"}
+{"level":30,"time":1791098092742,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2v","req":{"method":"POST","url":"/api/admin/projects/20000000-0000-4000-8000-000000000001/pages","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57059},"msg":"incoming request"}
+{"level":30,"time":1791098092743,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2v","res":{"statusCode":201},"responseTime":0.9204589999999371,"msg":"request completed"}
+{"level":30,"time":1791098092744,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2w","req":{"method":"GET","url":"/api/admin/pages/2daffba1-f334-4bc2-8737-4d7aa896ea10/deployment","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57059},"msg":"incoming request"}
+{"level":30,"time":1791098092745,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2w","res":{"statusCode":200},"responseTime":0.6859580000000278,"msg":"request completed"}
+{"level":30,"time":1791098092746,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2x","req":{"method":"POST","url":"/api/admin/pages/2daffba1-f334-4bc2-8737-4d7aa896ea10/drafts","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57059},"msg":"incoming request"}
+{"level":30,"time":1791098092747,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2x","res":{"statusCode":201},"responseTime":1.1431250000000546,"msg":"request completed"}
+{"level":30,"time":1791098092748,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2y","req":{"method":"POST","url":"/api/admin/drafts/e2f6adb9-6ee1-43af-96d2-68c210e1c2be/operations","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57059},"msg":"incoming request"}
+{"level":30,"time":1791098092750,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2y","res":{"statusCode":200},"responseTime":1.5926660000000084,"msg":"request completed"}
+{"level":30,"time":1791098092751,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2z","req":{"method":"POST","url":"/api/admin/drafts/e2f6adb9-6ee1-43af-96d2-68c210e1c2be/publish","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57059},"msg":"incoming request"}
+{"level":30,"time":1791098092752,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2z","res":{"statusCode":201},"responseTime":1.2969170000001213,"msg":"request completed"}
+{"level":30,"time":1791098092754,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-30","req":{"method":"POST","url":"/api/admin/pages/2daffba1-f334-4bc2-8737-4d7aa896ea10/deployment/deploy","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57059},"msg":"incoming request"}
+{"level":30,"time":1791098092755,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-30","res":{"statusCode":200},"responseTime":1.223041000000194,"msg":"request completed"}
+{"level":30,"time":1791098093022,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-34","req":{"method":"POST","url":"/api/admin/pages/2daffba1-f334-4bc2-8737-4d7aa896ea10/deployment/disable","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57059},"msg":"incoming request"}
+{"level":30,"time":1791098093024,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-34","res":{"statusCode":200},"responseTime":1.7147079999999733,"msg":"request completed"}
+[6/21] [chromium] › tests/e2e/deployment-flow.spec.ts:120:7 › vue ssr: deployment respects host hydration, route transitions, remount and disable
+{"level":30,"time":1791098093139,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-36","req":{"method":"POST","url":"/api/auth/dev-login","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57077},"msg":"incoming request"}
+{"level":30,"time":1791098093140,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-36","res":{"statusCode":200},"responseTime":0.9244169999997212,"msg":"request completed"}
+{"level":30,"time":1791098093142,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-37","req":{"method":"GET","url":"/api/admin/projects","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57077},"msg":"incoming request"}
+{"level":30,"time":1791098093143,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-37","res":{"statusCode":200},"responseTime":0.8271249999997963,"msg":"request completed"}
+{"level":30,"time":1791098093144,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-38","req":{"method":"GET","url":"/api/admin/projects/20000000-0000-4000-8000-000000000001/pages","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57077},"msg":"incoming request"}
+{"level":30,"time":1791098093145,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-38","res":{"statusCode":200},"responseTime":0.9045420000002196,"msg":"request completed"}
+{"level":30,"time":1791098093146,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-39","req":{"method":"POST","url":"/api/admin/projects/20000000-0000-4000-8000-000000000001/pages","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57077},"msg":"incoming request"}
+{"level":30,"time":1791098093147,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-39","res":{"statusCode":201},"responseTime":1.094166000000314,"msg":"request completed"}
+{"level":30,"time":1791098093149,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3a","req":{"method":"GET","url":"/api/admin/pages/df2e59be-5001-4b61-bc89-16497d6526b7/deployment","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57077},"msg":"incoming request"}
+{"level":30,"time":1791098093149,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3a","res":{"statusCode":200},"responseTime":0.7397909999999683,"msg":"request completed"}
+{"level":30,"time":1791098093150,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3b","req":{"method":"POST","url":"/api/admin/pages/df2e59be-5001-4b61-bc89-16497d6526b7/drafts","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57077},"msg":"incoming request"}
+{"level":30,"time":1791098093152,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3b","res":{"statusCode":201},"responseTime":1.1413750000001528,"msg":"request completed"}
+{"level":30,"time":1791098093153,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3c","req":{"method":"POST","url":"/api/admin/drafts/f0ac4c2b-0804-4ee6-a328-e529bc37d212/operations","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57077},"msg":"incoming request"}
+{"level":30,"time":1791098093155,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3c","res":{"statusCode":200},"responseTime":1.8112080000000788,"msg":"request completed"}
+{"level":30,"time":1791098093156,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3d","req":{"method":"POST","url":"/api/admin/drafts/f0ac4c2b-0804-4ee6-a328-e529bc37d212/publish","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57077},"msg":"incoming request"}
+{"level":30,"time":1791098093158,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3d","res":{"statusCode":201},"responseTime":1.7440839999999298,"msg":"request completed"}
+{"level":30,"time":1791098093159,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3e","req":{"method":"POST","url":"/api/admin/pages/df2e59be-5001-4b61-bc89-16497d6526b7/deployment/deploy","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57077},"msg":"incoming request"}
+{"level":30,"time":1791098093161,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3e","res":{"statusCode":200},"responseTime":1.4809159999999792,"msg":"request completed"}
+{"level":30,"time":1791098093451,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3i","req":{"method":"POST","url":"/api/admin/pages/df2e59be-5001-4b61-bc89-16497d6526b7/deployment/disable","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57077},"msg":"incoming request"}
+{"level":30,"time":1791098093453,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3i","res":{"statusCode":200},"responseTime":1.5897910000003321,"msg":"request completed"}
+[7/21] [chromium] › tests/e2e/deployment-flow.spec.ts:149:5 › invalid deployment and unavailable runtime asset leave the original page visible
+(node:80415) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[8/21] [firefox] › tests/e2e/deployment-flow.spec.ts:51:7 › script: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation
+{"level":30,"time":1791098094868,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3k","req":{"method":"POST","url":"/api/auth/dev-login","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57130},"msg":"incoming request"}
+{"level":30,"time":1791098094869,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3k","res":{"statusCode":200},"responseTime":0.9755830000003698,"msg":"request completed"}
+{"level":30,"time":1791098094875,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3l","req":{"method":"GET","url":"/api/admin/projects","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57130},"msg":"incoming request"}
+{"level":30,"time":1791098094876,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3l","res":{"statusCode":200},"responseTime":1.1396249999997963,"msg":"request completed"}
+{"level":30,"time":1791098094878,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3m","req":{"method":"GET","url":"/api/admin/projects/20000000-0000-4000-8000-000000000001/pages","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57130},"msg":"incoming request"}
+{"level":30,"time":1791098094879,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3m","res":{"statusCode":200},"responseTime":1.0123750000002474,"msg":"request completed"}
+{"level":30,"time":1791098094881,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3n","req":{"method":"GET","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57130},"msg":"incoming request"}
+{"level":30,"time":1791098094882,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3n","res":{"statusCode":200},"responseTime":0.8591660000001866,"msg":"request completed"}
+{"level":30,"time":1791098094884,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3o","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/disable","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57130},"msg":"incoming request"}
+{"level":30,"time":1791098094886,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3o","res":{"statusCode":200},"responseTime":1.4669999999996435,"msg":"request completed"}
+{"level":30,"time":1791098094888,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3p","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/drafts","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57130},"msg":"incoming request"}
+{"level":30,"time":1791098094890,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3p","res":{"statusCode":201},"responseTime":1.2747079999999187,"msg":"request completed"}
+{"level":30,"time":1791098094892,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3q","req":{"method":"POST","url":"/api/admin/drafts/8ccbb5c1-d542-457f-a44e-9d3db869f12b/operations","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57130},"msg":"incoming request"}
+{"level":30,"time":1791098094893,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3q","res":{"statusCode":200},"responseTime":1.7799589999995078,"msg":"request completed"}
+{"level":30,"time":1791098094897,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3r","req":{"method":"POST","url":"/api/admin/drafts/8ccbb5c1-d542-457f-a44e-9d3db869f12b/publish","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57130},"msg":"incoming request"}
+{"level":30,"time":1791098094901,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3r","res":{"statusCode":201},"responseTime":3.259624999999687,"msg":"request completed"}
+{"level":30,"time":1791098094904,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3s","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/drafts","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57130},"msg":"incoming request"}
+{"level":30,"time":1791098094905,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3s","res":{"statusCode":201},"responseTime":1.3330000000005384,"msg":"request completed"}
+{"level":30,"time":1791098094908,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3t","req":{"method":"POST","url":"/api/admin/drafts/ad3f58a5-7fdc-487c-9026-3dae187097c1/operations","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57130},"msg":"incoming request"}
+{"level":30,"time":1791098094910,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3t","res":{"statusCode":200},"responseTime":2.059124999999767,"msg":"request completed"}
+{"level":30,"time":1791098094913,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3u","req":{"method":"POST","url":"/api/admin/drafts/ad3f58a5-7fdc-487c-9026-3dae187097c1/publish","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57130},"msg":"incoming request"}
+{"level":30,"time":1791098094915,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3u","res":{"statusCode":201},"responseTime":2.481999999999971,"msg":"request completed"}
+{"level":30,"time":1791098095443,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3w","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/deploy","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57130},"msg":"incoming request"}
+{"level":30,"time":1791098095445,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3w","res":{"statusCode":200},"responseTime":1.7512090000000171,"msg":"request completed"}
+{"level":30,"time":1791098095461,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3y","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/deploy","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57130},"msg":"incoming request"}
+{"level":30,"time":1791098095463,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3y","res":{"statusCode":200},"responseTime":1.4657500000002983,"msg":"request completed"}
+{"level":30,"time":1791098095645,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-40","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/shares","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57130},"msg":"incoming request"}
+{"level":30,"time":1791098095646,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-40","res":{"statusCode":201},"responseTime":1.6916250000003856,"msg":"request completed"}
+{"level":30,"time":1791098095759,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-41","req":{"method":"GET","url":"/share/[redacted]","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57157},"msg":"incoming request"}
+{"level":30,"time":1791098095760,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-41","res":{"statusCode":302},"responseTime":0.9992499999998472,"msg":"request completed"}
+{"level":30,"time":1791098095787,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-42","req":{"method":"OPTIONS","url":"/api/share/exchange","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57145},"msg":"incoming request"}
+{"level":30,"time":1791098095787,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-42","res":{"statusCode":204},"responseTime":0.1437080000005153,"msg":"request completed"}
+{"level":30,"time":1791098095789,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-43","req":{"method":"POST","url":"/api/share/exchange","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57145},"msg":"incoming request"}
+{"level":30,"time":1791098095791,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-43","res":{"statusCode":200},"responseTime":1.7553749999997308,"msg":"request completed"}
+{"level":30,"time":1791098095801,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-44","req":{"method":"OPTIONS","url":"/api/runtime/projects/pk_playground_local/manifest?pathname=%2Fpricing&version=5","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57145},"msg":"incoming request"}
+{"level":30,"time":1791098095801,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-44","res":{"statusCode":204},"responseTime":0.08083299999998417,"msg":"request completed"}
+{"level":30,"time":1791098095920,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-46","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/experiments","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57130},"msg":"incoming request"}
+{"level":30,"time":1791098095923,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-46","res":{"statusCode":201},"responseTime":3.1777499999998327,"msg":"request completed"}
+{"level":30,"time":1791098095925,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-47","req":{"method":"POST","url":"/api/admin/experiments/76eaca29-20a5-4b29-a4cb-ab50d3acd3d9/activate","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57130},"msg":"incoming request"}
+{"level":30,"time":1791098095927,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-47","res":{"statusCode":200},"responseTime":1.8405839999995806,"msg":"request completed"}
+{"level":30,"time":1791098095928,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-48","req":{"method":"POST","url":"/api/admin/experiments/76eaca29-20a5-4b29-a4cb-ab50d3acd3d9/variants/A/links","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57130},"msg":"incoming request"}
+{"level":30,"time":1791098095930,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-48","res":{"statusCode":201},"responseTime":1.7807499999998981,"msg":"request completed"}
+{"level":30,"time":1791098096074,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-49","req":{"method":"OPTIONS","url":"/api/runtime/projects/pk_playground_local/manifest?pathname=%2Fpricing","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57145},"msg":"incoming request"}
+{"level":30,"time":1791098096074,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-49","res":{"statusCode":204},"responseTime":0.10637499999938882,"msg":"request completed"}
+{"level":30,"time":1791098096199,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4b","req":{"method":"POST","url":"/api/admin/experiments/76eaca29-20a5-4b29-a4cb-ab50d3acd3d9/complete","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57130},"msg":"incoming request"}
+{"level":30,"time":1791098096202,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4b","res":{"statusCode":200},"responseTime":2.379457999999431,"msg":"request completed"}
+{"level":30,"time":1791098096302,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4c","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/disable","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57130},"msg":"incoming request"}
+{"level":30,"time":1791098096304,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4c","res":{"statusCode":200},"responseTime":1.7029169999996157,"msg":"request completed"}
+{"level":30,"time":1791098096313,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4e","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/rollback","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57130},"msg":"incoming request"}
+{"level":30,"time":1791098096315,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4e","res":{"statusCode":200},"responseTime":1.8167499999999563,"msg":"request completed"}
+{"level":30,"time":1791098096326,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4g","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/disable","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57130},"msg":"incoming request"}
+{"level":30,"time":1791098096327,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4g","res":{"statusCode":200},"responseTime":1.3392089999997552,"msg":"request completed"}
+[9/21] [firefox] › tests/e2e/deployment-flow.spec.ts:51:7 › module: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation
+{"level":30,"time":1791098096497,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4h","req":{"method":"POST","url":"/api/auth/dev-login","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57174},"msg":"incoming request"}
+{"level":30,"time":1791098096498,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4h","res":{"statusCode":200},"responseTime":0.8396250000005239,"msg":"request completed"}
+{"level":30,"time":1791098096500,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4i","req":{"method":"GET","url":"/api/admin/projects","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57174},"msg":"incoming request"}
+{"level":30,"time":1791098096500,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4i","res":{"statusCode":200},"responseTime":0.661750000000211,"msg":"request completed"}
+{"level":30,"time":1791098096501,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4j","req":{"method":"GET","url":"/api/admin/projects/20000000-0000-4000-8000-000000000001/pages","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57174},"msg":"incoming request"}
+{"level":30,"time":1791098096503,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4j","res":{"statusCode":200},"responseTime":1.47137500000008,"msg":"request completed"}
+{"level":30,"time":1791098096504,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4k","req":{"method":"GET","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57174},"msg":"incoming request"}
+{"level":30,"time":1791098096505,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4k","res":{"statusCode":200},"responseTime":0.8030000000007931,"msg":"request completed"}
+{"level":30,"time":1791098096506,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4l","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/disable","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57174},"msg":"incoming request"}
+{"level":30,"time":1791098096507,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4l","res":{"statusCode":200},"responseTime":1.2202079999997295,"msg":"request completed"}
+{"level":30,"time":1791098096509,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4m","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/drafts","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57174},"msg":"incoming request"}
+{"level":30,"time":1791098096510,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4m","res":{"statusCode":201},"responseTime":0.9792079999997441,"msg":"request completed"}
+{"level":30,"time":1791098096511,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4n","req":{"method":"POST","url":"/api/admin/drafts/205c8374-c3e7-470f-a1c4-e960b04ceea8/operations","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57174},"msg":"incoming request"}
+{"level":30,"time":1791098096512,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4n","res":{"statusCode":200},"responseTime":1.4252919999998994,"msg":"request completed"}
+{"level":30,"time":1791098096514,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4o","req":{"method":"POST","url":"/api/admin/drafts/205c8374-c3e7-470f-a1c4-e960b04ceea8/publish","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57174},"msg":"incoming request"}
+{"level":30,"time":1791098096515,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4o","res":{"statusCode":201},"responseTime":1.587083999999777,"msg":"request completed"}
+{"level":30,"time":1791098096516,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4p","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/drafts","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57174},"msg":"incoming request"}
+{"level":30,"time":1791098096517,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4p","res":{"statusCode":201},"responseTime":0.788749999999709,"msg":"request completed"}
+{"level":30,"time":1791098096518,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4q","req":{"method":"POST","url":"/api/admin/drafts/4956c933-daa8-4152-a886-8661e7c89c4b/operations","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57174},"msg":"incoming request"}
+{"level":30,"time":1791098096520,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4q","res":{"statusCode":200},"responseTime":1.204916000000594,"msg":"request completed"}
+{"level":30,"time":1791098096521,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4r","req":{"method":"POST","url":"/api/admin/drafts/4956c933-daa8-4152-a886-8661e7c89c4b/publish","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57174},"msg":"incoming request"}
+{"level":30,"time":1791098096523,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4r","res":{"statusCode":201},"responseTime":1.7420419999998558,"msg":"request completed"}
+{"level":30,"time":1791098096771,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4t","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/deploy","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57174},"msg":"incoming request"}
+{"level":30,"time":1791098096773,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4t","res":{"statusCode":200},"responseTime":1.9929999999994834,"msg":"request completed"}
+{"level":30,"time":1791098096790,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4v","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/deploy","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57174},"msg":"incoming request"}
+{"level":30,"time":1791098096791,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4v","res":{"statusCode":200},"responseTime":1.661457999999584,"msg":"request completed"}
+{"level":30,"time":1791098096933,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4x","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/shares","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57174},"msg":"incoming request"}
+{"level":30,"time":1791098096934,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4x","res":{"statusCode":201},"responseTime":1.1416250000002037,"msg":"request completed"}
+{"level":30,"time":1791098097047,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4y","req":{"method":"GET","url":"/share/[redacted]","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57192},"msg":"incoming request"}
+{"level":30,"time":1791098097048,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4y","res":{"statusCode":302},"responseTime":0.9834170000003724,"msg":"request completed"}
+{"level":30,"time":1791098097078,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4z","req":{"method":"OPTIONS","url":"/api/share/exchange","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57184},"msg":"incoming request"}
+{"level":30,"time":1791098097078,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4z","res":{"statusCode":204},"responseTime":0.09387500000048021,"msg":"request completed"}
+{"level":30,"time":1791098097078,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-50","req":{"method":"POST","url":"/api/share/exchange","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57184},"msg":"incoming request"}
+{"level":30,"time":1791098097080,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-50","res":{"statusCode":200},"responseTime":1.9009169999999358,"msg":"request completed"}
+{"level":30,"time":1791098097091,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-51","req":{"method":"OPTIONS","url":"/api/runtime/projects/pk_playground_local/manifest?pathname=%2Fpricing&version=7","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57184},"msg":"incoming request"}
+{"level":30,"time":1791098097092,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-51","res":{"statusCode":204},"responseTime":0.10599999999976717,"msg":"request completed"}
+{"level":30,"time":1791098097203,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-53","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/experiments","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57174},"msg":"incoming request"}
+{"level":30,"time":1791098097206,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-53","res":{"statusCode":201},"responseTime":3.1004170000005615,"msg":"request completed"}
+{"level":30,"time":1791098097208,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-54","req":{"method":"POST","url":"/api/admin/experiments/1a82207f-aa7f-45e5-8420-70e05007e7b0/activate","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57174},"msg":"incoming request"}
+{"level":30,"time":1791098097210,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-54","res":{"statusCode":200},"responseTime":1.9952909999992698,"msg":"request completed"}
+{"level":30,"time":1791098097211,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-55","req":{"method":"POST","url":"/api/admin/experiments/1a82207f-aa7f-45e5-8420-70e05007e7b0/variants/A/links","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57174},"msg":"incoming request"}
+{"level":30,"time":1791098097213,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-55","res":{"statusCode":201},"responseTime":1.5371249999998327,"msg":"request completed"}
+{"level":30,"time":1791098097359,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-56","req":{"method":"OPTIONS","url":"/api/runtime/projects/pk_playground_local/manifest?pathname=%2Fpricing","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57184},"msg":"incoming request"}
+{"level":30,"time":1791098097359,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-56","res":{"statusCode":204},"responseTime":0.17450000000098953,"msg":"request completed"}
+{"level":30,"time":1791098097481,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-58","req":{"method":"POST","url":"/api/admin/experiments/1a82207f-aa7f-45e5-8420-70e05007e7b0/complete","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57174},"msg":"incoming request"}
+{"level":30,"time":1791098097483,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-58","res":{"statusCode":200},"responseTime":2.3054169999995793,"msg":"request completed"}
+{"level":30,"time":1791098097898,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-59","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/disable","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57174},"msg":"incoming request"}
+{"level":30,"time":1791098097900,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-59","res":{"statusCode":200},"responseTime":1.9156669999993028,"msg":"request completed"}
+{"level":30,"time":1791098097911,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5b","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/rollback","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57174},"msg":"incoming request"}
+{"level":30,"time":1791098097913,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5b","res":{"statusCode":200},"responseTime":1.921875,"msg":"request completed"}
+{"level":30,"time":1791098097928,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5d","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/disable","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57174},"msg":"incoming request"}
+{"level":30,"time":1791098097930,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5d","res":{"statusCode":200},"responseTime":1.7813330000008136,"msg":"request completed"}
+[10/21] [firefox] › tests/e2e/deployment-flow.spec.ts:120:7 › react csr: deployment respects host hydration, route transitions, remount and disable
+{"level":30,"time":1791098098074,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5e","req":{"method":"POST","url":"/api/auth/dev-login","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57218},"msg":"incoming request"}
+{"level":30,"time":1791098098075,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5e","res":{"statusCode":200},"responseTime":1.1405419999991864,"msg":"request completed"}
+{"level":30,"time":1791098098081,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5f","req":{"method":"GET","url":"/api/admin/projects","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57218},"msg":"incoming request"}
+{"level":30,"time":1791098098082,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5f","res":{"statusCode":200},"responseTime":0.815708000000086,"msg":"request completed"}
+{"level":30,"time":1791098098083,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5g","req":{"method":"GET","url":"/api/admin/projects/20000000-0000-4000-8000-000000000001/pages","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57218},"msg":"incoming request"}
+{"level":30,"time":1791098098084,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5g","res":{"statusCode":200},"responseTime":0.7078330000003916,"msg":"request completed"}
+{"level":30,"time":1791098098085,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5h","req":{"method":"POST","url":"/api/admin/projects/20000000-0000-4000-8000-000000000001/pages","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57218},"msg":"incoming request"}
+{"level":30,"time":1791098098086,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5h","res":{"statusCode":201},"responseTime":1.1016669999989972,"msg":"request completed"}
+{"level":30,"time":1791098098087,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5i","req":{"method":"GET","url":"/api/admin/pages/4954fd9e-04ed-4742-ad1c-8a4475e27a11/deployment","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57218},"msg":"incoming request"}
+{"level":30,"time":1791098098088,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5i","res":{"statusCode":200},"responseTime":0.7724579999994603,"msg":"request completed"}
+{"level":30,"time":1791098098089,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5j","req":{"method":"POST","url":"/api/admin/pages/4954fd9e-04ed-4742-ad1c-8a4475e27a11/drafts","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57218},"msg":"incoming request"}
+{"level":30,"time":1791098098090,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5j","res":{"statusCode":201},"responseTime":1.1061250000002474,"msg":"request completed"}
+{"level":30,"time":1791098098091,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5k","req":{"method":"POST","url":"/api/admin/drafts/0a1cd62a-81f1-4c78-9887-3c226964369b/operations","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57218},"msg":"incoming request"}
+{"level":30,"time":1791098098093,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5k","res":{"statusCode":200},"responseTime":1.4298749999998108,"msg":"request completed"}
+{"level":30,"time":1791098098094,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5l","req":{"method":"POST","url":"/api/admin/drafts/0a1cd62a-81f1-4c78-9887-3c226964369b/publish","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57218},"msg":"incoming request"}
+{"level":30,"time":1791098098096,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5l","res":{"statusCode":201},"responseTime":1.3862910000007105,"msg":"request completed"}
+{"level":30,"time":1791098098097,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5m","req":{"method":"POST","url":"/api/admin/pages/4954fd9e-04ed-4742-ad1c-8a4475e27a11/deployment/deploy","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57218},"msg":"incoming request"}
+{"level":30,"time":1791098098098,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5m","res":{"statusCode":200},"responseTime":1.549457999999504,"msg":"request completed"}
+{"level":30,"time":1791098098418,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5q","req":{"method":"POST","url":"/api/admin/pages/4954fd9e-04ed-4742-ad1c-8a4475e27a11/deployment/disable","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57218},"msg":"incoming request"}
+{"level":30,"time":1791098098420,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5q","res":{"statusCode":200},"responseTime":1.5777500000003783,"msg":"request completed"}
+[11/21] [firefox] › tests/e2e/deployment-flow.spec.ts:120:7 › react ssr: deployment respects host hydration, route transitions, remount and disable
+{"level":30,"time":1791098098522,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5s","req":{"method":"POST","url":"/api/auth/dev-login","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57233},"msg":"incoming request"}
+{"level":30,"time":1791098098523,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5s","res":{"statusCode":200},"responseTime":0.8437080000003334,"msg":"request completed"}
+{"level":30,"time":1791098098525,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5t","req":{"method":"GET","url":"/api/admin/projects","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57233},"msg":"incoming request"}
+{"level":30,"time":1791098098526,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5t","res":{"statusCode":200},"responseTime":0.725083999999697,"msg":"request completed"}
+{"level":30,"time":1791098098531,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5u","req":{"method":"GET","url":"/api/admin/projects/20000000-0000-4000-8000-000000000001/pages","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57233},"msg":"incoming request"}
+{"level":30,"time":1791098098532,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5u","res":{"statusCode":200},"responseTime":1.0670829999999114,"msg":"request completed"}
+{"level":30,"time":1791098098533,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5v","req":{"method":"POST","url":"/api/admin/projects/20000000-0000-4000-8000-000000000001/pages","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57233},"msg":"incoming request"}
+{"level":30,"time":1791098098534,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5v","res":{"statusCode":201},"responseTime":0.9459999999999127,"msg":"request completed"}
+{"level":30,"time":1791098098536,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5w","req":{"method":"GET","url":"/api/admin/pages/abe659e5-6dd3-44d8-bfe0-1fcce4934079/deployment","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57233},"msg":"incoming request"}
+{"level":30,"time":1791098098537,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5w","res":{"statusCode":200},"responseTime":0.7692080000015267,"msg":"request completed"}
+{"level":30,"time":1791098098539,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5x","req":{"method":"POST","url":"/api/admin/pages/abe659e5-6dd3-44d8-bfe0-1fcce4934079/drafts","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57233},"msg":"incoming request"}
+{"level":30,"time":1791098098541,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5x","res":{"statusCode":201},"responseTime":1.1694170000009763,"msg":"request completed"}
+{"level":30,"time":1791098098552,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5y","req":{"method":"POST","url":"/api/admin/drafts/d9b72255-1e7a-41af-ba1e-c65004ede430/operations","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57233},"msg":"incoming request"}
+{"level":30,"time":1791098098554,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5y","res":{"statusCode":200},"responseTime":2.115542000001369,"msg":"request completed"}
+{"level":30,"time":1791098098555,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5z","req":{"method":"POST","url":"/api/admin/drafts/d9b72255-1e7a-41af-ba1e-c65004ede430/publish","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57233},"msg":"incoming request"}
+{"level":30,"time":1791098098557,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5z","res":{"statusCode":201},"responseTime":1.5950000000011642,"msg":"request completed"}
+{"level":30,"time":1791098098558,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-60","req":{"method":"POST","url":"/api/admin/pages/abe659e5-6dd3-44d8-bfe0-1fcce4934079/deployment/deploy","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57233},"msg":"incoming request"}
+{"level":30,"time":1791098098559,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-60","res":{"statusCode":200},"responseTime":1.2216669999997976,"msg":"request completed"}
+{"level":30,"time":1791098098869,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-64","req":{"method":"POST","url":"/api/admin/pages/abe659e5-6dd3-44d8-bfe0-1fcce4934079/deployment/disable","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57233},"msg":"incoming request"}
+{"level":30,"time":1791098098871,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-64","res":{"statusCode":200},"responseTime":2.087333999999828,"msg":"request completed"}
+[12/21] [firefox] › tests/e2e/deployment-flow.spec.ts:120:7 › vue csr: deployment respects host hydration, route transitions, remount and disable
+{"level":30,"time":1791098099026,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-66","req":{"method":"POST","url":"/api/auth/dev-login","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57250},"msg":"incoming request"}
+{"level":30,"time":1791098099027,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-66","res":{"statusCode":200},"responseTime":0.7474579999998241,"msg":"request completed"}
+{"level":30,"time":1791098099029,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-67","req":{"method":"GET","url":"/api/admin/projects","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57250},"msg":"incoming request"}
+{"level":30,"time":1791098099029,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-67","res":{"statusCode":200},"responseTime":0.7347919999992882,"msg":"request completed"}
+{"level":30,"time":1791098099030,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-68","req":{"method":"GET","url":"/api/admin/projects/20000000-0000-4000-8000-000000000001/pages","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57250},"msg":"incoming request"}
+{"level":30,"time":1791098099031,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-68","res":{"statusCode":200},"responseTime":0.6834579999995185,"msg":"request completed"}
+{"level":30,"time":1791098099032,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-69","req":{"method":"POST","url":"/api/admin/projects/20000000-0000-4000-8000-000000000001/pages","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57250},"msg":"incoming request"}
+{"level":30,"time":1791098099033,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-69","res":{"statusCode":201},"responseTime":0.8375830000004498,"msg":"request completed"}
+{"level":30,"time":1791098099034,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6a","req":{"method":"GET","url":"/api/admin/pages/91121f11-e3f9-4994-91b6-95500b95b840/deployment","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57250},"msg":"incoming request"}
+{"level":30,"time":1791098099035,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6a","res":{"statusCode":200},"responseTime":0.7662079999990965,"msg":"request completed"}
+{"level":30,"time":1791098099036,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6b","req":{"method":"POST","url":"/api/admin/pages/91121f11-e3f9-4994-91b6-95500b95b840/drafts","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57250},"msg":"incoming request"}
+{"level":30,"time":1791098099037,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6b","res":{"statusCode":201},"responseTime":0.849792000000889,"msg":"request completed"}
+{"level":30,"time":1791098099038,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6c","req":{"method":"POST","url":"/api/admin/drafts/df7f3d6b-c94d-4728-a0f5-2b6309a43b20/operations","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57250},"msg":"incoming request"}
+{"level":30,"time":1791098099039,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6c","res":{"statusCode":200},"responseTime":1.5187910000004194,"msg":"request completed"}
+{"level":30,"time":1791098099040,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6d","req":{"method":"POST","url":"/api/admin/drafts/df7f3d6b-c94d-4728-a0f5-2b6309a43b20/publish","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57250},"msg":"incoming request"}
+{"level":30,"time":1791098099042,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6d","res":{"statusCode":201},"responseTime":1.2869590000009339,"msg":"request completed"}
+{"level":30,"time":1791098099043,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6e","req":{"method":"POST","url":"/api/admin/pages/91121f11-e3f9-4994-91b6-95500b95b840/deployment/deploy","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57250},"msg":"incoming request"}
+{"level":30,"time":1791098099044,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6e","res":{"statusCode":200},"responseTime":1.0499589999999444,"msg":"request completed"}
+{"level":30,"time":1791098099429,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6i","req":{"method":"POST","url":"/api/admin/pages/91121f11-e3f9-4994-91b6-95500b95b840/deployment/disable","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57250},"msg":"incoming request"}
+{"level":30,"time":1791098099431,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6i","res":{"statusCode":200},"responseTime":1.7969169999996666,"msg":"request completed"}
+[13/21] [firefox] › tests/e2e/deployment-flow.spec.ts:120:7 › vue ssr: deployment respects host hydration, route transitions, remount and disable
+{"level":30,"time":1791098099740,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6k","req":{"method":"POST","url":"/api/auth/dev-login","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57275},"msg":"incoming request"}
+{"level":30,"time":1791098099741,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6k","res":{"statusCode":200},"responseTime":0.805540999999721,"msg":"request completed"}
+{"level":30,"time":1791098099743,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6l","req":{"method":"GET","url":"/api/admin/projects","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57275},"msg":"incoming request"}
+{"level":30,"time":1791098099744,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6l","res":{"statusCode":200},"responseTime":1.0227920000015729,"msg":"request completed"}
+{"level":30,"time":1791098099745,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6m","req":{"method":"GET","url":"/api/admin/projects/20000000-0000-4000-8000-000000000001/pages","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57275},"msg":"incoming request"}
+{"level":30,"time":1791098099746,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6m","res":{"statusCode":200},"responseTime":0.8775420000001759,"msg":"request completed"}
+{"level":30,"time":1791098099748,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6n","req":{"method":"POST","url":"/api/admin/projects/20000000-0000-4000-8000-000000000001/pages","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57275},"msg":"incoming request"}
+{"level":30,"time":1791098099749,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6n","res":{"statusCode":201},"responseTime":1.1776669999999285,"msg":"request completed"}
+{"level":30,"time":1791098099751,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6o","req":{"method":"GET","url":"/api/admin/pages/939b0f75-bd7f-4ee6-9478-835c22fa11fa/deployment","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57275},"msg":"incoming request"}
+{"level":30,"time":1791098099751,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6o","res":{"statusCode":200},"responseTime":0.7005410000001575,"msg":"request completed"}
+{"level":30,"time":1791098099752,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6p","req":{"method":"POST","url":"/api/admin/pages/939b0f75-bd7f-4ee6-9478-835c22fa11fa/drafts","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57275},"msg":"incoming request"}
+{"level":30,"time":1791098099753,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6p","res":{"statusCode":201},"responseTime":1.0499170000002778,"msg":"request completed"}
+{"level":30,"time":1791098099755,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6q","req":{"method":"POST","url":"/api/admin/drafts/b1a6340a-a236-435e-8266-31739be9c1e8/operations","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57275},"msg":"incoming request"}
+{"level":30,"time":1791098099756,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6q","res":{"statusCode":200},"responseTime":1.634874999999738,"msg":"request completed"}
+{"level":30,"time":1791098099758,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6r","req":{"method":"POST","url":"/api/admin/drafts/b1a6340a-a236-435e-8266-31739be9c1e8/publish","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57275},"msg":"incoming request"}
+{"level":30,"time":1791098099759,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6r","res":{"statusCode":201},"responseTime":1.2432079999998678,"msg":"request completed"}
+{"level":30,"time":1791098099760,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6s","req":{"method":"POST","url":"/api/admin/pages/939b0f75-bd7f-4ee6-9478-835c22fa11fa/deployment/deploy","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57275},"msg":"incoming request"}
+{"level":30,"time":1791098099761,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6s","res":{"statusCode":200},"responseTime":1.0478750000002037,"msg":"request completed"}
+{"level":30,"time":1791098100145,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6w","req":{"method":"POST","url":"/api/admin/pages/939b0f75-bd7f-4ee6-9478-835c22fa11fa/deployment/disable","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57275},"msg":"incoming request"}
+{"level":30,"time":1791098100147,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6w","res":{"statusCode":200},"responseTime":1.6132909999996627,"msg":"request completed"}
+[14/21] [firefox] › tests/e2e/deployment-flow.spec.ts:149:5 › invalid deployment and unavailable runtime asset leave the original page visible
+(node:80473) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[15/21] [webkit] › tests/e2e/deployment-flow.spec.ts:51:7 › script: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation
+{"level":30,"time":1791098101346,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6y","req":{"method":"POST","url":"/api/auth/dev-login","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57324},"msg":"incoming request"}
+{"level":30,"time":1791098101347,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6y","res":{"statusCode":200},"responseTime":0.7897910000010597,"msg":"request completed"}
+{"level":30,"time":1791098101362,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6z","req":{"method":"GET","url":"/api/admin/projects","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57324},"msg":"incoming request"}
+{"level":30,"time":1791098101363,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6z","res":{"statusCode":200},"responseTime":0.7945840000011231,"msg":"request completed"}
+{"level":30,"time":1791098101365,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-70","req":{"method":"GET","url":"/api/admin/projects/20000000-0000-4000-8000-000000000001/pages","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57324},"msg":"incoming request"}
+{"level":30,"time":1791098101365,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-70","res":{"statusCode":200},"responseTime":0.6502500000005966,"msg":"request completed"}
+{"level":30,"time":1791098101367,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-71","req":{"method":"GET","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57324},"msg":"incoming request"}
+{"level":30,"time":1791098101368,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-71","res":{"statusCode":200},"responseTime":0.6142080000008718,"msg":"request completed"}
+{"level":30,"time":1791098101369,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-72","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/disable","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57324},"msg":"incoming request"}
+{"level":30,"time":1791098101371,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-72","res":{"statusCode":200},"responseTime":1.1092499999995198,"msg":"request completed"}
+{"level":30,"time":1791098101384,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-73","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/drafts","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57324},"msg":"incoming request"}
+{"level":30,"time":1791098101386,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-73","res":{"statusCode":201},"responseTime":1.1461660000004485,"msg":"request completed"}
+{"level":30,"time":1791098101388,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-74","req":{"method":"POST","url":"/api/admin/drafts/dfe69e4c-7011-4c6a-ba71-90d5723447eb/operations","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57324},"msg":"incoming request"}
+{"level":30,"time":1791098101389,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-74","res":{"statusCode":200},"responseTime":1.6481669999993755,"msg":"request completed"}
+{"level":30,"time":1791098101391,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-75","req":{"method":"POST","url":"/api/admin/drafts/dfe69e4c-7011-4c6a-ba71-90d5723447eb/publish","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57324},"msg":"incoming request"}
+{"level":30,"time":1791098101393,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-75","res":{"statusCode":201},"responseTime":1.8021659999994881,"msg":"request completed"}
+{"level":30,"time":1791098101397,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-76","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/drafts","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57324},"msg":"incoming request"}
+{"level":30,"time":1791098101398,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-76","res":{"statusCode":201},"responseTime":1.1302080000004935,"msg":"request completed"}
+{"level":30,"time":1791098101400,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-77","req":{"method":"POST","url":"/api/admin/drafts/ee9c19f6-fd5c-41bb-8f0d-8ffbbad49fb6/operations","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57324},"msg":"incoming request"}
+{"level":30,"time":1791098101402,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-77","res":{"statusCode":200},"responseTime":1.5440830000006827,"msg":"request completed"}
+{"level":30,"time":1791098101404,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-78","req":{"method":"POST","url":"/api/admin/drafts/ee9c19f6-fd5c-41bb-8f0d-8ffbbad49fb6/publish","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57324},"msg":"incoming request"}
+{"level":30,"time":1791098101406,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-78","res":{"statusCode":201},"responseTime":1.5703750000011496,"msg":"request completed"}
+{"level":30,"time":1791098101639,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7a","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/deploy","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57324},"msg":"incoming request"}
+{"level":30,"time":1791098101640,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7a","res":{"statusCode":200},"responseTime":1.5456670000003214,"msg":"request completed"}
+{"level":30,"time":1791098101658,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7c","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/deploy","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57324},"msg":"incoming request"}
+{"level":30,"time":1791098101659,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7c","res":{"statusCode":200},"responseTime":1.7234580000003916,"msg":"request completed"}
+{"level":30,"time":1791098101798,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7e","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/shares","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57324},"msg":"incoming request"}
+{"level":30,"time":1791098101800,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7e","res":{"statusCode":201},"responseTime":1.3855839999996533,"msg":"request completed"}
+{"level":30,"time":1791098101941,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7f","req":{"method":"GET","url":"/share/[redacted]","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57334},"msg":"incoming request"}
+{"level":30,"time":1791098101942,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7f","res":{"statusCode":302},"responseTime":1.009874999999738,"msg":"request completed"}
+{"level":30,"time":1791098101967,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7g","req":{"method":"OPTIONS","url":"/api/share/exchange","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57334},"msg":"incoming request"}
+{"level":30,"time":1791098101967,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7g","res":{"statusCode":204},"responseTime":0.11449999999967986,"msg":"request completed"}
+{"level":30,"time":1791098101969,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7h","req":{"method":"POST","url":"/api/share/exchange","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57334},"msg":"incoming request"}
+{"level":30,"time":1791098101970,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7h","res":{"statusCode":200},"responseTime":1.5906670000003942,"msg":"request completed"}
+{"level":30,"time":1791098101978,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7i","req":{"method":"OPTIONS","url":"/api/runtime/projects/pk_playground_local/manifest?pathname=%2Fpricing&version=9","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57334},"msg":"incoming request"}
+{"level":30,"time":1791098101978,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7i","res":{"statusCode":204},"responseTime":0.0915420000001177,"msg":"request completed"}
+{"level":30,"time":1791098102090,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7k","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/experiments","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57324},"msg":"incoming request"}
+{"level":30,"time":1791098102093,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7k","res":{"statusCode":201},"responseTime":2.1514589999987948,"msg":"request completed"}
+{"level":30,"time":1791098102094,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7l","req":{"method":"POST","url":"/api/admin/experiments/a247f5a5-3565-4857-8009-bd920e119aad/activate","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57324},"msg":"incoming request"}
+{"level":30,"time":1791098102096,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7l","res":{"statusCode":200},"responseTime":1.7380000000011933,"msg":"request completed"}
+{"level":30,"time":1791098102097,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7m","req":{"method":"POST","url":"/api/admin/experiments/a247f5a5-3565-4857-8009-bd920e119aad/variants/A/links","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57324},"msg":"incoming request"}
+{"level":30,"time":1791098102099,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7m","res":{"statusCode":201},"responseTime":1.2440000000005966,"msg":"request completed"}
+{"level":30,"time":1791098102278,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7n","req":{"method":"OPTIONS","url":"/api/runtime/projects/pk_playground_local/manifest?pathname=%2Fpricing","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57334},"msg":"incoming request"}
+{"level":30,"time":1791098102278,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7n","res":{"statusCode":204},"responseTime":0.14708400000017718,"msg":"request completed"}
+{"level":30,"time":1791098102307,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7p","req":{"method":"POST","url":"/api/admin/experiments/a247f5a5-3565-4857-8009-bd920e119aad/complete","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57324},"msg":"incoming request"}
+{"level":30,"time":1791098102309,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7p","res":{"statusCode":200},"responseTime":1.8867499999996653,"msg":"request completed"}
+{"level":30,"time":1791098102476,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7q","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/disable","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57324},"msg":"incoming request"}
+{"level":30,"time":1791098102478,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7q","res":{"statusCode":200},"responseTime":1.628708000000188,"msg":"request completed"}
+{"level":30,"time":1791098102488,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7s","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/rollback","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57324},"msg":"incoming request"}
+{"level":30,"time":1791098102490,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7s","res":{"statusCode":200},"responseTime":1.9400000000005093,"msg":"request completed"}
+{"level":30,"time":1791098102525,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7u","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/disable","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57324},"msg":"incoming request"}
+{"level":30,"time":1791098102527,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7u","res":{"statusCode":200},"responseTime":1.873875000001135,"msg":"request completed"}
+[16/21] [webkit] › tests/e2e/deployment-flow.spec.ts:51:7 › module: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation
+{"level":30,"time":1791098102730,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7v","req":{"method":"POST","url":"/api/auth/dev-login","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57365},"msg":"incoming request"}
+{"level":30,"time":1791098102731,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7v","res":{"statusCode":200},"responseTime":0.7998339999994641,"msg":"request completed"}
+{"level":30,"time":1791098102733,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7w","req":{"method":"GET","url":"/api/admin/projects","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57365},"msg":"incoming request"}
+{"level":30,"time":1791098102734,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7w","res":{"statusCode":200},"responseTime":0.7692920000008598,"msg":"request completed"}
+{"level":30,"time":1791098102735,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7x","req":{"method":"GET","url":"/api/admin/projects/20000000-0000-4000-8000-000000000001/pages","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57365},"msg":"incoming request"}
+{"level":30,"time":1791098102736,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7x","res":{"statusCode":200},"responseTime":0.7804170000017621,"msg":"request completed"}
+{"level":30,"time":1791098102737,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7y","req":{"method":"GET","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57365},"msg":"incoming request"}
+{"level":30,"time":1791098102737,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7y","res":{"statusCode":200},"responseTime":0.5995000000002619,"msg":"request completed"}
+{"level":30,"time":1791098102738,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7z","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/disable","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57365},"msg":"incoming request"}
+{"level":30,"time":1791098102740,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7z","res":{"statusCode":200},"responseTime":1.3774169999996957,"msg":"request completed"}
+{"level":30,"time":1791098102741,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-80","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/drafts","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57365},"msg":"incoming request"}
+{"level":30,"time":1791098102742,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-80","res":{"statusCode":201},"responseTime":0.870375000000422,"msg":"request completed"}
+{"level":30,"time":1791098102743,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-81","req":{"method":"POST","url":"/api/admin/drafts/8304a12b-876e-406f-ab57-7c49c5789a81/operations","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57365},"msg":"incoming request"}
+{"level":30,"time":1791098102744,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-81","res":{"statusCode":200},"responseTime":1.1852920000001177,"msg":"request completed"}
+{"level":30,"time":1791098102745,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-82","req":{"method":"POST","url":"/api/admin/drafts/8304a12b-876e-406f-ab57-7c49c5789a81/publish","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57365},"msg":"incoming request"}
+{"level":30,"time":1791098102747,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-82","res":{"statusCode":201},"responseTime":1.3966249999994034,"msg":"request completed"}
+{"level":30,"time":1791098102748,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-83","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/drafts","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57365},"msg":"incoming request"}
+{"level":30,"time":1791098102749,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-83","res":{"statusCode":201},"responseTime":0.8546249999999418,"msg":"request completed"}
+{"level":30,"time":1791098102750,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-84","req":{"method":"POST","url":"/api/admin/drafts/48f93742-d32d-443f-9991-066ef56c6a51/operations","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57365},"msg":"incoming request"}
+{"level":30,"time":1791098102752,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-84","res":{"statusCode":200},"responseTime":1.2856670000001031,"msg":"request completed"}
+{"level":30,"time":1791098102753,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-85","req":{"method":"POST","url":"/api/admin/drafts/48f93742-d32d-443f-9991-066ef56c6a51/publish","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57365},"msg":"incoming request"}
+{"level":30,"time":1791098102754,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-85","res":{"statusCode":201},"responseTime":1.4324159999996482,"msg":"request completed"}
+{"level":30,"time":1791098103052,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-87","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/deploy","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57365},"msg":"incoming request"}
+{"level":30,"time":1791098103054,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-87","res":{"statusCode":200},"responseTime":1.8684580000008282,"msg":"request completed"}
+{"level":30,"time":1791098103077,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-89","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/deploy","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57365},"msg":"incoming request"}
+{"level":30,"time":1791098103079,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-89","res":{"statusCode":200},"responseTime":1.5160419999992882,"msg":"request completed"}
+{"level":30,"time":1791098103221,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8b","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/shares","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57365},"msg":"incoming request"}
+{"level":30,"time":1791098103222,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8b","res":{"statusCode":201},"responseTime":1.1063749999993888,"msg":"request completed"}
+{"level":30,"time":1791098103386,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8c","req":{"method":"GET","url":"/share/[redacted]","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57373},"msg":"incoming request"}
+{"level":30,"time":1791098103387,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8c","res":{"statusCode":302},"responseTime":1.03216699999939,"msg":"request completed"}
+{"level":30,"time":1791098103411,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8d","req":{"method":"OPTIONS","url":"/api/share/exchange","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57373},"msg":"incoming request"}
+{"level":30,"time":1791098103411,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8d","res":{"statusCode":204},"responseTime":0.09804200000144192,"msg":"request completed"}
+{"level":30,"time":1791098103413,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8e","req":{"method":"POST","url":"/api/share/exchange","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57373},"msg":"incoming request"}
+{"level":30,"time":1791098103414,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8e","res":{"statusCode":200},"responseTime":1.560250000000451,"msg":"request completed"}
+{"level":30,"time":1791098103423,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8f","req":{"method":"OPTIONS","url":"/api/runtime/projects/pk_playground_local/manifest?pathname=%2Fpricing&version=11","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57373},"msg":"incoming request"}
+{"level":30,"time":1791098103423,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8f","res":{"statusCode":204},"responseTime":0.10374999999839929,"msg":"request completed"}
+{"level":30,"time":1791098103548,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8h","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/experiments","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57365},"msg":"incoming request"}
+{"level":30,"time":1791098103550,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8h","res":{"statusCode":201},"responseTime":2.2403749999994034,"msg":"request completed"}
+{"level":30,"time":1791098103552,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8i","req":{"method":"POST","url":"/api/admin/experiments/c76af144-66b8-4b0d-a84b-373d49ca0e8f/activate","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57365},"msg":"incoming request"}
+{"level":30,"time":1791098103554,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8i","res":{"statusCode":200},"responseTime":1.9370410000010452,"msg":"request completed"}
+{"level":30,"time":1791098103555,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8j","req":{"method":"POST","url":"/api/admin/experiments/c76af144-66b8-4b0d-a84b-373d49ca0e8f/variants/A/links","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57365},"msg":"incoming request"}
+{"level":30,"time":1791098103556,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8j","res":{"statusCode":201},"responseTime":1.3737909999999829,"msg":"request completed"}
+{"level":30,"time":1791098103722,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8k","req":{"method":"OPTIONS","url":"/api/runtime/projects/pk_playground_local/manifest?pathname=%2Fpricing","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57373},"msg":"incoming request"}
+{"level":30,"time":1791098103722,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8k","res":{"statusCode":204},"responseTime":0.09929100000044855,"msg":"request completed"}
+{"level":30,"time":1791098103753,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8m","req":{"method":"POST","url":"/api/admin/experiments/c76af144-66b8-4b0d-a84b-373d49ca0e8f/complete","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57365},"msg":"incoming request"}
+{"level":30,"time":1791098103755,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8m","res":{"statusCode":200},"responseTime":1.7036250000001019,"msg":"request completed"}
+{"level":30,"time":1791098103900,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8n","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/disable","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57365},"msg":"incoming request"}
+{"level":30,"time":1791098103902,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8n","res":{"statusCode":200},"responseTime":1.5199590000011085,"msg":"request completed"}
+{"level":30,"time":1791098103931,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8p","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/rollback","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57365},"msg":"incoming request"}
+{"level":30,"time":1791098103932,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8p","res":{"statusCode":200},"responseTime":1.7652909999997064,"msg":"request completed"}
+{"level":30,"time":1791098103947,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8r","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000002/deployment/disable","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57365},"msg":"incoming request"}
+{"level":30,"time":1791098103949,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8r","res":{"statusCode":200},"responseTime":1.4488750000000437,"msg":"request completed"}
+[17/21] [webkit] › tests/e2e/deployment-flow.spec.ts:120:7 › react csr: deployment respects host hydration, route transitions, remount and disable
+{"level":30,"time":1791098104082,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8s","req":{"method":"POST","url":"/api/auth/dev-login","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57400},"msg":"incoming request"}
+{"level":30,"time":1791098104083,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8s","res":{"statusCode":200},"responseTime":0.737542000000758,"msg":"request completed"}
+{"level":30,"time":1791098104084,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8t","req":{"method":"GET","url":"/api/admin/projects","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57400},"msg":"incoming request"}
+{"level":30,"time":1791098104085,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8t","res":{"statusCode":200},"responseTime":0.6242910000000848,"msg":"request completed"}
+{"level":30,"time":1791098104086,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8u","req":{"method":"GET","url":"/api/admin/projects/20000000-0000-4000-8000-000000000001/pages","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57400},"msg":"incoming request"}
+{"level":30,"time":1791098104087,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8u","res":{"statusCode":200},"responseTime":0.5940000000009604,"msg":"request completed"}
+{"level":30,"time":1791098104088,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8v","req":{"method":"POST","url":"/api/admin/projects/20000000-0000-4000-8000-000000000001/pages","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57400},"msg":"incoming request"}
+{"level":30,"time":1791098104089,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8v","res":{"statusCode":201},"responseTime":0.9997499999990396,"msg":"request completed"}
+{"level":30,"time":1791098104090,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8w","req":{"method":"GET","url":"/api/admin/pages/ccb44fa6-fa57-44ed-b210-6e46c374ca07/deployment","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57400},"msg":"incoming request"}
+{"level":30,"time":1791098104090,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8w","res":{"statusCode":200},"responseTime":0.7221249999984138,"msg":"request completed"}
+{"level":30,"time":1791098104092,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8x","req":{"method":"POST","url":"/api/admin/pages/ccb44fa6-fa57-44ed-b210-6e46c374ca07/drafts","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57400},"msg":"incoming request"}
+{"level":30,"time":1791098104093,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8x","res":{"statusCode":201},"responseTime":1.1534170000013546,"msg":"request completed"}
+{"level":30,"time":1791098104094,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8y","req":{"method":"POST","url":"/api/admin/drafts/00392bf8-1b6e-4208-b5fe-7872d5f18413/operations","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57400},"msg":"incoming request"}
+{"level":30,"time":1791098104096,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8y","res":{"statusCode":200},"responseTime":1.3751250000004802,"msg":"request completed"}
+{"level":30,"time":1791098104097,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8z","req":{"method":"POST","url":"/api/admin/drafts/00392bf8-1b6e-4208-b5fe-7872d5f18413/publish","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57400},"msg":"incoming request"}
+{"level":30,"time":1791098104098,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8z","res":{"statusCode":201},"responseTime":1.3301659999997355,"msg":"request completed"}
+{"level":30,"time":1791098104099,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-90","req":{"method":"POST","url":"/api/admin/pages/ccb44fa6-fa57-44ed-b210-6e46c374ca07/deployment/deploy","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57400},"msg":"incoming request"}
+{"level":30,"time":1791098104100,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-90","res":{"statusCode":200},"responseTime":0.992500000000291,"msg":"request completed"}
+{"level":30,"time":1791098104578,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-94","req":{"method":"POST","url":"/api/admin/pages/ccb44fa6-fa57-44ed-b210-6e46c374ca07/deployment/disable","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57400},"msg":"incoming request"}
+{"level":30,"time":1791098104580,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-94","res":{"statusCode":200},"responseTime":1.5212090000004537,"msg":"request completed"}
+[18/21] [webkit] › tests/e2e/deployment-flow.spec.ts:120:7 › react ssr: deployment respects host hydration, route transitions, remount and disable
+{"level":30,"time":1791098104681,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-96","req":{"method":"POST","url":"/api/auth/dev-login","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57421},"msg":"incoming request"}
+{"level":30,"time":1791098104681,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-96","res":{"statusCode":200},"responseTime":0.7679579999985435,"msg":"request completed"}
+{"level":30,"time":1791098104683,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-97","req":{"method":"GET","url":"/api/admin/projects","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57421},"msg":"incoming request"}
+{"level":30,"time":1791098104683,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-97","res":{"statusCode":200},"responseTime":0.6710419999999431,"msg":"request completed"}
+{"level":30,"time":1791098104684,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-98","req":{"method":"GET","url":"/api/admin/projects/20000000-0000-4000-8000-000000000001/pages","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57421},"msg":"incoming request"}
+{"level":30,"time":1791098104685,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-98","res":{"statusCode":200},"responseTime":0.5632920000007289,"msg":"request completed"}
+{"level":30,"time":1791098104686,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-99","req":{"method":"POST","url":"/api/admin/projects/20000000-0000-4000-8000-000000000001/pages","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57421},"msg":"incoming request"}
+{"level":30,"time":1791098104687,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-99","res":{"statusCode":201},"responseTime":0.9740000000001601,"msg":"request completed"}
+{"level":30,"time":1791098104688,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9a","req":{"method":"GET","url":"/api/admin/pages/6f339ddd-a994-47c2-860a-2883e2367dce/deployment","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57421},"msg":"incoming request"}
+{"level":30,"time":1791098104689,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9a","res":{"statusCode":200},"responseTime":0.6562080000003334,"msg":"request completed"}
+{"level":30,"time":1791098104690,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9b","req":{"method":"POST","url":"/api/admin/pages/6f339ddd-a994-47c2-860a-2883e2367dce/drafts","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57421},"msg":"incoming request"}
+{"level":30,"time":1791098104691,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9b","res":{"statusCode":201},"responseTime":0.9117919999989681,"msg":"request completed"}
+{"level":30,"time":1791098104692,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9c","req":{"method":"POST","url":"/api/admin/drafts/0029fb36-ccad-4828-9e51-0578624bc9fd/operations","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57421},"msg":"incoming request"}
+{"level":30,"time":1791098104693,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9c","res":{"statusCode":200},"responseTime":1.2553749999988213,"msg":"request completed"}
+{"level":30,"time":1791098104694,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9d","req":{"method":"POST","url":"/api/admin/drafts/0029fb36-ccad-4828-9e51-0578624bc9fd/publish","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57421},"msg":"incoming request"}
+{"level":30,"time":1791098104695,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9d","res":{"statusCode":201},"responseTime":1.3227500000011787,"msg":"request completed"}
+{"level":30,"time":1791098104697,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9e","req":{"method":"POST","url":"/api/admin/pages/6f339ddd-a994-47c2-860a-2883e2367dce/deployment/deploy","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57421},"msg":"incoming request"}
+{"level":30,"time":1791098104698,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9e","res":{"statusCode":200},"responseTime":1.2751660000012635,"msg":"request completed"}
+{"level":30,"time":1791098105157,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9i","req":{"method":"POST","url":"/api/admin/pages/6f339ddd-a994-47c2-860a-2883e2367dce/deployment/disable","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57421},"msg":"incoming request"}
+{"level":30,"time":1791098105158,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9i","res":{"statusCode":200},"responseTime":1.6563750000004802,"msg":"request completed"}
+[19/21] [webkit] › tests/e2e/deployment-flow.spec.ts:120:7 › vue csr: deployment respects host hydration, route transitions, remount and disable
+{"level":30,"time":1791098105263,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9k","req":{"method":"POST","url":"/api/auth/dev-login","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57440},"msg":"incoming request"}
+{"level":30,"time":1791098105264,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9k","res":{"statusCode":200},"responseTime":0.7163330000003043,"msg":"request completed"}
+{"level":30,"time":1791098105265,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9l","req":{"method":"GET","url":"/api/admin/projects","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57440},"msg":"incoming request"}
+{"level":30,"time":1791098105266,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9l","res":{"statusCode":200},"responseTime":0.6659589999999298,"msg":"request completed"}
+{"level":30,"time":1791098105267,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9m","req":{"method":"GET","url":"/api/admin/projects/20000000-0000-4000-8000-000000000001/pages","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57440},"msg":"incoming request"}
+{"level":30,"time":1791098105268,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9m","res":{"statusCode":200},"responseTime":0.7085000000006403,"msg":"request completed"}
+{"level":30,"time":1791098105269,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9n","req":{"method":"POST","url":"/api/admin/projects/20000000-0000-4000-8000-000000000001/pages","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57440},"msg":"incoming request"}
+{"level":30,"time":1791098105270,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9n","res":{"statusCode":201},"responseTime":0.9380000000001019,"msg":"request completed"}
+{"level":30,"time":1791098105271,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9o","req":{"method":"GET","url":"/api/admin/pages/02965264-9b00-4e4d-9cc5-580e16c51cd2/deployment","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57440},"msg":"incoming request"}
+{"level":30,"time":1791098105272,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9o","res":{"statusCode":200},"responseTime":0.6274169999996957,"msg":"request completed"}
+{"level":30,"time":1791098105272,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9p","req":{"method":"POST","url":"/api/admin/pages/02965264-9b00-4e4d-9cc5-580e16c51cd2/drafts","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57440},"msg":"incoming request"}
+{"level":30,"time":1791098105273,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9p","res":{"statusCode":201},"responseTime":0.9718329999996058,"msg":"request completed"}
+{"level":30,"time":1791098105275,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9q","req":{"method":"POST","url":"/api/admin/drafts/f4661836-d4b7-4178-bfc9-00dac0ae3a2d/operations","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57440},"msg":"incoming request"}
+{"level":30,"time":1791098105276,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9q","res":{"statusCode":200},"responseTime":1.4810410000009142,"msg":"request completed"}
+{"level":30,"time":1791098105277,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9r","req":{"method":"POST","url":"/api/admin/drafts/f4661836-d4b7-4178-bfc9-00dac0ae3a2d/publish","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57440},"msg":"incoming request"}
+{"level":30,"time":1791098105279,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9r","res":{"statusCode":201},"responseTime":1.3824169999988953,"msg":"request completed"}
+{"level":30,"time":1791098105280,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9s","req":{"method":"POST","url":"/api/admin/pages/02965264-9b00-4e4d-9cc5-580e16c51cd2/deployment/deploy","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57440},"msg":"incoming request"}
+{"level":30,"time":1791098105281,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9s","res":{"statusCode":200},"responseTime":1.098708000001352,"msg":"request completed"}
+{"level":30,"time":1791098105746,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9w","req":{"method":"POST","url":"/api/admin/pages/02965264-9b00-4e4d-9cc5-580e16c51cd2/deployment/disable","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57440},"msg":"incoming request"}
+{"level":30,"time":1791098105747,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9w","res":{"statusCode":200},"responseTime":1.6884580000005371,"msg":"request completed"}
+[20/21] [webkit] › tests/e2e/deployment-flow.spec.ts:120:7 › vue ssr: deployment respects host hydration, route transitions, remount and disable
+{"level":30,"time":1791098105847,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9y","req":{"method":"POST","url":"/api/auth/dev-login","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57460},"msg":"incoming request"}
+{"level":30,"time":1791098105848,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9y","res":{"statusCode":200},"responseTime":0.7322080000012647,"msg":"request completed"}
+{"level":30,"time":1791098105849,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9z","req":{"method":"GET","url":"/api/admin/projects","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57460},"msg":"incoming request"}
+{"level":30,"time":1791098105850,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9z","res":{"statusCode":200},"responseTime":0.5802499999990687,"msg":"request completed"}
+{"level":30,"time":1791098105851,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-a0","req":{"method":"GET","url":"/api/admin/projects/20000000-0000-4000-8000-000000000001/pages","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57460},"msg":"incoming request"}
+{"level":30,"time":1791098105851,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-a0","res":{"statusCode":200},"responseTime":0.5494580000013229,"msg":"request completed"}
+{"level":30,"time":1791098105852,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-a1","req":{"method":"POST","url":"/api/admin/projects/20000000-0000-4000-8000-000000000001/pages","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57460},"msg":"incoming request"}
+{"level":30,"time":1791098105853,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-a1","res":{"statusCode":201},"responseTime":0.7954999999965366,"msg":"request completed"}
+{"level":30,"time":1791098105854,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-a2","req":{"method":"GET","url":"/api/admin/pages/7b0f914a-09f4-49cd-be1e-b31dc2b0b657/deployment","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57460},"msg":"incoming request"}
+{"level":30,"time":1791098105855,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-a2","res":{"statusCode":200},"responseTime":0.5994580000005953,"msg":"request completed"}
+{"level":30,"time":1791098105855,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-a3","req":{"method":"POST","url":"/api/admin/pages/7b0f914a-09f4-49cd-be1e-b31dc2b0b657/drafts","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57460},"msg":"incoming request"}
+{"level":30,"time":1791098105857,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-a3","res":{"statusCode":201},"responseTime":1.0602080000026035,"msg":"request completed"}
+{"level":30,"time":1791098105858,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-a4","req":{"method":"POST","url":"/api/admin/drafts/758b3c93-8393-406e-a409-82d8e9656ac3/operations","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57460},"msg":"incoming request"}
+{"level":30,"time":1791098105859,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-a4","res":{"statusCode":200},"responseTime":1.366834000000381,"msg":"request completed"}
+{"level":30,"time":1791098105860,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-a5","req":{"method":"POST","url":"/api/admin/drafts/758b3c93-8393-406e-a409-82d8e9656ac3/publish","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57460},"msg":"incoming request"}
+{"level":30,"time":1791098105862,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-a5","res":{"statusCode":201},"responseTime":1.4737499999973807,"msg":"request completed"}
+{"level":30,"time":1791098105863,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-a6","req":{"method":"POST","url":"/api/admin/pages/7b0f914a-09f4-49cd-be1e-b31dc2b0b657/deployment/deploy","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57460},"msg":"incoming request"}
+{"level":30,"time":1791098105864,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-a6","res":{"statusCode":200},"responseTime":1.1760829999984708,"msg":"request completed"}
+{"level":30,"time":1791098106330,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-aa","req":{"method":"POST","url":"/api/admin/pages/7b0f914a-09f4-49cd-be1e-b31dc2b0b657/deployment/disable","host":"127.0.0.1:56626","remoteAddress":"127.0.0.1","remotePort":57460},"msg":"incoming request"}
+{"level":30,"time":1791098106332,"pid":80315,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-aa","res":{"statusCode":200},"responseTime":1.7492080000010901,"msg":"request completed"}
+[21/21] [webkit] › tests/e2e/deployment-flow.spec.ts:149:5 › invalid deployment and unavailable runtime asset leave the original page visible
+  21 passed (38.0s)
+{
+  "config": {
+    "argv": [
+      "/Users/igorjan/.hermes/node/bin/node",
+      "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/node_modules/.bin/playwright",
+      "test",
+      "deployment-flow.spec.ts",
+      "--reporter=line,json",
+      "--output=docs/verification/reports/SERVICE-V1/artifacts/2026-10-04-deployment-delivery/browser-fixed-artifacts"
+    ],
+    "configFile": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/playwright.config.ts",
+    "rootDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/global-setup.ts",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/docs/verification/reports/SERVICE-V1/artifacts/2026-10-04-deployment-delivery/browser-fixed-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/docs/verification/reports/SERVICE-V1/artifacts/2026-10-04-deployment-delivery/browser-fixed-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/(style-(editor-acceptance|matrix)|s4-(spa-critical|conditional-flow)|deployment-flow)\\.spec\\.ts/"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/docs/verification/reports/SERVICE-V1/artifacts/2026-10-04-deployment-delivery/browser-fixed-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/(style-(editor-acceptance|matrix)|s4-(spa-critical|conditional-flow)|deployment-flow)\\.spec\\.ts/"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "deployment-flow.spec.ts",
+      "file": "deployment-flow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "script: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1130,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T07:14:49.515Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-5bb69c97d801dd073ba3",
+          "file": "deployment-flow.spec.ts",
+          "line": 51,
+          "column": 7
+        },
+        {
+          "title": "module: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 806,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T07:14:50.994Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-5b88c67e59b260c12fe3",
+          "file": "deployment-flow.spec.ts",
+          "line": 51,
+          "column": 7
+        },
+        {
+          "title": "react csr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 448,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T07:14:51.804Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-14cb5305ee94f81c48b6",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "react ssr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 449,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T07:14:52.257Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-2b8f7ce29b6b5d42cfcd",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "vue csr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 404,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T07:14:52.710Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-5a3e86eef05127a67c30",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "vue ssr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 426,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T07:14:53.119Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-d56abb9cc38b5602424d",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "invalid deployment and unavailable runtime asset leave the original page visible",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 497,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T07:14:53.549Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-7a99578b876fa06e2fad",
+          "file": "deployment-flow.spec.ts",
+          "line": 149,
+          "column": 5
+        },
+        {
+          "title": "script: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1767,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T07:14:54.307Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-f48c5e3503e04d321f13",
+          "file": "deployment-flow.spec.ts",
+          "line": 51,
+          "column": 7
+        },
+        {
+          "title": "module: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1584,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T07:14:56.476Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-c4abad92676e5db2482e",
+          "file": "deployment-flow.spec.ts",
+          "line": 51,
+          "column": 7
+        },
+        {
+          "title": "react csr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 444,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T07:14:58.065Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-edc935aa883c801b0eea",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "react ssr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 501,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T07:14:58.513Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-9c721875d810c75be033",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "vue csr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 708,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T07:14:59.019Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-a4125afa273bb68ec803",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "vue ssr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 502,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T07:14:59.731Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-222a63b6948a50aab796",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "invalid deployment and unavailable runtime asset leave the original page visible",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 491,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T07:15:00.237Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-8235e3806efdca3d1522",
+          "file": "deployment-flow.spec.ts",
+          "line": 149,
+          "column": 5
+        },
+        {
+          "title": "script: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1409,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T07:15:01.080Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-6ab50907b552315bdac1",
+          "file": "deployment-flow.spec.ts",
+          "line": 51,
+          "column": 7
+        },
+        {
+          "title": "module: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1421,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T07:15:02.650Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-39d3e360ddf413a9ab3e",
+          "file": "deployment-flow.spec.ts",
+          "line": 51,
+          "column": 7
+        },
+        {
+          "title": "react csr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 595,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T07:15:04.075Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-02aa59281474cd45c6fe",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "react ssr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 577,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T07:15:04.675Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-6fbb90c057ce85e9f936",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "vue csr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 581,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T07:15:05.256Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-9b5cd78f3a7cd76a0fec",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "vue ssr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 586,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T07:15:05.842Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-8876755b63dc2df0c039",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "invalid deployment and unavailable runtime asset leave the original page visible",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 529,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-04T07:15:06.432Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-1657b49be7f74cf14819",
+          "file": "deployment-flow.spec.ts",
+          "line": 149,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-04T07:14:39.032Z",
+    "duration": 37965.05100000001,
+    "expected": 21,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

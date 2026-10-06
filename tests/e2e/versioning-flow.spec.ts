@@ -41,7 +41,7 @@ test('edit → save → reload → reopen → release → share keeps page scope
   await expect(hero).toHaveText('Pending after saved draft');
   await editor.reload();
   await expect(hero).toHaveText('Pending after saved draft');
-  await expect(panel.locator('[data-action="apply"]')).toHaveText('Применить (1)');
+  await expect(panel.locator('[data-field="pending-count"]')).toHaveText('1');
   await panel.locator('[data-action="undo"]').click();
   await expect(hero).toHaveText(EDITED_TEXT);
   await expect(panel.locator('[data-action="apply"]')).toBeDisabled();
@@ -59,11 +59,11 @@ test('edit → save → reload → reopen → release → share keeps page scope
   await reopened.close();
 
   await admin.getByRole('button', { name: 'Зафиксировать версию' }).click();
-  await expect(admin.getByText('Version 1', { exact: true })).toBeVisible();
-  await expect(admin.getByText('1 команд')).toBeVisible();
+  await expect(admin.getByText('Версия 1', { exact: true })).toBeVisible();
+  await expect(admin.getByText('1 команд', {exact: true})).toBeVisible();
 
   let shareUrl = '';
-  await admin.getByRole('button', { name: 'Share' }).click();
+  await admin.getByRole('button', { name: 'Ссылка на версию' }).click();
   const shareUrlField = admin.getByRole('textbox', { name: 'Share URL' });
   await expect(shareUrlField).toBeVisible();
   shareUrl = await shareUrlField.inputValue();

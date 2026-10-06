@@ -1,0 +1,135 @@
+{
+  "tests": 31,
+  "passed": 31,
+  "failed": 0,
+  "skipped": 0,
+  "cases": [
+    {
+      "name": "admin endpoints fail closed without a session cookie",
+      "status": "PASS"
+    },
+    {
+      "name": "development login is disabled unless the local development mode is enabled",
+      "status": "PASS"
+    },
+    {
+      "name": "local development login creates a normal owner session",
+      "status": "PASS"
+    },
+    {
+      "name": "development login refuses production and non-loopback origins",
+      "status": "PASS"
+    },
+    {
+      "name": "owner signs in through a one-use magic link and creates a project",
+      "status": "PASS"
+    },
+    {
+      "name": "explicit immutable versions require a page-scoped editor or share token",
+      "status": "PASS"
+    },
+    {
+      "name": "runtime without an explicit version or variant token leaves the native page untouched",
+      "status": "PASS"
+    },
+    {
+      "name": "invalid persisted operation is rejected before repository append",
+      "status": "PASS"
+    },
+    {
+      "name": "experiment selection hashes the browser ID and issues a scoped event capability",
+      "status": "PASS"
+    },
+    {
+      "name": "analytics capability rejects tampering and event properties reject page data",
+      "status": "PASS"
+    },
+    {
+      "name": "assignment bucket is deterministic and bounded",
+      "status": "PASS"
+    },
+    {
+      "name": "deployment validation rejects invalid mutations before reaching the repository",
+      "status": "PASS"
+    },
+    {
+      "name": "canonical retry hashes ignore reason whitespace and request identity but include every mutation field",
+      "status": "PASS"
+    },
+    {
+      "name": "state and bounded history validate identifiers and pass the cursor to the repository",
+      "status": "PASS"
+    },
+    {
+      "name": "runtime resolution requires an explicit valid key, pathname and origin",
+      "status": "PASS"
+    },
+    {
+      "name": "experiment creation requires exactly A and B with at least one immutable release",
+      "status": "PASS"
+    },
+    {
+      "name": "partial variant updates preserve omitted fields and retain explicit nulls",
+      "status": "PASS"
+    },
+    {
+      "name": "variant URLs expose an opaque token while repositories receive only its hash",
+      "status": "PASS"
+    },
+    {
+      "name": "project roles map to the agreed permission boundaries",
+      "status": "PASS"
+    },
+    {
+      "name": "owner can only be assigned through ownership transfer",
+      "status": "PASS"
+    },
+    {
+      "name": "createProject normalizes and deduplicates origins",
+      "status": "PASS"
+    },
+    {
+      "name": "appendOperations validates protocol v1 before touching the repository",
+      "status": "PASS"
+    },
+    {
+      "name": "appendOperations accepts the complete static-page operation set",
+      "status": "PASS"
+    },
+    {
+      "name": "save payload hash is canonical and includes expected revision",
+      "status": "PASS"
+    },
+    {
+      "name": "001..010 installs fresh and deployment history is immutable with same-page release references",
+      "status": "PASS"
+    },
+    {
+      "name": "010 upgrade preserves existing pages and releases without deploying them",
+      "status": "PASS"
+    },
+    {
+      "name": "a transactional 010 failure rolls back its table, unique constraint and migration ledger entry",
+      "status": "PASS"
+    },
+    {
+      "name": "PostgreSQL deployments serialize activations and isolate public runtime resolution",
+      "status": "PASS"
+    },
+    {
+      "name": "PostgreSQL experiments expose only active A/B variant links and preserve the native default",
+      "status": "PASS"
+    },
+    {
+      "name": "project invitations enforce roles, revoke editor capabilities, and transfer ownership",
+      "status": "PASS"
+    },
+    {
+      "name": "PostgreSQL workflow freezes immutable versions without changing the native page",
+      "status": "PASS"
+    }
+  ],
+  "httpSmoke": "PASS",
+  "freshMigrationCli": "PASS",
+  "upgradeAndFailure": "Isolated schema tests reuse per-file SQL/ledger transaction semantics; CLI advisory-lock behavior is not covered by those tests."
+}

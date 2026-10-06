@@ -1,0 +1,15 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "test",
+    "--workspace",
+    "@lykar/runtime",
+    "--",
+    "--reporter=dot"
+  ],
+  "startedAt": "2026-10-04T07:06:51.473Z",
+  "endedAt": "2026-10-04T07:11:58.451Z",
+  "code": 1,
+  "signal": null
+}

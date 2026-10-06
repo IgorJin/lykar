@@ -11,7 +11,7 @@ test(
   { skip: databaseUrl ? false : 'LYKAR_TEST_DATABASE_URL is not configured' },
   async () => {
     let magicLink = '';
-    const app = buildApp({
+    const app = buildApp({ emailLimits: false,
       logger: false,
       connectionString: databaseUrl,
       appOrigin: 'http://localhost:3000',
@@ -242,6 +242,9 @@ test(
       assert.equal(editorDraft.statusCode, 200, editorDraft.body);
       assert.equal(editorDraft.json().draft.revision, 1);
       assert.equal(editorDraft.json().operations.length, 1);
+      assert.equal(editorDraft.json().baseOperations.length, 1);
+      assert.equal(editorDraft.json().baseOperations[0].kind, 'setText');
+      assert.equal(editorDraft.json().operations[0].kind, 'setStyle');
       const anonymousDraft = await app.inject({ method: 'GET', url: `/api/editor/drafts/${draftV2.id}` });
       assert.equal(anonymousDraft.statusCode, 401);
       const otherDraft = await app.inject({ method: 'GET', url: `/api/editor/drafts/${draft.id}`, headers: editorHeaders });

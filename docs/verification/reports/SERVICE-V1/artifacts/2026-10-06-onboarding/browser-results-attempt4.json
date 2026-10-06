@@ -1,0 +1,222 @@
+{
+  "config": {
+    "argv": [
+      "/Users/igorjan/.hermes/node/bin/node",
+      "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/node_modules/.bin/playwright",
+      "test",
+      "tests/e2e/onboarding.spec.ts",
+      "--project=webkit",
+      "--grep",
+      "mobile keyboard",
+      "--reporter=line,json"
+    ],
+    "configFile": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/playwright.config.ts",
+    "rootDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/global-setup.ts",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/(style-(editor-acceptance|matrix)|s4-(spa-critical|conditional-flow)|deployment-(flow|admin|repair)|auth-and-editor|site-connection|onboarding)\\.spec\\.ts/"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/(style-(editor-acceptance|matrix)|s4-(spa-critical|conditional-flow)|deployment-(flow|admin|repair)|auth-and-editor|site-connection|onboarding)\\.spec\\.ts/"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "onboarding.spec.ts",
+      "file": "onboarding.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "new customer installs copied snippet and saves first preview (mobile keyboard)",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1850,
+                  "error": {
+                    "message": "Error: {\"width\":390,\"actual\":615,\"elements\":[{\"tag\":\"DIV\",\"cls\":\"\",\"scroll\":615,\"client\":390,\"width\":390,\"text\":\"LykarУправление сайтамиonboarding-f4d1915b-5105-45ce-b2e1-26957e4f78e0@example.c\"},{\"tag\":\"MAIN\",\"cls\":\"shell\",\"scroll\":615,\"client\":390,\"width\":390,\"text\":\"LykarУправление сайтамиonboarding-f4d1915b-5105-45ce-b2e1-26957e4f78e0@example.c\"},{\"tag\":\"DIV\",\"cls\":\"grid\",\"scroll\":593,\"client\":346,\"width\":346,\"text\":\"Новый сайтНазвание сайтаАдрес сайтаСоздатьСайтыНовый сайт onboardinghttp://127.0\"},{\"tag\":\"SECTION\",\"cls\":\"card\",\"scroll\":592,\"client\":344,\"width\":346,\"text\":\"Новый сайт onboardingpk_N6EAkbE3pt-kWFHjUcmrpZ-kOwnerМастер подключенияСтраницыУ\"},{\"tag\":\"SECTION\",\"cls\":\"onboarding\",\"scroll\":574,\"client\":308,\"width\":308,\"text\":\"От сайта до первой правкиРазработчик один раз устанавливает SDK на ваш сайт. Пос\"},{\"tag\":\"LABEL\",\"cls\":\"\",\"scroll\":574,\"client\":308,\"width\":308,\"text\":\"Страница для проверки и правкиHome · /Моя страница · /__e2e__/onboarding/a17039b\"}]}\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m390\u001b[39m\nReceived:    \u001b[31m615\u001b[39m",
+                    "stack": "Error: {\"width\":390,\"actual\":615,\"elements\":[{\"tag\":\"DIV\",\"cls\":\"\",\"scroll\":615,\"client\":390,\"width\":390,\"text\":\"LykarУправление сайтамиonboarding-f4d1915b-5105-45ce-b2e1-26957e4f78e0@example.c\"},{\"tag\":\"MAIN\",\"cls\":\"shell\",\"scroll\":615,\"client\":390,\"width\":390,\"text\":\"LykarУправление сайтамиonboarding-f4d1915b-5105-45ce-b2e1-26957e4f78e0@example.c\"},{\"tag\":\"DIV\",\"cls\":\"grid\",\"scroll\":593,\"client\":346,\"width\":346,\"text\":\"Новый сайтНазвание сайтаАдрес сайтаСоздатьСайтыНовый сайт onboardinghttp://127.0\"},{\"tag\":\"SECTION\",\"cls\":\"card\",\"scroll\":592,\"client\":344,\"width\":346,\"text\":\"Новый сайт onboardingpk_N6EAkbE3pt-kWFHjUcmrpZ-kOwnerМастер подключенияСтраницыУ\"},{\"tag\":\"SECTION\",\"cls\":\"onboarding\",\"scroll\":574,\"client\":308,\"width\":308,\"text\":\"От сайта до первой правкиРазработчик один раз устанавливает SDK на ваш сайт. Пос\"},{\"tag\":\"LABEL\",\"cls\":\"\",\"scroll\":574,\"client\":308,\"width\":308,\"text\":\"Страница для проверки и правкиHome · /Моя страница · /__e2e__/onboarding/a17039b\"}]}\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m390\u001b[39m\nReceived:    \u001b[31m615\u001b[39m\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts:47:52",
+                    "location": {
+                      "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts",
+                      "column": 52,
+                      "line": 47
+                    },
+                    "snippet": "  45 |   await admin.screenshot({path:testInfo.outputPath(`onboarding-connection-${mobile?'mobile':'desktop'}.png`),fullPage:true});\n  46 |   const overflow=await admin.evaluate(()=>({width:innerWidth,actual:document.documentElement.scrollWidth,elements:[...document.querySelectorAll('body *')].filter(el=>el.getBoundingClientRect().right>innerWidth+1||el.scrollWidth>el.clientWidth+1).slice(0,12).map(el=>({tag:el.tagName,cls:el.className,scroll:el.scrollWidth,client:el.clientWidth,width:el.getBoundingClientRect().width,text:el.textContent?.slice(0,80)}))}));\n> 47 |   expect(overflow.actual,JSON.stringify(overflow)).toBeLessThanOrEqual(overflow.width);\n     |                                                    ^\n  48 |   await admin.getByRole('button',{name:'Далее: Первая правка'}).click();\n  49 |   await admin.getByRole('button',{name:'Создать черновик',exact:true}).click();\n  50 |   const popup=context.waitForEvent('page');await admin.getByRole('button',{name:'Открыть редактор',exact:true}).click();const editor=await popup;"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts",
+                        "column": 52,
+                        "line": 47
+                      },
+                      "message": "Error: {\"width\":390,\"actual\":615,\"elements\":[{\"tag\":\"DIV\",\"cls\":\"\",\"scroll\":615,\"client\":390,\"width\":390,\"text\":\"LykarУправление сайтамиonboarding-f4d1915b-5105-45ce-b2e1-26957e4f78e0@example.c\"},{\"tag\":\"MAIN\",\"cls\":\"shell\",\"scroll\":615,\"client\":390,\"width\":390,\"text\":\"LykarУправление сайтамиonboarding-f4d1915b-5105-45ce-b2e1-26957e4f78e0@example.c\"},{\"tag\":\"DIV\",\"cls\":\"grid\",\"scroll\":593,\"client\":346,\"width\":346,\"text\":\"Новый сайтНазвание сайтаАдрес сайтаСоздатьСайтыНовый сайт onboardinghttp://127.0\"},{\"tag\":\"SECTION\",\"cls\":\"card\",\"scroll\":592,\"client\":344,\"width\":346,\"text\":\"Новый сайт onboardingpk_N6EAkbE3pt-kWFHjUcmrpZ-kOwnerМастер подключенияСтраницыУ\"},{\"tag\":\"SECTION\",\"cls\":\"onboarding\",\"scroll\":574,\"client\":308,\"width\":308,\"text\":\"От сайта до первой правкиРазработчик один раз устанавливает SDK на ваш сайт. Пос\"},{\"tag\":\"LABEL\",\"cls\":\"\",\"scroll\":574,\"client\":308,\"width\":308,\"text\":\"Страница для проверки и правкиHome · /Моя страница · /__e2e__/onboarding/a17039b\"}]}\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m390\u001b[39m\nReceived:    \u001b[31m615\u001b[39m\n\n  45 |   await admin.screenshot({path:testInfo.outputPath(`onboarding-connection-${mobile?'mobile':'desktop'}.png`),fullPage:true});\n  46 |   const overflow=await admin.evaluate(()=>({width:innerWidth,actual:document.documentElement.scrollWidth,elements:[...document.querySelectorAll('body *')].filter(el=>el.getBoundingClientRect().right>innerWidth+1||el.scrollWidth>el.clientWidth+1).slice(0,12).map(el=>({tag:el.tagName,cls:el.className,scroll:el.scrollWidth,client:el.clientWidth,width:el.getBoundingClientRect().width,text:el.textContent?.slice(0,80)}))}));\n> 47 |   expect(overflow.actual,JSON.stringify(overflow)).toBeLessThanOrEqual(overflow.width);\n     |                                                    ^\n  48 |   await admin.getByRole('button',{name:'Далее: Первая правка'}).click();\n  49 |   await admin.getByRole('button',{name:'Создать черновик',exact:true}).click();\n  50 |   const popup=context.waitForEvent('page');await admin.getByRole('button',{name:'Открыть редактор',exact:true}).click();const editor=await popup;\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts:47:52"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T19:58:04.938Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/test-failed-2.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/test-failed-1.png"
+                    },
+                    {
+                      "name": "browser-errors",
+                      "contentType": "application/json",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/attachments/browser-errors-c59630519c0fb0659f25745fabb0bb42dcfca751.json"
+                    },
+                    {
+                      "name": "page-1",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/attachments/page-1-f9878d81d0a5348091b17566b79724b34e15af46.png"
+                    },
+                    {
+                      "name": "page-2",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/attachments/page-2-63a288ef124b9054ca1c1cda24b53abefa28d0c2.png"
+                    },
+                    {
+                      "name": "video-0",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/attachments/video-0-a0b2fefafc2f37ac376ae6cee05e8e2fee57455d.webm"
+                    },
+                    {
+                      "name": "video-1",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/attachments/video-1-aefb64edd94a0e4bc3c20e826fae7ac5d8767ee4.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts",
+                    "column": 52,
+                    "line": 47
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-6b7aa551a99e69665d0f",
+          "file": "onboarding.spec.ts",
+          "line": 6,
+          "column": 39
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-06T19:57:52.227Z",
+    "duration": 24858.393,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

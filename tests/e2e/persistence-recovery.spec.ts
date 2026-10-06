@@ -1,3 +1,4 @@
+import {randomUUID} from 'node:crypto';
 import type {BrowserContext, Page} from '@playwright/test';
 
 import {expect, test, required} from './fixtures';
@@ -10,8 +11,11 @@ async function createDraftLaunch(context: BrowserContext): Promise<DraftLaunch> 
   expect(login.ok()).toBe(true);
   const projects = await context.request.get(`${apiBaseUrl}/api/admin/projects`);
   const project = (await projects.json()).projects.find((item: {name: string}) => item.name === 'Northstar E2E');
-  const pages = await context.request.get(`${apiBaseUrl}/api/admin/projects/${project.id}/pages`);
-  const page = (await pages.json()).pages.find((item: {pathname: string}) => item.pathname === '/pricing');
+  const createdPage = await context.request.post(`${apiBaseUrl}/api/admin/projects/${project.id}/pages`, {
+    data: {name: 'Persistence pricing', pathname: `/__e2e__/s3-pricing-persistence-${randomUUID()}`},
+  });
+  expect(createdPage.ok()).toBe(true);
+  const {page} = await createdPage.json();
   const created = await context.request.post(`${apiBaseUrl}/api/admin/pages/${page.id}/drafts`, {data: {}});
   const draft = (await created.json()).draft;
   const launch = await context.request.post(`${apiBaseUrl}/api/admin/pages/${page.id}/editor-launch`, {
@@ -22,10 +26,8 @@ async function createDraftLaunch(context: BrowserContext): Promise<DraftLaunch> 
 
 async function secondLaunch(context: BrowserContext, draftId: string): Promise<string> {
   const apiBaseUrl = required('LYKAR_E2E_API_BASE_URL');
-  const projects = await context.request.get(`${apiBaseUrl}/api/admin/projects`);
-  const project = (await projects.json()).projects.find((item: {name: string}) => item.name === 'Northstar E2E');
-  const pages = await context.request.get(`${apiBaseUrl}/api/admin/projects/${project.id}/pages`);
-  const page = (await pages.json()).pages.find((item: {pathname: string}) => item.pathname === '/pricing');
+  const details = await context.request.get(`${apiBaseUrl}/api/admin/drafts/${draftId}`);
+  const page = {id: (await details.json()).draft.pageId};
   const launch = await context.request.post(`${apiBaseUrl}/api/admin/pages/${page.id}/editor-launch`, {data: {draftId}});
   return (await launch.json()).launchUrl;
 }
@@ -56,13 +58,13 @@ test('two tabs expose revision conflict and preserve pending edits through reloa
 
   await secondPanel.locator('[data-action="apply"]').click();
   await expect(secondPanel.locator('[data-view="save-conflict"]')).toBeVisible();
-  await expect(secondPanel.locator('[data-action="apply"]')).toHaveText('Применить (1)');
+  await expect(secondPanel.locator('[data-field="pending-count"]')).toHaveText('1');
   await expect(second.locator('[data-lykar-id="pricing-title"]')).toHaveText('Pending in tab two');
 
   await second.reload();
   await expect(second.locator('[data-lykar-id="pricing-title"]')).toHaveText('Pending in tab two');
   await expect(secondPanel.locator('[data-view="save-conflict"]')).toBeVisible();
-  await expect(secondPanel.locator('[data-action="apply"]')).toHaveText('Применить (1)');
+  await expect(secondPanel.locator('[data-field="pending-count"]')).toHaveText('1');
 
   await secondPanel.locator('[data-action="resolve-conflict"]').click();
   await expect(secondPanel.locator('[data-view="save-conflict"]')).toBeHidden();
@@ -120,7 +122,7 @@ test('undo of a saved change appends a revision and survives save/reload', async
   await expect(panel.locator('[data-field="status"]')).toContainText('revision: 1');
   await panel.locator('[data-action="undo"]').click();
   await expect(hero).toHaveText(original);
-  await expect(panel.locator('[data-action="apply"]')).toHaveText('Применить (1)');
+  await expect(panel.locator('[data-field="pending-count"]')).toHaveText('1');
   await panel.locator('[data-action="apply"]').click();
   await expect(panel.locator('[data-field="status"]')).toContainText('revision: 2');
 
@@ -160,6 +162,7 @@ test('manual target repair previews the dependent chain and survives save/reload
       },
     ]});
   });
+  await panel.getByRole('tab', {name: 'История изменений'}).click();
   const failed = panel.locator('[data-operation-id="browser-missing-insert"]');
   await expect(failed).toContainText('TARGET_NOT_FOUND');
   await failed.getByRole('button', {name: /Исправить target/}).click();
@@ -167,7 +170,7 @@ test('manual target repair previews the dependent chain and survives save/reload
   const repaired = editor.locator('#plans p').filter({hasText: 'Browser repaired'});
   await expect(repaired).toBeVisible();
   await expect(repaired).toHaveCSS('color', 'rgb(128, 0, 128)');
-  await expect(panel.locator('[data-action="apply"]')).toHaveText('Применить (4)');
+  await expect(panel.locator('[data-field="pending-count"]')).toHaveText('4');
   await panel.locator('[data-action="apply"]').click();
   await expect(panel.locator('[data-field="status"]')).toContainText('revision: 1');
 

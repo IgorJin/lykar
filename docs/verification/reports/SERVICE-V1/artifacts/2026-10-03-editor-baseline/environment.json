@@ -1,0 +1,9 @@
+{
+  "date": "2026-10-03",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "node": "v22.23.1",
+  "npm": "10.9.8",
+  "postgres": "postgres (PostgreSQL) 15.18 (Homebrew)",
+  "playwright": "1.63.0",
+  "execution": "Serial runs, temporary isolated PostgreSQL, Playwright workers=1 retries=0; local macOS arm64, no production deployment."
+}

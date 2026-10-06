@@ -1,0 +1,23 @@
+ M apps/playground/README.md
+ M packages/editor-bridge/src/editor.test.ts
+ M packages/editor-bridge/src/editor.ts
+ M packages/editor-bridge/src/inspector.ts
+ M packages/editor-bridge/src/overlay.ts
+ M packages/editor-bridge/src/panel.ts
+ M packages/editor-bridge/src/session.ts
+ M packages/editor-ui/src/index.ts
+ M packages/editor-ui/src/styles/style-manager.ts
+ M tests/e2e/persistence-recovery.spec.ts
+ M tests/e2e/style-editor-acceptance.spec.ts
+ M tests/e2e/style-editor.spec.ts
+ M tests/e2e/style-matrix.spec.ts
+ M tests/e2e/versioning-flow.spec.ts
+?? output/
+?? packages/editor-bridge/src/insert-drag.ts
+?? packages/editor-bridge/src/panel-drag.ts
+?? packages/editor-bridge/src/panel-view.ts
+?? packages/editor-bridge/src/style-ownership.test.ts
+?? packages/editor-ui/src/controls/select.ts
+?? tasks/SERVICE-V1/
+?? tests/e2e/editor-design.spec.ts
+?? tests/e2e/editor-style-reset.spec.ts

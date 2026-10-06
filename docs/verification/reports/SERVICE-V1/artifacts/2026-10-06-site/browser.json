@@ -1,0 +1,13 @@
+{
+  "command": [
+    "npx",
+    "playwright",
+    "test",
+    "tests/e2e/site-connection.spec.ts",
+    "tests/e2e/auth-and-editor.spec.ts",
+    "--reporter=line,json"
+  ],
+  "startedAt": "2026-10-06T08:19:59.885083+00:00",
+  "durationSeconds": 110.54,
+  "exitCode": 0
+}

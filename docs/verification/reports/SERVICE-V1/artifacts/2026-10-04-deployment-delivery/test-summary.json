@@ -1,0 +1,1102 @@
+{
+  "date": "2026-10-04",
+  "unit": {
+    "runtime": {
+      "passed": 106,
+      "failed": 0,
+      "pending": 0,
+      "cases": [
+        {
+          "name": "ConditionalRuntime switches source text and style together, preserving the text node and latest host CSS",
+          "status": "passed"
+        },
+        {
+          "name": "ConditionalRuntime preserves host writes equal to the overlay and removes owned CSS on dispose",
+          "status": "passed"
+        },
+        {
+          "name": "ConditionalRuntime keeps same-queue host text and style writes separate from its own records",
+          "status": "passed"
+        },
+        {
+          "name": "ConditionalRuntime fails closed for inline important without leaving a partial text edit",
+          "status": "passed"
+        },
+        {
+          "name": "ConditionalRuntime shares host baseline among conditions for the same element",
+          "status": "passed"
+        },
+        {
+          "name": "ConditionalRuntime handles textContent replacement, remount and duplicate locator fail-closed",
+          "status": "passed"
+        },
+        {
+          "name": "ConditionalRuntime waits for target readiness and applies synchronously once ready",
+          "status": "passed"
+        },
+        {
+          "name": "ConditionalRuntime replaceGroups removes old overlays and honors tombstone undo",
+          "status": "passed"
+        },
+        {
+          "name": "ConditionalRuntime strips a copied overlay selector from a cloned target before reconciliation",
+          "status": "passed"
+        },
+        {
+          "name": "ConditionalRuntime strips a copied overlay selector inside a cloned wrapper",
+          "status": "passed"
+        },
+        {
+          "name": "ConditionalRuntime keeps selectors and cleanup isolated across two targets",
+          "status": "passed"
+        },
+        {
+          "name": "ConditionalRuntime fails closed before text mutation when the computed overlay color loses the cascade",
+          "status": "passed"
+        },
+        {
+          "name": "ConditionalRuntime rechecks color when host adds a stylesheet after activation",
+          "status": "passed"
+        },
+        {
+          "name": "ConditionalRuntime uses a connected head probe once per literal color",
+          "status": "passed"
+        },
+        {
+          "name": "ConditionalRuntime removes overlays when the lifecycle becomes stale during target resolution",
+          "status": "passed"
+        },
+        {
+          "name": "ConditionalRuntime keeps a reentrant dispose from applying after cleanup",
+          "status": "passed"
+        },
+        {
+          "name": "ConditionalRuntime suspends and frees resources when one unrelated mutation batch exceeds the bound",
+          "status": "passed"
+        },
+        {
+          "name": "ConditionalRuntime fails closed when a nested insertion exceeds the bounded clone scan",
+          "status": "passed"
+        },
+        {
+          "name": "ConditionalRuntime bounds overlay resources through repeated source transitions",
+          "status": "passed"
+        },
+        {
+          "name": "ConditionalRuntime fails closed when host removes the owned stylesheet and avoids a retry loop",
+          "status": "passed"
+        },
+        {
+          "name": "ConditionalRuntime observes head removal even when the runtime root is an element",
+          "status": "passed"
+        },
+        {
+          "name": "anonymous deployment client returns null for HTTP 204 and preserves disabled pointer metadata",
+          "status": "passed"
+        },
+        {
+          "name": "anonymous deployment client uses an uncached anonymous GET and passes the caller cancellation signal",
+          "status": "passed"
+        },
+        {
+          "name": "anonymous deployment client rejects inconsistent metadata {\"pageId\":\"\"}",
+          "status": "passed"
+        },
+        {
+          "name": "anonymous deployment client rejects inconsistent metadata {\"pageId\":\"other-page\"}",
+          "status": "passed"
+        },
+        {
+          "name": "anonymous deployment client rejects inconsistent metadata {\"revision\":-1}",
+          "status": "passed"
+        },
+        {
+          "name": "anonymous deployment client rejects inconsistent metadata {\"revision\":1.5}",
+          "status": "passed"
+        },
+        {
+          "name": "anonymous deployment client rejects inconsistent metadata {\"revision\":\"3\"}",
+          "status": "passed"
+        },
+        {
+          "name": "anonymous deployment client rejects inconsistent metadata {\"revision\":0}",
+          "status": "passed"
+        },
+        {
+          "name": "anonymous deployment client rejects inconsistent metadata {\"activeReleaseId\":null}",
+          "status": "passed"
+        },
+        {
+          "name": "anonymous deployment client rejects inconsistent metadata {\"activeReleaseId\":\"other-release\"}",
+          "status": "passed"
+        },
+        {
+          "name": "anonymous deployment client rejects inconsistent metadata {\"manifest\":null}",
+          "status": "passed"
+        },
+        {
+          "name": "anonymous deployment client rejects a valid manifest returned for another pathname",
+          "status": "passed"
+        },
+        {
+          "name": "anonymous deployment client rejects HTTP 403 without trying another endpoint",
+          "status": "passed"
+        },
+        {
+          "name": "anonymous deployment client rejects HTTP 404 without trying another endpoint",
+          "status": "passed"
+        },
+        {
+          "name": "anonymous deployment client rejects HTTP 500 without trying another endpoint",
+          "status": "passed"
+        },
+        {
+          "name": "direct runtime deployment delivery keeps unconfigured pages native",
+          "status": "passed"
+        },
+        {
+          "name": "direct runtime deployment delivery keeps disabled pages native",
+          "status": "passed"
+        },
+        {
+          "name": "direct runtime deployment delivery applies the selected release with pointer metadata and sends no experiment analytics",
+          "status": "passed"
+        },
+        {
+          "name": "direct runtime deployment delivery compensates an earlier successful mutation when a later target is missing",
+          "status": "passed"
+        },
+        {
+          "name": "direct runtime deployment delivery validates every operation before mutating native DOM for unsafe payloads",
+          "status": "passed"
+        },
+        {
+          "name": "direct runtime deployment delivery compensates a v1 edit when an initial conditional target has unsafe nested text",
+          "status": "passed"
+        },
+        {
+          "name": "direct runtime deployment delivery keeps malformed deployment responses native",
+          "status": "passed"
+        },
+        {
+          "name": "direct runtime deployment delivery uses explicit configuration {\"version\":2} instead of deployment",
+          "status": "passed"
+        },
+        {
+          "name": "direct runtime deployment delivery uses explicit configuration {\"variantToken\":\"preview-token\"} instead of deployment",
+          "status": "passed"
+        },
+        {
+          "name": "direct runtime deployment delivery uses explicit configuration {\"experimentToken\":\"experiment-token\"} instead of deployment",
+          "status": "passed"
+        },
+        {
+          "name": "direct runtime deployment delivery never enables deployment for explicit empty or capability configuration {\"accessToken\":\"capability\"}",
+          "status": "passed"
+        },
+        {
+          "name": "direct runtime deployment delivery never enables deployment for explicit empty or capability configuration {\"variantToken\":\"\"}",
+          "status": "passed"
+        },
+        {
+          "name": "direct runtime deployment delivery never enables deployment for explicit empty or capability configuration {\"experimentToken\":\"\"}",
+          "status": "passed"
+        },
+        {
+          "name": "direct runtime deployment delivery does not use deployment for explicit URL selector ?version=2",
+          "status": "passed"
+        },
+        {
+          "name": "direct runtime deployment delivery does not use deployment for explicit URL selector ?version=2&version=2",
+          "status": "passed"
+        },
+        {
+          "name": "direct runtime deployment delivery does not use deployment for explicit URL selector ?lykar_variant=preview",
+          "status": "passed"
+        },
+        {
+          "name": "direct runtime deployment delivery does not use deployment for explicit URL selector ?lykar_variant=",
+          "status": "passed"
+        },
+        {
+          "name": "direct runtime deployment delivery does not use deployment for explicit URL selector ?lykar_variant=a&lykar_variant=b",
+          "status": "passed"
+        },
+        {
+          "name": "direct runtime deployment delivery does not use deployment for explicit URL selector ?lykar_experiment=",
+          "status": "passed"
+        },
+        {
+          "name": "direct runtime deployment delivery does not use deployment for explicit URL selector #lykar_edit=code",
+          "status": "passed"
+        },
+        {
+          "name": "direct runtime deployment delivery does not use deployment for explicit URL selector #lykar_edit=",
+          "status": "passed"
+        },
+        {
+          "name": "direct runtime deployment delivery does not use deployment for explicit URL selector #lykar_share=code",
+          "status": "passed"
+        },
+        {
+          "name": "direct runtime deployment delivery does not use deployment for explicit URL selector #lykar_share=",
+          "status": "passed"
+        },
+        {
+          "name": "direct runtime deployment delivery rejects invalid version ?version= before deployment transport",
+          "status": "passed"
+        },
+        {
+          "name": "direct runtime deployment delivery rejects invalid version ?version=bad before deployment transport",
+          "status": "passed"
+        },
+        {
+          "name": "direct runtime deployment delivery rejects invalid version ?version=0 before deployment transport",
+          "status": "passed"
+        },
+        {
+          "name": "DOM executor writes and removes important declarations on HTML and style-bearing SVG targets",
+          "status": "passed"
+        },
+        {
+          "name": "DOM executor does not report an invalid CSS value as applied or replace the last valid declaration",
+          "status": "passed"
+        },
+        {
+          "name": "DOM executor reports whether CSSOM actually applied a longhand beside a shorthand",
+          "status": "passed"
+        },
+        {
+          "name": "DOM executor confines target resolution and source ownership to the supplied root",
+          "status": "passed"
+        },
+        {
+          "name": "DOM executor drops a late manifest response after lifecycle cancellation without mutation or report",
+          "status": "passed"
+        },
+        {
+          "name": "DOM executor retries missing targets within a bound and applies a late node",
+          "status": "passed"
+        },
+        {
+          "name": "DOM executor ends target retry with a bounded diagnostic when the node never arrives",
+          "status": "passed"
+        },
+        {
+          "name": "DOM executor applies marker and CSS-targeted text and style operations in order",
+          "status": "passed"
+        },
+        {
+          "name": "DOM executor records a missing target and continues with later operations",
+          "status": "passed"
+        },
+        {
+          "name": "DOM executor does not mutate the first candidate when strict resolution is ambiguous",
+          "status": "passed"
+        },
+        {
+          "name": "DOM executor rejects an unsafe tree before any earlier operation can mutate the document",
+          "status": "passed"
+        },
+        {
+          "name": "DOM executor sets and removes safe attributes and preflights script-capable values",
+          "status": "passed"
+        },
+        {
+          "name": "DOM executor moves and removes nodes while protecting the document roots",
+          "status": "passed"
+        },
+        {
+          "name": "DOM executor checks parent and text-hash preconditions before mutating",
+          "status": "passed"
+        },
+        {
+          "name": "DOM executor separates mutable before-state from locator identity after setText",
+          "status": "passed"
+        },
+        {
+          "name": "DOM executor returns repair candidates and the original target for ambiguity",
+          "status": "passed"
+        },
+        {
+          "name": "DOM executor uses selector fallbacks when an earlier locator is invalid or stale",
+          "status": "passed"
+        },
+        {
+          "name": "DOM executor applies the exact binding snapshot frozen into a release",
+          "status": "passed"
+        },
+        {
+          "name": "manifest loading and runtime lifecycle replays the frozen legacy descriptor fixture without a registry",
+          "status": "passed"
+        },
+        {
+          "name": "manifest loading and runtime lifecycle rejects an incompatible manifest before the first mutation",
+          "status": "passed"
+        },
+        {
+          "name": "manifest loading and runtime lifecycle leaves the native page untouched and skips the API without a variant or preview version",
+          "status": "passed"
+        },
+        {
+          "name": "manifest loading and runtime lifecycle treats unavailable variant tokens as the native page",
+          "status": "passed"
+        },
+        {
+          "name": "manifest loading and runtime lifecycle identifies a valid native control variant without applying a release",
+          "status": "passed"
+        },
+        {
+          "name": "manifest loading and runtime lifecycle loads a validated versioned manifest and applies it to a static document",
+          "status": "passed"
+        },
+        {
+          "name": "manifest loading and runtime lifecycle does not replay the same release twice unless forced",
+          "status": "passed"
+        },
+        {
+          "name": "manifest loading and runtime lifecycle keeps element and text identities stable across edit, move, delete, and forced replay",
+          "status": "passed"
+        },
+        {
+          "name": "manifest loading and runtime lifecycle scopes insertion identity by release so reused operation ids do not collide",
+          "status": "passed"
+        },
+        {
+          "name": "manifest loading and runtime lifecycle skips dependent operations after failure while continuing independent work",
+          "status": "passed"
+        },
+        {
+          "name": "manifest loading and runtime lifecycle compensates session mutations and preserves later host changes",
+          "status": "passed"
+        },
+        {
+          "name": "manifest loading and runtime lifecycle rolls back an insertion that mutates and then throws",
+          "status": "passed"
+        },
+        {
+          "name": "manifest loading and runtime lifecycle rejects configured operation limits before mutation and compensates a timed-out replay",
+          "status": "passed"
+        },
+        {
+          "name": "manifest loading and runtime lifecycle reports page drift without blocking compatible target-level operations",
+          "status": "passed"
+        },
+        {
+          "name": "manifest loading and runtime lifecycle keeps text, CSS, and service DOM out of structural visual claims",
+          "status": "passed"
+        },
+        {
+          "name": "manifest loading and runtime lifecycle reuses the clean pre-replay baseline instead of fingerprinting Lykar-mutated DOM",
+          "status": "passed"
+        },
+        {
+          "name": "manifest loading and runtime lifecycle reports unknown when the document has no trustworthy clean baseline",
+          "status": "passed"
+        },
+        {
+          "name": "manifest loading and runtime lifecycle distributes an experiment, persists the browser ID, and gates events on consent",
+          "status": "passed"
+        },
+        {
+          "name": "manifest loading and runtime lifecycle returns no active experiment from the global tracker when the latest runtime has no assignment",
+          "status": "passed"
+        },
+        {
+          "name": "manifest loading and runtime lifecycle rejects malformed API manifests before touching the DOM",
+          "status": "passed"
+        },
+        {
+          "name": "manifest loading and runtime lifecycle uses the read capability for an explicit release even when a variant token is present",
+          "status": "passed"
+        },
+        {
+          "name": "strict target resolution reports unique with per-locator evidence",
+          "status": "passed"
+        },
+        {
+          "name": "strict target resolution reports ambiguous instead of selecting the first similar CTA",
+          "status": "passed"
+        },
+        {
+          "name": "strict target resolution distinguishes malformed locators from missing candidates",
+          "status": "passed"
+        },
+        {
+          "name": "strict target resolution does not search outside the supplied root",
+          "status": "passed"
+        },
+        {
+          "name": "strict target resolution resolves an exact binding inside its logical root and environment",
+          "status": "passed"
+        }
+      ]
+    },
+    "sdk": {
+      "passed": 62,
+      "failed": 0,
+      "pending": 0,
+      "cases": [
+        {
+          "name": "SDK opt-in deployment delivery applies ordinary visits in auto mode without editor or analytics requests",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery applies ordinary visits in visitor mode without editor or analytics requests",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery memoizes start but re-resolves refresh, disable and rollback without retaining an active pointer",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery retires a never-settling A request immediately and applies only B when A resolves late",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery enforces its deadline when fetch ignores abort forever",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery enforces its deadline when body ignores abort forever",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery keeps an invalid timeout NaN within the default budget",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery keeps an invalid timeout Infinity within the default budget",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery keeps an invalid timeout 0 within the default budget",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery keeps an invalid timeout -1 within the default budget",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery fails open for inconsistent deployment metadata {\"revision\":-1}",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery fails open for inconsistent deployment metadata {\"revision\":1.5}",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery fails open for inconsistent deployment metadata {\"revision\":\"1\"}",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery fails open for inconsistent deployment metadata {\"pageId\":\"different-page\"}",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery fails open for inconsistent deployment metadata {\"activeReleaseId\":\"different-release\"}",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery fails open for inconsistent deployment metadata {\"activeReleaseId\":null}",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery fails open for inconsistent deployment metadata {\"manifest\":null}",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery fails open when deployment replay cannot apply and leaves native DOM",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery preserves newer host styles on destroy while restoring SDK-owned text",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery never resolves deployment for malformed or ambiguous selection /?version=",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery never resolves deployment for malformed or ambiguous selection /?version=bad",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery never resolves deployment for malformed or ambiguous selection /?version=0",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery never resolves deployment for malformed or ambiguous selection /?version=1&version=1",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery never resolves deployment for malformed or ambiguous selection /?lykar_variant=",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery never resolves deployment for malformed or ambiguous selection /?lykar_variant=x&lykar_variant=y",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery never resolves deployment for malformed or ambiguous selection /?lykar_experiment=",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery never resolves deployment for malformed or ambiguous selection /?lykar_experiment=x&lykar_experiment=y",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery never resolves deployment for malformed or ambiguous selection /?version=1&lykar_variant=x",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery never resolves deployment for malformed or ambiguous selection /#lykar_edit=",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery never resolves deployment for malformed or ambiguous selection /#lykar_share=",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery never falls back to deployment for explicit configuration {\"version\":3}",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery never falls back to deployment for explicit configuration {\"variantToken\":\"invalid-token\"}",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery never falls back to deployment for explicit configuration {\"experimentToken\":\"invalid-token\"}",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery never falls back to deployment for explicit configuration {\"mode\":\"variant\"}",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery never falls back to deployment for explicit configuration {\"mode\":\"experiment\"}",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery never falls back to deployment for explicit configuration {\"mode\":\"editor\"}",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery never falls back to deployment for explicit configuration {\"mode\":\"share\"}",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery requests the legacy manifest endpoint for an invalid variant token without deployment fallback",
+          "status": "passed"
+        },
+        {
+          "name": "SDK opt-in deployment delivery rejects conflicting configuration and URL selectors before transport",
+          "status": "passed"
+        },
+        {
+          "name": "automatic router observation shares one history wrapper and restores it after the final subscriber",
+          "status": "passed"
+        },
+        {
+          "name": "PageSession keeps project/page/root/generation and makes repeated start idempotent",
+          "status": "passed"
+        },
+        {
+          "name": "PageSession retires the previous generation and runs every registered cleanup once",
+          "status": "passed"
+        },
+        {
+          "name": "PageSession serializes replay in a generation but does not let a stale transport block navigation",
+          "status": "passed"
+        },
+        {
+          "name": "PageSession provides a journal cleanup hook for the next replay stage",
+          "status": "passed"
+        },
+        {
+          "name": "Lykar SDK is constructible without a browser document",
+          "status": "passed"
+        },
+        {
+          "name": "Lykar SDK keeps ordinary links-only visits native without a network request",
+          "status": "passed"
+        },
+        {
+          "name": "Lykar SDK restores a share only on its original pathname until this SDK is destroyed",
+          "status": "passed"
+        },
+        {
+          "name": "Lykar SDK rejects a missing or tampered runtime core entry in the compatible asset manifest",
+          "status": "passed"
+        },
+        {
+          "name": "Lykar SDK returns the same in-flight start and creates only one replay",
+          "status": "passed"
+        },
+        {
+          "name": "Lykar SDK drops Page A after navigating to B even when the old transport ignores abort",
+          "status": "passed"
+        },
+        {
+          "name": "Lykar SDK prevents late work after destroy and supports start/destroy/start",
+          "status": "passed"
+        },
+        {
+          "name": "Lykar SDK does not persist or bootstrap a late editor capability after destroy",
+          "status": "passed"
+        },
+        {
+          "name": "Lykar SDK rejects mutually exclusive URL selectors before exchanging access",
+          "status": "passed"
+        },
+        {
+          "name": "Lykar SDK runs the runtime only for an explicit visitor selector",
+          "status": "passed"
+        },
+        {
+          "name": "Lykar SDK honors an npm version selector in auto mode",
+          "status": "passed"
+        },
+        {
+          "name": "Lykar SDK honors an npm variant token selector in auto mode",
+          "status": "passed"
+        },
+        {
+          "name": "Lykar SDK honors an npm experiment token selector in auto mode",
+          "status": "passed"
+        },
+        {
+          "name": "Lykar SDK rejects mutually exclusive npm runtime selectors before requesting data",
+          "status": "passed"
+        },
+        {
+          "name": "Lykar SDK fails open when an explicit runtime request exceeds its deadline",
+          "status": "passed"
+        },
+        {
+          "name": "Lykar SDK keeps the network deadline active while reading the response body",
+          "status": "passed"
+        },
+        {
+          "name": "Lykar SDK reports an asynchronous editor asset timeout through onError",
+          "status": "passed"
+        },
+        {
+          "name": "Lykar SDK rejects an editor manifest from an incompatible runtime before loading code",
+          "status": "passed"
+        }
+      ]
+    }
+  },
+  "browser": {
+    "stats": {
+      "startTime": "2026-10-04T07:21:49.360Z",
+      "duration": 80403.886,
+      "expected": 55,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "cases": [
+      {
+        "file": "auth-and-editor.spec.ts",
+        "title": "local owner login survives reload and opens the editor from the Admin click",
+        "project": "chromium",
+        "status": "expected",
+        "durationMs": 6991
+      },
+      {
+        "file": "auth-and-editor.spec.ts",
+        "title": "magic link signs in without dev auth and cannot be reused",
+        "project": "chromium",
+        "status": "expected",
+        "durationMs": 377
+      },
+      {
+        "file": "auth-and-editor.spec.ts",
+        "title": "playground without editor capability exposes a working Admin button",
+        "project": "chromium",
+        "status": "expected",
+        "durationMs": 372
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "script: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation",
+        "project": "chromium",
+        "status": "expected",
+        "durationMs": 1133
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "module: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation",
+        "project": "chromium",
+        "status": "expected",
+        "durationMs": 902
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "react csr: deployment respects host hydration, route transitions, remount and disable",
+        "project": "chromium",
+        "status": "expected",
+        "durationMs": 552
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "react ssr: deployment respects host hydration, route transitions, remount and disable",
+        "project": "chromium",
+        "status": "expected",
+        "durationMs": 452
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "vue csr: deployment respects host hydration, route transitions, remount and disable",
+        "project": "chromium",
+        "status": "expected",
+        "durationMs": 532
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "vue ssr: deployment respects host hydration, route transitions, remount and disable",
+        "project": "chromium",
+        "status": "expected",
+        "durationMs": 516
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "invalid deployment and unavailable runtime asset leave the original page visible",
+        "project": "chromium",
+        "status": "expected",
+        "durationMs": 353
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "browser deadlines and retired requests leave the host available",
+        "project": "chromium",
+        "status": "expected",
+        "durationMs": 422
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "script: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation",
+        "project": "firefox",
+        "status": "expected",
+        "durationMs": 1821
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "module: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation",
+        "project": "firefox",
+        "status": "expected",
+        "durationMs": 1584
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "react csr: deployment respects host hydration, route transitions, remount and disable",
+        "project": "firefox",
+        "status": "expected",
+        "durationMs": 434
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "react ssr: deployment respects host hydration, route transitions, remount and disable",
+        "project": "firefox",
+        "status": "expected",
+        "durationMs": 490
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "vue csr: deployment respects host hydration, route transitions, remount and disable",
+        "project": "firefox",
+        "status": "expected",
+        "durationMs": 591
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "vue ssr: deployment respects host hydration, route transitions, remount and disable",
+        "project": "firefox",
+        "status": "expected",
+        "durationMs": 407
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "invalid deployment and unavailable runtime asset leave the original page visible",
+        "project": "firefox",
+        "status": "expected",
+        "durationMs": 490
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "browser deadlines and retired requests leave the host available",
+        "project": "firefox",
+        "status": "expected",
+        "durationMs": 439
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "script: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation",
+        "project": "webkit",
+        "status": "expected",
+        "durationMs": 1850
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "module: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation",
+        "project": "webkit",
+        "status": "expected",
+        "durationMs": 1400
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "react csr: deployment respects host hydration, route transitions, remount and disable",
+        "project": "webkit",
+        "status": "expected",
+        "durationMs": 597
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "react ssr: deployment respects host hydration, route transitions, remount and disable",
+        "project": "webkit",
+        "status": "expected",
+        "durationMs": 601
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "vue csr: deployment respects host hydration, route transitions, remount and disable",
+        "project": "webkit",
+        "status": "expected",
+        "durationMs": 597
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "vue ssr: deployment respects host hydration, route transitions, remount and disable",
+        "project": "webkit",
+        "status": "expected",
+        "durationMs": 589
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "invalid deployment and unavailable runtime asset leave the original page visible",
+        "project": "webkit",
+        "status": "expected",
+        "durationMs": 444
+      },
+      {
+        "file": "deployment-flow.spec.ts",
+        "title": "browser deadlines and retired requests leave the host available",
+        "project": "webkit",
+        "status": "expected",
+        "durationMs": 479
+      },
+      {
+        "file": "page-session-lifecycle.spec.ts",
+        "title": "PageSession cancels A→B late work, scopes roots, retries late nodes, and cleans up",
+        "project": "chromium",
+        "status": "expected",
+        "durationMs": 283
+      },
+      {
+        "file": "replay-safety.spec.ts",
+        "title": "replay keeps node identity, dependencies, and session compensation safe",
+        "project": "chromium",
+        "status": "expected",
+        "durationMs": 216
+      },
+      {
+        "file": "s3-acceptance.spec.ts",
+        "title": "S3 Admin → release/share → sticky experiment → consent-gated report",
+        "project": "chromium",
+        "status": "expected",
+        "durationMs": 3173
+      },
+      {
+        "file": "s4-conditional-flow.spec.ts",
+        "title": "react csr: capture state, save/reload, Release/share and host transitions",
+        "project": "chromium",
+        "status": "expected",
+        "durationMs": 2458
+      },
+      {
+        "file": "s4-conditional-flow.spec.ts",
+        "title": "react ssr: capture state, save/reload, Release/share and host transitions",
+        "project": "chromium",
+        "status": "expected",
+        "durationMs": 2277
+      },
+      {
+        "file": "s4-conditional-flow.spec.ts",
+        "title": "vue csr: capture state, save/reload, Release/share and host transitions",
+        "project": "chromium",
+        "status": "expected",
+        "durationMs": 2199
+      },
+      {
+        "file": "s4-conditional-flow.spec.ts",
+        "title": "vue ssr: capture state, save/reload, Release/share and host transitions",
+        "project": "chromium",
+        "status": "expected",
+        "durationMs": 2224
+      },
+      {
+        "file": "s4-conditional-flow.spec.ts",
+        "title": "react csr: capture state, save/reload, Release/share and host transitions",
+        "project": "firefox",
+        "status": "expected",
+        "durationMs": 2333
+      },
+      {
+        "file": "s4-conditional-flow.spec.ts",
+        "title": "react ssr: capture state, save/reload, Release/share and host transitions",
+        "project": "firefox",
+        "status": "expected",
+        "durationMs": 2503
+      },
+      {
+        "file": "s4-conditional-flow.spec.ts",
+        "title": "vue csr: capture state, save/reload, Release/share and host transitions",
+        "project": "firefox",
+        "status": "expected",
+        "durationMs": 2190
+      },
+      {
+        "file": "s4-conditional-flow.spec.ts",
+        "title": "vue ssr: capture state, save/reload, Release/share and host transitions",
+        "project": "firefox",
+        "status": "expected",
+        "durationMs": 2213
+      },
+      {
+        "file": "s4-conditional-flow.spec.ts",
+        "title": "react csr: capture state, save/reload, Release/share and host transitions",
+        "project": "webkit",
+        "status": "expected",
+        "durationMs": 3035
+      },
+      {
+        "file": "s4-conditional-flow.spec.ts",
+        "title": "react ssr: capture state, save/reload, Release/share and host transitions",
+        "project": "webkit",
+        "status": "expected",
+        "durationMs": 2987
+      },
+      {
+        "file": "s4-conditional-flow.spec.ts",
+        "title": "vue csr: capture state, save/reload, Release/share and host transitions",
+        "project": "webkit",
+        "status": "expected",
+        "durationMs": 2639
+      },
+      {
+        "file": "s4-conditional-flow.spec.ts",
+        "title": "vue ssr: capture state, save/reload, Release/share and host transitions",
+        "project": "webkit",
+        "status": "expected",
+        "durationMs": 2918
+      },
+      {
+        "file": "s4-spa-critical.spec.ts",
+        "title": "react SSR commits before host interaction and survives route history",
+        "project": "chromium",
+        "status": "expected",
+        "durationMs": 364
+      },
+      {
+        "file": "s4-spa-critical.spec.ts",
+        "title": "vue SSR commits before host interaction and survives route history",
+        "project": "chromium",
+        "status": "expected",
+        "durationMs": 293
+      },
+      {
+        "file": "s4-spa-critical.spec.ts",
+        "title": "react: ready rules leave server HTML untouched until real hydration commits",
+        "project": "chromium",
+        "status": "expected",
+        "durationMs": 446
+      },
+      {
+        "file": "s4-spa-critical.spec.ts",
+        "title": "vue: ready rules leave server HTML untouched until real hydration commits",
+        "project": "chromium",
+        "status": "expected",
+        "durationMs": 363
+      },
+      {
+        "file": "s4-spa-critical.spec.ts",
+        "title": "react SSR commits before host interaction and survives route history",
+        "project": "firefox",
+        "status": "expected",
+        "durationMs": 326
+      },
+      {
+        "file": "s4-spa-critical.spec.ts",
+        "title": "vue SSR commits before host interaction and survives route history",
+        "project": "firefox",
+        "status": "expected",
+        "durationMs": 293
+      },
+      {
+        "file": "s4-spa-critical.spec.ts",
+        "title": "react: ready rules leave server HTML untouched until real hydration commits",
+        "project": "firefox",
+        "status": "expected",
+        "durationMs": 358
+      },
+      {
+        "file": "s4-spa-critical.spec.ts",
+        "title": "vue: ready rules leave server HTML untouched until real hydration commits",
+        "project": "firefox",
+        "status": "expected",
+        "durationMs": 725
+      },
+      {
+        "file": "s4-spa-critical.spec.ts",
+        "title": "react SSR commits before host interaction and survives route history",
+        "project": "webkit",
+        "status": "expected",
+        "durationMs": 364
+      },
+      {
+        "file": "s4-spa-critical.spec.ts",
+        "title": "vue SSR commits before host interaction and survives route history",
+        "project": "webkit",
+        "status": "expected",
+        "durationMs": 346
+      },
+      {
+        "file": "s4-spa-critical.spec.ts",
+        "title": "react: ready rules leave server HTML untouched until real hydration commits",
+        "project": "webkit",
+        "status": "expected",
+        "durationMs": 426
+      },
+      {
+        "file": "s4-spa-critical.spec.ts",
+        "title": "vue: ready rules leave server HTML untouched until real hydration commits",
+        "project": "webkit",
+        "status": "expected",
+        "durationMs": 412
+      },
+      {
+        "file": "versioning-flow.spec.ts",
+        "title": "edit → save → reload → reopen → release → share keeps page scopes isolated",
+        "project": "chromium",
+        "status": "expected",
+        "durationMs": 1838
+      }
+    ]
+  },
+  "previousAttempts": [
+    {
+      "label": "runtime-tests",
+      "result": "worker startup timeout; serial run passed"
+    },
+    {
+      "label": "browser-deployment",
+      "result": "15 passed / 6 failed; overbroad editor selector counted fixture chrome and interrupted experiment cleanup. Corrected selector; browser-deployment-fixed 21/21 passed."
+    },
+    {
+      "label": "runtime-final / runtime-verified",
+      "result": "new unsafe conditional test fixture needed a ready framework root scoped only to conditional targets. Corrected fixture; final runtime 106/106 passed."
+    }
+  ]
+}

@@ -1,0 +1,287 @@
+{
+  "stats": {
+    "startTime": "2026-10-03T15:27:45.511Z",
+    "duration": 130948.779,
+    "expected": 55,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "tests": [
+    {
+      "title": "single overlay panel preserves page width, keeps icon mode tabs and exits preview with Escape",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "typography controls align and custom Select supports search, keyboard, raw values and computed units",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "style trash preserves host inline CSS and ownership through undo, redo, save and reload",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "click-to-place inserts one button, prevents native host clicks, supports history and save/reload",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "real pointer drag shows insertion guide and creates an undoable operation on a zoomed page",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "panel header drag moves tabs together, clamps to the viewport and supports cancellation, keyboard and preview",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "native: priority toggles and reset cancel pending field edits instead of accumulating writes",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "React: priority toggles and reset cancel pending field edits instead of accumulating writes",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "two tabs expose revision conflict and preserve pending edits through reload",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "lost response after commit reconciles on reload without duplicate operations",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "undo of a saved change appends a revision and survives save/reload",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "manual target repair previews the dependent chain and survives save/reload",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "react csr: capture state, save/reload, Release/share and host transitions",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "react ssr: capture state, save/reload, Release/share and host transitions",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "vue csr: capture state, save/reload, Release/share and host transitions",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "vue ssr: capture state, save/reload, Release/share and host transitions",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "react csr: capture state, save/reload, Release/share and host transitions",
+      "project": "firefox",
+      "status": "expected"
+    },
+    {
+      "title": "react ssr: capture state, save/reload, Release/share and host transitions",
+      "project": "firefox",
+      "status": "expected"
+    },
+    {
+      "title": "vue csr: capture state, save/reload, Release/share and host transitions",
+      "project": "firefox",
+      "status": "expected"
+    },
+    {
+      "title": "vue ssr: capture state, save/reload, Release/share and host transitions",
+      "project": "firefox",
+      "status": "expected"
+    },
+    {
+      "title": "react csr: capture state, save/reload, Release/share and host transitions",
+      "project": "webkit",
+      "status": "expected"
+    },
+    {
+      "title": "react ssr: capture state, save/reload, Release/share and host transitions",
+      "project": "webkit",
+      "status": "expected"
+    },
+    {
+      "title": "vue csr: capture state, save/reload, Release/share and host transitions",
+      "project": "webkit",
+      "status": "expected"
+    },
+    {
+      "title": "vue ssr: capture state, save/reload, Release/share and host transitions",
+      "project": "webkit",
+      "status": "expected"
+    },
+    {
+      "title": "react SSR commits before host interaction and survives route history",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "vue SSR commits before host interaction and survives route history",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "react: ready rules leave server HTML untouched until real hydration commits",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "vue: ready rules leave server HTML untouched until real hydration commits",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "react SSR commits before host interaction and survives route history",
+      "project": "firefox",
+      "status": "expected"
+    },
+    {
+      "title": "vue SSR commits before host interaction and survives route history",
+      "project": "firefox",
+      "status": "expected"
+    },
+    {
+      "title": "react: ready rules leave server HTML untouched until real hydration commits",
+      "project": "firefox",
+      "status": "expected"
+    },
+    {
+      "title": "vue: ready rules leave server HTML untouched until real hydration commits",
+      "project": "firefox",
+      "status": "expected"
+    },
+    {
+      "title": "react SSR commits before host interaction and survives route history",
+      "project": "webkit",
+      "status": "expected"
+    },
+    {
+      "title": "vue SSR commits before host interaction and survives route history",
+      "project": "webkit",
+      "status": "expected"
+    },
+    {
+      "title": "react: ready rules leave server HTML untouched until real hydration commits",
+      "project": "webkit",
+      "status": "expected"
+    },
+    {
+      "title": "vue: ready rules leave server HTML untouched until real hydration commits",
+      "project": "webkit",
+      "status": "expected"
+    },
+    {
+      "title": "S2-06.8 script: SDK style families, keyboard, persistence and visitor share",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "S2-06.8 module: SDK style families, keyboard, persistence and visitor share",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "S2-06.8 script: SDK style families, keyboard, persistence and visitor share",
+      "project": "firefox",
+      "status": "expected"
+    },
+    {
+      "title": "S2-06.8 module: SDK style families, keyboard, persistence and visitor share",
+      "project": "firefox",
+      "status": "expected"
+    },
+    {
+      "title": "S2-06.8 script: SDK style families, keyboard, persistence and visitor share",
+      "project": "webkit",
+      "status": "expected"
+    },
+    {
+      "title": "S2-06.8 module: SDK style families, keyboard, persistence and visitor share",
+      "project": "webkit",
+      "status": "expected"
+    },
+    {
+      "title": "S2 style matrix: layers, priorities, raw fallback, SVG, invalid input and share",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "S2 style budget: 1000 node selection and input preview p95",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "S2 style budget: native visitor never requests editor UI",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "S2 editor acceptance: keyboard controls, zoom, nested scroll and static copy warning",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "S2 style matrix: layers, priorities, raw fallback, SVG, invalid input and share",
+      "project": "firefox",
+      "status": "expected"
+    },
+    {
+      "title": "S2 style budget: 1000 node selection and input preview p95",
+      "project": "firefox",
+      "status": "expected"
+    },
+    {
+      "title": "S2 style budget: native visitor never requests editor UI",
+      "project": "firefox",
+      "status": "expected"
+    },
+    {
+      "title": "S2 editor acceptance: keyboard controls, zoom, nested scroll and static copy warning",
+      "project": "firefox",
+      "status": "expected"
+    },
+    {
+      "title": "S2 style matrix: layers, priorities, raw fallback, SVG, invalid input and share",
+      "project": "webkit",
+      "status": "expected"
+    },
+    {
+      "title": "S2 style budget: 1000 node selection and input preview p95",
+      "project": "webkit",
+      "status": "expected"
+    },
+    {
+      "title": "S2 style budget: native visitor never requests editor UI",
+      "project": "webkit",
+      "status": "expected"
+    },
+    {
+      "title": "S2 editor acceptance: keyboard controls, zoom, nested scroll and static copy warning",
+      "project": "webkit",
+      "status": "expected"
+    },
+    {
+      "title": "edit → save → reload → reopen → release → share keeps page scopes isolated",
+      "project": "chromium",
+      "status": "expected"
+    }
+  ]
+}

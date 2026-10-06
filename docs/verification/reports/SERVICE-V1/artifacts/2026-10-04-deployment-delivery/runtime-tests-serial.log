@@ -1,0 +1,26 @@
+
+> @lykar/runtime@0.0.0 pretest
+> npm run build --workspace @lykar/protocol
+
+
+> @lykar/protocol@0.0.0 build
+> tsc -p tsconfig.json && esbuild src/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs
+
+
+  dist/index.cjs  27.9kb
+
+⚡ Done in 2ms
+
+> @lykar/runtime@0.0.0 test
+> vitest run --reporter=dot --maxWorkers=1
+
+
+ RUN  v4.1.10 /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/packages/runtime
+
+·········································································································
+
+ Test Files  4 passed (4)
+      Tests  105 passed (105)
+   Start at  10:12:46
+   Duration  1.88s (transform 109ms, setup 0ms, import 158ms, tests 416ms, environment 1.06s)
+

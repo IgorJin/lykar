@@ -8,7 +8,12 @@ task records и итоговой browser/PostgreSQL-проверкой. Исто
 
 ## Порядок спринтов
 
-**S0 → S1 → S2 → S3 → S4 → S5 → S6**
+**S0 → S1 → S2 → S3 → S4 → SERVICE-V1 (S5/S6, приёмка, пилот)**
+
+Checkpoint 2026-10-05: SERVICE-V1-01, 03, 04, 05 и 06 приняты; Admin/SDK/API публикация, repair и независимая регистрация проверены. SERVICE-V1-02 в работе;
+численные бюджеты и инфраструктура ожидают решения владельца.
+[Отчёт E1](./docs/verification/reports/SERVICE-V1/editor-contract.html) · [Публикация и repair](./docs/verification/reports/SERVICE-V1/deployment.html) · [Регистрация](./docs/verification/reports/SERVICE-V1/onboarding.html).
+Следующий срез — 07: доставка писем, лимиты и переключение провайдеров; внешняя проверка зависит от инфраструктуры 12.
 
 | Спринт | Статус | Назначение | Подробный план |
 | --- | --- | --- | --- |
@@ -17,6 +22,7 @@ task records и итоговой browser/PostgreSQL-проверкой. Исто
 | S2 | DONE | P0 Style Manager, надёжные targets, replay, save/recovery | [tasks/S2](./tasks/S2/README.md) |
 | S3 | DONE | Admin → release → share → experiment → report | [tasks/S3](./tasks/S3/README.md), [acceptance report](./docs/verification/reports/S3/s3-acceptance.html) |
 | S4 | DONE | Автономные условные правки React/Vue, npm/build integration | [ROADMAP § S4](./ROADMAP.md) |
+| SERVICE-V1 | IN_PROGRESS | Готовый сервис быстрых правок и A/B по ссылкам; включает S5/S6 | [tasks/SERVICE-V1](./tasks/SERVICE-V1/README.md) |
 | S5 | PLANNED | Deploy/Disable/Rollback и delivery semantics | [ROADMAP § S5](./ROADMAP.md) |
 | S6 | PLANNED | Production operations и public SaaS baseline | [ROADMAP § S6](./ROADMAP.md) |
 
@@ -136,3 +142,12 @@ winner без deployment на обычном URL. Все 6 task records и scree
 
 Для выполнения задачи использовать task file соответствующего спринта. После
 изменения кода обновлять status только вместе с критериями и verification report.
+
+
+SERVICE-V1-07 — локальная реализация без ключей (2026-10-05): Resend/MailerSend,
+PostgreSQL quotas/лимиты, безопасные delivery outcomes и Admin cooldown.
+Полный этап IN_PROGRESS до реальной доставки/HTTPS staging; текущая команда
+владельца ограничена реализацией без API-ключа. Evidence: docs/verification/reports/SERVICE-V1/onboarding.html#SERVICE-V1-07.
+
+
+SERVICE-V1-08 DONE (2026-10-06): DNS TXT ownership, separate local verification, deploy gate, page-bound SDK diagnostics and Admin connection panel. 73 API/PostgreSQL + HTTP smoke, 109 SDK, 63 browser, typecheck PASS. Next functional stage: SERVICE-V1-09. Real email delivery (07) and HTTPS staging remain open. Evidence: docs/verification/reports/SERVICE-V1/onboarding.html#SERVICE-V1-08.

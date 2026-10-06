@@ -1,0 +1,9 @@
+{
+  "command": [
+    "node",
+    "apps/admin/scripts/verify-installation-snippet.mjs"
+  ],
+  "exitCode": 0,
+  "recordedAt": "2026-10-06T20:04:51.989429+00:00",
+  "evidence": "Observed tool execution stdout; duration not recorded."
+}

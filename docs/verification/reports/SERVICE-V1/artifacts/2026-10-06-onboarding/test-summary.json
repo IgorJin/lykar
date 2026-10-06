@@ -1,0 +1,36 @@
+{
+  "stage": "SERVICE-V1-09",
+  "acceptance": "Local implementation complete; external email/DNS/HTTPS distribution and human pilot remain gated by 07/12.",
+  "api": {
+    "passed": 92,
+    "failed": 0,
+    "httpSmoke": "PASS"
+  },
+  "browser": {
+    "passed": 72,
+    "failed": 0,
+    "skipped": 0,
+    "flaky": 0,
+    "projects": [
+      "chromium",
+      "firefox",
+      "webkit"
+    ],
+    "suites": {
+      "onboarding": 9,
+      "site-connection": 42,
+      "auth-and-editor": 21
+    }
+  },
+  "typecheck": "PASS",
+  "snippetVerification": "PASS",
+  "visualReview": [
+    "onboarding-connection-mobile.png",
+    "onboarding-finished-desktop.png"
+  ],
+  "notes": [
+    "Browser terminal installation is simulated by writing the copied snippet into a real HTTP HTML fixture.",
+    "Sitemap UI preview is controlled; secure transport and API permissions are separately tested.",
+    "Final diagnostic NodeList spread changed to equivalent Array.from for configured TypeScript DOM libraries; final typecheck passed."
+  ]
+}

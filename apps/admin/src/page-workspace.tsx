@@ -1,14 +1,17 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 
 import { api, del, post } from './api';
-import type { Draft, Experiment, Page, ProjectPermissions, Release, Share } from './api';
+import type { Draft, Experiment, Page, Project, ProjectMember, ProjectPermissions, Release, Share } from './api';
+import {DeploymentPanel} from './deployment-panel';
 import { ExperimentsPanel } from './experiments-panel';
 import { errorMessage, useAsyncAction } from './use-async-action';
 
 type LoadState = 'loading' | 'ready' | 'error';
 
-export function PageWorkspace({ page, permissions }: {
+export function PageWorkspace({ page, project, permissions, members }: {
   page: Page;
+  project: Project;
+  members: ProjectMember[];
   permissions: ProjectPermissions;
 }) {
   const [drafts, setDrafts] = useState<Draft[]>([]);
@@ -86,6 +89,21 @@ export function PageWorkspace({ page, permissions }: {
       throw error;
     }
   }
+  async function repair(release: Release) {
+    if (open && open.baseReleaseId !== release.id) {
+      throw new Error('У страницы уже есть открытый черновик другой версии. Сначала сохраните и зафиксируйте его; текущие правки не будут заменены.');
+    }
+    const editorWindow = window.open('about:blank', '_blank');
+    if (!editorWindow) throw new Error('Разрешите всплывающие окна для редактора.');
+    editorWindow.opener = null;
+    try {
+      const draft = open ?? (await post<{draft:Draft}>(`/api/admin/pages/${page.id}/drafts`, {baseReleaseId:release.id})).draft;
+      if (draft.baseReleaseId !== release.id) throw new Error('Открытый черновик изменился. Обновите данные страницы перед исправлением.');
+      const result = await post<{launchUrl:string}>(`/api/admin/pages/${page.id}/editor-launch`, {draftId:draft.id});
+      editorWindow.location.replace(result.launchUrl);
+      await load();
+    } catch(error) {editorWindow.close();throw error;}
+  }
   async function publish() {
     if (!open) return;
     await post(`/api/admin/drafts/${open.id}/publish`, { expectedRevision: open.revision });
@@ -122,23 +140,23 @@ export function PageWorkspace({ page, permissions }: {
       <button class={pageSection === 'versions' ? 'active' : ''} onClick={() => setPageSection('versions')}>Версии</button>
       <button class={pageSection === 'experiments' ? 'active' : ''} onClick={() => setPageSection('experiments')}>Experiments</button>
     </div>
-    {pageSection === 'versions' && <div class="detail-grid">
-    <div><h3>Draft</h3>{open ? <div class="draft">
-      <b>Open draft</b><div class="small muted">revision {open.revision}</div>
+    {pageSection === 'versions' && <><DeploymentPanel page={page} project={project} permissions={permissions} members={members} releases={releases} mutationsEnabled={loadState === 'ready' && !pendingAction} onRepair={repair}/><div class="detail-grid">
+    <div><h3>Черновик</h3>{open ? <div class="draft">
+      <b>Неопубликованные правки</b><div class="small muted">Сохранение №{open.revision}</div>
       {permissions.edit && <div class="row"><button class="primary" disabled={Boolean(pendingAction) || loadState !== 'ready'} onClick={() => void runAction('launch', launch, { refresh: false })}>{pendingAction === 'launch' ? 'Открываем…' : 'Открыть редактор'}</button>
         {permissions.publish && <button disabled={Boolean(pendingAction) || loadState !== 'ready'} onClick={() => void runAction('publish', publish)}>{pendingAction === 'publish' ? 'Публикуем…' : 'Зафиксировать версию'}</button>}
       </div>}
-    </div> : permissions.edit ? <button disabled={Boolean(pendingAction) || loadState !== 'ready'} onClick={() => void runAction('create-draft', createDraft)}>{pendingAction === 'create-draft' ? 'Создаём…' : 'Создать draft'}</button> : <p class="muted">Открытого draft нет.</p>}</div>
-    <div><h3>Share links</h3>{shares.filter(shareItem => !shareItem.revokedAt).length === 0 ? <p class="muted">Активных ссылок пока нет.</p> : shares.filter(shareItem => !shareItem.revokedAt).map(item => <div class="share" key={item.id}>
+    </div> : permissions.edit ? <button disabled={Boolean(pendingAction) || loadState !== 'ready'} onClick={() => void runAction('create-draft', createDraft)}>{pendingAction === 'create-draft' ? 'Создаём…' : 'Создать черновик'}</button> : <p class="muted">Открытого черновика нет.</p>}</div>
+    <div><h3>Ссылки на версии</h3>{shares.filter(shareItem => !shareItem.revokedAt).length === 0 ? <p class="muted">Активных ссылок пока нет.</p> : shares.filter(shareItem => !shareItem.revokedAt).map(item => <div class="share" key={item.id}>
       <span>v{item.version}</span> <span class="small muted">до {item.expiresAt ? new Date(item.expiresAt).toLocaleString() : '∞'}</span>
       {permissions.publish && <button class="danger" disabled={Boolean(pendingAction) || loadState !== 'ready'} onClick={() => void runAction(`revoke-share-${item.id}`, () => revoke(item.id))}>{pendingAction === `revoke-share-${item.id}` ? 'Отзываем…' : 'Отозвать'}</button>}
     </div>)}</div>
-    <div class="wide"><h3>Immutable releases</h3>{releases.length === 0 ? <p class="muted">Публикаций ещё нет.</p> : releases.map(item => <div class="release row" key={item.id}>
-      <b>Version {item.version}</b><span class="muted">{item.operationCount} команд</span>
-      <span class={`small ${item.sourceSnapshot ? 'success' : 'muted'}`}>{item.sourceSnapshot ? `fingerprint ${item.sourceSnapshot.pageHash.slice(0, 8)}` : 'без fingerprint'}</span>
-      {permissions.publish && <button disabled={Boolean(pendingAction) || loadState !== 'ready'} onClick={() => void runAction(`share-${item.id}`, () => share(item.id))}>{pendingAction === `share-${item.id}` ? 'Создаём ссылку…' : 'Share'}</button>}
+    <div class="wide"><h3>Зафиксированные версии</h3>{releases.length === 0 ? <p class="muted">Зафиксированных версий ещё нет.</p> : releases.map(item => <div class="release row" key={item.id}>
+      <b>Версия {item.version}</b><span class="muted">{item.operationCount} команд</span>
+      <span class={`small ${item.sourceSnapshot ? 'success' : 'muted'}`}>{item.sourceSnapshot ? 'структурный снимок сохранён' : 'без структурного снимка'}</span>
+      {permissions.publish && <button disabled={Boolean(pendingAction) || loadState !== 'ready'} onClick={() => void runAction(`share-${item.id}`, () => share(item.id))}>{pendingAction === `share-${item.id}` ? 'Создаём ссылку…' : 'Ссылка на версию'}</button>}
     </div>)}</div>
-    </div>}
+    </div></>}
     {freshShare && <div class="fresh-share" aria-live="polite">
       <strong>Новая ссылка на версию</strong>
       {shareNotice && <p class="muted small">{shareNotice}</p>}

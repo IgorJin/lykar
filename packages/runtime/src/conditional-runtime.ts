@@ -1,4 +1,4 @@
-import {PROTOCOL_LIMITS} from '@lykar/protocol';
+import {PROTOCOL_LIMITS, resolveTargetRepairs} from '@lykar/protocol';
 import type {Operation, TargetDescriptor} from '@lykar/protocol';
 
 export type ConditionalEffect =
@@ -522,14 +522,9 @@ export class ConditionalRuntime {
 export function compileConditionalGroups(operations: Operation[]): ConditionalGroup[] {
   const groups = new Map<string, ConditionalGroup>();
   const active = new Map<string, Extract<Operation, {schemaVersion: 2}>>();
-  for (const operation of operations) {
+  for (const operation of resolveTargetRepairs(operations)) {
     if (operation.schemaVersion !== 2) continue;
     const {id, text} = operation.condition;
-    const existing = groups.get(id);
-    if (existing && (existing.when.value !== text || stableJson(existing.target) !== stableJson(operation.target))) {
-      throw new Error(`Conditional group ${id} disagrees on target or source text`);
-    }
-    const group = existing ?? {id, target: operation.target, when: {kind: 'textEquals' as const, value: text}, operations: []};
     if (operation.revision?.reason === 'undo') {
       const prior = active.get(operation.revision.previousOperationId);
       if (!prior || prior.condition.id !== id || prior.condition.text !== text
@@ -542,10 +537,15 @@ export function compileConditionalGroups(operations: Operation[]): ConditionalGr
     } else {
       active.set(operation.id, operation);
     }
-    groups.set(id, group);
   }
   for (const operation of active.values()) {
-    const group = groups.get(operation.condition.id)!;
+    const {id, text} = operation.condition;
+    const existing = groups.get(id);
+    if (existing && (existing.when.value !== text || stableJson(existing.target) !== stableJson(operation.target))) {
+      throw new Error(`Conditional group ${id} disagrees on target or source text`);
+    }
+    const group = existing ?? {id, target: operation.target, when: {kind: 'textEquals' as const, value: text}, operations: []};
+    groups.set(id, group);
     const effect: ConditionalEffect = operation.kind === 'setText'
       ? {kind: 'setText', value: operation.value}
       : {kind: 'setStyle', property: operation.property, value: operation.value, priority: operation.priority ?? ''};

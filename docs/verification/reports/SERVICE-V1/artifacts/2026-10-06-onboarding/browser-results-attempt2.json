@@ -1,0 +1,584 @@
+{
+  "config": {
+    "argv": [
+      "/Users/igorjan/.hermes/node/bin/node",
+      "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/node_modules/.bin/playwright",
+      "test",
+      "tests/e2e/onboarding.spec.ts",
+      "--reporter=line,json"
+    ],
+    "configFile": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/playwright.config.ts",
+    "rootDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/global-setup.ts",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/(style-(editor-acceptance|matrix)|s4-(spa-critical|conditional-flow)|deployment-(flow|admin|repair)|auth-and-editor|site-connection|onboarding)\\.spec\\.ts/"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/(style-(editor-acceptance|matrix)|s4-(spa-critical|conditional-flow)|deployment-(flow|admin|repair)|auth-and-editor|site-connection|onboarding)\\.spec\\.ts/"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "onboarding.spec.ts",
+      "file": "onboarding.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "new customer installs copied snippet and saves first preview (desktop)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2626,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:56:03.086Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-f23afdf93123c5f256a4",
+          "file": "onboarding.spec.ts",
+          "line": 6,
+          "column": 39
+        },
+        {
+          "title": "new customer installs copied snippet and saves first preview (mobile keyboard)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2198,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:56:06.340Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-8826a26e998e88248775",
+          "file": "onboarding.spec.ts",
+          "line": 6,
+          "column": 39
+        },
+        {
+          "title": "manual pages, origin management and selected sitemap preview stay in the current project",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 946,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:56:08.543Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-5d19f4dd368a949f1c3c",
+          "file": "onboarding.spec.ts",
+          "line": 67,
+          "column": 5
+        },
+        {
+          "title": "new customer installs copied snippet and saves first preview (desktop)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2753,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:56:09.759Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-65e749be2cd9d6bc223f",
+          "file": "onboarding.spec.ts",
+          "line": 6,
+          "column": 39
+        },
+        {
+          "title": "new customer installs copied snippet and saves first preview (mobile keyboard)",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1954,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:56:13.011Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-1d8dbab4ee0f737a6380",
+          "file": "onboarding.spec.ts",
+          "line": 6,
+          "column": 39
+        },
+        {
+          "title": "manual pages, origin management and selected sitemap preview stay in the current project",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 777,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:56:14.970Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-c13501caa267940aaa62",
+          "file": "onboarding.spec.ts",
+          "line": 67,
+          "column": 5
+        },
+        {
+          "title": "new customer installs copied snippet and saves first preview (desktop)",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 2969,
+                  "error": {
+                    "message": "Error: Unexpected page, network or HTTP failures\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 4\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"/127.0.0.1:54580/__e2e__/onboarding/a1f25f45-d57b-4526-9a82-fdaf470b87b5' from frame with URL 'http://127.0.0.1:54578/admin/?project=02ebf787-6b85-4acb-948c-6ffdebe2cc95&section=onboarding&page=661b47ee-b661-469e-8e54-ff3ba8bc74b6'. The frame attempting navigation is neither same-origin with the target, nor is it the target's parent or opener.\u001b[39m\n\u001b[31m+ \",\u001b[39m\n\u001b[31m+ ]\u001b[39m",
+                    "stack": "Error: Unexpected page, network or HTTP failures\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 4\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"/127.0.0.1:54580/__e2e__/onboarding/a1f25f45-d57b-4526-9a82-fdaf470b87b5' from frame with URL 'http://127.0.0.1:54578/admin/?project=02ebf787-6b85-4acb-948c-6ffdebe2cc95&section=onboarding&page=661b47ee-b661-469e-8e54-ff3ba8bc74b6'. The frame attempting navigation is neither same-origin with the target, nor is it the target's parent or opener.\u001b[39m\n\u001b[31m+ \",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n    at Object.newContext (/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/fixtures.ts:74:65)",
+                    "location": {
+                      "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/fixtures.ts",
+                      "column": 65,
+                      "line": 74
+                    },
+                    "snippet": "\u001b[90m   at \u001b[39mfixtures.ts:74\n\n  72 |       } else await rm(videoDirectory, { recursive: true, force: true });\n  73 |     }\n> 74 |     expect(errors, 'Unexpected page, network or HTTP failures').toEqual([]);\n     |                                                                 ^\n  75 |   },\n  76 | });\n  77 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/fixtures.ts",
+                        "column": 65,
+                        "line": 74
+                      },
+                      "message": "Error: Unexpected page, network or HTTP failures\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 4\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"/127.0.0.1:54580/__e2e__/onboarding/a1f25f45-d57b-4526-9a82-fdaf470b87b5' from frame with URL 'http://127.0.0.1:54578/admin/?project=02ebf787-6b85-4acb-948c-6ffdebe2cc95&section=onboarding&page=661b47ee-b661-469e-8e54-ff3ba8bc74b6'. The frame attempting navigation is neither same-origin with the target, nor is it the target's parent or opener.\u001b[39m\n\u001b[31m+ \",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n   at fixtures.ts:74\n\n  72 |       } else await rm(videoDirectory, { recursive: true, force: true });\n  73 |     }\n> 74 |     expect(errors, 'Unexpected page, network or HTTP failures').toEqual([]);\n     |                                                                 ^\n  75 |   },\n  76 | });\n  77 |\n    at Object.newContext (/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/fixtures.ts:74:65)"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:56:16.119Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "browser-errors",
+                      "contentType": "application/json",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--webkit/attachments/browser-errors-10b27d064f77b5b3dcd3dd4296d7d484f270cd30.json"
+                    },
+                    {
+                      "name": "page-1",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--webkit/attachments/page-1-23db4a014544f4447e1924043903e57bb47ca172.png"
+                    },
+                    {
+                      "name": "page-2",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--webkit/attachments/page-2-9a885705e1f3ebf05d5b6943a482bfd045be4913.png"
+                    },
+                    {
+                      "name": "page-3",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--webkit/attachments/page-3-27287d115184f5797bdf75f0da6d6fff22256ed2.png"
+                    },
+                    {
+                      "name": "video-0",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--webkit/attachments/video-0-f6d6c9bfec6ae1b9cbfc2163538fceb0ef8ebf66.webm"
+                    },
+                    {
+                      "name": "video-1",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--webkit/attachments/video-1-239692f2b1bbd76bb11a65ac8f89e848558f5c51.webm"
+                    },
+                    {
+                      "name": "video-2",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--webkit/attachments/video-2-9a523d2e6909cba125722c4bf733224a940e6604.webm"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--webkit/test-failed-2.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--webkit/test-failed-1.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--webkit/test-failed-3.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--webkit/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-135a5-aves-first-preview-desktop--webkit/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/fixtures.ts",
+                    "column": 65,
+                    "line": 74
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-d52cb0b18a1b11e3b35f",
+          "file": "onboarding.spec.ts",
+          "line": 6,
+          "column": 39
+        },
+        {
+          "title": "new customer installs copied snippet and saves first preview (mobile keyboard)",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1472,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts:46:86",
+                    "location": {
+                      "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts",
+                      "column": 86,
+                      "line": 46
+                    },
+                    "snippet": "  44 |   await expect(admin.getByText('Проверка завершена:',{exact:false})).toBeVisible({timeout:20000});\n  45 |   await admin.screenshot({path:testInfo.outputPath(`onboarding-connection-${mobile?'mobile':'desktop'}.png`),fullPage:true});\n> 46 |   expect(await admin.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);\n     |                                                                                      ^\n  47 |   await admin.getByRole('button',{name:'Далее: Первая правка'}).click();\n  48 |   await admin.getByRole('button',{name:'Создать черновик',exact:true}).click();\n  49 |   const popup=context.waitForEvent('page');await admin.getByRole('button',{name:'Открыть редактор',exact:true}).click();const editor=await popup;"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts",
+                        "column": 86,
+                        "line": 46
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32mtrue\u001b[39m\nReceived: \u001b[31mfalse\u001b[39m\n\n  44 |   await expect(admin.getByText('Проверка завершена:',{exact:false})).toBeVisible({timeout:20000});\n  45 |   await admin.screenshot({path:testInfo.outputPath(`onboarding-connection-${mobile?'mobile':'desktop'}.png`),fullPage:true});\n> 46 |   expect(await admin.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);\n     |                                                                                      ^\n  47 |   await admin.getByRole('button',{name:'Далее: Первая правка'}).click();\n  48 |   await admin.getByRole('button',{name:'Создать черновик',exact:true}).click();\n  49 |   const popup=context.waitForEvent('page');await admin.getByRole('button',{name:'Открыть редактор',exact:true}).click();const editor=await popup;\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts:46:86"
+                    },
+                    {
+                      "location": {
+                        "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/fixtures.ts",
+                        "column": 65,
+                        "line": 74
+                      },
+                      "message": "Error: Unexpected page, network or HTTP failures\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 4\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"/127.0.0.1:54580/__e2e__/onboarding/99151e67-7150-4672-bb9f-a2b89bc920a8' from frame with URL 'http://127.0.0.1:54578/admin/?project=bee50eca-00a2-405d-8148-be86a9f0914e&section=onboarding&page=e5c71595-fcf9-4d73-aa53-184ee352ed81'. The frame attempting navigation is neither same-origin with the target, nor is it the target's parent or opener.\u001b[39m\n\u001b[31m+ \",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n   at fixtures.ts:74\n\n  72 |       } else await rm(videoDirectory, { recursive: true, force: true });\n  73 |     }\n> 74 |     expect(errors, 'Unexpected page, network or HTTP failures').toEqual([]);\n     |                                                                 ^\n  75 |   },\n  76 | });\n  77 |\n    at Object.newContext (/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/fixtures.ts:74:65)"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:56:19.526Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/test-failed-1.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/test-failed-2.png"
+                    },
+                    {
+                      "name": "browser-errors",
+                      "contentType": "application/json",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/attachments/browser-errors-c59630519c0fb0659f25745fabb0bb42dcfca751.json"
+                    },
+                    {
+                      "name": "page-1",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/attachments/page-1-f9878d81d0a5348091b17566b79724b34e15af46.png"
+                    },
+                    {
+                      "name": "page-2",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/attachments/page-2-63a288ef124b9054ca1c1cda24b53abefa28d0c2.png"
+                    },
+                    {
+                      "name": "video-0",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/attachments/video-0-f6e06b844a8c5e8a9e2f8e9b8da56289d6c0fe7a.webm"
+                    },
+                    {
+                      "name": "video-1",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/attachments/video-1-f19260d2fc327d6c086e5093b692655e0fa9d9ac.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/onboarding-new-customer-in-5e447-st-preview-mobile-keyboard--webkit/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/onboarding.spec.ts",
+                    "column": 86,
+                    "line": 46
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-6b7aa551a99e69665d0f",
+          "file": "onboarding.spec.ts",
+          "line": 6,
+          "column": 39
+        },
+        {
+          "title": "manual pages, origin management and selected sitemap preview stay in the current project",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1076,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-06T13:56:21.393Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "fe534f0825407f213faa-26b2376f85ea10a29831",
+          "file": "onboarding.spec.ts",
+          "line": 67,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-06T13:55:50.630Z",
+    "duration": 42034.528,
+    "expected": 7,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

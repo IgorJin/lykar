@@ -1,3 +1,5 @@
+import {OnboardingPanel,SitemapImport} from './onboarding-panel';
+import {ConnectionPanel} from './connection-panel';
 import { render } from 'preact';
 import { useEffect, useRef, useState } from 'preact/hooks';
 
@@ -13,6 +15,8 @@ import { errorMessage, useAsyncAction } from './use-async-action';
 
 type Session = { user: { id: string; email: string }; expiresAt: string };
 type LoadState = 'loading' | 'ready' | 'error';
+const INVALID_LINK_MESSAGE = 'Ссылка недействительна, уже использована или срок её действия истёк. Запросите новую ссылку.';
+const invalidLink = new URLSearchParams(location.search).get('authError') === 'invalid-link';
 
 function App() {
   const [session, setSession] = useState<Session | null | undefined>();
@@ -53,25 +57,35 @@ function App() {
     <button type="button" class="primary" onClick={() => void loadSession()}>Повторить</button>
   </main>;
   if (!session) return <Login localLoginEnabled={localLoginEnabled} />;
-  return <Dashboard session={session} />;
+  return <>{invalidLink && <p class="login card inline-error" role="alert">{INVALID_LINK_MESSAGE} Вы уже вошли в аккаунт.</p>}<Dashboard session={session} allowLocal={localLoginEnabled} /></>;
 }
 
 function Login({ localLoginEnabled }: { localLoginEnabled: boolean }) {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState(invalidLink ? INVALID_LINK_MESSAGE : '');
   const [pending, setPending] = useState<'email' | 'local' | null>(null);
+  const [retryAt, setRetryAt] = useState(0);
+  const [, setTimerTick] = useState(0);
+  const secondsLeft = Math.max(0, Math.ceil((retryAt - Date.now()) / 1000));
+  useEffect(() => {
+    if (retryAt <= Date.now()) return;
+    const timer = setInterval(() => setTimerTick(tick => tick + 1), 250);
+    return () => clearInterval(timer);
+  }, [retryAt]);
   async function submit(event: Event) {
     event.preventDefault();
-    if (pending) return;
+    if (pending || retryAt > Date.now()) return;
     setPending('email');
     setError('');
     setStatus('');
     try {
-      await post('/api/auth/magic-link', { email });
-      setStatus('Ссылка создана. В localhost она напечатана в terminal API.');
+      const result = await post<{ accepted: boolean; retryAfterSeconds?: number }>('/api/auth/magic-link', { email });
+      setRetryAt(Date.now() + (result.retryAfterSeconds ?? 0) * 1000);
+      setStatus('Проверьте почту. Запрос на отправку ссылки принят. При первом входе мы создадим ваш аккаунт.');
     } catch (reason) {
       setError(errorMessage(reason));
+      if (reason instanceof ApiError && reason.retryAfterSeconds) setRetryAt(Date.now() + reason.retryAfterSeconds * 1000);
     } finally {
       setPending(null);
     }
@@ -91,27 +105,30 @@ function Login({ localLoginEnabled }: { localLoginEnabled: boolean }) {
   }
   return <main class="login card">
     <h1>Lykar Admin</h1>
-    <p class="muted">Вход без пароля по magic link.</p>
+    <p class="muted">Регистрация и вход по email. Подтвердите адрес одноразовой ссылкой из письма.</p>
     {localLoginEnabled && <>
       <button type="button" class="primary" disabled={Boolean(pending)} onClick={() => void localLogin()}>{pending === 'local' ? 'Входим…' : 'Войти как локальный владелец'}</button>
       <p class="muted small">Доступно только в локальном режиме разработки.</p>
     </>}
     <form class="form" onSubmit={submit}>
-      <input type="email" required value={email} onInput={event => setEmail(event.currentTarget.value)} placeholder="you@example.com" />
-      <button class="primary" disabled={Boolean(pending)}>{pending === 'email' ? 'Отправляем…' : 'Получить ссылку'}</button>
+      <label for="login-email">Email</label>
+      <input id="login-email" name="email" disabled={Boolean(pending)} type="email" autoComplete="email" required value={email} onInput={event => { setEmail(event.currentTarget.value); setStatus(''); setRetryAt(0); }} placeholder="you@example.com" />
+      <button class="primary" disabled={Boolean(pending) || secondsLeft > 0}>{pending === 'email' ? 'Отправляем…' : secondsLeft > 0 ? `Повторить через ${secondsLeft} сек.` : status ? 'Отправить повторно' : 'Получить ссылку'}</button>
     </form>
     {error && <p class="inline-error" role="alert">{error}</p>}
-    {status && <p class="success">{status}</p>}
+    {status && <p class="success" role="status">{status}</p>}
   </main>;
 }
 
-function Dashboard({ session }: { session: Session }) {
+function Dashboard({ session,allowLocal }: { session: Session;allowLocal:boolean }) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [projectId, setProjectId] = useState('');
   const [pages, setPages] = useState<Page[]>([]);
   const [pageId, setPageId] = useState('');
   const [access, setAccess] = useState<ProjectAccess | null>(null);
-  const [section, setSection] = useState<'pages' | 'members'>('pages');
+  const [logoutPending, setLogoutPending] = useState(false);
+  const [logoutError, setLogoutError] = useState('');
+  const [section, setSection] = useState<'pages' | 'members' | 'connection' | 'onboarding'>(()=>{const value=new URLSearchParams(location.search).get('section');return value==='onboarding'||value==='members'||value==='connection'?value:'pages';});
   const [projectsState, setProjectsState] = useState<LoadState>('loading');
   const [projectsError, setProjectsError] = useState('');
   const [projectDetailsState, setProjectDetailsState] = useState<LoadState>('loading');
@@ -151,13 +168,12 @@ function Dashboard({ session }: { session: Session }) {
   async function loadProjectDetails(id: string) {
     if (id !== selectedProjectId.current) return;
     const request = ++projectDetailsRequest.current;
-    const selectedPageId = pageId;
+    const selectedPageId = pageId || new URLSearchParams(location.search).get('page') || '';
     accessRequest.current += 1;
     setLoadedProjectId('');
     setProjectDetailsState('loading');
     setProjectDetailsError('');
     setPages([]);
-    setPageId('');
     setAccess(null);
     try {
       const [pageResult, accessResult] = await Promise.all([
@@ -204,21 +220,37 @@ function Dashboard({ session }: { session: Session }) {
     return () => { projectDetailsRequest.current += 1; };
   }, [projectId]);
 
+  useEffect(() => {
+    if (!projectId) return;
+    const url=new URL(location.href);url.searchParams.set('project',projectId);url.searchParams.set('section',section);
+    if(pageId)url.searchParams.set('page',pageId);
+    history.replaceState(null,'',url);
+  }, [projectId,pageId,section]);
+
   async function logout() {
-    await post('/api/auth/logout', {});
-    location.reload();
+    if (logoutPending) return;
+    setLogoutPending(true);
+    setLogoutError('');
+    try {
+      await post('/api/auth/logout', {});
+      location.replace('/admin/');
+    } catch (reason) {
+      setLogoutError(errorMessage(reason));
+      setLogoutPending(false);
+    }
   }
 
   const detailsReady = Boolean(projectId) && loadedProjectId === projectId && projectDetailsState === 'ready';
   return <main class="shell">
     <header>
-      <h1>Lykar</h1><span class="badge">localhost</span>
+      <h1>Lykar</h1><span class="badge">Управление сайтами</span>
       <span class="user">{session.user.email}</span>
-      <button onClick={() => void logout()}>Выйти</button>
+      <button disabled={logoutPending} onClick={() => void logout()}>{logoutPending ? 'Выходим…' : 'Выйти'}</button>
     </header>
+    {logoutError && <p class="inline-error" role="alert">Не удалось выйти: {logoutError}</p>}
     <div class="grid">
       <aside class="card">
-        <ProjectCreate onCreated={loadProjects} />
+        <ProjectCreate allowLocal={allowLocal} onCreated={async id=>{selectedProjectId.current=id;setSection('onboarding');await loadProjects();}} />
         <h2>Сайты</h2>
         {projectsState === 'loading' && <p class="loading-state" role="status">Загружаем сайты…</p>}
         {projectsState === 'error' && <div class="error-state" role="alert"><p>Не удалось загрузить сайты: {projectsError}</p><button type="button" onClick={() => void loadProjects()}>Повторить</button></div>}
@@ -235,19 +267,24 @@ function Dashboard({ session }: { session: Session }) {
           {detailsReady && access && <span class={`badge role-${access.actorRole}`}>{roleLabel(access.actorRole)}</span>}
         </div>
         <div class="tabs">
+          <button class={section === 'onboarding' ? 'active' : ''} onClick={() => setSection('onboarding')}>Мастер подключения</button>
           <button class={section === 'pages' ? 'active' : ''} onClick={() => setSection('pages')}>Страницы</button>
           <button class={section === 'members' ? 'active' : ''} onClick={() => setSection('members')}>Участники</button>
+          <button class={section === 'connection' ? 'active' : ''} onClick={() => setSection('connection')}>Подключение</button>
         </div>
         {!detailsReady && projectDetailsState !== 'error' && <p class="loading-state" role="status">Загружаем страницы и доступ…</p>}
         {!detailsReady && projectDetailsState === 'error' && <div class="error-state" role="alert"><p>Не удалось загрузить данные сайта: {projectDetailsError}</p><button type="button" onClick={() => void loadProjectDetails(project.id)}>Повторить</button></div>}
+        {detailsReady && section === 'onboarding' && access && <OnboardingPanel key={project.id} project={project} pages={pages} page={page} access={access} userId={session.user.id} onPage={setPageId} reload={async()=>{await loadProjects();await loadProjectDetails(project.id);}}/>}
         {detailsReady && section === 'pages' && <>
           {access?.permissions.publish && <PageCreate projectId={project.id} onCreated={() => loadProjectDetails(project.id)} />}
+            {access?.permissions.publish && <SitemapImport project={project} reload={()=>loadProjectDetails(project.id)}/>}
             <h3>Страницы</h3>
             {pages.length === 0 ? <p class="muted">В этом сайте пока нет страниц.</p> : <div class="row">{pages.map(item => <button key={item.id} class={item.id === pageId ? 'active' : ''} onClick={() => setPageId(item.id)}>
               {item.name} <span class="muted">{item.pathname}</span>
             </button>)}</div>}
-            {page && access && <PageWorkspace key={page.id} page={page} permissions={access.permissions} />}
+            {page && access && <PageWorkspace key={page.id} page={page} project={project!} permissions={access.permissions} members={access.members} />}
         </>}
+        {section === 'connection' && detailsReady && page && access && <ConnectionPanel key={`${project.id}:${page.id}`} project={project} page={page} canManage={access.permissions.manageMembers} canProbe={access.permissions.edit} />}
         {section === 'members' && detailsReady && access && <MembersPanel
           access={access}
           currentUserId={session.user.id}
@@ -261,21 +298,25 @@ function Dashboard({ session }: { session: Session }) {
   </main>;
 }
 
-function ProjectCreate({ onCreated }: { onCreated: () => Promise<void> }) {
+function ProjectCreate({ onCreated,allowLocal }: { onCreated: (id:string) => Promise<void>;allowLocal:boolean }) {
   const [name, setName] = useState('');
-  const [origin, setOrigin] = useState('http://localhost:4173');
-  const { pendingAction, actionError, runAction } = useAsyncAction(onCreated, true, 'Список сайтов изменился.');
+  const [origin, setOrigin] = useState('');
+  const { pendingAction, actionError, runAction } = useAsyncAction(async()=>{}, true, 'Список сайтов изменился.');
   async function submit(event: Event) {
     event.preventDefault();
     await runAction('create', async () => {
-      await post('/api/admin/projects', { name, origins: [origin] });
-      setName('');
+      const url=new URL(origin);
+      const local=['localhost','127.0.0.1','[::1]'].includes(url.hostname);
+      if(url.username||url.password||url.search||url.hash||url.pathname!=='/'||(url.protocol!=='https:'&&!(allowLocal&&local&&url.protocol==='http:'))) throw new Error('Укажите HTTPS-адрес сайта без пути, параметров и данных входа. HTTP допустим только для локальной разработки.');
+      if((local&&!allowLocal)||(!local&&(!/^(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z][a-z0-9-]*$/i.test(url.hostname)||/\.(?:local|localhost|internal|home|lan|test|invalid|onion)$/i.test(url.hostname)))) throw new Error('Нужен публичный DNS-домен сайта. Локальные адреса доступны только в режиме разработки.');
+      const result=await post<{project:Project}>('/api/admin/projects', { name, origins: [url.origin] });
+      setName('');setOrigin('');await onCreated(result.project.id);
     });
   }
   return <form class="form" onSubmit={submit}>
     <h2>Новый сайт</h2>
-    <input required value={name} onInput={event => setName(event.currentTarget.value)} placeholder="Название" />
-    <input required value={origin} onInput={event => setOrigin(event.currentTarget.value)} placeholder="http://localhost:4173" />
+    <label>Название сайта<input required value={name} onInput={event => setName(event.currentTarget.value)} placeholder="Название" /></label>
+    <label>Адрес сайта<input required type="url" value={origin} onInput={event => setOrigin(event.currentTarget.value)} placeholder="https://example.com" /></label>
     <button class="primary" disabled={Boolean(pendingAction)}>{pendingAction ? 'Создаём…' : 'Создать'}</button>
     {actionError && <p class="inline-error" role="alert">{actionError}</p>}
   </form>;
@@ -293,8 +334,8 @@ function PageCreate({ projectId, onCreated }: { projectId: string; onCreated: ()
     });
   }
   return <form class="row" onSubmit={submit}>
-    <input required value={name} onInput={event => setName(event.currentTarget.value)} placeholder="Новая страница" />
-    <input required value={pathname} onInput={event => setPath(event.currentTarget.value)} placeholder="/pricing" />
+    <input aria-label="Название страницы" required value={name} onInput={event => setName(event.currentTarget.value)} placeholder="Новая страница" />
+    <input aria-label="Путь страницы" required value={pathname} onInput={event => setPath(event.currentTarget.value)} placeholder="/pricing" />
     <button disabled={Boolean(pendingAction)}>{pendingAction ? 'Добавляем…' : 'Добавить'}</button>
     {actionError && <p class="inline-error" role="alert">{actionError}</p>}
   </form>;

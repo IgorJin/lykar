@@ -1,0 +1,81 @@
+
+> @lykar/runtime@0.0.0 pretest
+> npm run build --workspace @lykar/protocol
+
+
+> @lykar/protocol@0.0.0 build
+> tsc -p tsconfig.json && esbuild src/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs
+
+
+  dist/index.cjs  27.9kb
+
+⚡ Done in 1ms
+
+> @lykar/runtime@0.0.0 test
+> vitest run --reporter=dot
+
+
+ RUN  v4.1.10 /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/packages/runtime
+
+·····
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 3 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-pool]: Failed to start forks worker for test files /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/packages/runtime/src/runtime.test.ts.
+ ❯ ../../node_modules/vitest/dist/chunks/cli-api.BK8pd4xc.js:3465:94
+ ❯ runNextTicks node:internal/process/task_queues:64:5
+ ❯ listOnTimeout node:internal/timers:547:9
+ ❯ processTimers node:internal/timers:521:7
+ ❯ Pool.schedule ../../node_modules/vitest/dist/chunks/cli-api.BK8pd4xc.js:3465:5
+
+Caused by: Error: [vitest-pool-runner]: Timeout waiting for worker to respond
+ ❯ Timeout.<anonymous> ../../node_modules/vitest/dist/chunks/cli-api.BK8pd4xc.js:3041:58
+ ❯ listOnTimeout node:internal/timers:585:17
+ ❯ processTimers node:internal/timers:521:7
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-pool]: Failed to start forks worker for test files /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/packages/runtime/src/conditional-runtime.test.ts.
+ ❯ ../../node_modules/vitest/dist/chunks/cli-api.BK8pd4xc.js:3465:94
+ ❯ runNextTicks node:internal/process/task_queues:64:5
+ ❯ listOnTimeout node:internal/timers:547:9
+ ❯ processTimers node:internal/timers:521:7
+ ❯ Pool.schedule ../../node_modules/vitest/dist/chunks/cli-api.BK8pd4xc.js:3465:5
+
+Caused by: Error: [vitest-pool-runner]: Timeout waiting for worker to respond
+ ❯ Timeout.<anonymous> ../../node_modules/vitest/dist/chunks/cli-api.BK8pd4xc.js:3041:58
+ ❯ listOnTimeout node:internal/timers:585:17
+ ❯ processTimers node:internal/timers:521:7
+
+
+⎯⎯⎯⎯⎯⎯ Unhandled Error ⎯⎯⎯⎯⎯⎯⎯
+Error: [vitest-pool]: Failed to start forks worker for test files /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/packages/runtime/src/deployment.test.ts.
+ ❯ ../../node_modules/vitest/dist/chunks/cli-api.BK8pd4xc.js:3465:94
+ ❯ runNextTicks node:internal/process/task_queues:64:5
+ ❯ processTimers node:internal/timers:518:9
+ ❯ Pool.schedule ../../node_modules/vitest/dist/chunks/cli-api.BK8pd4xc.js:3465:5
+
+Caused by: Error: [vitest-pool-runner]: Timeout waiting for worker to respond
+ ❯ Timeout.<anonymous> ../../node_modules/vitest/dist/chunks/cli-api.BK8pd4xc.js:3041:58
+ ❯ listOnTimeout node:internal/timers:585:17
+ ❯ processTimers node:internal/timers:521:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+     Errors  3 errors
+   Start at  10:06:52
+   Duration  306.16s (transform 25ms, setup 0ms, import 36ms, tests 37ms, environment 306.01s)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/packages/runtime
+npm error workspace @lykar/runtime@0.0.0
+npm error location /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/packages/runtime
+npm error command failed
+npm error command sh -c vitest run --reporter=dot

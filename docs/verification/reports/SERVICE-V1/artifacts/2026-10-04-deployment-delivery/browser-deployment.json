@@ -1,0 +1,14 @@
+{
+  "command": [
+    "npx",
+    "playwright",
+    "test",
+    "deployment-flow.spec.ts",
+    "--reporter=line,json",
+    "--output=docs/verification/reports/SERVICE-V1/artifacts/2026-10-04-deployment-delivery/browser-artifacts"
+  ],
+  "startedAt": "2026-10-04T07:13:12.280Z",
+  "endedAt": "2026-10-04T07:14:02.022Z",
+  "code": 1,
+  "signal": null
+}

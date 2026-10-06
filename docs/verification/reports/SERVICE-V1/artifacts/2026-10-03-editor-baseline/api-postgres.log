@@ -1,0 +1,450 @@
+
+> lykar@0.0.0 test:e2e:http
+> node scripts/e2e-stack.mjs --smoke
+
+The files belonging to this database system will be owned by user "igorjan".
+This user must also own the server process.
+
+The database cluster will be initialized with locale "C".
+The default text search configuration will be set to "english".
+
+Data page checksums are disabled.
+
+fixing permissions on existing directory /var/folders/8s/bm2zf75s7t5c95ztfq7j19rw0000gn/T/lykar-e2e-dzsGkF/postgres ... ok
+creating subdirectories ... ok
+selecting dynamic shared memory implementation ... posix
+selecting default max_connections ... 100
+selecting default shared_buffers ... 128MB
+selecting default time zone ... Europe/Moscow
+creating configuration files ... ok
+running bootstrap script ... ok
+performing post-bootstrap initialization ... ok
+syncing data to disk ... ok
+
+Success. You can now start the database server using:
+
+    pg_ctl -D /var/folders/8s/bm2zf75s7t5c95ztfq7j19rw0000gn/T/lykar-e2e-dzsGkF/postgres -l logfile start
+
+waiting for server to start.... done
+server started
+
+> @lykar/admin@0.0.0 build
+> npm run clean && esbuild src/main.tsx --bundle --format=esm --target=es2022 --outfile=dist/app.js && node scripts/copy-static.mjs
+
+
+> @lykar/admin@0.0.0 clean
+> node -e "require('node:fs').rmSync('dist', { recursive: true, force: true })"
+
+
+  dist/app.js  83.4kb
+
+⚡ Done in 5ms
+
+> @lykar/sdk@0.0.0 prebuild
+> npm run build --workspace @lykar/runtime && npm run build --workspace @lykar/editor-bridge
+
+
+> @lykar/runtime@0.0.0 prebuild
+> npm run build --workspace @lykar/protocol
+
+
+> @lykar/protocol@0.0.0 build
+> tsc -p tsconfig.json && esbuild src/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs
+
+
+  dist/index.cjs  27.9kb
+
+⚡ Done in 1ms
+
+> @lykar/runtime@0.0.0 build
+> npm run clean && npm run build:types && esbuild src/index.ts --bundle --platform=browser --format=esm --target=es2018 --sourcemap --outfile=dist/runtime.js && esbuild src/global.ts --bundle --platform=browser --format=iife --target=es2018 --minify --sourcemap --outfile=dist/runtime.iife.js
+
+
+> @lykar/runtime@0.0.0 clean
+> node -e "require('node:fs').rmSync('dist', { recursive: true, force: true })"
+
+
+> @lykar/runtime@0.0.0 build:types
+> tsc --emitDeclarationOnly -p tsconfig.json
+
+
+  dist/runtime.js      142.5kb
+  dist/runtime.js.map  255.1kb
+
+⚡ Done in 4ms
+
+  dist/runtime.iife.js       79.8kb
+  dist/runtime.iife.js.map  264.9kb
+
+⚡ Done in 5ms
+
+> @lykar/editor-bridge@0.0.0 prebuild
+> npm run build --workspace @lykar/protocol && npm run build --workspace @lykar/runtime && npm run build --workspace @lykar/editor-ui
+
+
+> @lykar/protocol@0.0.0 build
+> tsc -p tsconfig.json && esbuild src/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs
+
+
+  dist/index.cjs  27.9kb
+
+⚡ Done in 2ms
+
+> @lykar/runtime@0.0.0 prebuild
+> npm run build --workspace @lykar/protocol
+
+
+> @lykar/protocol@0.0.0 build
+> tsc -p tsconfig.json && esbuild src/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs
+
+
+  dist/index.cjs  27.9kb
+
+⚡ Done in 2ms
+
+> @lykar/runtime@0.0.0 build
+> npm run clean && npm run build:types && esbuild src/index.ts --bundle --platform=browser --format=esm --target=es2018 --sourcemap --outfile=dist/runtime.js && esbuild src/global.ts --bundle --platform=browser --format=iife --target=es2018 --minify --sourcemap --outfile=dist/runtime.iife.js
+
+
+> @lykar/runtime@0.0.0 clean
+> node -e "require('node:fs').rmSync('dist', { recursive: true, force: true })"
+
+
+> @lykar/runtime@0.0.0 build:types
+> tsc --emitDeclarationOnly -p tsconfig.json
+
+
+  dist/runtime.js      142.5kb
+  dist/runtime.js.map  255.1kb
+
+⚡ Done in 4ms
+
+  dist/runtime.iife.js       79.8kb
+  dist/runtime.iife.js.map  264.9kb
+
+⚡ Done in 5ms
+
+> @lykar/editor-ui@0.0.0 build
+> npm run clean && tsc -p tsconfig.json
+
+
+> @lykar/editor-ui@0.0.0 clean
+> node -e "require('node:fs').rmSync('dist', { recursive: true, force: true })"
+
+
+> @lykar/editor-bridge@0.0.0 build
+> npm run clean && npm run build:types && esbuild src/index.ts --bundle --platform=browser --format=esm --target=es2018 --sourcemap --outfile=dist/editor.js && esbuild src/global.ts --bundle --platform=browser --format=iife --target=es2018 --minify --sourcemap --outfile=dist/editor.iife.js
+
+
+> @lykar/editor-bridge@0.0.0 clean
+> node -e "require('node:fs').rmSync('dist', { recursive: true, force: true })"
+
+
+> @lykar/editor-bridge@0.0.0 build:types
+> tsc --emitDeclarationOnly -p tsconfig.json
+
+
+  dist/editor.js      411.5kb
+  dist/editor.js.map  774.3kb
+
+⚡ Done in 13ms
+
+  dist/editor.iife.js      270.0kb
+  dist/editor.iife.js.map  792.2kb
+
+⚡ Done in 14ms
+
+> @lykar/sdk@0.0.0 build
+> npm run clean && npm run build:types && rollup -c && node scripts/build-assets.mjs
+
+
+> @lykar/sdk@0.0.0 clean
+> node -e "require('node:fs').rmSync('dist',{recursive:true,force:true})"
+
+
+> @lykar/sdk@0.0.0 build:types
+> tsc --emitDeclarationOnly -p tsconfig.json
+
+
+src/index.ts → dist/index.js...
+created dist/index.js in 163ms
+
+src/global.ts → dist/sdk.iife.js...
+created dist/sdk.iife.js in 36ms
+
+src/runtime-core-global.ts → dist/runtime-core.iife.js...
+created dist/runtime-core.iife.js in 73ms
+
+> lykar@0.0.0 db:migrate
+> npm run migrate --workspace lykar-lib-server
+
+
+> lykar-lib-server@1.0.0 migrate
+> npm run build && node dist/db/migrate.js
+
+
+> lykar-lib-server@1.0.0 prebuild
+> npm run build --workspace @lykar/protocol
+
+
+> @lykar/protocol@0.0.0 build
+> tsc -p tsconfig.json && esbuild src/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs
+
+
+  dist/index.cjs  27.9kb
+
+⚡ Done in 2ms
+
+> lykar-lib-server@1.0.0 build
+> npm run clean && tsc
+
+
+> lykar-lib-server@1.0.0 clean
+> node -e "require('node:fs').rmSync('dist', { recursive: true, force: true })"
+
+Applied migration 001_versioning_core.sql
+Applied migration 002_page_auth_and_sharing.sql
+Applied migration 003_project_members_and_invitations.sql
+Applied migration 004_owner_invariant.sql
+Applied migration 005_owner_invariant_trigger_fix.sql
+Applied migration 006_experiments_and_source_snapshots.sql
+Applied migration 007_analytics.sql
+Applied migration 008_analytics_rollups.sql
+Applied migration 009_draft_save_idempotency.sql
+
+> lykar-lib-server@1.0.0 pretest
+> npm run build
+
+
+> lykar-lib-server@1.0.0 prebuild
+> npm run build --workspace @lykar/protocol
+
+
+> @lykar/protocol@0.0.0 build
+> tsc -p tsconfig.json && esbuild src/index.ts --bundle --platform=node --format=cjs --outfile=dist/index.cjs
+
+
+  dist/index.cjs  27.9kb
+
+⚡ Done in 2ms
+
+> lykar-lib-server@1.0.0 build
+> npm run clean && tsc
+
+
+> lykar-lib-server@1.0.0 clean
+> node -e "require('node:fs').rmSync('dist', { recursive: true, force: true })"
+
+
+> lykar-lib-server@1.0.0 test
+> node --test "dist/**/*.test.js"
+
+TAP version 13
+# Subtest: admin endpoints fail closed without a session cookie
+ok 1 - admin endpoints fail closed without a session cookie
+  ---
+  duration_ms: 77.975708
+  type: 'test'
+  ...
+# Subtest: development login is disabled unless the local development mode is enabled
+ok 2 - development login is disabled unless the local development mode is enabled
+  ---
+  duration_ms: 29.461
+  type: 'test'
+  ...
+# Subtest: local development login creates a normal owner session
+ok 3 - local development login creates a normal owner session
+  ---
+  duration_ms: 18.870792
+  type: 'test'
+  ...
+# Subtest: development login refuses production and non-loopback origins
+ok 4 - development login refuses production and non-loopback origins
+  ---
+  duration_ms: 0.319541
+  type: 'test'
+  ...
+# Subtest: owner signs in through a one-use magic link and creates a project
+ok 5 - owner signs in through a one-use magic link and creates a project
+  ---
+  duration_ms: 17.711917
+  type: 'test'
+  ...
+# Subtest: explicit immutable versions require a page-scoped editor or share token
+ok 6 - explicit immutable versions require a page-scoped editor or share token
+  ---
+  duration_ms: 15.962792
+  type: 'test'
+  ...
+# Subtest: runtime without an explicit version or variant token leaves the native page untouched
+ok 7 - runtime without an explicit version or variant token leaves the native page untouched
+  ---
+  duration_ms: 12.7505
+  type: 'test'
+  ...
+# Subtest: invalid persisted operation is rejected before repository append
+ok 8 - invalid persisted operation is rejected before repository append
+  ---
+  duration_ms: 14.42
+  type: 'test'
+  ...
+# Subtest: experiment selection hashes the browser ID and issues a scoped event capability
+ok 9 - experiment selection hashes the browser ID and issues a scoped event capability
+  ---
+  duration_ms: 2.085959
+  type: 'test'
+  ...
+# Subtest: analytics capability rejects tampering and event properties reject page data
+ok 10 - analytics capability rejects tampering and event properties reject page data
+  ---
+  duration_ms: 0.459916
+  type: 'test'
+  ...
+# Subtest: assignment bucket is deterministic and bounded
+ok 11 - assignment bucket is deterministic and bounded
+  ---
+  duration_ms: 0.081333
+  type: 'test'
+  ...
+# Subtest: experiment creation requires exactly A and B with at least one immutable release
+ok 12 - experiment creation requires exactly A and B with at least one immutable release
+  ---
+  duration_ms: 1.879209
+  type: 'test'
+  ...
+# Subtest: partial variant updates preserve omitted fields and retain explicit nulls
+ok 13 - partial variant updates preserve omitted fields and retain explicit nulls
+  ---
+  duration_ms: 0.16875
+  type: 'test'
+  ...
+# Subtest: variant URLs expose an opaque token while repositories receive only its hash
+ok 14 - variant URLs expose an opaque token while repositories receive only its hash
+  ---
+  duration_ms: 0.533458
+  type: 'test'
+  ...
+# Subtest: project roles map to the agreed permission boundaries
+ok 15 - project roles map to the agreed permission boundaries
+  ---
+  duration_ms: 0.663875
+  type: 'test'
+  ...
+# Subtest: owner can only be assigned through ownership transfer
+ok 16 - owner can only be assigned through ownership transfer
+  ---
+  duration_ms: 0.256875
+  type: 'test'
+  ...
+# Subtest: createProject normalizes and deduplicates origins
+ok 17 - createProject normalizes and deduplicates origins
+  ---
+  duration_ms: 0.965041
+  type: 'test'
+  ...
+# Subtest: appendOperations validates protocol v1 before touching the repository
+ok 18 - appendOperations validates protocol v1 before touching the repository
+  ---
+  duration_ms: 0.379208
+  type: 'test'
+  ...
+# Subtest: appendOperations accepts the complete static-page operation set
+ok 19 - appendOperations accepts the complete static-page operation set
+  ---
+  duration_ms: 7.4495
+  type: 'test'
+  ...
+# Subtest: save payload hash is canonical and includes expected revision
+ok 20 - save payload hash is canonical and includes expected revision
+  ---
+  duration_ms: 0.146209
+  type: 'test'
+  ...
+# Subtest: PostgreSQL experiments expose only active A/B variant links and preserve the native default
+ok 21 - PostgreSQL experiments expose only active A/B variant links and preserve the native default
+  ---
+  duration_ms: 177.864125
+  type: 'test'
+  ...
+# Subtest: project invitations enforce roles, revoke editor capabilities, and transfer ownership
+ok 22 - project invitations enforce roles, revoke editor capabilities, and transfer ownership
+  ---
+  duration_ms: 157.964083
+  type: 'test'
+  ...
+# Subtest: PostgreSQL workflow freezes immutable versions without changing the native page
+ok 23 - PostgreSQL workflow freezes immutable versions without changing the native page
+  ---
+  duration_ms: 155.307166
+  type: 'test'
+  ...
+1..23
+# tests 23
+# suites 0
+# pass 23
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 280.417
+Seeded pk_playground_local for http://127.0.0.1:49769
+Lykar playground: http://127.0.0.1:49769
+{"level":30,"time":1791041189896,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","msg":"Server listening at http://127.0.0.1:49768"}
+{"level":30,"time":1791041189932,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1","req":{"method":"GET","url":"/api/health","host":"127.0.0.1:49768","remoteAddress":"127.0.0.1","remotePort":50133},"msg":"incoming request"}
+{"level":30,"time":1791041189935,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-1","res":{"statusCode":200},"responseTime":2.643957999999998,"msg":"request completed"}
+{"level":30,"time":1791041189935,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2","req":{"method":"GET","url":"/admin","host":"127.0.0.1:49768","remoteAddress":"127.0.0.1","remotePort":50134},"msg":"incoming request"}
+{"level":30,"time":1791041189935,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3","req":{"method":"GET","url":"/admin/","host":"127.0.0.1:49768","remoteAddress":"127.0.0.1","remotePort":50135},"msg":"incoming request"}
+{"level":30,"time":1791041189936,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4","req":{"method":"GET","url":"/admin/app.js","host":"127.0.0.1:49768","remoteAddress":"127.0.0.1","remotePort":50136},"msg":"incoming request"}
+{"level":30,"time":1791041189936,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5","req":{"method":"GET","url":"/admin/styles.css","host":"127.0.0.1:49768","remoteAddress":"127.0.0.1","remotePort":50137},"msg":"incoming request"}
+{"level":30,"time":1791041189936,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-2","res":{"statusCode":200},"responseTime":1.2334170000000029,"msg":"request completed"}
+{"level":30,"time":1791041189937,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-3","res":{"statusCode":200},"responseTime":1.2171669999999892,"msg":"request completed"}
+{"level":30,"time":1791041189937,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-4","res":{"statusCode":200},"responseTime":1.1728750000000048,"msg":"request completed"}
+{"level":30,"time":1791041189937,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-5","res":{"statusCode":200},"responseTime":1.2191249999999911,"msg":"request completed"}
+{"level":30,"time":1791041189950,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6","req":{"method":"POST","url":"/api/auth/dev-login","host":"127.0.0.1:49768","remoteAddress":"127.0.0.1","remotePort":50133},"msg":"incoming request"}
+{"level":30,"time":1791041189959,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-6","res":{"statusCode":200},"responseTime":8.235792000000004,"msg":"request completed"}
+{"level":30,"time":1791041189965,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7","req":{"method":"GET","url":"/api/admin/projects","host":"127.0.0.1:49768","remoteAddress":"127.0.0.1","remotePort":50133},"msg":"incoming request"}
+{"level":30,"time":1791041189968,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-7","res":{"statusCode":200},"responseTime":2.6800420000000145,"msg":"request completed"}
+{"level":30,"time":1791041189970,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8","req":{"method":"GET","url":"/api/admin/projects/20000000-0000-4000-8000-000000000001/pages","host":"127.0.0.1:49768","remoteAddress":"127.0.0.1","remotePort":50134},"msg":"incoming request"}
+{"level":30,"time":1791041189971,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-8","res":{"statusCode":200},"responseTime":1.729124999999982,"msg":"request completed"}
+{"level":30,"time":1791041189974,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9","req":{"method":"GET","url":"/api/admin/pages/30000000-0000-4000-8000-000000000001/drafts","host":"127.0.0.1:49768","remoteAddress":"127.0.0.1","remotePort":50133},"msg":"incoming request"}
+{"level":30,"time":1791041189976,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-9","res":{"statusCode":200},"responseTime":2.4341660000000047,"msg":"request completed"}
+{"level":30,"time":1791041189978,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-a","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000001/editor-launch","host":"127.0.0.1:49768","remoteAddress":"127.0.0.1","remotePort":50134},"msg":"incoming request"}
+{"level":30,"time":1791041189980,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-a","res":{"statusCode":201},"responseTime":2.4856670000000065,"msg":"request completed"}
+{"level":30,"time":1791041189982,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-b","req":{"method":"POST","url":"/api/editor/exchange","host":"127.0.0.1:49768","remoteAddress":"127.0.0.1","remotePort":50133},"msg":"incoming request"}
+{"level":30,"time":1791041189985,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-b","res":{"statusCode":200},"responseTime":2.2757080000000087,"msg":"request completed"}
+{"level":30,"time":1791041189987,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-c","req":{"method":"POST","url":"/api/editor/drafts/40000000-0000-4000-8000-000000000001/operations","host":"127.0.0.1:49768","remoteAddress":"127.0.0.1","remotePort":50134},"msg":"incoming request"}
+{"level":30,"time":1791041189996,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-c","res":{"statusCode":200},"responseTime":9.75158300000001,"msg":"request completed"}
+{"level":30,"time":1791041189998,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-d","req":{"method":"POST","url":"/api/admin/drafts/40000000-0000-4000-8000-000000000001/publish","host":"127.0.0.1:49768","remoteAddress":"127.0.0.1","remotePort":50133},"msg":"incoming request"}
+{"level":30,"time":1791041190001,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-d","res":{"statusCode":201},"responseTime":2.7432079999999814,"msg":"request completed"}
+{"level":30,"time":1791041190011,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-i","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000001/experiments","host":"127.0.0.1:49768","remoteAddress":"127.0.0.1","remotePort":50134},"msg":"incoming request"}
+{"level":30,"time":1791041190014,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-i","res":{"statusCode":201},"responseTime":3.4561250000000143,"msg":"request completed"}
+{"level":30,"time":1791041190016,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-j","req":{"method":"POST","url":"/api/admin/experiments/e4f78ebf-8e6e-4abf-888b-de24f9c1ca3d/activate","host":"127.0.0.1:49768","remoteAddress":"127.0.0.1","remotePort":50133},"msg":"incoming request"}
+{"level":30,"time":1791041190019,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-j","res":{"statusCode":200},"responseTime":2.8047920000000204,"msg":"request completed"}
+{"level":30,"time":1791041190020,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-k","req":{"method":"POST","url":"/api/admin/experiments/e4f78ebf-8e6e-4abf-888b-de24f9c1ca3d/variants/A/links","host":"127.0.0.1:49768","remoteAddress":"127.0.0.1","remotePort":50134},"msg":"incoming request"}
+{"level":30,"time":1791041190022,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-k","res":{"statusCode":201},"responseTime":1.6862500000000011,"msg":"request completed"}
+{"level":30,"time":1791041190024,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-l","req":{"method":"POST","url":"/api/admin/experiments/e4f78ebf-8e6e-4abf-888b-de24f9c1ca3d/variants/B/links","host":"127.0.0.1:49768","remoteAddress":"127.0.0.1","remotePort":50133},"msg":"incoming request"}
+{"level":30,"time":1791041190027,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-l","res":{"statusCode":201},"responseTime":2.0727500000000134,"msg":"request completed"}
+{"level":30,"time":1791041190033,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-o","req":{"method":"DELETE","url":"/api/admin/variant-links/a9f958b7-040e-4ff7-926f-9b2048fa297f","host":"127.0.0.1:49768","remoteAddress":"127.0.0.1","remotePort":50134},"msg":"incoming request"}
+{"level":30,"time":1791041190034,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-o","res":{"statusCode":204},"responseTime":0.8190829999999778,"msg":"request completed"}
+{"level":30,"time":1791041190037,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-q","req":{"method":"POST","url":"/api/admin/experiments/e4f78ebf-8e6e-4abf-888b-de24f9c1ca3d/variants/B/links","host":"127.0.0.1:49768","remoteAddress":"127.0.0.1","remotePort":50134},"msg":"incoming request"}
+{"level":30,"time":1791041190038,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-q","res":{"statusCode":201},"responseTime":1.392959000000019,"msg":"request completed"}
+{"level":30,"time":1791041190040,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-r","req":{"method":"POST","url":"/api/admin/experiments/e4f78ebf-8e6e-4abf-888b-de24f9c1ca3d/links","host":"127.0.0.1:49768","remoteAddress":"127.0.0.1","remotePort":50133},"msg":"incoming request"}
+{"level":30,"time":1791041190042,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-r","res":{"statusCode":201},"responseTime":1.5840410000000134,"msg":"request completed"}
+{"level":30,"time":1791041190056,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-w","req":{"method":"GET","url":"/api/admin/experiments/e4f78ebf-8e6e-4abf-888b-de24f9c1ca3d/analytics","host":"127.0.0.1:49768","remoteAddress":"127.0.0.1","remotePort":50134},"msg":"incoming request"}
+{"level":30,"time":1791041190057,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-w","res":{"statusCode":200},"responseTime":0.9447079999999914,"msg":"request completed"}
+{"level":30,"time":1791041190058,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-x","req":{"method":"DELETE","url":"/api/admin/experiment-links/7f1cfce2-b231-4486-80f0-ebbb6682fe1c","host":"127.0.0.1:49768","remoteAddress":"127.0.0.1","remotePort":50133},"msg":"incoming request"}
+{"level":30,"time":1791041190059,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-x","res":{"statusCode":204},"responseTime":0.8240840000000276,"msg":"request completed"}
+{"level":30,"time":1791041190063,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-z","req":{"method":"POST","url":"/api/admin/pages/30000000-0000-4000-8000-000000000001/shares","host":"127.0.0.1:49768","remoteAddress":"127.0.0.1","remotePort":50133},"msg":"incoming request"}
+{"level":30,"time":1791041190064,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-z","res":{"statusCode":201},"responseTime":1.2654589999999644,"msg":"request completed"}
+{"level":30,"time":1791041190066,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-10","req":{"method":"GET","url":"/share/[redacted]","host":"127.0.0.1:49768","remoteAddress":"127.0.0.1","remotePort":50134},"msg":"incoming request"}
+{"level":30,"time":1791041190067,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-10","res":{"statusCode":302},"responseTime":1.36016699999999,"msg":"request completed"}
+{"level":30,"time":1791041190069,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-11","req":{"method":"POST","url":"/api/share/exchange","host":"127.0.0.1:49768","remoteAddress":"127.0.0.1","remotePort":50133},"msg":"incoming request"}
+{"level":30,"time":1791041190071,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-11","res":{"statusCode":200},"responseTime":1.7656670000000076,"msg":"request completed"}
+{"level":30,"time":1791041190075,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-13","req":{"method":"POST","url":"/api/admin/experiments/e4f78ebf-8e6e-4abf-888b-de24f9c1ca3d/complete","host":"127.0.0.1:49768","remoteAddress":"127.0.0.1","remotePort":50133},"msg":"incoming request"}
+{"level":30,"time":1791041190077,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-13","res":{"statusCode":200},"responseTime":1.978999999999985,"msg":"request completed"}
+{"level":30,"time":1791041190079,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-14","req":{"method":"GET","url":"/api/admin/pages/30000000-0000-4000-8000-000000000001/experiments","host":"127.0.0.1:49768","remoteAddress":"127.0.0.1","remotePort":50134},"msg":"incoming request"}
+{"level":30,"time":1791041190080,"pid":53416,"hostname":"MacBook-Pro-Igorjan.local","reqId":"req-14","res":{"statusCode":200},"responseTime":1.3667910000000347,"msg":"request completed"}
+
+Lykar E2E smoke passed: version 1, release 20a0fb78-b72e-4982-a81b-937680d4a04f
+waiting for server to shut down.... done
+server stopped

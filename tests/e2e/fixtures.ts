@@ -31,12 +31,18 @@ export const test = base.extend<{ newContext: () => Promise<BrowserContext> }>({
             || /^\/api\/admin\/projects\/[^/]+\/pages$/.test(path)
             || /^\/api\/admin\/pages\/[^/]+\/experiments$/.test(path)
           );
-        const expected = (path === '/api/auth/session' && response.status() === 401)
+        const expected = (path === '/api/auth/magic-link' && response.status() === 503 && response.headers()['x-lykar-e2e-fault'] === 'signup-send-once')
+          || (path === '/api/auth/magic-link' && response.status() === 429 && Number(response.headers()['retry-after']) > 0)
+          || (path === '/api/auth/session' && response.status() === 401)
           || (path === '/favicon.ico' && response.status() === 404)
           || injectedAdminLoadFailure
+          || (response.status() === 503 && response.request().method() === 'POST'
+            && response.headers()['x-lykar-e2e-fault'] === 'deployment-response-lost-once'
+            && /^\/api\/admin\/pages\/[^/]+\/deployment\/deploy$/.test(path))
           || (response.status() === 409 && (
             /^\/api\/editor\/drafts\/[^/]+\/operations$/.test(path)
             || /^\/api\/admin\/drafts\/[^/]+\/publish$/.test(path)
+            || (response.request().method() === 'POST' && /^\/api\/admin\/pages\/[^/]+\/deployment\/deploy$/.test(path))
           ));
         if (response.status() >= 400 && !expected) errors.push(`HTTP ${response.status()}: ${path}`);
       });

@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npm",
+    "test"
+  ],
+  "startedAt": "2026-10-03T15:24:05.634Z",
+  "endedAt": "2026-10-03T15:24:25.293Z",
+  "code": 0,
+  "signal": null
+}

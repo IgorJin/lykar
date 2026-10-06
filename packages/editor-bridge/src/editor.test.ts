@@ -63,7 +63,8 @@ describe('local editor session', () => {
     const editor = new LykarEditor({document}).start();
     editor.select(box);
     const panel = document.querySelector<HTMLElement>('[data-lykar-editor-root="panel"]')!.shadowRoot!;
-    panel.querySelector<HTMLElement>('.style-section[data-section="typography"] summary')!.click();
+    const typography = panel.querySelector<HTMLDetailsElement>('.style-section[data-section="typography"]')!;
+    if (!typography.open) typography.querySelector<HTMLElement>('summary')!.click();
     await vi.waitFor(() => expect(panel.querySelector('[data-field="color"]')).not.toBeNull());
     const color = panel.querySelector<HTMLInputElement>('[data-field="color"] input[aria-label="Text Color"]')!;
     expect(color.value).toBe('purple');
@@ -91,7 +92,7 @@ describe('local editor session', () => {
       expect.objectContaining({kind: 'setStyle', property: '--BrandAccent', value: '#abc'}),
     ]));
 
-    panel.querySelector<HTMLButtonElement>('[data-field="grid-column"] button')!.click();
+    panel.querySelector<HTMLButtonElement>('[data-field="grid-column"] button[aria-label="Удалить правку Grid Column"]')!.click();
     await vi.waitFor(() => expect(box.style.gridColumn).toBe(''));
     panel.querySelector<HTMLButtonElement>('[data-action="undo"]')!.click();
     await vi.waitFor(() => expect(box.style.gridColumn).toBe('2 / span 3'));
@@ -319,15 +320,18 @@ describe('local editor session', () => {
     editor.destroy();
   });
 
-  it('restores the pre-Lykar inline value and priority separately from deleting a declaration', async () => {
+  it('enables deletion only for Lykar overrides and restores the host inline value and priority', async () => {
     document.body.innerHTML = '<div id="box" style="color: purple !important">Box</div>';
     const box = document.querySelector<HTMLElement>('#box')!;
     const editor = new LykarEditor({document}).start();
     editor.select(box);
     const panel = document.querySelector<HTMLElement>('[data-lykar-editor-root="panel"]')!.shadowRoot!;
-    panel.querySelector<HTMLElement>('.style-section[data-section="typography"] summary')!.click();
+    const typography = panel.querySelector<HTMLDetailsElement>('.style-section[data-section="typography"]')!;
+    if (!typography.open) typography.querySelector<HTMLElement>('summary')!.click();
     await vi.waitFor(() => expect(panel.querySelector('[data-field="color"]')).not.toBeNull());
     const color = panel.querySelector<HTMLInputElement>('[data-field="color"] input[aria-label="Text Color"]')!;
+    const remove = panel.querySelector<HTMLButtonElement>('[data-field="color"] button[aria-label="Удалить правку Text Color"]')!;
+    expect(remove.disabled).toBe(true);
     expect(panel.querySelector<HTMLElement>('[data-field="color"]')!.dataset.dirty).toBe('false');
     expect(panel.querySelector<HTMLInputElement>('[data-field="color"] input[data-role="priority"]')!.checked).toBe(true);
     color.value = 'green';
@@ -335,15 +339,21 @@ describe('local editor session', () => {
     await vi.waitFor(() => expect(box.style.color).toBe('green'));
     expect(box.style.getPropertyPriority('color')).toBe('important');
     expect(panel.querySelector<HTMLElement>('[data-field="color"]')!.dataset.dirty).toBe('true');
-    panel.querySelector<HTMLButtonElement>('[data-field="color"] button[aria-label="Вернуть исходный Text Color"]')!.click();
+    expect(remove.disabled).toBe(false);
+    remove.click();
     await vi.waitFor(() => expect(box.style.color).toBe('purple'));
     expect(box.style.getPropertyPriority('color')).toBe('important');
     expect(panel.querySelector<HTMLElement>('[data-field="color"]')!.dataset.dirty).toBe('false');
+    expect(remove.disabled).toBe(true);
     const count = editor.exportDraft().operations.length;
     panel.querySelector<HTMLButtonElement>('[data-field="color"] button[aria-label="Вернуть исходный Text Color"]')!.click();
     await vi.waitFor(() => expect(editor.exportDraft().operations).toHaveLength(count));
     panel.querySelector<HTMLButtonElement>('[data-action="undo"]')!.click();
     await vi.waitFor(() => expect(box.style.color).toBe('green'));
+    expect(remove.disabled).toBe(false);
+    panel.querySelector<HTMLButtonElement>('[data-action="redo"]')!.click();
+    await vi.waitFor(() => expect(box.style.color).toBe('purple'));
+    expect(remove.disabled).toBe(true);
     editor.destroy();
   });
 
@@ -361,25 +371,103 @@ describe('local editor session', () => {
     editor.destroy();
   });
 
-  it('refuses to reset a style that the host changed after Lykar preview', async () => {
+  it('tracks an explicit Lykar override even when its value matches the host baseline', async () => {
     document.body.innerHTML = '<div id="box" style="color: purple">Box</div>';
     const box = document.querySelector<HTMLElement>('#box')!;
     const editor = new LykarEditor({document}).start();
     editor.select(box);
     const panel = document.querySelector<HTMLElement>('[data-lykar-editor-root="panel"]')!.shadowRoot!;
-    panel.querySelector<HTMLElement>('.style-section[data-section="typography"] summary')!.click();
+    const search = panel.querySelector<HTMLInputElement>('input[aria-label="Поиск свойства"]')!;
+    search.value = 'color';
+    search.dispatchEvent(new Event('input', {bubbles: true}));
+    const row = panel.querySelector<HTMLElement>('[data-field="color"]')!;
+    const color = row.querySelector<HTMLInputElement>('input[aria-label="Text Color"]')!;
+    const remove = row.querySelector<HTMLButtonElement>('button[aria-label="Удалить правку Text Color"]')!;
+    expect(remove.disabled).toBe(true);
+    color.value = 'purple';
+    color.dispatchEvent(new Event('change', {bubbles: true}));
+    await vi.waitFor(() => expect(editor.exportDraft().operations).toHaveLength(1));
+    expect(box.style.color).toBe('purple');
+    expect(row.dataset.dirty).toBe('false');
+    expect(remove.disabled).toBe(false);
+    remove.click();
+    await vi.waitFor(() => expect(remove.disabled).toBe(true));
+    expect(box.style.color).toBe('purple');
+    expect(editor.exportDraft().operations).toHaveLength(0);
+    editor.destroy();
+  });
+
+  it('disables resetting a style that the host changed after Lykar preview', async () => {
+    document.body.innerHTML = '<div id="box" style="color: purple">Box</div>';
+    const box = document.querySelector<HTMLElement>('#box')!;
+    const editor = new LykarEditor({document}).start();
+    editor.select(box);
+    const panel = document.querySelector<HTMLElement>('[data-lykar-editor-root="panel"]')!.shadowRoot!;
+    const typography = panel.querySelector<HTMLDetailsElement>('.style-section[data-section="typography"]')!;
+    if (!typography.open) typography.querySelector<HTMLElement>('summary')!.click();
     await vi.waitFor(() => expect(panel.querySelector('[data-field="color"]')).not.toBeNull());
     const color = panel.querySelector<HTMLInputElement>('[data-field="color"] input[aria-label="Text Color"]')!;
     color.value = 'green';
     color.dispatchEvent(new Event('change', {bubbles: true}));
     await vi.waitFor(() => expect(box.style.color).toBe('green'));
     box.style.color = 'blue';
+    editor.select(box);
     const count = editor.exportDraft().operations.length;
-    panel.querySelector<HTMLButtonElement>('[data-field="color"] button[aria-label="Вернуть исходный Text Color"]')!.click();
-    await vi.waitFor(() => expect(panel.querySelector('[data-field="status"]')?.textContent).toContain('изменён страницей'));
+    const restore = panel.querySelector<HTMLButtonElement>('[data-field="color"] button[aria-label="Вернуть исходный Text Color"]')!;
+    const remove = panel.querySelector<HTMLButtonElement>('[data-field="color"] button[aria-label="Удалить правку Text Color"]')!;
+    expect(restore.disabled).toBe(true);
+    expect(remove.disabled).toBe(true);
+    restore.click();
+    remove.click();
     expect(box.style.color).toBe('blue');
     expect(editor.exportDraft().operations).toHaveLength(count);
     editor.destroy();
+  });
+
+  it('automatically disables trash after the selected host style value or priority changes', async () => {
+    document.body.innerHTML = '<div id="box" style="color: purple">Box</div>';
+    const box = document.querySelector<HTMLElement>('#box')!;
+    const editor = new LykarEditor({document}).start();
+    try {
+      editor.select(box);
+      const panel = document.querySelector<HTMLElement>('[data-lykar-editor-root="panel"]')!.shadowRoot!;
+      const search = panel.querySelector<HTMLInputElement>('input[aria-label="Поиск свойства"]')!;
+      search.value = 'color';
+      search.dispatchEvent(new Event('input', {bubbles: true}));
+      const row = panel.querySelector<HTMLElement>('[data-field="color"]')!;
+      const color = row.querySelector<HTMLInputElement>('input[aria-label="Text Color"]')!;
+      const remove = row.querySelector<HTMLButtonElement>('button[aria-label="Удалить правку Text Color"]')!;
+
+      // A deliberate same-value edit still belongs to Lykar even though it does
+      // not look different from the source. Observing it must not clear ownership.
+      color.value = 'purple';
+      color.dispatchEvent(new Event('change', {bubbles: true}));
+      await vi.waitFor(() => expect(remove.disabled).toBe(false));
+      expect(row.dataset.dirty).toBe('false');
+      const beforeHostValue = editor.exportDraft().operations.length;
+      box.style.color = 'blue';
+      // There is no reselection, explicit refresh or other editor interaction
+      // between the host mutation and the disabled state.
+      await vi.waitFor(() => expect(remove.disabled).toBe(true));
+      expect(box.style.color).toBe('blue');
+      expect(editor.exportDraft().operations).toHaveLength(beforeHostValue);
+
+      color.value = 'green';
+      color.dispatchEvent(new Event('change', {bubbles: true}));
+      await vi.waitFor(() => expect(remove.disabled).toBe(false));
+      expect(box.style.color).toBe('green');
+      expect(box.style.getPropertyPriority('color')).toBe('');
+      const beforeHostPriority = editor.exportDraft().operations.length;
+      // JSDOM does not emit a mutation for CSSOM priority-only updates.
+      // The browser suite covers setProperty; exercise the attribute observer here.
+      box.setAttribute('style', 'color: green !important');
+      await vi.waitFor(() => expect(remove.disabled).toBe(true));
+      expect(box.style.color).toBe('green');
+      expect(box.style.getPropertyPriority('color')).toBe('important');
+      expect(editor.exportDraft().operations).toHaveLength(beforeHostPriority);
+    } finally {
+      editor.destroy();
+    }
   });
 
   it('confines replay to its root and does not restore another draft pending queue', async () => {
@@ -757,6 +845,7 @@ describe('editor UI and proposals', () => {
       node: {type: 'element', tag: 'p', children: [{type: 'text', value: 'Restored'}]},
     }]});
     const panel = document.querySelector<HTMLElement>('[data-lykar-editor-root="panel"]')!.shadowRoot!;
+    panel.querySelector<HTMLButtonElement>('[data-mode="history"]')!.click();
     const change = panel.querySelector<HTMLElement>('[data-operation-id="missing-command"]')!;
 
     expect(change.textContent).toContain('missing-command');
@@ -778,6 +867,9 @@ describe('editor UI and proposals', () => {
     const editor = new LykarEditor({document}).start();
     editor.select(document.querySelector('section'));
     const panel = document.querySelector<HTMLElement>('[data-lykar-editor-root="panel"]')!.shadowRoot!;
+    const proposalControls = panel.querySelector<HTMLButtonElement>('[data-action="dummy-proposal"]')!.closest<HTMLDetailsElement>('details')!;
+    proposalControls.querySelector<HTMLElement>('summary')!.click();
+    expect(proposalControls.open).toBe(true);
     panel.querySelector<HTMLButtonElement>('[data-action="dummy-proposal"]')!.click();
 
     await vi.waitFor(() => expect(panel.querySelector<HTMLElement>('[data-view="proposal"]')!.hidden).toBe(false));

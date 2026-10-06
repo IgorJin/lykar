@@ -270,18 +270,26 @@ export function getLocationSelectors(document: Document): {
   variant: boolean;
   experiment: boolean;
   selectorCount: number;
+  malformed: boolean;
 } {
   const location = document.location;
-  const tokens = visitorTokensFromLocation(document);
   const search = new URLSearchParams(location?.search ?? '');
   const hash = readHash(document);
   const editor = hash.has('lykar_edit');
   const share = hash.has('lykar_share');
   const version = search.has('version');
-  const variant = Boolean(tokens.variant);
-  const experiment = Boolean(tokens.experiment);
+  const variant = search.has('lykar_variant') || hash.has('lykar_variant');
+  const experiment = search.has('lykar_experiment') || hash.has('lykar_experiment');
+  const malformed = ['version', 'lykar_variant', 'lykar_experiment', 'lykar_edit', 'lykar_share'].some(name => {
+    const values = name === 'version' ? search.getAll(name)
+      : name === 'lykar_edit' || name === 'lykar_share' ? hash.getAll(name)
+      : [...search.getAll(name), ...hash.getAll(name)];
+    return values.length > 1 || values.some(value => !value.trim())
+      || (name === 'version' && values.some(value => !Number.isSafeInteger(Number(value)) || Number(value) <= 0));
+  });
   const selectors = [editor, share, variant, experiment, version && !share];
   return {
+    malformed,
     editor,
     share,
     visitor: version || variant || experiment,

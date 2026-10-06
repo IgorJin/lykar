@@ -18,6 +18,16 @@
 проверяемую поддержку SPA. Под «rollback» в контексте сборки предполагается
 Rollup; откат опубликованной версии — отдельная функция продукта.
 
+## Текущий порядок — 2026-10-03
+
+После принятого S4 начат [SERVICE-V1](./tasks/SERVICE-V1/README.md): baseline →
+сервисный контракт → S5 deployment → самостоятельное подключение и A/B setup →
+S6 operations → техническая приёмка → внешний пилот → решение о запуске.
+X1/X2 отложены. A/B первой версии работает только по entry-ссылкам; обычный
+трафик не распределяется автоматически. Scope и согласованные проверки — в плане,
+новые ещё не утверждённые бюджеты и providers — в
+[контракте](./docs/architecture/service-v1-contract.md).
+
 ## 2. Границы результата
 
 ### Базовый MVP — ранее согласованный сценарий
@@ -441,13 +451,13 @@ AI всегда создаёт reviewable proposal; keys остаются на b
 
 План прототипа: `X1 (spec/handoff) → X2 (validator) → X3 (pilot)`.
 X1 использует S2 и проверенные версии/share из S3. X2 требует X1, строгий resolver
-и browser harness; рабочий приоритет X2 — после первого adapter S4. Для static-only
+и browser harness; X1/X2 отложены до завершения SERVICE-V1. Для static-only
 runner полный S4 технически не обязателен; проверка SPA source зависит от S4.
 X3 требует X2 и проводится на согласованных fixtures/пилотных проектах.
 
-Порядок выбора следующей задачи: `S0 → S1 → S2.1 → S2.2 → S2.3 → S2.4 → S3 →
-S4 → X1 → X2 → S5 → S6 → S7`. X3 можно выполнить после X2; он не является gate
-для S5/S6. Основной delivery V1 не зависит от успеха новой продуктовой гипотезы.
+Порядок выбора следующей задачи с 2026-10-03: `S0 → S1 → S2 → S3 → S4 →
+SERVICE-V1 (S5/S6 + приёмка + пилот)`. X1/X2/X3 и S7 — последующее развитие.
+X3 не является gate сервиса и не заменяет внешний пилот SERVICE-V1-21.
 Guides, AI provider и расширенная A/B-статистика не блокируют X1/X2.
 
 ### 7.1 Готовые средства и собственные реализации
@@ -486,3 +496,23 @@ lockfile. CRDT, полная test platform и замена backend stack не т
 provider, конкретные цены. Для первого SPA среза предполагается React; список
 гарантируемых framework/browser versions фиксируется по пройденным fixtures,
 а не через обещание поддержки «любого сайта».
+
+## SERVICE-V1: checkpoint 2026-10-05
+
+Технический workflow публикации S5 завершён задачами SERVICE-V1-03–05:
+Admin/SDK/API, включение/отключение/откат, preview и ручной repair через новый Release.
+[Evidence](./docs/verification/reports/SERVICE-V1/deployment.html#SERVICE-V1-05).
+SERVICE-V1-06 завершён: регистрация независимых владельцев, 36 API/PostgreSQL и 18 browser tests, typecheck PASS.
+[Evidence регистрации](./docs/verification/reports/SERVICE-V1/onboarding.html#SERVICE-V1-06).
+Актуальный следующий срез — SERVICE-V1-07 (письма, лимиты и переключение провайдеров), с инфраструктурным prerequisite 12;
+[сервисный план](./tasks/SERVICE-V1/README.md) задаёт текущую последовательность.
+Инфраструктура, согласование budgets и внешняя приёмка ещё не завершены.
+
+
+SERVICE-V1-07 local checkpoint (2026-10-05): email adapters, persisted request limits,
+provider quotas/fallback и безопасные статусы реализованы без API-ключа по поручению
+владельца. Реальный inbox/HTTPS staging gate остаётся открыт; см. отчёт onboarding,
+anchor SERVICE-V1-07. Полный статус IN_PROGRESS; подключение ключей отдельно.
+
+
+SERVICE-V1-08 DONE (2026-10-06): DNS TXT ownership, separate local verification, deploy gate, page-bound SDK diagnostics and Admin connection panel. 73 API/PostgreSQL + HTTP smoke, 109 SDK, 63 browser, typecheck PASS. Next functional stage: SERVICE-V1-09. Real email delivery (07) and HTTPS staging remain open. Evidence: docs/verification/reports/SERVICE-V1/onboarding.html#SERVICE-V1-08.

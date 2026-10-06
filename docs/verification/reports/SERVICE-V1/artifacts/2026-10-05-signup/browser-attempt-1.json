@@ -1,0 +1,95 @@
+{
+  "cases": [
+    {
+      "title": "local owner login survives reload and opens the editor from the Admin click",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "magic link signs in without dev auth and cannot be reused",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "playground without editor capability exposes a working Admin button",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "new independent customer signs up, resends, creates a site and logs out (desktop)",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "new independent customer signs up, resends, creates a site and logs out (mobile)",
+      "project": "chromium",
+      "status": "expected"
+    },
+    {
+      "title": "signup send failure preserves email and permits retry without reporting success",
+      "project": "chromium",
+      "status": "unexpected"
+    },
+    {
+      "title": "local owner login survives reload and opens the editor from the Admin click",
+      "project": "firefox",
+      "status": "expected"
+    },
+    {
+      "title": "magic link signs in without dev auth and cannot be reused",
+      "project": "firefox",
+      "status": "expected"
+    },
+    {
+      "title": "playground without editor capability exposes a working Admin button",
+      "project": "firefox",
+      "status": "expected"
+    },
+    {
+      "title": "new independent customer signs up, resends, creates a site and logs out (desktop)",
+      "project": "firefox",
+      "status": "expected"
+    },
+    {
+      "title": "new independent customer signs up, resends, creates a site and logs out (mobile)",
+      "project": "firefox",
+      "status": "expected"
+    },
+    {
+      "title": "signup send failure preserves email and permits retry without reporting success",
+      "project": "firefox",
+      "status": "unexpected"
+    },
+    {
+      "title": "local owner login survives reload and opens the editor from the Admin click",
+      "project": "webkit",
+      "status": "expected"
+    },
+    {
+      "title": "magic link signs in without dev auth and cannot be reused",
+      "project": "webkit",
+      "status": "expected"
+    },
+    {
+      "title": "playground without editor capability exposes a working Admin button",
+      "project": "webkit",
+      "status": "expected"
+    },
+    {
+      "title": "new independent customer signs up, resends, creates a site and logs out (desktop)",
+      "project": "webkit",
+      "status": "expected"
+    },
+    {
+      "title": "new independent customer signs up, resends, creates a site and logs out (mobile)",
+      "project": "webkit",
+      "status": "expected"
+    },
+    {
+      "title": "signup send failure preserves email and permits retry without reporting success",
+      "project": "webkit",
+      "status": "unexpected"
+    }
+  ],
+  "failureCause": "Fault injection removed its route before fulfill; corrected with times:1. No production assertions removed."
+}

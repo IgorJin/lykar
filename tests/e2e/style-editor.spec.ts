@@ -17,10 +17,12 @@ test('style panel searches catalog, edits arbitrary CSS, resets, undoes and relo
   await expect(panel.getByRole('heading', {name: 'Lykar Editor'})).toBeVisible();
   await hero.click();
   const initialWidth = await hero.evaluate(element => (element as HTMLElement).style.getPropertyValue('width'));
+  const initialWidthInput = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)[a-z%]+$/i.test(initialWidth)
+    ? String(parseFloat(initialWidth)) : initialWidth;
 
   await panel.getByRole('searchbox', {name: 'Поиск свойства'}).fill('width');
   const width = panel.locator('[data-field="width"] input[aria-label="Width"]');
-  await expect(width).toHaveValue(initialWidth);
+  await expect(width).toHaveValue(initialWidthInput);
   await width.fill('100px');
   await expect(hero).toHaveCSS('width', '100px');
   await width.press('Escape');
@@ -91,7 +93,8 @@ test('style panel searches catalog, edits arbitrary CSS, resets, undoes and relo
   await hero.click();
   await panel.getByRole('searchbox', {name: 'Поиск свойства'}).fill('letter-spacing');
   const letterSpacing = panel.locator('[data-field="letter-spacing"] input[aria-label="Letter Spacing"]');
-  await expect(letterSpacing).toHaveValue('2px');
+  await expect(letterSpacing).toHaveValue('2');
+  await expect(panel.getByRole('combobox', {name: 'Letter Spacing: единица', exact: true})).toHaveText('px');
   await letterSpacing.fill('clamp(1px, 0.5vw, 8px)');
   await letterSpacing.press('Tab');
   await expect.poll(() => hero.evaluate(element => (element as HTMLElement).style.getPropertyValue('letter-spacing')))
@@ -102,7 +105,8 @@ test('style panel searches catalog, edits arbitrary CSS, resets, undoes and relo
 
   await panel.getByRole('searchbox', {name: 'Поиск свойства'}).fill('display');
   const displayRow = panel.locator('[data-field="display"]');
-  await displayRow.getByRole('combobox', {name: 'Display: варианты'}).selectOption('grid');
+  await displayRow.getByRole('combobox', {name: 'Display: варианты'}).click();
+  await panel.getByRole('option', {name: 'grid', exact: true}).click();
   await expect(hero).toHaveCSS('display', 'grid');
   await panel.locator('[data-action="undo"]').click();
   await expect(hero).not.toHaveCSS('display', 'grid');
@@ -120,7 +124,7 @@ test('style panel searches catalog, edits arbitrary CSS, resets, undoes and relo
   await expect(textColor).toHaveValue('var(--BrandAccent)');
 
   await panel.getByRole('searchbox', {name: 'Поиск свойства'}).fill('width');
-  await panel.getByRole('button', {name: 'Удалить inline CSS Width'}).click();
+  await panel.getByRole('button', {name: 'Удалить правку Width'}).click();
   await expect(hero).not.toHaveCSS('width', '320px');
   await panel.locator('[data-action="undo"]').click();
   await expect(hero).toHaveCSS('width', '320px');

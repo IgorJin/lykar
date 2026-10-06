@@ -24,6 +24,7 @@ export default async function globalSetup(_config: FullConfig) {
   process.env.LYKAR_E2E_MAGIC_API_BASE_URL = ready.magicApiBaseUrl;
   process.env.LYKAR_E2E_PLAYGROUND_BASE_URL = ready.playgroundBaseUrl;
   process.env.LYKAR_E2E_MAGIC_LINK_FILE = ready.magicLinkFile;
+  process.env.LYKAR_E2E_INSTALL_DIRECTORY = ready.installDirectory;
 
   return async () => {
     await stopChild(child);
@@ -35,6 +36,7 @@ type ReadyPayload = {
   magicApiBaseUrl: string;
   playgroundBaseUrl: string;
   magicLinkFile: string;
+  installDirectory: string;
 };
 
 function waitForReady(child: StackProcess): Promise<ReadyPayload> {

@@ -1,0 +1,24 @@
+{
+  "apiPostgres": {
+    "tests": 73,
+    "passed": 73,
+    "skipped": 0,
+    "httpSmoke": "PASS"
+  },
+  "sdk": {
+    "tests": 109,
+    "passed": 109
+  },
+  "browser": {
+    "startTime": "2026-10-06T08:20:00.277Z",
+    "duration": 110129.889,
+    "expected": 63,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "external": "No live DNS changes, real email or HTTPS staging; controlled DNS resolver, real local browser fixtures",
+  "review": "Root review; no completed independent final review",
+  "typecheck": "PASS",
+  "diffCheck": "PASS"
+}

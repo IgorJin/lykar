@@ -1,5 +1,9 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { spawnSync } from 'node:child_process';
+import path from 'node:path';
+import { ConsoleMagicLinkSender } from './domain/auth';
+import { ConsoleInvitationSender } from './domain/memberships';
 
 import type { OperationV1 } from '@lykar/protocol';
 
@@ -65,11 +69,11 @@ class ApiAnalyticsRepository implements AnalyticsRepository {
 }
 
 class MemoryAuthRepository implements AuthRepository {
-  user:UserRecord|null=null; login=new Map<string,{userId:string;expiresAt:Date;used:boolean}>(); sessions=new Map<string,{id:string;userId:string;expiresAt:Date;revoked:boolean}>();
+  user:UserRecord|null=null; login=new Map<string,{email:string;expiresAt:Date;used:boolean}>(); sessions=new Map<string,{id:string;userId:string;expiresAt:Date;revoked:boolean}>();
   async findOrCreateUser(input:{id:string;email:string}){return this.user??=( {id:USER_ID,email:input.email,createdAt:new Date().toISOString()} );}
   async findUserByEmail(email:string){return this.user?.email===email?this.user:null;}
-  async createLoginToken(input:Parameters<AuthRepository['createLoginToken']>[0]){this.login.set(input.tokenHash,{userId:input.userId,expiresAt:input.expiresAt,used:false});}
-  async consumeLoginToken(input:Parameters<AuthRepository['consumeLoginToken']>[0]){const item=this.login.get(input.tokenHash);if(!item||item.used||item.expiresAt<=input.now)return null;item.used=true;return this.user;}
+  async createLoginToken(input:Parameters<AuthRepository['createLoginToken']>[0]){this.login.set(input.tokenHash,{email:input.email,expiresAt:input.expiresAt,used:false});}
+  async consumeLoginToken(input:Parameters<AuthRepository['consumeLoginToken']>[0]){const item=this.login.get(input.tokenHash);if(!item||item.used||item.expiresAt<=input.now)return null;item.used=true;return this.findOrCreateUser({id:USER_ID,email:item.email});}
   async createSession(input:Parameters<AuthRepository['createSession']>[0]){this.sessions.set(input.tokenHash,{id:input.id,userId:input.userId,expiresAt:input.expiresAt,revoked:false});}
   async findSession(input:Parameters<AuthRepository['findSession']>[0]):Promise<AuthenticatedSession|null>{const item=this.sessions.get(input.tokenHash);if(!item||item.revoked||item.expiresAt<=input.now||!this.user)return null;return{id:item.id,user:this.user,expiresAt:item.expiresAt.toISOString()};}
   async revokeSession(tokenHash:string){const item=this.sessions.get(tokenHash);if(item)item.revoked=true;}
@@ -94,6 +98,7 @@ class ApiAccessRepository implements AccessRepository {
 }
 
 class ApiMembershipRepository implements MembershipRepository {
+  async getInvitationForResend():Promise<{email:string}>{throw new Error('unused');}
   async listProjectAccess():ReturnType<MembershipRepository['listProjectAccess']>{return{actorRole:'owner',members:[],invitations:[]};}
   async createInvitation():Promise<{invitation:ProjectInvitationRecord;projectName:string}>{throw new Error('unused');}
   async resendInvitation():Promise<{invitation:ProjectInvitationRecord;projectName:string}>{throw new Error('unused');}
@@ -110,6 +115,7 @@ function setup(overrides: Pick<BuildAppOptions, 'devAuth' | 'development' | 'app
   const sender = new CapturingSender();
   const app = buildApp({
     logger: false,
+    emailLimits: false,
     appOrigin: 'http://localhost:3000',
     ownerEmail: 'owner@example.com',
     versioningRepository,
@@ -118,6 +124,12 @@ function setup(overrides: Pick<BuildAppOptions, 'devAuth' | 'development' | 'app
     membershipRepository: new ApiMembershipRepository(),
     experimentRepository: new ApiExperimentRepository(),
     analyticsRepository: new ApiAnalyticsRepository(),
+    deploymentRepository: {
+      async getState(_userId, pageId) { return {pageId, revision: 0, activeReleaseId: null, activation: null}; },
+      async listHistory() { return {activations: [], nextBeforeRevision: null}; },
+      async activate() { throw new Error('Deployment mutations use PostgreSQL integration tests'); },
+      async resolve() { return null; },
+    },
     magicLinkSender: sender,
     ...overrides,
   });
@@ -186,3 +198,42 @@ test('explicit immutable versions require a page-scoped editor or share token',a
 test('runtime without an explicit version or variant token leaves the native page untouched',async()=>{const{app}=setup();try{const response=await app.inject({method:'GET',url:'/api/runtime/projects/pk_public/manifest?pathname=%2Fpricing'});assert.equal(response.statusCode,204);}finally{await app.close();}});
 
 test('invalid persisted operation is rejected before repository append',async()=>{const{app,sender}=setup();try{const cookie=await login(app,sender);const response=await app.inject({method:'POST',url:`/api/admin/drafts/${DRAFT_ID}/operations`,headers:{cookie},payload:{idempotencyKey:'save-request-invalid-0001',expectedRevision:0,operations:[{schemaVersion:1,id:'bad',kind:'executeScript',target:{marker:'hero'}}]}});assert.equal(response.statusCode,400);assert.equal(response.json().error.code,'VALIDATION_ERROR');}finally{await app.close();}});
+
+test('signup request creates no account/session until verification and browser errors remove secret URL', async () => {
+  const { app, sender } = setup();
+  try {
+    const requested = await app.inject({ method: 'POST', url: '/api/auth/magic-link', payload: { email: 'new@example.com' } });
+    assert.equal(requested.statusCode, 202);
+    assert.equal(requested.headers['set-cookie'], undefined);
+    assert.match(sender.url, /token=/);
+    assert.equal((await app.inject({ method: 'GET', url: '/api/auth/session' })).statusCode, 401);
+    const verified = await app.inject({ method: 'GET', url: sender.url });
+    assert.equal(verified.statusCode, 302);
+    const cookie = String(verified.headers['set-cookie']).split(';')[0];
+    const session = await app.inject({ method: 'GET', url: '/api/auth/session', headers: { cookie } });
+    assert.equal(session.json().user.email, 'new@example.com');
+    const reused = await app.inject({ method: 'GET', url: sender.url, headers: { accept: 'text/html' } });
+    assert.equal(reused.headers.location, '/admin/?authError=invalid-link');
+    assert.equal(reused.headers['set-cookie'], undefined);
+    assert.equal(reused.headers['cache-control'], 'no-store');
+  } finally { await app.close(); }
+});
+
+test('production refuses default console senders and has no privileged owner registration', () => {
+  assert.throws(() => setup({ development: false }), /configured email senders/);
+});
+
+test('production cannot enable local login, console senders or file delivery', () => {
+  assert.throws(() => buildApp({development:false,siteAllowLoopback:true}), /restricted to development/);
+  assert.throws(() => buildApp({ development: false, magicLinkSender: new ConsoleMagicLinkSender(), invitationSender: new ConsoleInvitationSender() }), /configured email senders/);
+  for (const configuration of [
+    { LYKAR_DEV_AUTH: '1', LYKAR_MAGIC_LINK_FILE: '' },
+    { LYKAR_DEV_AUTH: '0', LYKAR_MAGIC_LINK_FILE: '/tmp/lykar-production-must-not-write.ndjson' },
+  ]) {
+    const result = spawnSync(process.execPath, [path.join(__dirname, 'server.js')], {
+      env: { ...process.env, NODE_ENV: 'production', HOST: '127.0.0.1', ...configuration }, encoding: 'utf8', timeout: 5000,
+    });
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /outside production|restricted to local non-production/);
+  }
+});

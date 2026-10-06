@@ -1,0 +1,25 @@
+{
+  "command": [
+    "env",
+    "PLAYWRIGHT_JSON_OUTPUT_FILE=docs/verification/reports/SERVICE-V1/artifacts/2026-10-04-deployment-admin/browser-results.json",
+    "npx",
+    "playwright",
+    "test",
+    "tests/e2e/deployment-admin.spec.ts",
+    "tests/e2e/deployment-repair.spec.ts",
+    "tests/e2e/deployment-flow.spec.ts",
+    "tests/e2e/versioning-flow.spec.ts",
+    "tests/e2e/persistence-recovery.spec.ts",
+    "tests/e2e/s4-conditional-flow.spec.ts",
+    "tests/e2e/s4-spa-critical.spec.ts",
+    "tests/e2e/s3-acceptance.spec.ts",
+    "tests/e2e/auth-and-editor.spec.ts",
+    "tests/e2e/page-session-lifecycle.spec.ts",
+    "tests/e2e/replay-safety.spec.ts",
+    "--reporter=line,json"
+  ],
+  "startedAt": "2026-10-05T08:03:00.737Z",
+  "endedAt": "2026-10-05T08:04:46.398Z",
+  "code": 0,
+  "signal": null
+}

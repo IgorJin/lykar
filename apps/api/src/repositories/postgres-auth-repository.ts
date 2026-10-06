@@ -1,4 +1,5 @@
 import type { Pool } from 'pg';
+import { randomUUID } from 'node:crypto';
 
 import type { AuthRepository, AuthenticatedSession, UserRecord } from '../domain/auth';
 
@@ -35,25 +36,37 @@ export class PostgresAuthRepository implements AuthRepository {
 
   async createLoginToken(input: Parameters<AuthRepository['createLoginToken']>[0]): Promise<void> {
     await this.pool.query(
-      `INSERT INTO login_tokens (id, user_id, token_hash, expires_at)
+      `INSERT INTO login_tokens (id, email, token_hash, expires_at)
        VALUES ($1, $2, $3, $4)`,
-      [input.id, input.userId, input.tokenHash, input.expiresAt],
+      [input.id, input.email, input.tokenHash, input.expiresAt],
     );
   }
 
   async consumeLoginToken(input: Parameters<AuthRepository['consumeLoginToken']>[0]): Promise<UserRecord | null> {
-    const result = await this.pool.query<UserRow>(
-      `UPDATE login_tokens lt
-       SET consumed_at = $2
-       FROM users u
-       WHERE lt.token_hash = $1
-         AND lt.user_id = u.id
-         AND lt.consumed_at IS NULL
-         AND lt.expires_at > $2
-       RETURNING u.id, u.email, u.created_at`,
-      [input.tokenHash, input.now],
-    );
-    return result.rows[0] ? mapUser(result.rows[0]) : null;
+    const client = await this.pool.connect();
+    try {
+      await client.query('BEGIN');
+      const consumed = await client.query<{ user_id: string | null; email: string | null }>(
+        `UPDATE login_tokens SET consumed_at = $2
+         WHERE token_hash = $1 AND consumed_at IS NULL AND expires_at > $2
+         RETURNING user_id, email`, [input.tokenHash, input.now]);
+      const token = consumed.rows[0];
+      if (!token) {
+        await client.query('COMMIT');
+        return null;
+      }
+      const result = token.user_id
+        ? await client.query<UserRow>('SELECT id, email, created_at FROM users WHERE id = $1', [token.user_id])
+        : await client.query<UserRow>(
+          `INSERT INTO users (id, email) VALUES ($1, $2)
+           ON CONFLICT (email) DO UPDATE SET email = EXCLUDED.email
+           RETURNING id, email, created_at`, [randomUUID(), token.email]);
+      await client.query('COMMIT');
+      return result.rows[0] ? mapUser(result.rows[0]) : null;
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally { client.release(); }
   }
 
   async createSession(input: Parameters<AuthRepository['createSession']>[0]): Promise<void> {

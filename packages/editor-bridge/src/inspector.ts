@@ -15,6 +15,8 @@ export class ElementInspector {
   private captureNext: ((element: Element) => void) | null = null;
   private pointerFrame: number | null = null;
   private pointerTarget: Element | null = null;
+  private dragging = false;
+  private preview = false;
 
   constructor(
     document: Document,
@@ -30,7 +32,8 @@ export class ElementInspector {
 
   start(): void {
     if (this.controller) return;
-    this.controller = new AbortController();
+    const Controller = this.document.defaultView?.AbortController ?? AbortController;
+    this.controller = new Controller();
     const { signal } = this.controller;
     this.document.addEventListener('pointermove', this.onPointerMove, { capture: true, passive: true, signal });
     this.document.addEventListener('mouseover', this.onPointerMove, { capture: true, passive: true, signal });
@@ -47,9 +50,33 @@ export class ElementInspector {
     this.onSelection(element);
   }
 
+  elementAt(x: number, y: number): Element | null {
+    if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+    return editableElement(this.document.elementFromPoint?.(x, y) ?? null, this.root);
+  }
+
+  setDragging(active: boolean): void {
+    if (this.dragging === active) return;
+    this.dragging = active;
+    if (active) this.pausePointer();
+    else if (!this.preview) this.restoreSelection();
+  }
+
+  setPreview(active: boolean): void {
+    if (this.preview === active) return;
+    this.preview = active;
+    if (active) {
+      this.cancelCapture();
+      this.pausePointer();
+    }
+    this.overlay.setVisible(!active);
+    if (!active && !this.dragging) this.restoreSelection();
+  }
+
   captureNextSelection(callback: (element: Element) => void): void {
+    if (this.preview) return;
     this.captureNext = callback;
-    if (this.hovered) this.overlay.show('destination', this.hovered, 'Выбрать место');
+    if (this.hovered && !this.dragging) this.overlay.show('destination', this.hovered, 'Выбрать место');
   }
 
   cancelCapture(): void {
@@ -60,6 +87,15 @@ export class ElementInspector {
   destroy(): void {
     this.controller?.abort();
     this.controller = null;
+    this.pausePointer();
+    this.selected = null;
+    this.dragging = false;
+    this.preview = false;
+    this.cancelCapture();
+    this.overlay.hide('selection');
+  }
+
+  private pausePointer(): void {
     if (this.pointerFrame !== null) {
       this.document.defaultView?.cancelAnimationFrame?.(this.pointerFrame);
       this.document.defaultView?.clearTimeout(this.pointerFrame);
@@ -67,14 +103,17 @@ export class ElementInspector {
     }
     this.pointerTarget = null;
     this.hovered = null;
-    this.selected = null;
-    this.cancelCapture();
     this.overlay.hide('hover');
-    this.overlay.hide('selection');
+    this.overlay.hide('destination');
+  }
+
+  private restoreSelection(): void {
+    if (this.selected?.isConnected) this.overlay.show('selection', this.selected, describeElement(this.selected));
+    else this.overlay.hide('selection');
   }
 
   private onPointerMove = (event: Event): void => {
-    if (isEditorEvent(event)) return;
+    if (this.dragging || this.preview || isEditorEvent(event)) return;
     const element = editableElement(event.target, this.root);
     this.pointerTarget = element;
     if (this.pointerFrame !== null) return;
@@ -82,6 +121,7 @@ export class ElementInspector {
     const view = this.document.defaultView;
     const update = () => {
       this.pointerFrame = null;
+      if (this.dragging || this.preview) return;
       this.hovered = this.pointerTarget;
       if (this.hovered) {
         this.overlay.show('hover', this.hovered, describeElement(this.hovered));
@@ -97,7 +137,7 @@ export class ElementInspector {
   };
 
   private onClick = (event: MouseEvent): void => {
-    if (isEditorEvent(event)) return;
+    if (this.dragging || this.preview || isEditorEvent(event)) return;
     const element = editableElement(event.target, this.root);
     if (!element) return;
 
@@ -115,6 +155,7 @@ export class ElementInspector {
   };
 
   private onKeyDown = (event: KeyboardEvent): void => {
+    if (this.dragging || this.preview) return;
     if (event.key !== 'Escape') return;
     if (isEditorEvent(event)) return;
     if (this.captureNext) this.cancelCapture();
@@ -125,14 +166,14 @@ export class ElementInspector {
 }
 
 function editableElement(target: EventTarget | null, root: Document | Element): Element | null {
-  const element = target instanceof Element ? target : null;
+  const element = (target as Element | null)?.nodeType === 1 ? target as Element : null;
   if (!element || BLOCKED_TAGS.has(element.tagName)) return null;
   if (root.nodeType === 1 && root !== element && !root.contains(element)) return null;
   return element.closest('[data-lykar-editor-root]') ? null : element;
 }
 
 function isEditorEvent(event: Event): boolean {
-  return event.composedPath().some(item => item instanceof Element && item.hasAttribute('data-lykar-editor-root'));
+  return event.composedPath().some(item => (item as Element).nodeType === 1 && (item as Element).hasAttribute('data-lykar-editor-root'));
 }
 
 function describeElement(element: Element): string {

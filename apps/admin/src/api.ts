@@ -18,7 +18,7 @@ export type ProjectMember = { id:string; projectId:string; userId:string; email:
 export type ProjectInvitation = { id:string; projectId:string; email:string; role:Exclude<ProjectRole,'owner'>; invitedBy:string; expiresAt:string; acceptedAt:string|null; revokedAt:string|null; createdAt:string };
 export type ProjectAccess = { actorRole:ProjectRole; permissions:ProjectPermissions; members:ProjectMember[]; invitations:ProjectInvitation[] };
 
-export class ApiError extends Error { constructor(message:string, readonly status:number) { super(message); } }
+export class ApiError extends Error { constructor(message:string, readonly status:number, readonly code?:string, readonly retryAfterSeconds?:number, readonly deliveryId?:string) { super(message); } }
 
 export async function api<T>(path:string, init:RequestInit = {}):Promise<T> {
   const response = await fetch(path, {
@@ -28,8 +28,17 @@ export async function api<T>(path:string, init:RequestInit = {}):Promise<T> {
   });
   if (!response.ok) {
     let message = `HTTP ${response.status}`;
-    try { message = ((await response.json()) as {error?:{message?:string}}).error?.message ?? message; } catch { /* noop */ }
-    throw new ApiError(message, response.status);
+    let code: string | undefined;
+    let retryAfterSeconds: number | undefined;
+    let deliveryId: string | undefined;
+    try {
+      const error = ((await response.json()) as {error?:{message?:string;code?:string;details?:{retryAfterSeconds?:number;deliveryId?:string}}}).error;
+      message = error?.message ?? message; code = error?.code;
+      const delay = Number(response.headers.get('Retry-After') ?? error?.details?.retryAfterSeconds);
+      if (Number.isFinite(delay) && delay > 0) retryAfterSeconds = Math.ceil(delay);
+      deliveryId = error?.details?.deliveryId;
+    } catch { /* noop */ }
+    throw new ApiError(message, response.status, code, retryAfterSeconds, deliveryId);
   }
   if (response.status === 204) return undefined as T;
   return response.json() as Promise<T>;
@@ -38,3 +47,8 @@ export async function api<T>(path:string, init:RequestInit = {}):Promise<T> {
 export const post = <T>(path:string, body:unknown) => api<T>(path, {method:'POST', body:JSON.stringify(body)});
 export const patch = <T>(path:string, body:unknown) => api<T>(path, {method:'PATCH', body:JSON.stringify(body)});
 export const del = (path:string) => api<void>(path, {method:'DELETE'});
+
+export type DeploymentAction = 'deploy' | 'disable' | 'rollback';
+export type DeploymentActivation = {id:string;pageId:string;revision:number;previousReleaseId:string|null;releaseId:string|null;action:DeploymentAction;reason:string;actorUserId:string;createdAt:string};
+export type DeploymentState = {pageId:string;revision:number;activeReleaseId:string|null;activation:DeploymentActivation|null};
+export type DeploymentHistory = {activations:DeploymentActivation[];nextBeforeRevision:number|null};

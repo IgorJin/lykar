@@ -75,15 +75,15 @@ test('S3 Admin → release/share → sticky experiment → consent-gated report'
   await admin.getByRole('button', { name: 'Повторить' }).click();
   await expect(admin.getByRole('heading', { name: 'Northstar E2E' })).toBeVisible();
   await admin.getByRole('button', { name: `S3 Home ${rootPath}` }).click();
-  await admin.getByRole('button', { name: 'Создать draft' }).click();
-  await expect(admin.getByText('revision 0')).toBeVisible();
+  await admin.getByRole('button', { name: 'Создать черновик' }).click();
+  await expect(admin.getByText('Сохранение №0')).toBeVisible();
   await admin.getByRole('button', { name: 'Участники' }).click();
   await expect(admin.getByRole('heading', { name: 'Пригласить участника' })).toBeVisible();
   await expect(admin.locator('.member-row').getByText('owner@lykar.local')).toBeVisible();
   await expect(admin.locator('.member-row').getByText('Owner', { exact: true })).toBeVisible();
   await admin.getByRole('button', { name: 'Страницы' }).click();
   await admin.getByRole('button', { name: `S3 Home ${rootPath}` }).click();
-  await expect(admin.getByText('revision 0')).toBeVisible();
+  await expect(admin.getByText('Сохранение №0')).toBeVisible();
 
   // Publish the first root-page release through the editor and Admin screens.
   const firstEditorPopup = owner.waitForEvent('page');
@@ -99,13 +99,13 @@ test('S3 Admin → release/share → sticky experiment → consent-gated report'
   await firstEditor.close();
   await admin.reload();
   await admin.getByRole('button', { name: `S3 Home ${rootPath}` }).click();
-  await expect(admin.getByText('revision 1')).toBeVisible();
+  await expect(admin.getByText('Сохранение №1')).toBeVisible();
   await admin.getByRole('button', { name: 'Зафиксировать версию' }).click();
-  await expect(admin.locator('.release').filter({ hasText: 'Version 1' })).toBeVisible();
+  await expect(admin.locator('.release').filter({ hasText: 'Версия 1' })).toBeVisible();
 
   // Create a share in Admin, check its page binding, then preview and revoke it.
   await admin.evaluate(() => Object.defineProperty(navigator, 'clipboard', { configurable: true, value: undefined }));
-  await admin.locator('.release').filter({ hasText: 'Version 1' }).getByRole('button', { name: 'Share' }).click();
+  await admin.locator('.release').filter({ hasText: 'Версия 1' }).getByRole('button', { name: 'Ссылка на версию' }).click();
   const shareUrlField = admin.getByRole('textbox', { name: 'Share URL' });
   await expect(shareUrlField).toBeVisible();
   await expect(admin.locator('.fresh-share')).toContainText('Ссылка создана. Скопируйте её ниже.');
@@ -134,8 +134,8 @@ test('S3 Admin → release/share → sticky experiment → consent-gated report'
   await expect(shared.locator('body')).toHaveAttribute('data-lykar-mode', 'share');
 
   // A stale Admin revision returns 409. The screen must refresh and allow retry.
-  await admin.getByRole('button', { name: 'Создать draft' }).click();
-  await expect(admin.getByText('revision 0')).toBeVisible();
+  await admin.getByRole('button', { name: 'Создать черновик' }).click();
+  await expect(admin.getByText('Сохранение №0')).toBeVisible();
   const currentDraftsResponse = await owner.request.get(`${apiBaseUrl}/api/admin/pages/${rootPage.id}/drafts`);
   expect(currentDraftsResponse.ok()).toBeTruthy();
   const currentDrafts = (await currentDraftsResponse.json() as { drafts: Array<{ id: string; status: string; revision: number }> }).drafts;
@@ -157,9 +157,9 @@ test('S3 Admin → release/share → sticky experiment → consent-gated report'
   expect(secondSave.status()).toBe(200);
   await admin.getByRole('button', { name: 'Зафиксировать версию' }).click();
   await expect(admin.getByRole('alert').filter({ hasText: /revision|измен|обнов/i })).toBeVisible();
-  await expect(admin.getByText('revision 1')).toBeVisible();
+  await expect(admin.getByText('Сохранение №1')).toBeVisible();
   await admin.getByRole('button', { name: 'Зафиксировать версию' }).click();
-  await expect(admin.locator('.release').filter({ hasText: 'Version 2' })).toBeVisible();
+  await expect(admin.locator('.release').filter({ hasText: 'Версия 2' })).toBeVisible();
 
   // The second Page gets an independent Version 1 after S3 Home reaches Version 2.
   const pricingDraftResponse = await owner.request.post(`${apiBaseUrl}/api/admin/pages/${pricingPage.id}/drafts`, { data: {} });
@@ -195,9 +195,9 @@ test('S3 Admin → release/share → sticky experiment → consent-gated report'
   expect(revokedShare.status()).toBe(404);
 
   await admin.getByRole('button', { name: `S3 Pricing ${pricingPath}` }).click();
-  await expect(admin.getByText('Version 1', { exact: true })).toBeVisible();
+  await expect(admin.getByText('Версия 1', { exact: true })).toBeVisible();
   await admin.getByRole('button', { name: `S3 Home ${rootPath}` }).click();
-  await expect(admin.locator('.release').filter({ hasText: 'Version 2' })).toBeVisible();
+  await expect(admin.locator('.release').filter({ hasText: 'Версия 2' })).toBeVisible();
 
   // Native A + immutable Release 2 B, then test sticky assignment and consent.
   await admin.getByRole('button', { name: 'Experiments' }).click();

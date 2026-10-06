@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-04",
+  "assets": [
+    {
+      "file": "packages/sdk/dist/sdk.iife.js",
+      "raw": 30241,
+      "gzip9": 9046,
+      "sha256": "5c633028f9e6b7c1ce4c9d7b9ab6a831c7d760b6e4f00149beae032101647ec1"
+    },
+    {
+      "file": "packages/sdk/dist/runtime-core.iife.js",
+      "raw": 85200,
+      "gzip9": 25117,
+      "sha256": "1d2cbd0296c70e8567ed254ca8845565f74bbd7d366375c5bb15ef39b23919df"
+    },
+    {
+      "file": "packages/sdk/dist/editor.iife.js",
+      "raw": 276518,
+      "gzip9": 71900,
+      "sha256": "8ff3b904e51216baf28b0e42f6d22f1ab0337e7956f2c542cdd8ede4984c6bfd"
+    },
+    {
+      "file": "packages/sdk/dist/index.js",
+      "raw": 200363,
+      "gzip9": 42033,
+      "sha256": "32345f15d20eb760d77826534f04ea874cbea25bd233f45e9792b5691c151c75"
+    }
+  ],
+  "note": "Local build sizes; new combined/editor budgets remain PROPOSED. HTTPS staging latency/CLS are SERVICE-V1-18."
+}

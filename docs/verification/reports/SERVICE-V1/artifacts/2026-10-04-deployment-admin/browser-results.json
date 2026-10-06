@@ -1,0 +1,2931 @@
+{
+  "config": {
+    "argv": [
+      "/Users/igorjan/.hermes/node/bin/node",
+      "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/node_modules/.bin/playwright",
+      "test",
+      "tests/e2e/deployment-admin.spec.ts",
+      "tests/e2e/deployment-repair.spec.ts",
+      "tests/e2e/deployment-flow.spec.ts",
+      "tests/e2e/versioning-flow.spec.ts",
+      "tests/e2e/persistence-recovery.spec.ts",
+      "tests/e2e/s4-conditional-flow.spec.ts",
+      "tests/e2e/s4-spa-critical.spec.ts",
+      "tests/e2e/s3-acceptance.spec.ts",
+      "tests/e2e/auth-and-editor.spec.ts",
+      "tests/e2e/page-session-lifecycle.spec.ts",
+      "tests/e2e/replay-safety.spec.ts",
+      "--reporter=line,json"
+    ],
+    "configFile": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/playwright.config.ts",
+    "rootDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/global-setup.ts",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/(style-(editor-acceptance|matrix)|s4-(spa-critical|conditional-flow)|deployment-(flow|admin|repair))\\.spec\\.ts/"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/(style-(editor-acceptance|matrix)|s4-(spa-critical|conditional-flow)|deployment-(flow|admin|repair))\\.spec\\.ts/"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "auth-and-editor.spec.ts",
+      "file": "auth-and-editor.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "local owner login survives reload and opens the editor from the Admin click",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7104,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:13.319Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-5f26553b21eb6e639dd1",
+          "file": "auth-and-editor.spec.ts",
+          "line": 4,
+          "column": 5
+        },
+        {
+          "title": "magic link signs in without dev auth and cannot be reused",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 425,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:20.996Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-599133154dbc27dde159",
+          "file": "auth-and-editor.spec.ts",
+          "line": 28,
+          "column": 5
+        },
+        {
+          "title": "playground without editor capability exposes a working Admin button",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 377,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:21.425Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "1d5298038810d125c3e5-7f3eb27b61e1acd26ac2",
+          "file": "auth-and-editor.spec.ts",
+          "line": 45,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "deployment-admin.spec.ts",
+      "file": "deployment-admin.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Owner separately deploys, rolls back and disables; actor/reasons remain readable on mobile and keyboard",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1323,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:21.812Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "deployment-admin-mobile-390",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/deployment-admin-Owner-sep-bee26-able-on-mobile-and-keyboard-chromium/attachments/deployment-admin-mobile-390-0de47aeb43d71ba7a5d4a4a6acc73039ad6b7aeb.png"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e160dd93e89a99eec47e-5d75fc75e82d8fc60c43",
+          "file": "deployment-admin.spec.ts",
+          "line": 84,
+          "column": 5
+        },
+        {
+          "title": "real preview popup reports applicability; no report stays unchecked and missing target blocks deployment",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1589,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:23.140Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e160dd93e89a99eec47e-d3df7b55636486847289",
+          "file": "deployment-admin.spec.ts",
+          "line": 153,
+          "column": 5
+        },
+        {
+          "title": "a real second Owner revision conflict refreshes state and preserves the chosen release and reason",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 593,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:24.733Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e160dd93e89a99eec47e-4fafa795dead634ef025",
+          "file": "deployment-admin.spec.ts",
+          "line": 197,
+          "column": 5
+        },
+        {
+          "title": "a committed command with lost response retries the identical key and adds one history entry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 563,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:25.331Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e160dd93e89a99eec47e-0871596c01b5f3d28cf7",
+          "file": "deployment-admin.spec.ts",
+          "line": 230,
+          "column": 5
+        },
+        {
+          "title": "Owner separately deploys, rolls back and disables; actor/reasons remain readable on mobile and keyboard",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1834,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:52.686Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "deployment-admin-mobile-390",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/deployment-admin-Owner-sep-bee26-able-on-mobile-and-keyboard-firefox/attachments/deployment-admin-mobile-390-3d04b7a2b165db2504eba5b633b1ea3f31c3cd10.png"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e160dd93e89a99eec47e-f4ca49db5be0f87944a6",
+          "file": "deployment-admin.spec.ts",
+          "line": 84,
+          "column": 5
+        },
+        {
+          "title": "real preview popup reports applicability; no report stays unchecked and missing target blocks deployment",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1679,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:55.069Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e160dd93e89a99eec47e-03d66d8d7db30974ff88",
+          "file": "deployment-admin.spec.ts",
+          "line": 153,
+          "column": 5
+        },
+        {
+          "title": "a real second Owner revision conflict refreshes state and preserves the chosen release and reason",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 540,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:56.752Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e160dd93e89a99eec47e-f0600727cdd51dc3a239",
+          "file": "deployment-admin.spec.ts",
+          "line": 197,
+          "column": 5
+        },
+        {
+          "title": "a committed command with lost response retries the identical key and adds one history entry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 535,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:57.297Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e160dd93e89a99eec47e-55c3b4119553652b3b6a",
+          "file": "deployment-admin.spec.ts",
+          "line": 230,
+          "column": 5
+        },
+        {
+          "title": "Owner separately deploys, rolls back and disables; actor/reasons remain readable on mobile and keyboard",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1771,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:18.237Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "deployment-admin-mobile-390",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/deployment-admin-Owner-sep-bee26-able-on-mobile-and-keyboard-webkit/attachments/deployment-admin-mobile-390-9b46685bc03977bdb09cb032624d774c7b8efa12.png"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e160dd93e89a99eec47e-aa948d390992f10ada66",
+          "file": "deployment-admin.spec.ts",
+          "line": 84,
+          "column": 5
+        },
+        {
+          "title": "real preview popup reports applicability; no report stays unchecked and missing target blocks deployment",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1744,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:20.212Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e160dd93e89a99eec47e-b336b7614c173062ba82",
+          "file": "deployment-admin.spec.ts",
+          "line": 153,
+          "column": 5
+        },
+        {
+          "title": "a real second Owner revision conflict refreshes state and preserves the chosen release and reason",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 622,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:21.961Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e160dd93e89a99eec47e-400c69f006f9913782ab",
+          "file": "deployment-admin.spec.ts",
+          "line": 197,
+          "column": 5
+        },
+        {
+          "title": "a committed command with lost response retries the identical key and adds one history entry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 599,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:22.587Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e160dd93e89a99eec47e-abe9924dcfe0f54f7a40",
+          "file": "deployment-admin.spec.ts",
+          "line": 230,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "deployment-flow.spec.ts",
+      "file": "deployment-flow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "script: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1115,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:25.904Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-5bb69c97d801dd073ba3",
+          "file": "deployment-flow.spec.ts",
+          "line": 51,
+          "column": 7
+        },
+        {
+          "title": "module: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 923,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:27.024Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-5b88c67e59b260c12fe3",
+          "file": "deployment-flow.spec.ts",
+          "line": 51,
+          "column": 7
+        },
+        {
+          "title": "react csr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 446,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:27.953Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-14cb5305ee94f81c48b6",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "react ssr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 433,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:28.404Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-2b8f7ce29b6b5d42cfcd",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "vue csr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 411,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:28.841Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-5a3e86eef05127a67c30",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "vue ssr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 528,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:29.255Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-d56abb9cc38b5602424d",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "invalid deployment and unavailable runtime asset leave the original page visible",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 500,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:29.788Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-7a99578b876fa06e2fad",
+          "file": "deployment-flow.spec.ts",
+          "line": 149,
+          "column": 5
+        },
+        {
+          "title": "browser deadlines and retired requests leave the host available",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 412,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:30.291Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-3178e2316414b03ac64d",
+          "file": "deployment-flow.spec.ts",
+          "line": 164,
+          "column": 5
+        },
+        {
+          "title": "script: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1359,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:57.840Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-f48c5e3503e04d321f13",
+          "file": "deployment-flow.spec.ts",
+          "line": 51,
+          "column": 7
+        },
+        {
+          "title": "module: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1901,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:59.204Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-c4abad92676e5db2482e",
+          "file": "deployment-flow.spec.ts",
+          "line": 51,
+          "column": 7
+        },
+        {
+          "title": "react csr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 426,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:01.109Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-edc935aa883c801b0eea",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "react ssr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 527,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:01.539Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-9c721875d810c75be033",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "vue csr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 400,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:02.070Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-a4125afa273bb68ec803",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "vue ssr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 516,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:02.474Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-222a63b6948a50aab796",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "invalid deployment and unavailable runtime asset leave the original page visible",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 503,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:02.994Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-8235e3806efdca3d1522",
+          "file": "deployment-flow.spec.ts",
+          "line": 149,
+          "column": 5
+        },
+        {
+          "title": "browser deadlines and retired requests leave the host available",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 787,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:03.501Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-6c97201daa3f61fc8beb",
+          "file": "deployment-flow.spec.ts",
+          "line": 164,
+          "column": 5
+        },
+        {
+          "title": "script: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1237,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:23.195Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-6ab50907b552315bdac1",
+          "file": "deployment-flow.spec.ts",
+          "line": 51,
+          "column": 7
+        },
+        {
+          "title": "module: Publish → Deploy → refresh → Disable → Rollback; preview and native A isolation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1554,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:24.437Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-39d3e360ddf413a9ab3e",
+          "file": "deployment-flow.spec.ts",
+          "line": 51,
+          "column": 7
+        },
+        {
+          "title": "react csr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 592,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:25.995Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-02aa59281474cd45c6fe",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "react ssr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 587,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:26.591Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-6fbb90c057ce85e9f936",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "vue csr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 594,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:27.183Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-9b5cd78f3a7cd76a0fec",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "vue ssr: deployment respects host hydration, route transitions, remount and disable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 581,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:27.781Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-8876755b63dc2df0c039",
+          "file": "deployment-flow.spec.ts",
+          "line": 120,
+          "column": 7
+        },
+        {
+          "title": "invalid deployment and unavailable runtime asset leave the original page visible",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 560,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:28.365Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-1657b49be7f74cf14819",
+          "file": "deployment-flow.spec.ts",
+          "line": 149,
+          "column": 5
+        },
+        {
+          "title": "browser deadlines and retired requests leave the host available",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 501,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:28.930Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e5aa0b857a084ff88913-1e6f8adebf75cfd2f35a",
+          "file": "deployment-flow.spec.ts",
+          "line": 164,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "deployment-repair.spec.ts",
+      "file": "deployment-repair.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "SERVICE-V1-05: repair → save → new Release → preview → Deploy preserves the old Release",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2485,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:30.711Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5227e090ae3d60112050-7c7c9af7e2dd837bf238",
+          "file": "deployment-repair.spec.ts",
+          "line": 34,
+          "column": 5
+        },
+        {
+          "title": "SERVICE-V1-05: repair → save → new Release → preview → Deploy preserves the old Release",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2598,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:04.296Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5227e090ae3d60112050-d3333813b587454bc2f3",
+          "file": "deployment-repair.spec.ts",
+          "line": 34,
+          "column": 5
+        },
+        {
+          "title": "SERVICE-V1-05: repair → save → new Release → preview → Deploy preserves the old Release",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2919,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:29.438Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "5227e090ae3d60112050-90eefb902a1b146674fd",
+          "file": "deployment-repair.spec.ts",
+          "line": 34,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "page-session-lifecycle.spec.ts",
+      "file": "page-session-lifecycle.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "PageSession cancels A→B late work, scopes roots, retries late nodes, and cleans up",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 253,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:33.201Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "dc55292b8222425ee3ac-e70d392b766a66eff9a1",
+          "file": "page-session-lifecycle.spec.ts",
+          "line": 3,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "persistence-recovery.spec.ts",
+      "file": "persistence-recovery.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "two tabs expose revision conflict and preserve pending edits through reload",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 988,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:33.462Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72bdc013abdc2313d0ca-068688d52f071298badb",
+          "file": "persistence-recovery.spec.ts",
+          "line": 44,
+          "column": 5
+        },
+        {
+          "title": "lost response after commit reconciles on reload without duplicate operations",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 567,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:34.454Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72bdc013abdc2313d0ca-4756da453d12ea079114",
+          "file": "persistence-recovery.spec.ts",
+          "line": 82,
+          "column": 5
+        },
+        {
+          "title": "undo of a saved change appends a revision and survives save/reload",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 610,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:35.025Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72bdc013abdc2313d0ca-bbf8d98242a03d7843c3",
+          "file": "persistence-recovery.spec.ts",
+          "line": 111,
+          "column": 5
+        },
+        {
+          "title": "manual target repair previews the dependent chain and survives save/reload",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 588,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:35.639Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "72bdc013abdc2313d0ca-7a05d540e06ea7525ce2",
+          "file": "persistence-recovery.spec.ts",
+          "line": 143,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "replay-safety.spec.ts",
+      "file": "replay-safety.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "replay keeps node identity, dependencies, and session compensation safe",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 242,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:36.234Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "dc013a968d837354f58a-55854c6bf4bfa4539f95",
+          "file": "replay-safety.spec.ts",
+          "line": 3,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "s3-acceptance.spec.ts",
+      "file": "s3-acceptance.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "S3 Admin → release/share → sticky experiment → consent-gated report",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3212,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:36.485Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4a33734ec72306a551e1-c008e51338d54c93939d",
+          "file": "s3-acceptance.spec.ts",
+          "line": 11,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "s4-conditional-flow.spec.ts",
+      "file": "s4-conditional-flow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "react csr: capture state, save/reload, Release/share and host transitions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2538,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:39.706Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "prepaint-frames",
+                      "contentType": "application/json",
+                      "body": "eyJzYW1wbGVzIjpbeyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifV0sInNhbWVUZXh0Tm9kZSI6dHJ1ZX0="
+                    },
+                    {
+                      "name": "conditional-states",
+                      "contentType": "application/json",
+                      "body": "W3sidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSIsImRpc2FibGVkIjpmYWxzZX0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkiLCJkaXNhYmxlZCI6ZmFsc2V9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfV0="
+                    },
+                    {
+                      "name": "spa-analytics",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlcmltZW50SWQiOiIxYThjMThjNi01YWVhLTQ4MmEtYjYxZS0yMDhkMjdmMmY4ZDUiLCJnZW5lcmF0ZWRBdCI6IjIwMjYtMTAtMDVUMDg6MDM6NDIuMTQyWiIsInZhcmlhbnRzIjpbeyJrZXkiOiJBIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MSwidmlld3MiOjEsInVuaXF1ZUNvbnZlcnNpb25zIjoxLCJjb252ZXJzaW9ucyI6MSwiY29udmVyc2lvblJhdGUiOjEsInVwbGlmdFZzQSI6bnVsbH0seyJrZXkiOiJCIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MCwidmlld3MiOjAsInVuaXF1ZUNvbnZlcnNpb25zIjowLCJjb252ZXJzaW9ucyI6MCwiY29udmVyc2lvblJhdGUiOm51bGwsInVwbGlmdFZzQSI6bnVsbH1dfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "db91526852d1821ef0c1-17a24abd617d8b7c7cf8",
+          "file": "s4-conditional-flow.spec.ts",
+          "line": 5,
+          "column": 7
+        },
+        {
+          "title": "react ssr: capture state, save/reload, Release/share and host transitions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2278,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:42.248Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "prepaint-frames",
+                      "contentType": "application/json",
+                      "body": "eyJzYW1wbGVzIjpbeyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifV0sInNhbWVUZXh0Tm9kZSI6dHJ1ZX0="
+                    },
+                    {
+                      "name": "conditional-states",
+                      "contentType": "application/json",
+                      "body": "W3sidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSIsImRpc2FibGVkIjpmYWxzZX0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkiLCJkaXNhYmxlZCI6ZmFsc2V9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfV0="
+                    },
+                    {
+                      "name": "spa-analytics",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlcmltZW50SWQiOiJjNWY5NjI0NS03YjM4LTQ0NzItYWU5Zi1kMTlmYjZlM2I3ZjAiLCJnZW5lcmF0ZWRBdCI6IjIwMjYtMTAtMDVUMDg6MDM6NDQuNDE5WiIsInZhcmlhbnRzIjpbeyJrZXkiOiJBIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MSwidmlld3MiOjEsInVuaXF1ZUNvbnZlcnNpb25zIjoxLCJjb252ZXJzaW9ucyI6MSwiY29udmVyc2lvblJhdGUiOjEsInVwbGlmdFZzQSI6bnVsbH0seyJrZXkiOiJCIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MCwidmlld3MiOjAsInVuaXF1ZUNvbnZlcnNpb25zIjowLCJjb252ZXJzaW9ucyI6MCwiY29udmVyc2lvblJhdGUiOm51bGwsInVwbGlmdFZzQSI6bnVsbH1dfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "db91526852d1821ef0c1-bf40be8f33028ace9a7d",
+          "file": "s4-conditional-flow.spec.ts",
+          "line": 5,
+          "column": 7
+        },
+        {
+          "title": "vue csr: capture state, save/reload, Release/share and host transitions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2221,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:44.530Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "prepaint-frames",
+                      "contentType": "application/json",
+                      "body": "eyJzYW1wbGVzIjpbeyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn1dLCJzYW1lVGV4dE5vZGUiOmZhbHNlfQ=="
+                    },
+                    {
+                      "name": "conditional-states",
+                      "contentType": "application/json",
+                      "body": "W3sidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSIsImRpc2FibGVkIjpmYWxzZX0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkiLCJkaXNhYmxlZCI6ZmFsc2V9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfV0="
+                    },
+                    {
+                      "name": "spa-analytics",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlcmltZW50SWQiOiI0YWM5NTEwYS1jNjk5LTQzMTMtOWY0Zi01NGNiMDg5NmMyYzciLCJnZW5lcmF0ZWRBdCI6IjIwMjYtMTAtMDVUMDg6MDM6NDYuNjUxWiIsInZhcmlhbnRzIjpbeyJrZXkiOiJBIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MCwidmlld3MiOjAsInVuaXF1ZUNvbnZlcnNpb25zIjowLCJjb252ZXJzaW9ucyI6MCwiY29udmVyc2lvblJhdGUiOm51bGwsInVwbGlmdFZzQSI6bnVsbH0seyJrZXkiOiJCIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MSwidmlld3MiOjEsInVuaXF1ZUNvbnZlcnNpb25zIjoxLCJjb252ZXJzaW9ucyI6MSwiY29udmVyc2lvblJhdGUiOjEsInVwbGlmdFZzQSI6bnVsbH1dfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "db91526852d1821ef0c1-ebc099e6cd8db99cc287",
+          "file": "s4-conditional-flow.spec.ts",
+          "line": 5,
+          "column": 7
+        },
+        {
+          "title": "vue ssr: capture state, save/reload, Release/share and host transitions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2186,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:46.755Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "prepaint-frames",
+                      "contentType": "application/json",
+                      "body": "eyJzYW1wbGVzIjpbeyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifV0sInNhbWVUZXh0Tm9kZSI6ZmFsc2V9"
+                    },
+                    {
+                      "name": "conditional-states",
+                      "contentType": "application/json",
+                      "body": "W3sidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSIsImRpc2FibGVkIjpmYWxzZX0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkiLCJkaXNhYmxlZCI6ZmFsc2V9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfV0="
+                    },
+                    {
+                      "name": "spa-analytics",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlcmltZW50SWQiOiI1MmQwZTdjOC1hMDk1LTRiZWYtYjRlZC1mYzQ1ZTA1MjFjZmUiLCJnZW5lcmF0ZWRBdCI6IjIwMjYtMTAtMDVUMDg6MDM6NDguODQyWiIsInZhcmlhbnRzIjpbeyJrZXkiOiJBIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MCwidmlld3MiOjAsInVuaXF1ZUNvbnZlcnNpb25zIjowLCJjb252ZXJzaW9ucyI6MCwiY29udmVyc2lvblJhdGUiOm51bGwsInVwbGlmdFZzQSI6bnVsbH0seyJrZXkiOiJCIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MSwidmlld3MiOjEsInVuaXF1ZUNvbnZlcnNpb25zIjoxLCJjb252ZXJzaW9ucyI6MSwiY29udmVyc2lvblJhdGUiOjEsInVwbGlmdFZzQSI6bnVsbH1dfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "db91526852d1821ef0c1-ee5c32758bf834dd7461",
+          "file": "s4-conditional-flow.spec.ts",
+          "line": 5,
+          "column": 7
+        },
+        {
+          "title": "react csr: capture state, save/reload, Release/share and host transitions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2264,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:06.902Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "prepaint-frames",
+                      "contentType": "application/json",
+                      "body": "eyJzYW1wbGVzIjpbeyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn0seyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifV0sInNhbWVUZXh0Tm9kZSI6dHJ1ZX0="
+                    },
+                    {
+                      "name": "conditional-states",
+                      "contentType": "application/json",
+                      "body": "W3sidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSIsImRpc2FibGVkIjpmYWxzZX0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkiLCJkaXNhYmxlZCI6ZmFsc2V9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfV0="
+                    },
+                    {
+                      "name": "spa-analytics",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlcmltZW50SWQiOiI3Y2IwZGUyZC03OWFiLTRhNTItOGNlMC1mMTJjODRjOTQ2YmEiLCJnZW5lcmF0ZWRBdCI6IjIwMjYtMTAtMDVUMDg6MDQ6MDkuMDgzWiIsInZhcmlhbnRzIjpbeyJrZXkiOiJBIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MCwidmlld3MiOjAsInVuaXF1ZUNvbnZlcnNpb25zIjowLCJjb252ZXJzaW9ucyI6MCwiY29udmVyc2lvblJhdGUiOm51bGwsInVwbGlmdFZzQSI6bnVsbH0seyJrZXkiOiJCIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MSwidmlld3MiOjEsInVuaXF1ZUNvbnZlcnNpb25zIjoxLCJjb252ZXJzaW9ucyI6MSwiY29udmVyc2lvblJhdGUiOjEsInVwbGlmdFZzQSI6bnVsbH1dfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "db91526852d1821ef0c1-41656667060435b5c02b",
+          "file": "s4-conditional-flow.spec.ts",
+          "line": 5,
+          "column": 7
+        },
+        {
+          "title": "react ssr: capture state, save/reload, Release/share and host transitions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2321,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:09.171Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "prepaint-frames",
+                      "contentType": "application/json",
+                      "body": "eyJzYW1wbGVzIjpbeyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifV0sInNhbWVUZXh0Tm9kZSI6dHJ1ZX0="
+                    },
+                    {
+                      "name": "conditional-states",
+                      "contentType": "application/json",
+                      "body": "W3sidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSIsImRpc2FibGVkIjpmYWxzZX0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkiLCJkaXNhYmxlZCI6ZmFsc2V9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfV0="
+                    },
+                    {
+                      "name": "spa-analytics",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlcmltZW50SWQiOiI4OGQ4YzEwNC00MjQyLTQ2NzktYjM0Yy04OGVjZmJjMjZmNmEiLCJnZW5lcmF0ZWRBdCI6IjIwMjYtMTAtMDVUMDg6MDQ6MTEuNDA5WiIsInZhcmlhbnRzIjpbeyJrZXkiOiJBIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MSwidmlld3MiOjEsInVuaXF1ZUNvbnZlcnNpb25zIjoxLCJjb252ZXJzaW9ucyI6MSwiY29udmVyc2lvblJhdGUiOjEsInVwbGlmdFZzQSI6bnVsbH0seyJrZXkiOiJCIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MCwidmlld3MiOjAsInVuaXF1ZUNvbnZlcnNpb25zIjowLCJjb252ZXJzaW9ucyI6MCwiY29udmVyc2lvblJhdGUiOm51bGwsInVwbGlmdFZzQSI6bnVsbH1dfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "db91526852d1821ef0c1-022127d56524b1eebdbc",
+          "file": "s4-conditional-flow.spec.ts",
+          "line": 5,
+          "column": 7
+        },
+        {
+          "title": "vue csr: capture state, save/reload, Release/share and host transitions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2732,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:11.497Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "prepaint-frames",
+                      "contentType": "application/json",
+                      "body": "eyJzYW1wbGVzIjpbeyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn0seyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn1dLCJzYW1lVGV4dE5vZGUiOmZhbHNlfQ=="
+                    },
+                    {
+                      "name": "conditional-states",
+                      "contentType": "application/json",
+                      "body": "W3sidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSIsImRpc2FibGVkIjpmYWxzZX0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkiLCJkaXNhYmxlZCI6ZmFsc2V9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfV0="
+                    },
+                    {
+                      "name": "spa-analytics",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlcmltZW50SWQiOiJiNGI2MWRkMC03MWM5LTQ0MmYtOTU3MC03ODRlMGFlMDg2NTciLCJnZW5lcmF0ZWRBdCI6IjIwMjYtMTAtMDVUMDg6MDQ6MTMuNzA4WiIsInZhcmlhbnRzIjpbeyJrZXkiOiJBIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MCwidmlld3MiOjAsInVuaXF1ZUNvbnZlcnNpb25zIjowLCJjb252ZXJzaW9ucyI6MCwiY29udmVyc2lvblJhdGUiOm51bGwsInVwbGlmdFZzQSI6bnVsbH0seyJrZXkiOiJCIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MSwidmlld3MiOjEsInVuaXF1ZUNvbnZlcnNpb25zIjoxLCJjb252ZXJzaW9ucyI6MSwiY29udmVyc2lvblJhdGUiOjEsInVwbGlmdFZzQSI6bnVsbH1dfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "db91526852d1821ef0c1-9ebe689ac904cb0abdb7",
+          "file": "s4-conditional-flow.spec.ts",
+          "line": 5,
+          "column": 7
+        },
+        {
+          "title": "vue ssr: capture state, save/reload, Release/share and host transitions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2218,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:14.232Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "prepaint-frames",
+                      "contentType": "application/json",
+                      "body": "eyJzYW1wbGVzIjpbeyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn1dLCJzYW1lVGV4dE5vZGUiOmZhbHNlfQ=="
+                    },
+                    {
+                      "name": "conditional-states",
+                      "contentType": "application/json",
+                      "body": "W3sidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSIsImRpc2FibGVkIjpmYWxzZX0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkiLCJkaXNhYmxlZCI6ZmFsc2V9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfV0="
+                    },
+                    {
+                      "name": "spa-analytics",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlcmltZW50SWQiOiI4ZmZmMTY1My01MDE1LTQ3YjEtYTUyNi05NmI4MjlmNTEzZmIiLCJnZW5lcmF0ZWRBdCI6IjIwMjYtMTAtMDVUMDg6MDQ6MTYuMzc1WiIsInZhcmlhbnRzIjpbeyJrZXkiOiJBIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MCwidmlld3MiOjAsInVuaXF1ZUNvbnZlcnNpb25zIjowLCJjb252ZXJzaW9ucyI6MCwiY29udmVyc2lvblJhdGUiOm51bGwsInVwbGlmdFZzQSI6bnVsbH0seyJrZXkiOiJCIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MSwidmlld3MiOjEsInVuaXF1ZUNvbnZlcnNpb25zIjoxLCJjb252ZXJzaW9ucyI6MSwiY29udmVyc2lvblJhdGUiOjEsInVwbGlmdFZzQSI6bnVsbH1dfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "db91526852d1821ef0c1-26201cfba17b68e0ab49",
+          "file": "s4-conditional-flow.spec.ts",
+          "line": 5,
+          "column": 7
+        },
+        {
+          "title": "react csr: capture state, save/reload, Release/share and host transitions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3204,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:32.365Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "prepaint-frames",
+                      "contentType": "application/json",
+                      "body": "eyJzYW1wbGVzIjpbeyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifV0sInNhbWVUZXh0Tm9kZSI6dHJ1ZX0="
+                    },
+                    {
+                      "name": "conditional-states",
+                      "contentType": "application/json",
+                      "body": "W3sidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSIsImRpc2FibGVkIjpmYWxzZX0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkiLCJkaXNhYmxlZCI6ZmFsc2V9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfV0="
+                    },
+                    {
+                      "name": "spa-analytics",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlcmltZW50SWQiOiJlZTYzMGYyMi03MTdlLTQzMmMtOTJlYi1lYTJhNjkxMjE3OTciLCJnZW5lcmF0ZWRBdCI6IjIwMjYtMTAtMDVUMDg6MDQ6MzUuNDkyWiIsInZhcmlhbnRzIjpbeyJrZXkiOiJBIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MSwidmlld3MiOjEsInVuaXF1ZUNvbnZlcnNpb25zIjoxLCJjb252ZXJzaW9ucyI6MSwiY29udmVyc2lvblJhdGUiOjEsInVwbGlmdFZzQSI6bnVsbH0seyJrZXkiOiJCIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MCwidmlld3MiOjAsInVuaXF1ZUNvbnZlcnNpb25zIjowLCJjb252ZXJzaW9ucyI6MCwiY29udmVyc2lvblJhdGUiOm51bGwsInVwbGlmdFZzQSI6bnVsbH1dfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "db91526852d1821ef0c1-13b796af1698e4d1f69b",
+          "file": "s4-conditional-flow.spec.ts",
+          "line": 5,
+          "column": 7
+        },
+        {
+          "title": "react ssr: capture state, save/reload, Release/share and host transitions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3091,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:35.573Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "prepaint-frames",
+                      "contentType": "application/json",
+                      "body": "eyJzYW1wbGVzIjpbeyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn1dLCJzYW1lVGV4dE5vZGUiOnRydWV9"
+                    },
+                    {
+                      "name": "conditional-states",
+                      "contentType": "application/json",
+                      "body": "W3sidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSIsImRpc2FibGVkIjpmYWxzZX0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkiLCJkaXNhYmxlZCI6ZmFsc2V9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfV0="
+                    },
+                    {
+                      "name": "spa-analytics",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlcmltZW50SWQiOiIxMWM0ZGJlMS01ZjdjLTQzN2ItYTQyNi04ZjUzYWE0YTQ3MWMiLCJnZW5lcmF0ZWRBdCI6IjIwMjYtMTAtMDVUMDg6MDQ6MzguNTc4WiIsInZhcmlhbnRzIjpbeyJrZXkiOiJBIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MCwidmlld3MiOjAsInVuaXF1ZUNvbnZlcnNpb25zIjowLCJjb252ZXJzaW9ucyI6MCwiY29udmVyc2lvblJhdGUiOm51bGwsInVwbGlmdFZzQSI6bnVsbH0seyJrZXkiOiJCIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MSwidmlld3MiOjEsInVuaXF1ZUNvbnZlcnNpb25zIjoxLCJjb252ZXJzaW9ucyI6MSwiY29udmVyc2lvblJhdGUiOjEsInVwbGlmdFZzQSI6bnVsbH1dfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "db91526852d1821ef0c1-43e1eacb92426de41334",
+          "file": "s4-conditional-flow.spec.ts",
+          "line": 5,
+          "column": 7
+        },
+        {
+          "title": "vue csr: capture state, save/reload, Release/share and host transitions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2991,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:38.668Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "prepaint-frames",
+                      "contentType": "application/json",
+                      "body": "eyJzYW1wbGVzIjpbeyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn1dLCJzYW1lVGV4dE5vZGUiOmZhbHNlfQ=="
+                    },
+                    {
+                      "name": "conditional-states",
+                      "contentType": "application/json",
+                      "body": "W3sidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSIsImRpc2FibGVkIjpmYWxzZX0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkiLCJkaXNhYmxlZCI6ZmFsc2V9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfV0="
+                    },
+                    {
+                      "name": "spa-analytics",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlcmltZW50SWQiOiIxNDFmYTdlNi1jNzY0LTQ1ZTItODM0Mi0xOGQ4Njc0NGQxNzkiLCJnZW5lcmF0ZWRBdCI6IjIwMjYtMTAtMDVUMDg6MDQ6NDEuNTgxWiIsInZhcmlhbnRzIjpbeyJrZXkiOiJBIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MCwidmlld3MiOjAsInVuaXF1ZUNvbnZlcnNpb25zIjowLCJjb252ZXJzaW9ucyI6MCwiY29udmVyc2lvblJhdGUiOm51bGwsInVwbGlmdFZzQSI6bnVsbH0seyJrZXkiOiJCIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MSwidmlld3MiOjEsInVuaXF1ZUNvbnZlcnNpb25zIjoxLCJjb252ZXJzaW9ucyI6MSwiY29udmVyc2lvblJhdGUiOjEsInVwbGlmdFZzQSI6bnVsbH1dfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "db91526852d1821ef0c1-b23fab80d722cee853f2",
+          "file": "s4-conditional-flow.spec.ts",
+          "line": 5,
+          "column": 7
+        },
+        {
+          "title": "vue ssr: capture state, save/reload, Release/share and host transitions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2909,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:41.664Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "prepaint-frames",
+                      "contentType": "application/json",
+                      "body": "eyJzYW1wbGVzIjpbeyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0J7QttC40LTQsNC10LwiLCJjb2xvciI6InJnYigxMjgsIDEyOCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCe0LbQuNC00LDQtdC8IiwiY29sb3IiOiJyZ2IoMTI4LCAxMjgsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSJ9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIn0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkifSx7InRleHQiOiLQntC20LjQtNCw0LXQvCIsImNvbG9yIjoicmdiKDEyOCwgMTI4LCAxMjgpIn1dLCJzYW1lVGV4dE5vZGUiOmZhbHNlfQ=="
+                    },
+                    {
+                      "name": "conditional-states",
+                      "contentType": "application/json",
+                      "body": "W3sidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfSx7InRleHQiOiLQlNCw0LvQtdC1IiwiY29sb3IiOiJyZ2IoMCwgMCwgMTI4KSIsImRpc2FibGVkIjpmYWxzZX0seyJ0ZXh0Ijoi0JTQsNC70LXQtSIsImNvbG9yIjoicmdiKDAsIDAsIDEyOCkiLCJkaXNhYmxlZCI6ZmFsc2V9LHsidGV4dCI6ItCU0LDQu9C10LUiLCJjb2xvciI6InJnYigwLCAwLCAxMjgpIiwiZGlzYWJsZWQiOmZhbHNlfV0="
+                    },
+                    {
+                      "name": "spa-analytics",
+                      "contentType": "application/json",
+                      "body": "eyJleHBlcmltZW50SWQiOiJjMWFmZTE0NS1mZDBlLTQyNTMtYmYxYy1mNzg3OTlkZWVhMjkiLCJnZW5lcmF0ZWRBdCI6IjIwMjYtMTAtMDVUMDg6MDQ6NDQuNTA4WiIsInZhcmlhbnRzIjpbeyJrZXkiOiJBIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MCwidmlld3MiOjAsInVuaXF1ZUNvbnZlcnNpb25zIjowLCJjb252ZXJzaW9ucyI6MCwiY29udmVyc2lvblJhdGUiOm51bGwsInVwbGlmdFZzQSI6bnVsbH0seyJrZXkiOiJCIiwid2VpZ2h0QnBzIjo1MDAwLCJ2aXNpdG9ycyI6MSwidmlld3MiOjEsInVuaXF1ZUNvbnZlcnNpb25zIjoxLCJjb252ZXJzaW9ucyI6MSwiY29udmVyc2lvblJhdGUiOjEsInVwbGlmdFZzQSI6bnVsbH1dfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "db91526852d1821ef0c1-6d0985bebf9d24404736",
+          "file": "s4-conditional-flow.spec.ts",
+          "line": 5,
+          "column": 7
+        }
+      ]
+    },
+    {
+      "title": "s4-spa-critical.spec.ts",
+      "file": "s4-spa-critical.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "react SSR commits before host interaction and survives route history",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 374,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:48.947Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-ba349c4e73e4e542a8c2",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 4,
+          "column": 7
+        },
+        {
+          "title": "vue SSR commits before host interaction and survives route history",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 323,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:49.325Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-469a98aafaa35a59cfc8",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 4,
+          "column": 7
+        },
+        {
+          "title": "react: ready rules leave server HTML untouched until real hydration commits",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 447,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:49.653Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-740880fea462e2b1c4dc",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 28,
+          "column": 7
+        },
+        {
+          "title": "vue: ready rules leave server HTML untouched until real hydration commits",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 355,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:50.103Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-dbbfc3bc04bde972fb54",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 28,
+          "column": 7
+        },
+        {
+          "title": "react SSR commits before host interaction and survives route history",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 310,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:16.455Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-c315542dae5e4dfa7742",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 4,
+          "column": 7
+        },
+        {
+          "title": "vue SSR commits before host interaction and survives route history",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 298,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:16.769Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-844e845547dab818fefc",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 4,
+          "column": 7
+        },
+        {
+          "title": "react: ready rules leave server HTML untouched until real hydration commits",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 371,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:17.071Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-e6ff3906be95515f5bec",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 28,
+          "column": 7
+        },
+        {
+          "title": "vue: ready rules leave server HTML untouched until real hydration commits",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 376,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:17.446Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-b3c3389e0dcb347b437a",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 28,
+          "column": 7
+        },
+        {
+          "title": "react SSR commits before host interaction and survives route history",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 350,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:44.579Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-e4bf0c967223b80d27a6",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 4,
+          "column": 7
+        },
+        {
+          "title": "vue SSR commits before host interaction and survives route history",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 357,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:44.933Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-787c2e7e516807f99175",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 4,
+          "column": 7
+        },
+        {
+          "title": "react: ready rules leave server HTML untouched until real hydration commits",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 428,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:45.293Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-6c49f3b6af9b1eb98d8d",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 28,
+          "column": 7
+        },
+        {
+          "title": "vue: ready rules leave server HTML untouched until real hydration commits",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 411,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:04:45.726Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-9d74cb73256ab17493f8",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 28,
+          "column": 7
+        }
+      ]
+    },
+    {
+      "title": "versioning-flow.spec.ts",
+      "file": "versioning-flow.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "edit → save → reload → reopen → release → share keeps page scopes isolated",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1846,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-05T08:03:50.466Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8a985da1476b4acb6463-2c06797650bc0445435a",
+          "file": "versioning-flow.spec.ts",
+          "line": 6,
+          "column": 5
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-05T08:03:01.218Z",
+    "duration": 105162.505,
+    "expected": 74,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

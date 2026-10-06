@@ -1,0 +1,34 @@
+[
+  {
+    "name": "report",
+    "device": "desktop",
+    "width": 1440,
+    "documentWidth": 1440,
+    "errors": [],
+    "brokenLinks": []
+  },
+  {
+    "name": "report",
+    "device": "mobile",
+    "width": 390,
+    "documentWidth": 390,
+    "errors": [],
+    "brokenLinks": []
+  },
+  {
+    "name": "plan",
+    "device": "desktop",
+    "width": 1440,
+    "documentWidth": 1440,
+    "errors": [],
+    "brokenLinks": []
+  },
+  {
+    "name": "plan",
+    "device": "mobile",
+    "width": 390,
+    "documentWidth": 390,
+    "errors": [],
+    "brokenLinks": []
+  }
+]

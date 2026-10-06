@@ -55,10 +55,23 @@ Canonical product name: **Lykar**
 в [RFC Visual Spec](./docs/architecture/visual-spec-review.md). Ветка X1–X3 в
 ROADMAP включена в план прототипирования 2026-09-20; она не меняет права
 runtime и формат существующих Release. Assertions и Guide steps не являются
-исполняемыми DOM Operations. Включение полноценной Visual Spec в обязательную
-V1 определяется после X3; guides остаются последующим предложением.
+исполняемыми DOM Operations. Visual Spec и guides отложены за пределы SERVICE-V1; возможный X3 рассматривается
+отдельно от пользовательского пилота сервиса.
 
-### 1.3 Техническая очередь — уточнение от 2026-09-20
+### 1.3 SERVICE-V1 — приоритет от 2026-10-03
+
+После S4 выполняется [SERVICE-V1](./tasks/SERVICE-V1/README.md): самостоятельное
+подключение клиента, быстрые правки действующего сайта и A/B **только по entry-ссылке**.
+Production deployment остаётся отдельным явным действием. Обычный трафик не
+распределяется в эксперимент автоматически. X1/X2 и автоматический billing
+отложены за пределы этого эпика. Техническая приёмка и внешний пилот разделены.
+
+[Сервисный контракт](./docs/architecture/service-v1-contract.md) содержит таблицу
+режимов, права и связь будущих правил с тестами. Продуктовая цель подтверждена;
+новые budgets, provider/region и эксплуатационные значения обозначены PROPOSED/OPEN
+и требуют решения владельца до зависимой реализации. Новые API ещё не реализованы.
+
+### 1.4 Техническая очередь — уточнение от 2026-09-20
 
 Новые требования COR-01…COR-08 и связанные integration/quality требования в
 ROADMAP являются запланированной работой по надёжности. Их порядок:
@@ -282,7 +295,7 @@ component state или бизнес-логики. Функциональное �
 - Изменение опубликованной версии создаёт новый Draft и новый Release.
 - Publish MUST NOT автоматически влиять на ordinary host URL.
 
-### 6.8 Production Deployment — V1, planned
+### 6.8 Production Deployment — API implemented; SDK/Admin planned
 
 Production Deployment — явная привязка Page к одному immutable Release для
 обычного URL без query token.
@@ -292,7 +305,22 @@ Production Deployment — явная привязка Page к одному immut
 - `Rollback` создаёт новую deployment activation на предыдущий Release.
 - Activation MUST иметь actor, timestamp и reason.
 - Runtime failure MUST fail open к исходной странице.
-- До реализации deployment ordinary URL MUST оставаться native.
+- До интеграции SDK deployment ordinary URL MUST оставаться native.
+
+Backend SERVICE-V1-03 добавляет Deploy/Disable/Rollback, revision/idempotency и
+append-only историю на Page. [API-контракт](./apps/api/README.md#deployment-contract)
+и [проверки](./docs/verification/reports/SERVICE-V1/deployment.html) описывают
+реализованную часть. Новый opt-in runtime endpoint не изменяет старый links-only
+resolve. SERVICE-V1-04 добавляет SDK opt-in `delivery: 'deployment'`, no-store resolve
+на новую generation, cleanup при Disable и fail-open при ошибке. Повторный `start()`
+memoized; изменения видны при refresh/navigation/reload, без live push. Preview/A/B
+изолированы от deployment. SERVICE-V1-05 добавляет отдельную панель публикации
+в Admin: активная версия, история, причина, конфликт revision и повтор команды
+с тем же idempotency key. Проверка в открытом preview показывает applied/skipped/error
+и structural drift; отсутствие отчёта явно обозначается «Не проверено».
+Ручное исправление создаёт Draft на основе Release и новую append-only target-repair
+команду. Старый Release неизменен; при replay используется последняя корректная
+цепочка repair, а прежние команды отмечаются OPERATION_SUPERSEDED.
 
 ### 6.9 Experiment — Implemented
 
@@ -378,7 +406,10 @@ Editor SHOULD загружаться отдельно по требованию,
 
 Invalid, expired, revoked, path-mismatched, paused или completed token MUST
 оставлять страницу native. Runtime MUST NOT подменять недоступный вариант
-другим Release.
+другим Release, включая active deployment. Native A означает исходную страницу
+даже при production deployment. Explicit selectors не накладываются на deployment;
+несколько взаимоисключающих selectors дают ambiguous mode и Native. Полная целевая
+матрица и проверки находятся в [сервисном контракте](./docs/architecture/service-v1-contract.md#3-матрица-режимов-доставки).
 
 ## 10. Editor workflow
 
@@ -842,7 +873,8 @@ MVP считается функционально завершённым, ког
 
 X1 (Visual Spec/handoff) использует S2/S3; X2 (read-only validator) — frozen
 contract, strict resolver и browser harness, а для SPA contexts также S4.
-Рабочий приоритет X1/X2 — после первого adapter; static-only validator не имеет
+Рабочий приоритет с 2026-10-03 — SERVICE-V1 (S5/S6, приёмка и пилот);
+X1/X2 отложены. Static-only validator не имеет
 искусственной зависимости от React. X3 (pilot) идёт после X2 и не блокирует
 deployment/public SaaS. Playwright применяется в browser E2E и validator;
 конкретные зависимости добавляются только при реализации своего среза.

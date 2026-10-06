@@ -10,7 +10,7 @@ for (const delivery of ['script', 'module']) test(`S2-06.8 ${delivery}: SDK styl
   const attachEvidence = async (name: string, body: Buffer) => {
     await testInfo.attach(name, {body, contentType: 'image/png'});
     if (delivery === 'script' && testInfo.project.name === 'chromium') {
-      const directory = resolve(process.cwd(), 'docs/verification/reports/S2/assets');
+      const directory = resolve(process.env.LYKAR_STYLE_SCREENSHOT_DIR ?? 'docs/verification/reports/S2/assets');
       await mkdir(directory, {recursive: true});
       await writeFile(resolve(directory, name), body);
     }
@@ -46,6 +46,8 @@ for (const delivery of ['script', 'module']) test(`S2-06.8 ${delivery}: SDK styl
   await expect(panel.getByRole('heading', {name: 'Lykar Editor'})).toBeVisible();
   await hero.click();
   const initialWidth = await hero.evaluate(element => (element as HTMLElement).style.getPropertyValue('width'));
+  const initialWidthInput = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)[a-z%]+$/i.test(initialWidth)
+    ? String(parseFloat(initialWidth)) : initialWidth;
 
   for (const sectionId of STYLE_SECTIONS) {
     await expect(panel.locator(`.style-section[data-section="${sectionId}"]`)).toBeVisible();
@@ -81,7 +83,7 @@ for (const delivery of ['script', 'module']) test(`S2-06.8 ${delivery}: SDK styl
   await attachEvidence('style-editor-width-changed.png', await widthRow.screenshot());
   await panel.getByRole('button', {name: 'Вернуть исходный Width'}).click();
   await expect.poll(() => hero.evaluate(element => (element as HTMLElement).style.getPropertyValue('width'))).toBe(initialWidth);
-  await expect(width).toHaveValue(initialWidth);
+  await expect(width).toHaveValue(initialWidthInput);
   await attachEvidence('style-editor-width-reset.png', await widthRow.screenshot());
 
   // Seed a case-sensitive custom token, then exercise each visual section and
@@ -95,7 +97,8 @@ for (const delivery of ['script', 'module']) test(`S2-06.8 ${delivery}: SDK styl
 
   const displayRow = panel.locator('[data-field="display"]');
   await search.fill('display');
-  await displayRow.getByRole('combobox', {name: 'Display: варианты'}).selectOption('flex');
+  await displayRow.getByRole('combobox', {name: 'Display: варианты'}).click();
+  await panel.getByRole('option', {name: 'flex', exact: true}).click();
   await expect(hero).toHaveCSS('display', 'flex'); // Layout: select.
 
   await search.fill('margin');
@@ -105,7 +108,8 @@ for (const delivery of ['script', 'module']) test(`S2-06.8 ${delivery}: SDK styl
   await expect(hero).toHaveCSS('margin-top', '12px'); // Space: composite + number-unit part.
 
   await search.fill('position');
-  await panel.locator('[data-field="position"] select[aria-label="Position: варианты"]').selectOption('relative');
+  await panel.getByRole('combobox', {name: 'Position: варианты', exact: true}).click();
+  await panel.getByRole('option', {name: 'relative', exact: true}).click();
   await expect(hero).toHaveCSS('position', 'relative'); // Position: select.
 
   await search.fill('color');
@@ -143,7 +147,8 @@ for (const delivery of ['script', 'module']) test(`S2-06.8 ${delivery}: SDK styl
   await expect.poll(() => hero.evaluate(element => (element as HTMLElement).style.boxShadow)).toContain('rgb(1, 2, 3)');
 
   await search.fill('cursor');
-  await panel.locator('[data-field="cursor"] select[aria-label="Cursor: варианты"]').selectOption('help');
+  await panel.getByRole('combobox', {name: 'Cursor: варианты', exact: true}).click();
+  await panel.getByRole('option', {name: 'help', exact: true}).click();
   await expect(hero).toHaveCSS('cursor', 'help'); // Advanced: catalog select.
 
   await search.fill('hyphens');
@@ -164,7 +169,7 @@ for (const delivery of ['script', 'module']) test(`S2-06.8 ${delivery}: SDK styl
   await expect(selectedLabel).toContainText('a.brand');
   await expect(panel.locator('[data-field="width"] input[aria-label="Width"]')).toHaveValue('');
   await hero.click();
-  await expect(panel.locator('[data-field="width"] input[aria-label="Width"]')).toHaveValue(initialWidth);
+  await expect(panel.locator('[data-field="width"] input[aria-label="Width"]')).toHaveValue(initialWidthInput);
   await expect.poll(() => hero.evaluate(element => (element as HTMLElement).style.getPropertyValue('color')))
     .toBe('var(--BrandAccent)');
   await panel.locator('[data-field="width"] input[aria-label="Width"]').fill('360px');

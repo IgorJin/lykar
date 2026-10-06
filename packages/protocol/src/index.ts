@@ -677,9 +677,6 @@ export function validateOperation(value: unknown): OperationValidationResult {
   }
   if (value.dependsOn !== undefined) errors.push('conditional operation cannot have dependsOn');
   if (value.precondition !== undefined) errors.push('conditional operation cannot have precondition');
-  if (isRecord(value.revision) && value.revision.reason !== 'undo') {
-    errors.push('conditional operation revision must be undo');
-  }
   if (isRecord(value.target) && value.target.nodeRef !== undefined) {
     errors.push('conditional operation cannot target nodeRef');
   }
@@ -783,17 +780,6 @@ export function validatePublishedManifestV1(value: unknown): PublishedManifestVa
         const existing = validatedOperations.get(result.value.id);
         if (existing) errors.push(`operations[${index}]: id duplicates operations[${existing.index}]`);
         else validatedOperations.set(result.value.id, { operation: result.value, index });
-        if (result.value.schemaVersion === CONDITIONAL_OPERATION_SCHEMA_VERSION) {
-          const {id, text} = result.value.condition;
-          const target = stableJson(result.value.target);
-          const group = conditionGroups.get(id);
-          if (!group) conditionGroups.set(id, {target, text, count: 1});
-          else if (group.target !== target || group.text !== text) {
-            errors.push(`operations[${index}]: condition ${id} disagrees on target or source text`);
-          } else if (++group.count > PROTOCOL_LIMITS.conditionalGroupOperations) {
-            errors.push(`operations[${index}]: condition ${id} has too many operations`);
-          }
-        }
         for (const descriptor of operationTargets(result.value)) {
           if (!descriptor.binding) continue;
           if (!registry) {
@@ -809,6 +795,24 @@ export function validatePublishedManifestV1(value: unknown): PublishedManifestVa
         }
       }
     });
+
+    try {
+      const effective = resolveTargetRepairs([...validatedOperations.values()].map(item => item.operation));
+      const tombstones = new Set(effective.filter(operation => operation.schemaVersion === 2 && operation.revision?.reason === 'undo')
+        .map(operation => operation.revision!.previousOperationId));
+      for (const operation of effective) {
+        if (operation.schemaVersion !== CONDITIONAL_OPERATION_SCHEMA_VERSION
+          || operation.revision?.reason === 'undo' || tombstones.has(operation.id)) continue;
+        const {id, text} = operation.condition;
+        const target = stableJson(operation.target);
+        const group = conditionGroups.get(id);
+        if (!group) conditionGroups.set(id, {target, text, count: 1});
+        else if (group.target !== target || group.text !== text) errors.push(`condition ${id} disagrees on target or source text`);
+        else if (++group.count > PROTOCOL_LIMITS.conditionalGroupOperations) errors.push(`condition ${id} has too many operations`);
+      }
+    } catch (error) {
+      errors.push(error instanceof Error ? error.message : 'Invalid target-repair chain');
+    }
 
     if (conditionGroups.size > PROTOCOL_LIMITS.conditionalGroups) {
       errors.push(`conditional groups must contain at most ${PROTOCOL_LIMITS.conditionalGroups} items`);
@@ -831,10 +835,10 @@ export function validatePublishedManifestV1(value: unknown): PublishedManifestVa
           errors.push(`operations[${index}]: revision references unknown operation ${operation.revision.previousOperationId}`);
         } else if (previous.index >= index) {
           errors.push(`operations[${index}]: revision must reference a preceding operation (${operation.revision.previousOperationId})`);
-        } else if (operation.schemaVersion === CONDITIONAL_OPERATION_SCHEMA_VERSION) {
+        } else if (operation.schemaVersion === CONDITIONAL_OPERATION_SCHEMA_VERSION && operation.revision.reason === 'undo') {
           const prior = previous.operation;
           if (prior.schemaVersion !== CONDITIONAL_OPERATION_SCHEMA_VERSION
-            || prior.revision
+            || prior.revision?.reason === 'undo'
             || undoneConditional.has(prior.id)
             || operation.condition.id !== prior.condition.id
             || operation.condition.text !== prior.condition.text
@@ -908,3 +912,42 @@ export function parsePublishedManifestV1(value: unknown): PublishedManifestV1 {
 
   return result.value;
 }
+
+/** Select executable commands without modifying the immutable append-only history.
+ * Undo commands remain executable; only explicit target repairs supersede a command.
+ */
+export function resolveTargetRepairs(operations: readonly Operation[]): Operation[] {
+  const preceding = new Map<string, Operation>();
+  const superseded = new Set<string>();
+  const undone = new Set<string>();
+  for (const operation of operations) {
+    if (preceding.has(operation.id)) throw new Error(`Duplicate operation id ${operation.id}`);
+    if (operation.revision?.reason === 'target-repair') {
+      const prior = preceding.get(operation.revision.previousOperationId);
+      if (!prior || superseded.has(prior.id) || undone.has(prior.id)
+        || prior.revision?.reason === 'undo' || prior.kind !== operation.kind
+        || prior.schemaVersion !== operation.schemaVersion) {
+        throw new Error(`Target repair ${operation.id} must reference an active preceding operation of the same kind and schema`);
+      }
+      if (operation.schemaVersion === 2 && prior.schemaVersion === 2
+        && (operation.condition.id !== prior.condition.id || operation.condition.text !== prior.condition.text
+          || operation.value !== prior.value
+          || (operation.kind === 'setStyle' && prior.kind === 'setStyle'
+            && (operation.property !== prior.property || (operation.priority ?? '') !== (prior.priority ?? ''))))) {
+        throw new Error(`Conditional repair ${operation.id} must preserve its condition and effect`);
+      }
+      superseded.add(prior.id);
+    } else if (operation.revision?.reason === 'undo') {
+      if (operation.schemaVersion === 2 && superseded.has(operation.revision.previousOperationId)) {
+        throw new Error(`Conditional undo ${operation.id} references a superseded operation`);
+      }
+      undone.add(operation.revision.previousOperationId);
+    }
+    preceding.set(operation.id, operation);
+  }
+  return operations.filter(operation => !superseded.has(operation.id));
+}
+
+export * from './preview-report.js';
+export {isConnectionCheckRequest, isConnectionReport} from './connection-report.js';
+export type {ConnectionCheckRequest, ConnectionReport, ConnectionAssetState} from './connection-report.js';

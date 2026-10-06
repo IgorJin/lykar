@@ -1,4 +1,6 @@
 import { randomUUID } from 'node:crypto';
+import type { EmailRequestPolicy } from '../email/policy';
+import { EmailDeliveryError } from '../email/delivery';
 
 import type { UserRecord } from './auth';
 import { hashToken, issueOpaqueToken, normalizeEmail } from './auth';
@@ -41,6 +43,7 @@ export type ProjectAccessView = {
 };
 
 export type InvitationDelivery = {
+  deliveryId?: string;
   email: string;
   projectName: string;
   role: InvitableProjectRole;
@@ -53,6 +56,7 @@ export interface InvitationSender {
 }
 
 export interface MembershipRepository {
+  getInvitationForResend(actorUserId: string, invitationId: string): Promise<{ email: string }>;
   listProjectAccess(actorUserId: string, projectId: string): Promise<{
     actorRole: ProjectRole;
     members: ProjectMemberRecord[];
@@ -99,6 +103,7 @@ export type MembershipServiceOptions = {
   appOrigin: string;
   invitationTtlMs: number;
   sender: InvitationSender;
+  emailPolicy?: EmailRequestPolicy;
   now?: () => Date;
 };
 
@@ -128,14 +133,18 @@ export class MembershipService {
     emailValue: unknown,
     roleValue: unknown,
   ): Promise<ProjectInvitationRecord> {
+    const actorUserId = requireUuid(actorUserIdValue, 'userId');
+    const projectId = requireUuid(projectIdValue, 'projectId');
+    const email = normalizeEmail(emailValue);
+    const role = requireInvitableRole(roleValue);
+    const access = await this.repository.listProjectAccess(actorUserId, projectId);
+    assertCanManage(access.actorRole);
+    await this.options.emailPolicy?.check('invitation', email, actorUserId);
     const token = issueOpaqueToken();
     const expiresAt = new Date(this.now().getTime() + this.options.invitationTtlMs);
     const result = await this.repository.createInvitation({
       id: randomUUID(),
-      actorUserId: requireUuid(actorUserIdValue, 'userId'),
-      projectId: requireUuid(projectIdValue, 'projectId'),
-      email: normalizeEmail(emailValue),
-      role: requireInvitableRole(roleValue),
+      actorUserId, projectId, email, role,
       tokenHash: hashToken(token),
       expiresAt,
     });
@@ -147,12 +156,15 @@ export class MembershipService {
     actorUserIdValue: unknown,
     invitationIdValue: unknown,
   ): Promise<ProjectInvitationRecord> {
+    const actorUserId = requireUuid(actorUserIdValue, 'userId');
+    const invitationId = requireUuid(invitationIdValue, 'invitationId');
+    const target = await this.repository.getInvitationForResend(actorUserId, invitationId);
+    await this.options.emailPolicy?.check('invitation', target.email, actorUserId);
     const token = issueOpaqueToken();
     const expiresAt = new Date(this.now().getTime() + this.options.invitationTtlMs);
     const result = await this.repository.resendInvitation({
       id: randomUUID(),
-      actorUserId: requireUuid(actorUserIdValue, 'userId'),
-      invitationId: requireUuid(invitationIdValue, 'invitationId'),
+      actorUserId, invitationId,
       tokenHash: hashToken(token),
       expiresAt,
     });
@@ -222,13 +234,17 @@ export class MembershipService {
   private async deliver(invitation: ProjectInvitationRecord, projectName: string, token: string): Promise<void> {
     const url = new URL('/api/invitations/accept', this.appOrigin);
     url.searchParams.set('token', token);
-    await this.options.sender.send({
+    try { await this.options.sender.send({
+      deliveryId: invitation.id,
       email: invitation.email,
       projectName,
       role: invitation.role,
       url: url.toString(),
       expiresAt: invitation.expiresAt,
-    });
+    }); } catch (error) {
+      if (error instanceof EmailDeliveryError) throw error;
+      throw new EmailDeliveryError(invitation.id, 'unknown');
+    }
   }
 }
 
@@ -236,10 +252,8 @@ export class ConsoleInvitationSender implements InvitationSender {
   constructor(private readonly write: (message: string) => void = console.info) {}
 
   async send(input: InvitationDelivery): Promise<void> {
-    this.write(
-      `[lykar] Invitation for ${input.email} to ${input.projectName} as ${input.role} `
-      + `(expires ${input.expiresAt}): ${input.url}`,
-    );
+    this.write('[lykar] Console email delivery is disabled; configure a local file sender.');
+    throw new EmailDeliveryError(input.deliveryId, 'unavailable');
   }
 }
 

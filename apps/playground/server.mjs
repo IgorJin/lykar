@@ -1,4 +1,6 @@
+import {renderConnectionFixture} from '../../tests/fixtures/connection/server.mjs';
 import { createReadStream } from 'node:fs';
+import {readFile} from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -51,6 +53,18 @@ for (const client of ['react-client.js', 'vue-client.js', 'sdk-client.js']) {
 
 const server = createServer((request, response) => {
   const pathname = new URL(request.url ?? '/', 'http://localhost').pathname;
+  const installed=/^\/__e2e__\/onboarding\/([a-f0-9-]{36})$/.exec(pathname);
+  if(installed&&process.env.LYKAR_E2E_INSTALL_DIRECTORY&&process.env.NODE_ENV!=='production') {
+    void readFile(join(process.env.LYKAR_E2E_INSTALL_DIRECTORY,installed[1]+'.html')).then(html=>{
+      response.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store'});response.end(html);
+    }).catch(()=>{response.writeHead(404);response.end('Installation fixture not found');});return;
+  }
+  const connection = renderConnectionFixture(pathname, apiBaseUrl, projectKey);
+  if (connection) {
+    response.writeHead(200, {'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store',
+      ...(connection.csp ? {'Content-Security-Policy':connection.csp} : {})});
+    response.end(connection.html); return;
+  }
   if (routeFromPath(pathname)) {
     void renderSpaFixture(pathname).then(html => {
       response.writeHead(200, {
