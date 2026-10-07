@@ -1,0 +1,12 @@
+{
+  "command": [
+    "npx",
+    "playwright",
+    "test",
+    "tests/e2e/analytics-setup.spec.ts",
+    "--reporter=line"
+  ],
+  "startedAt": "2026-10-07T10:36:56.236863+00:00",
+  "durationSeconds": 30.92,
+  "exitCode": 0
+}

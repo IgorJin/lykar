@@ -26,7 +26,7 @@ const experimentRoutes: FastifyPluginAsync<ExperimentRoutesOptions> = async (fas
 
   fastify.post<{
     Params: PageParams;
-    Body: { name: unknown; variants: unknown };
+    Body: { name: unknown; variants: unknown; conversionEventName?: unknown };
   }>(
     '/api/admin/pages/:pageId/experiments',
     {
@@ -36,6 +36,7 @@ const experimentRoutes: FastifyPluginAsync<ExperimentRoutesOptions> = async (fas
           type: 'object', required: ['name', 'variants'], additionalProperties: false,
           properties: {
             name: { type: 'string' },
+            conversionEventName: { type: ['string', 'null'], minLength: 1, maxLength: 120 },
             variants: {
               type: 'array', minItems: 2, maxItems: 2,
               items: {
@@ -58,9 +59,16 @@ const experimentRoutes: FastifyPluginAsync<ExperimentRoutesOptions> = async (fas
         request.params.pageId,
         request.body.name,
         request.body.variants,
+        request.body.conversionEventName,
       );
       return reply.code(201).send({ experiment });
     },
+  );
+
+  fastify.patch<{ Params: ExperimentParams; Body: { conversionEventName: unknown } }>(
+    '/api/admin/experiments/:experimentId/goal',
+    { preHandler: requireSession, schema: { body: { type: 'object', required: ['conversionEventName'], additionalProperties: false, properties: { conversionEventName: { type: ['string', 'null'], minLength: 1, maxLength: 120 } } } } },
+    async request => ({ experiment: await options.experimentService.updateGoal(authenticatedSession(request).user.id, request.params.experimentId, request.body.conversionEventName) }),
   );
 
   fastify.patch<{

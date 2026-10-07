@@ -168,3 +168,15 @@ CSR/ordinary hydration, Admin desktop/mobile и существующий auth/ed
 Workspace typecheck запускать последовательно со сборками browser, не параллельно.
 Live DNS changes/HTTPS staging не входят в этот локальный evidence; HTTP verifier
 не реализован, поэтому HTTP redirect/rebinding транспортных запросов здесь нет.
+
+### 10 — named goal / test-event / consent (2026-10-07)
+
+Владелец поручил выполнить 10 через parallel-execute. Существующая CVR семантика
+сохранена; new named goals immutable после первого запуска, старые null goals
+не меняются. Тестовый SDK использует отдельный endpoint и storage; pending/denied
+consent diagnostics не являются exposure/conversion. Согласованные CORE/BROWSER/
+UI/RELIABILITY проверки подтверждены локальным evidence: 95 API/PostgreSQL + smoke,
+224 runtime/SDK, 16 browser без skips/flaky + 3 финальных keyboard/UI проверок.
+Migration rollback/backfill/retention, distinct tenant isolation, test expiry,
+refresh/navigation и response-loss dedup проверены. Общая внешняя приёмка 07/12
+и SLA/provider decisions остаются открытыми.

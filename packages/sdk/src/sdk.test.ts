@@ -78,6 +78,96 @@ describe('Lykar SDK', () => {
       .__LYKAR_VERIFIED_EDITOR_ASSETS__;
   });
 
+  it('isolates test links and gates explicit events with retained consent', async () => {
+    window.history.replaceState({}, '', '/test#lykar_analytics_test=opaque&lykar_experiment=ignored');
+    const calls: Array<Record<string, unknown>> = [];
+    const fetch = vi.fn<typeof globalThis.fetch>(async (_input, init) => {
+      calls.push(JSON.parse(String(init?.body)));
+      return response({accepted: true, eventReceived: !!calls.at(-1)?.name});
+    });
+    const sdk = new Lykar({projectKey: 'pk_test', document, fetch, delivery: 'deployment'});
+    await expect(sdk.start()).resolves.toEqual({mode: 'native', reason: 'ANALYTICS_TEST'});
+    expect(window.location.hash).not.toContain('opaque');
+    expect(calls).toEqual([{token: 'opaque', pathname: '/test', consent: 'pending'}]);
+    await expect(sdk.track('signup')).resolves.toEqual({accepted: false, code: 'CONSENT_REQUIRED'});
+    await sdk.consent('denied');
+    await expect(sdk.track('signup')).resolves.toEqual({accepted: false, code: 'CONSENT_DENIED'});
+    await sdk.consent('granted');
+    const clientEventId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+    await expect(sdk.track('signup', {}, {clientEventId})).resolves.toEqual({accepted: true});
+    expect(calls.at(-1)).toEqual({token: 'opaque', pathname: '/test', consent: 'granted', name: 'signup', clientEventId});
+    expect(fetch.mock.calls.every(([url]) => String(url).endsWith('/analytics-tests'))).toBe(true);
+    await sdk.refresh();
+    expect(calls.at(-1)?.consent).toBe('granted');
+    await sdk.consent('pending');
+    await expect(sdk.track('signup')).resolves.toEqual({accepted: false, code: 'CONSENT_REQUIRED'});
+    await sdk.navigate({pathname: '/other'});
+    await expect(sdk.track('signup')).resolves.toEqual({accepted: false, code: 'CONSENT_REQUIRED'});
+    await sdk.consent('granted');
+    await expect(sdk.track('signup')).resolves.toEqual({accepted: false, code: 'ANALYTICS_TEST_UNAVAILABLE'});
+    await sdk.destroy();
+  });
+
+  it('keeps consent through startup, refresh and navigation and reuses only the same visit exposure ID', async () => {
+    const events: Array<Record<string, unknown>> = [];
+    let releaseResolve!: () => void;
+    const waiting = new Promise<void>(resolve => { releaseResolve = resolve; });
+    let first = true;
+    let assignmentId = 'assignment';
+    const fetch = vi.fn<typeof globalThis.fetch>(async (input, init) => {
+      if (String(input).endsWith('/experiments/resolve')) {
+        if (first) { first = false; await waiting; }
+        return response({selection: {assignmentId, experimentId: 'experiment', variantKey: 'A',
+          capability: 'capability', capabilityExpiresAt: '2027-01-01T00:00:00.000Z', manifest: null}});
+      }
+      events.push(JSON.parse(String(init?.body)));
+      return response({accepted: true, duplicate: false}, 202);
+    });
+    const sdk = new Lykar({projectKey: 'pk_test', document, fetch, experimentToken: 'e'.repeat(48), waitForDom: false});
+    const started = sdk.start();
+    await sdk.consent('granted');
+    releaseResolve();
+    await started;
+    expect(events).toHaveLength(1);
+    const firstExposureId = events[0].clientEventId;
+    window.history.pushState({}, '', '/first-automatic');
+    await sdk.start();
+    expect(events).toHaveLength(2);
+    expect(events[1].clientEventId).not.toBe(firstExposureId);
+    const exposureId = events[1].clientEventId;
+    await sdk.refresh();
+    expect(events).toHaveLength(3);
+    expect(events[2].clientEventId).toBe(exposureId);
+    assignmentId = 'assignment-switched';
+    await sdk.refresh();
+    expect(events).toHaveLength(4);
+    expect(events[3].clientEventId).not.toBe(exposureId);
+    await sdk.navigate({pathname: '/new'});
+    expect(events).toHaveLength(5);
+    expect(events[4].clientEventId).not.toBe(events[3].clientEventId);
+    window.history.pushState({}, '', '/automatic');
+    await sdk.start();
+    expect(events).toHaveLength(6);
+    expect(events[5].clientEventId).not.toBe(events[4].clientEventId);
+    await sdk.consent('pending');
+    await expect(sdk.track('signup')).resolves.toEqual({accepted: false, code: 'CONSENT_REQUIRED'});
+    await sdk.refresh();
+    expect(events).toHaveLength(6);
+    await sdk.destroy();
+  });
+
+  it('does not claim receipt when a test transport fails or rejects the event', async () => {
+    window.history.replaceState({}, '', '/test#lykar_analytics_test=opaque');
+    const fetch = vi.fn<typeof globalThis.fetch>(async () => response({accepted: true, eventReceived: false}));
+    const sdk = new Lykar({projectKey: 'pk_test', document, fetch});
+    await sdk.consent('granted');
+    await sdk.start();
+    await expect(sdk.track('signup')).resolves.toEqual({accepted: false, code: 'EVENT_SEND_FAILED'});
+    fetch.mockRejectedValue(new Error('network'));
+    await expect(sdk.consent('denied')).resolves.toBeUndefined();
+    await sdk.destroy();
+  });
+
   it('is constructible without a browser document', () => {
     expect(() => new Lykar({projectKey: 'pk_test'})).not.toThrow();
   });

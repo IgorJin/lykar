@@ -1,0 +1,883 @@
+{
+  "config": {
+    "argv": [
+      "/Users/igorjan/.hermes/node/bin/node",
+      "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/node_modules/.bin/playwright",
+      "test",
+      "tests/e2e/analytics-setup.spec.ts",
+      "tests/e2e/s3-acceptance.spec.ts",
+      "tests/e2e/s4-spa-critical.spec.ts",
+      "--reporter=line,json"
+    ],
+    "configFile": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/playwright.config.ts",
+    "rootDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/global-setup.ts",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/(style-(editor-acceptance|matrix)|s4-(spa-critical|conditional-flow)|deployment-(flow|admin|repair)|auth-and-editor|site-connection|onboarding|analytics-setup)\\.spec\\.ts/"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "webkit",
+        "name": "webkit",
+        "testDir": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/(style-(editor-acceptance|matrix)|s4-(spa-critical|conditional-flow)|deployment-(flow|admin|repair)|auth-and-editor|site-connection|onboarding|analytics-setup)\\.spec\\.ts/"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "line"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.63.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "analytics-setup.spec.ts",
+      "file": "analytics-setup.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "named goal: test installation, consent, isolated totals and frozen launch",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 5553,
+                  "error": {
+                    "message": "TypeError: Cannot read properties of undefined (reading 'find')",
+                    "stack": "TypeError: Cannot read properties of undefined (reading 'find')\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/analytics-setup.spec.ts:12:26",
+                    "location": {
+                      "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/analytics-setup.spec.ts",
+                      "column": 26,
+                      "line": 12
+                    },
+                    "snippet": "  10 |   await admin.goto(`${base}/admin/`);await admin.getByRole('button',{name:'Войти как локальный владелец'}).click();\n  11 |   const projects=(await (await owner.request.get(`${base}/api/admin/projects`)).json()).projects;\n> 12 |   const project=projects.find((p:{name:string})=>p.name==='Northstar E2E');\n     |                          ^\n  13 |   expect(project).toBeTruthy();\n  14 |   const id=randomUUID(),pathname=`/__e2e__/onboarding/${id}`;\n  15 |   const pageResponse=await owner.request.post(`${base}/api/admin/projects/${project.id}/pages`,{data:{name:'Analytics setup',pathname}});"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/analytics-setup.spec.ts",
+                        "column": 26,
+                        "line": 12
+                      },
+                      "message": "TypeError: Cannot read properties of undefined (reading 'find')\n\n  10 |   await admin.goto(`${base}/admin/`);await admin.getByRole('button',{name:'Войти как локальный владелец'}).click();\n  11 |   const projects=(await (await owner.request.get(`${base}/api/admin/projects`)).json()).projects;\n> 12 |   const project=projects.find((p:{name:string})=>p.name==='Northstar E2E');\n     |                          ^\n  13 |   expect(project).toBeTruthy();\n  14 |   const id=randomUUID(),pathname=`/__e2e__/onboarding/${id}`;\n  15 |   const pageResponse=await owner.request.post(`${base}/api/admin/projects/${project.id}/pages`,{data:{name:'Analytics setup',pathname}});\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/analytics-setup.spec.ts:12:26"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-07T10:31:02.098Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "browser-errors",
+                      "contentType": "application/json",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/analytics-setup-named-goal-99a3d-ed-totals-and-frozen-launch-chromium/attachments/browser-errors-4d66d0dfdde8c02bd6d1a79ee384c78e25969ac7.json"
+                    },
+                    {
+                      "name": "page-1",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/analytics-setup-named-goal-99a3d-ed-totals-and-frozen-launch-chromium/attachments/page-1-0feb21606fa7da342e6596e40927cb445e14be82.png"
+                    },
+                    {
+                      "name": "video-0",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/analytics-setup-named-goal-99a3d-ed-totals-and-frozen-launch-chromium/attachments/video-0-039fbed52049553067868a74094b973d1976c896.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/analytics-setup-named-goal-99a3d-ed-totals-and-frozen-launch-chromium/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/analytics-setup-named-goal-99a3d-ed-totals-and-frozen-launch-chromium/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/analytics-setup.spec.ts",
+                    "column": 26,
+                    "line": 12
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "7645b06507b1e3d6d0ec-15cf00a1637f2d61a108",
+          "file": "analytics-setup.spec.ts",
+          "line": 6,
+          "column": 5
+        },
+        {
+          "title": "named goal: test installation, consent, isolated totals and frozen launch",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1750,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/analytics-setup.spec.ts:62:70",
+                    "location": {
+                      "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/analytics-setup.spec.ts",
+                      "column": 70,
+                      "line": 62
+                    },
+                    "snippet": "  60 |   await browser.getByRole('button',{name:'Submit lead'}).click();await expect(browser.locator('#result')).toHaveText('accepted');\n  61 |   const selected=await report();expect(selected.conversionEventName).toBe('lead_submitted');\n> 62 |   expect(selected.variants.reduce((n:number,v:any)=>n+v.visitors,0)).toBe(1);\n     |                                                                      ^\n  63 |   expect(selected.variants.reduce((n:number,v:any)=>n+v.views,0)).toBe(1);\n  64 |   expect(selected.variants.reduce((n:number,v:any)=>n+v.uniqueConversions,0)).toBe(1);\n  65 |   expect(selected.variants.reduce((n:number,v:any)=>n+v.conversions,0)).toBe(2);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/analytics-setup.spec.ts",
+                        "column": 70,
+                        "line": 62
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\n\n  60 |   await browser.getByRole('button',{name:'Submit lead'}).click();await expect(browser.locator('#result')).toHaveText('accepted');\n  61 |   const selected=await report();expect(selected.conversionEventName).toBe('lead_submitted');\n> 62 |   expect(selected.variants.reduce((n:number,v:any)=>n+v.visitors,0)).toBe(1);\n     |                                                                      ^\n  63 |   expect(selected.variants.reduce((n:number,v:any)=>n+v.views,0)).toBe(1);\n  64 |   expect(selected.variants.reduce((n:number,v:any)=>n+v.uniqueConversions,0)).toBe(1);\n  65 |   expect(selected.variants.reduce((n:number,v:any)=>n+v.conversions,0)).toBe(2);\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/analytics-setup.spec.ts:62:70"
+                    },
+                    {
+                      "location": {
+                        "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/fixtures.ts",
+                        "column": 65,
+                        "line": 74
+                      },
+                      "message": "Error: Unexpected page, network or HTTP failures\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 3\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"HTTP 400: /api/runtime/projects/pk_playground_local/analytics-tests\",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n   at fixtures.ts:74\n\n  72 |       } else await rm(videoDirectory, { recursive: true, force: true });\n  73 |     }\n> 74 |     expect(errors, 'Unexpected page, network or HTTP failures').toEqual([]);\n     |                                                                 ^\n  75 |   },\n  76 | });\n  77 |\n    at Object.newContext (/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/fixtures.ts:74:65)"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-07T10:31:15.513Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/analytics-setup-named-goal-99a3d-ed-totals-and-frozen-launch-firefox/test-failed-2.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/analytics-setup-named-goal-99a3d-ed-totals-and-frozen-launch-firefox/test-failed-1.png"
+                    },
+                    {
+                      "name": "browser-errors",
+                      "contentType": "application/json",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/analytics-setup-named-goal-99a3d-ed-totals-and-frozen-launch-firefox/attachments/browser-errors-083eee3bb960dec3613869071e420015ce5804bd.json"
+                    },
+                    {
+                      "name": "page-1",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/analytics-setup-named-goal-99a3d-ed-totals-and-frozen-launch-firefox/attachments/page-1-7349743f55b9ceebacceaeed403c07e9a4e3bc09.png"
+                    },
+                    {
+                      "name": "page-2",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/analytics-setup-named-goal-99a3d-ed-totals-and-frozen-launch-firefox/attachments/page-2-fc73d86e345bcae074d17486380d10cf1354df44.png"
+                    },
+                    {
+                      "name": "video-0",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/analytics-setup-named-goal-99a3d-ed-totals-and-frozen-launch-firefox/attachments/video-0-f870a97135b63af160dd0ec2c0d99eac295a4de1.webm"
+                    },
+                    {
+                      "name": "video-1",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/analytics-setup-named-goal-99a3d-ed-totals-and-frozen-launch-firefox/attachments/video-1-5646d34016c33a58162ce23dc2e68b0cd501bc2a.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/analytics-setup-named-goal-99a3d-ed-totals-and-frozen-launch-firefox/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/analytics-setup-named-goal-99a3d-ed-totals-and-frozen-launch-firefox/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/analytics-setup.spec.ts",
+                    "column": 70,
+                    "line": 62
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "7645b06507b1e3d6d0ec-4d23f043a0f3a5471eef",
+          "file": "analytics-setup.spec.ts",
+          "line": 6,
+          "column": 5
+        },
+        {
+          "title": "named goal: test installation, consent, isolated totals and frozen launch",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1598,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/analytics-setup.spec.ts:62:70",
+                    "location": {
+                      "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/analytics-setup.spec.ts",
+                      "column": 70,
+                      "line": 62
+                    },
+                    "snippet": "  60 |   await browser.getByRole('button',{name:'Submit lead'}).click();await expect(browser.locator('#result')).toHaveText('accepted');\n  61 |   const selected=await report();expect(selected.conversionEventName).toBe('lead_submitted');\n> 62 |   expect(selected.variants.reduce((n:number,v:any)=>n+v.visitors,0)).toBe(1);\n     |                                                                      ^\n  63 |   expect(selected.variants.reduce((n:number,v:any)=>n+v.views,0)).toBe(1);\n  64 |   expect(selected.variants.reduce((n:number,v:any)=>n+v.uniqueConversions,0)).toBe(1);\n  65 |   expect(selected.variants.reduce((n:number,v:any)=>n+v.conversions,0)).toBe(2);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/analytics-setup.spec.ts",
+                        "column": 70,
+                        "line": 62
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\n\n  60 |   await browser.getByRole('button',{name:'Submit lead'}).click();await expect(browser.locator('#result')).toHaveText('accepted');\n  61 |   const selected=await report();expect(selected.conversionEventName).toBe('lead_submitted');\n> 62 |   expect(selected.variants.reduce((n:number,v:any)=>n+v.visitors,0)).toBe(1);\n     |                                                                      ^\n  63 |   expect(selected.variants.reduce((n:number,v:any)=>n+v.views,0)).toBe(1);\n  64 |   expect(selected.variants.reduce((n:number,v:any)=>n+v.uniqueConversions,0)).toBe(1);\n  65 |   expect(selected.variants.reduce((n:number,v:any)=>n+v.conversions,0)).toBe(2);\n    at /Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/analytics-setup.spec.ts:62:70"
+                    },
+                    {
+                      "location": {
+                        "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/fixtures.ts",
+                        "column": 65,
+                        "line": 74
+                      },
+                      "message": "Error: Unexpected page, network or HTTP failures\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 1\u001b[39m\n\u001b[31m+ Received  + 3\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   \"HTTP 400: /api/runtime/projects/pk_playground_local/analytics-tests\",\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n   at fixtures.ts:74\n\n  72 |       } else await rm(videoDirectory, { recursive: true, force: true });\n  73 |     }\n> 74 |     expect(errors, 'Unexpected page, network or HTTP failures').toEqual([]);\n     |                                                                 ^\n  75 |   },\n  76 | });\n  77 |\n    at Object.newContext (/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/fixtures.ts:74:65)"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-07T10:31:22.097Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/analytics-setup-named-goal-99a3d-ed-totals-and-frozen-launch-webkit/test-failed-2.png"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/analytics-setup-named-goal-99a3d-ed-totals-and-frozen-launch-webkit/test-failed-1.png"
+                    },
+                    {
+                      "name": "browser-errors",
+                      "contentType": "application/json",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/analytics-setup-named-goal-99a3d-ed-totals-and-frozen-launch-webkit/attachments/browser-errors-499fb2d2f027fb54a5128bc3e4d29ac459eb9f2f.json"
+                    },
+                    {
+                      "name": "page-1",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/analytics-setup-named-goal-99a3d-ed-totals-and-frozen-launch-webkit/attachments/page-1-881e25516bcd4ee05bbb41b80635bebfa4699697.png"
+                    },
+                    {
+                      "name": "page-2",
+                      "contentType": "image/png",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/analytics-setup-named-goal-99a3d-ed-totals-and-frozen-launch-webkit/attachments/page-2-93da87ee99dea35e88f7ff412e7f1f2eb54b6d40.png"
+                    },
+                    {
+                      "name": "video-0",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/analytics-setup-named-goal-99a3d-ed-totals-and-frozen-launch-webkit/attachments/video-0-db7476147c12235ff4d83dd6faa05eed80bbaaa2.webm"
+                    },
+                    {
+                      "name": "video-1",
+                      "contentType": "video/webm",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/analytics-setup-named-goal-99a3d-ed-totals-and-frozen-launch-webkit/attachments/video-1-d932ce5b8a56bea165c4a01bebded80ef735f9ee.webm"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/analytics-setup-named-goal-99a3d-ed-totals-and-frozen-launch-webkit/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/test-results/analytics-setup-named-goal-99a3d-ed-totals-and-frozen-launch-webkit/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/Users/igorjan/Documents/LYKAR/repositories/lykar/lykar/tests/e2e/analytics-setup.spec.ts",
+                    "column": 70,
+                    "line": 62
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "7645b06507b1e3d6d0ec-982893d6810044ffa23a",
+          "file": "analytics-setup.spec.ts",
+          "line": 6,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "s3-acceptance.spec.ts",
+      "file": "s3-acceptance.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "S3 Admin → release/share → sticky experiment → consent-gated report",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3383,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-07T10:31:10.197Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "4a33734ec72306a551e1-c008e51338d54c93939d",
+          "file": "s3-acceptance.spec.ts",
+          "line": 11,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "s4-spa-critical.spec.ts",
+      "file": "s4-spa-critical.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "react SSR commits before host interaction and survives route history",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 311,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-07T10:31:13.825Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-ba349c4e73e4e542a8c2",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 4,
+          "column": 7
+        },
+        {
+          "title": "vue SSR commits before host interaction and survives route history",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 275,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-07T10:31:14.140Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-469a98aafaa35a59cfc8",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 4,
+          "column": 7
+        },
+        {
+          "title": "react: ready rules leave server HTML untouched until real hydration commits",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 440,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-07T10:31:14.419Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-740880fea462e2b1c4dc",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 28,
+          "column": 7
+        },
+        {
+          "title": "vue: ready rules leave server HTML untouched until real hydration commits",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "chromium",
+              "projectName": "chromium",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 369,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-07T10:31:14.863Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-dbbfc3bc04bde972fb54",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 28,
+          "column": 7
+        },
+        {
+          "title": "react SSR commits before host interaction and survives route history",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 815,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-07T10:31:19.390Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-c315542dae5e4dfa7742",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 4,
+          "column": 7
+        },
+        {
+          "title": "vue SSR commits before host interaction and survives route history",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 319,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-07T10:31:20.635Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-844e845547dab818fefc",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 4,
+          "column": 7
+        },
+        {
+          "title": "react: ready rules leave server HTML untouched until real hydration commits",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 374,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-07T10:31:20.959Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-e6ff3906be95515f5bec",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 28,
+          "column": 7
+        },
+        {
+          "title": "vue: ready rules leave server HTML untouched until real hydration commits",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "firefox",
+              "projectName": "firefox",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 363,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-07T10:31:21.337Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-b3c3389e0dcb347b437a",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 28,
+          "column": 7
+        },
+        {
+          "title": "react SSR commits before host interaction and survives route history",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 504,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-07T10:31:25.876Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-e4bf0c967223b80d27a6",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 4,
+          "column": 7
+        },
+        {
+          "title": "vue SSR commits before host interaction and survives route history",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 365,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-07T10:31:26.562Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-787c2e7e516807f99175",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 4,
+          "column": 7
+        },
+        {
+          "title": "react: ready rules leave server HTML untouched until real hydration commits",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 415,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-07T10:31:26.931Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-6c49f3b6af9b1eb98d8d",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 28,
+          "column": 7
+        },
+        {
+          "title": "vue: ready rules leave server HTML untouched until real hydration commits",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "webkit",
+              "projectName": "webkit",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 402,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-07T10:31:27.350Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2a9d21980ebdac8ab92b-9d74cb73256ab17493f8",
+          "file": "s4-spa-critical.spec.ts",
+          "line": 28,
+          "column": 7
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-07T10:30:48.703Z",
+    "duration": 49081.746,
+    "expected": 13,
+    "skipped": 0,
+    "unexpected": 3,
+    "flaky": 0
+  }
+}

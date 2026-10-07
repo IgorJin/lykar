@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import { ApiError, api, del, patch, post } from './api';
 import type { Experiment, ExperimentAnalyticsReport, ExperimentVariant, ExperimentVariantKey, Page, ProjectPermissions, Release } from './api';
 import { errorMessage, useAsyncAction } from './use-async-action';
+import { AnalyticsSetup, validGoal } from './analytics-setup';
 
 export function ExperimentsPanel({ page, releases, experiments, permissions, reload, mutationsEnabled }: {
   page: Page;
@@ -13,6 +14,7 @@ export function ExperimentsPanel({ page, releases, experiments, permissions, rel
   mutationsEnabled: boolean;
 }) {
   const [name, setName] = useState('Control vs Variant B');
+  const [conversionEventName, setConversionEventName] = useState('');
   const [aRelease, setARelease] = useState('native');
   const [bRelease, setBRelease] = useState('');
   const [aWeight, setAWeight] = useState(50);
@@ -33,14 +35,17 @@ export function ExperimentsPanel({ page, releases, experiments, permissions, rel
   }, [releases]);
 
   async function create() {
+    if (!validGoal(conversionEventName)) throw new Error('Укажите событие конверсии: 1–120 символов, без $ в начале.');
     await post(`/api/admin/pages/${page.id}/experiments`, {
       name,
+      conversionEventName: conversionEventName.trim(),
       variants: [
         { key: 'A', releaseId: aRelease === 'native' ? null : aRelease, description: 'Control', weightBps: aWeight * 100 },
         { key: 'B', releaseId: bRelease || null, description: 'Treatment', weightBps: (100 - aWeight) * 100 },
       ],
     });
     setName('Control vs Variant B');
+    setConversionEventName('');
   }
 
   async function transition(id: string, action: 'activate' | 'pause' | 'complete', winnerVariantKey?: ExperimentVariantKey | null) {
@@ -132,13 +137,15 @@ export function ExperimentsPanel({ page, releases, experiments, permissions, rel
     {actionError && <p class="inline-error" role="alert">{actionError}</p>}
     {permissions.edit && releases.length > 0 && <form class="form experiment-create" onSubmit={event => { event.preventDefault(); void runAction('create', create); }}>
       <h3>Новый эксперимент</h3>
-      <input required value={name} onInput={event => setName(event.currentTarget.value)} placeholder="Название эксперимента" />
+      <label>Название эксперимента <input required value={name} onInput={event => setName(event.currentTarget.value)} placeholder="Название эксперимента" /></label>
+      <label>Событие конверсии <input required maxLength={120} value={conversionEventName} onInput={event => setConversionEventName(event.currentTarget.value)} placeholder="Например, purchase_completed" /></label>
+      <p class="small muted">Явное событие из SDK: 1–120 символов, без $ в начале. Цель фиксируется при первом запуске.</p>
       <div class="row">
         <label>Variant A <ReleaseSelect releases={releases} value={aRelease} onChange={setARelease} /></label>
         <label>Variant B <ReleaseSelect releases={releases} value={bRelease} onChange={setBRelease} /></label>
         <label>Трафик A, % <input type="number" min="1" max="99" value={aWeight} onInput={event => setAWeight(Number(event.currentTarget.value))} /></label>
         <span class="small muted">B: {100 - aWeight}%</span>
-        <button class="primary" disabled={!mutationsEnabled || Boolean(pendingAction) || !bRelease || !Number.isInteger(aWeight) || aWeight < 1 || aWeight > 99}>{pendingAction === 'create' ? 'Создаём…' : 'Создать'}</button>
+        <button class="primary" disabled={!mutationsEnabled || Boolean(pendingAction) || !validGoal(conversionEventName) || !bRelease || !Number.isInteger(aWeight) || aWeight < 1 || aWeight > 99}>{pendingAction === 'create' ? 'Создаём…' : 'Создать'}</button>
       </div>
     </form>}
     {releases.length === 0 && <p class="muted">Сначала зафиксируйте хотя бы одну immutable release.</p>}
@@ -163,6 +170,11 @@ export function ExperimentsPanel({ page, releases, experiments, permissions, rel
           </>}
         </div>}
       </div>
+      <AnalyticsSetup experiment={experiment} permissions={permissions} disabled={!mutationsEnabled || Boolean(pendingAction)}
+        onSave={value => runAction(`goal-${experiment.id}`, async () => {
+          await patch(`/api/admin/experiments/${experiment.id}/goal`, { conversionEventName: value });
+          setReports(current => Object.fromEntries(Object.entries(current).filter(([id]) => id !== experiment.id)));
+        })} />
       <div class="experiment-delivery">
         <b>Распределение: {experiment.variants[0].weightBps / 100}% / {experiment.variants[1].weightBps / 100}%</b>
         {experiment.status === 'draft' && permissions.edit && <VariantWeightEditor
@@ -237,12 +249,14 @@ function VariantWeightEditor({ value, onSave, disabled }: {
 
 function AnalyticsReport({ report }: { report: ExperimentAnalyticsReport }) {
   return <div class="analytics-table">
-    <div class="analytics-row analytics-head"><span>Вариант</span><span>Посетители</span><span>Показы</span><span>Уник. конверсии</span><span>CVR</span><span>Uplift к A</span></div>
+    <p>Цель отчёта: {report.conversionEventName ? <code>{report.conversionEventName}</code> : 'Все события (исторический режим)'}</p>
+    <div class="analytics-row analytics-head"><span>Вариант</span><span>Посетители</span><span>Показы</span><span>Конвертировавшие посетители</span><span>CVR</span><span>Uplift к A</span></div>
     {report.variants.map(variant => <div class="analytics-row" key={variant.key}>
       <b>{variant.key}</b><span>{variant.visitors}</span><span>{variant.views}</span>
-      <span>{variant.uniqueConversions} <span class="muted">({variant.conversions} всего)</span></span>
+      <span>{variant.uniqueConversions} <span class="muted">({variant.conversions} событий всего)</span></span>
       <span>{formatRate(variant.conversionRate)}</span><span>{formatRate(variant.upliftVsA, true)}</span>
     </div>)}
+    <p class="small muted">CVR = уникальные посетители с конверсией / посетители с показом. Повторные события показаны отдельно; тестовые события исключены из отчёта.</p>
     <p class="small muted">Обновлено {new Date(report.generatedAt).toLocaleString()}. Показатели описательные; статистическая значимость пока не рассчитывается.</p>
   </div>;
 }

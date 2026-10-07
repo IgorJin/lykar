@@ -198,12 +198,15 @@ test(
           occurredAt: new Date().toISOString(),
         },
       });
+      assert.equal((await event('conversion', 'before-exposure')).statusCode, 409);
       assert.equal((await event('exposure', '$exposure')).statusCode, 202);
+      assert.equal((await app.inject({ method: 'POST', url: '/api/runtime/analytics/events', payload: { capability: selection.capability, clientEventId: randomUUID(), eventType: 'conversion', name: 'signup', occurredAt: new Date(Date.now() - 1000).toISOString() } })).statusCode, 409);
       assert.equal((await event('conversion', 'signup')).statusCode, 202);
       const report = await app.inject({
         method: 'GET', url: `/api/admin/experiments/${first.id}/analytics`, headers,
       });
       assert.equal(report.statusCode, 200, report.body);
+      assert.equal(report.json().report.conversionEventName, null);
       const selectedReport = report.json().report.variants.find(
         (variant: { key: 'A' | 'B' }) => variant.key === selection.variantKey,
       );
@@ -237,6 +240,40 @@ test(
       assert.equal(lockedUpdate.statusCode, 409, lockedUpdate.body);
 
       const second = (await createExperiment('Second A/B')).json().experiment;
+      const goalUrl = `/api/admin/experiments/${second.id}/goal`;
+      assert.equal((await app.inject({ method: 'PATCH', url: goalUrl, headers, payload: { conversionEventName: ' signup ' } })).json().experiment.conversionEventName, 'signup');
+      const testLink = await app.inject({ method: 'POST', url: `/api/admin/experiments/${second.id}/analytics-tests`, headers, payload: {} });
+      assert.equal(testLink.statusCode, 201, testLink.body);
+      const probe = testLink.json().test;
+      const token = new URLSearchParams(new URL(probe.url).hash.slice(1)).get('lykar_analytics_test');
+      const probeUrl = `/api/runtime/projects/${project.publicKey}/analytics-tests`;
+      const sendProbe = (consent: string, extra = {}) => app.inject({ method: 'POST', url: probeUrl, payload: { token, pathname: '/', consent, ...extra } });
+      assert.equal((await sendProbe('pending')).statusCode, 202);
+      assert.equal((await sendProbe('denied', { name: 'signup', clientEventId: randomUUID() })).statusCode, 400);
+      assert.equal((await app.inject({ method: 'POST', url: probeUrl, payload: { token, pathname: '/other', consent: 'granted' } })).statusCode, 401);
+      assert.equal((await sendProbe('granted', { name: 'purchase', clientEventId: randomUUID() })).statusCode, 400);
+      assert.equal((await app.inject({ method: 'POST', url: '/api/runtime/projects/pk_wrong_project/analytics-tests', payload: { token, pathname: '/', consent: 'granted' } })).statusCode, 401);
+      const probeEventId = randomUUID();
+      assert.equal((await sendProbe('granted', { name: 'signup', clientEventId: probeEventId })).json().eventReceived, true);
+      assert.equal((await sendProbe('granted', { name: 'signup', clientEventId: probeEventId })).json().eventReceived, true);
+      assert.equal((await app.inject({ method: 'GET', url: `/api/admin/experiments/${first.id}/analytics-tests/${probe.id}`, headers })).statusCode, 403);
+      assert.equal((await app.inject({ method: 'PATCH', url: `/api/admin/experiments/${second.id}/goal`, payload: { conversionEventName: 'signup' } })).statusCode, 401);
+      await app.inject({ method: 'POST', url: '/api/auth/magic-link', payload: { email: `analytics-foreign-${randomUUID()}@example.com` } });
+      const foreignLogin = await app.inject({ method: 'GET', url: `/api/auth/verify?token=${new URL(magicLink).searchParams.get('token')}` });
+      assert.equal(foreignLogin.statusCode, 302, foreignLogin.body);
+      const foreignHeaders = { cookie: String(foreignLogin.headers['set-cookie']).split(';')[0] };
+      assert.equal((await app.inject({ method: 'PATCH', url: goalUrl, headers: foreignHeaders, payload: { conversionEventName: 'signup' } })).statusCode, 403);
+      assert.equal((await app.inject({ method: 'GET', url: `/api/admin/experiments/${second.id}/analytics-tests/${probe.id}`, headers: foreignHeaders })).statusCode, 403);
+      assert.equal((await app.inject({ method: 'POST', url: `/api/admin/experiments/${second.id}/analytics-tests`, headers: foreignHeaders, payload: {} })).statusCode, 403);
+      const probeState = await app.inject({ method: 'GET', url: `/api/admin/experiments/${second.id}/analytics-tests/${probe.id}`, headers });
+      assert.equal(probeState.json().test.eventReceived, true);
+      const emptyReport = (await app.inject({ method: 'GET', url: `/api/admin/experiments/${second.id}/analytics`, headers })).json().report;
+      assert.equal(emptyReport.conversionEventName, 'signup');
+      assert.deepEqual(emptyReport.variants.map((v: { visitors: number; conversions: number }) => [v.visitors, v.conversions]), [[0,0],[0,0]]);
+      assert.equal((await app.inject({ method: 'PATCH', url: goalUrl, headers, payload: { conversionEventName: 'purchase' } })).statusCode, 200);
+      assert.equal((await sendProbe('granted')).statusCode, 401);
+      assert.equal((await app.inject({ method: 'PATCH', url: goalUrl, headers, payload: { conversionEventName: 'signup' } })).statusCode, 200);
+
       const conflictingActivation = await app.inject({
         method: 'POST', url: `/api/admin/experiments/${second.id}/activate`, headers, payload: {},
       });
@@ -270,8 +307,33 @@ test(
         method: 'POST', url: `/api/admin/experiments/${second.id}/activate`, headers, payload: {},
       })).statusCode, 200);
 
+      assert.equal((await app.inject({ method: 'PATCH', url: goalUrl, headers, payload: { conversionEventName: 'purchase' } })).statusCode, 409);
+      const namedLink = (await app.inject({ method: 'POST', url: `/api/admin/experiments/${second.id}/links`, headers, payload: {} })).json();
+      const namedToken = new URLSearchParams(new URL(namedLink.url).hash.slice(1)).get('lykar_experiment');
+      const namedSelection = (await app.inject({ method: 'POST', url: `/api/runtime/projects/${project.publicKey}/experiments/resolve`, payload: { pathname: '/', experimentToken: namedToken, anonymousId: randomUUID() } })).json().selection;
+      assert.equal((await event('exposure', '$exposure', namedSelection.capability)).statusCode, 202);
+      assert.equal((await event('conversion', 'purchase', namedSelection.capability)).statusCode, 202);
+      const repeatedId = randomUUID();
+      const repeatedPayload = { capability: namedSelection.capability, clientEventId: repeatedId, eventType: 'conversion', name: 'signup', occurredAt: new Date().toISOString() };
+      const concurrent = await Promise.all(Array.from({ length: 4 }, () => app.inject({ method: 'POST', url: '/api/runtime/analytics/events', payload: repeatedPayload })));
+      assert.ok(concurrent.every(response => response.statusCode === 202));
+      assert.equal(concurrent.filter(response => !response.json().duplicate).length, 1);
+      const namedReport = async () => (await app.inject({ method: 'GET', url: `/api/admin/experiments/${second.id}/analytics`, headers })).json().report.variants.find((v: { key: string }) => v.key === namedSelection.variantKey);
+      assert.equal((await namedReport()).conversions, 1);
+      assert.equal((await namedReport()).conversionRate, 1);
+
       const pool = new Pool({ connectionString: databaseUrl });
       try {
+        await pool.query('DELETE FROM analytics_events WHERE assignment_id = $1', [namedSelection.assignmentId]);
+        assert.equal((await namedReport()).conversions, 1);
+        assert.equal((await namedReport()).uniqueConversions, 1);
+        const expiring = (await app.inject({ method: 'POST', url: `/api/admin/experiments/${second.id}/analytics-tests`, headers, payload: {} })).json().test;
+        const expiringToken = new URLSearchParams(new URL(expiring.url).hash.slice(1)).get('lykar_analytics_test');
+        assert.equal((await app.inject({ method: 'POST', url: probeUrl, payload: { token: expiringToken, pathname: '/', consent: 'granted' } })).statusCode, 202);
+        await pool.query("UPDATE analytics_tests SET expires_at = NOW() - INTERVAL '1 second' WHERE id = $1", [expiring.id]);
+        assert.equal((await app.inject({ method: 'POST', url: probeUrl, payload: { token: expiringToken, pathname: '/', consent: 'granted' } })).statusCode, 401);
+        const isolated = await pool.query('SELECT COUNT(*)::int AS count FROM experiment_assignments WHERE experiment_id = $1', [second.id]);
+        assert.equal(isolated.rows[0].count, 1);
         const stored = await pool.query<{ token_hash: string }>(
           'SELECT token_hash FROM experiment_variant_links WHERE id = $1',
           [replacementB.json().link.id],

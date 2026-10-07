@@ -9,7 +9,7 @@ import { captureSourceSnapshot } from './dom-fingerprint.js';
 import {MutationJournal} from './mutation-journal.js';
 import type {CompensationDiagnostic, JournalEntrySnapshot} from './mutation-journal.js';
 import {ReplayLedger} from './replay-ledger.js';
-import { resolveExperimentSelection, sendAnalyticsEvent } from './analytics-client.js';
+import { createUuid, resolveExperimentSelection, sendAnalyticsEvent } from './analytics-client.js';
 import {fetchDeployment} from './deployment-client.js';
 import { fetchManifest } from './manifest-client.js';
 import { visitorTokensFromLocation } from './visitor-url.js';
@@ -70,8 +70,11 @@ export class Lykar {
   private cleanupRegistered = false;
   private analyticsConsent: AnalyticsConsent;
   private analyticsContext?: ExperimentRuntimeSelection;
-  private pendingExposure = false;
+  private exposureEventId: string = createUuid();
+  private readonly exposureEventIds?: Map<string, string>;
+  private exposurePromise?: Promise<void>;
   private exposureSent = false;
+  private exposureReady = false;
   /** Live conditional status, including missing, not-ready and unsafe targets. */
   get conditionalState() {
     return {groups: this.conditional?.groupStates ?? [], stats: this.conditional?.stats ?? null};
@@ -151,6 +154,7 @@ export class Lykar {
       try { options.onDiagnostic?.(diagnostic); } catch { /* Diagnostic hooks do not affect replay. */ }
     });
     this.analyticsConsent = options.analyticsConsent ?? 'pending';
+    this.exposureEventIds = options.exposureEventIds;
     activeRuntime = this;
   }
 
@@ -372,12 +376,15 @@ export class Lykar {
     if (!selection) return nativePageReport('VARIANT_UNAVAILABLE', startedAt);
     if (isExperimentSelection(selection)) {
       this.analyticsContext = selection;
+      this.exposureEventId = this.exposureEventIds?.get(selection.assignmentId) ?? this.exposureEventId;
+      this.exposureEventIds?.set(selection.assignmentId, this.exposureEventId);
       let result: RuntimeStartResult;
       if (selection.manifest) {
         result = await this.applyManifest(selection.manifest);
       } else {
         result = nativePageReport('NATIVE_VARIANT', startedAt, selection);
       }
+      this.exposureReady = true;
       await this.queueOrSendExposure();
       this.assertActive();
       return result;
@@ -418,24 +425,23 @@ export class Lykar {
     }
   }
 
-  async track(name: string, properties: Record<string, unknown> = {}): Promise<TrackEventResult> {
+  async track(name: string, properties: Record<string, unknown> = {}, options: {clientEventId?: string} = {}): Promise<TrackEventResult> {
     this.assertActive();
     const event = requireAnalyticsEvent(name, properties);
     if (!this.analyticsContext) return { accepted: false, code: 'NO_ACTIVE_EXPERIMENT' };
     if (this.analyticsConsent === 'pending') return { accepted: false, code: 'CONSENT_REQUIRED' };
     if (this.analyticsConsent === 'denied') return { accepted: false, code: 'CONSENT_DENIED' };
-    return this.sendEvent('conversion', event.name, event.properties);
+    await this.queueOrSendExposure();
+    if (this.analyticsConsent !== 'granted') return {accepted: false, code: this.analyticsConsent === 'denied' ? 'CONSENT_DENIED' : 'CONSENT_REQUIRED'};
+    if (!this.exposureSent) return {accepted: false, code: 'EVENT_SEND_FAILED'};
+    return this.sendEvent('conversion', event.name, event.properties, options.clientEventId);
   }
 
-  async consent(value: Exclude<AnalyticsConsent, 'pending'>): Promise<void> {
+  async consent(value: AnalyticsConsent): Promise<void> {
     this.assertActive();
-    if (value !== 'granted' && value !== 'denied') throw new Error('Lykar consent must be granted or denied');
+    if (!['pending', 'granted', 'denied'].includes(value)) throw new Error('Lykar consent must be pending, granted or denied');
     this.analyticsConsent = value;
-    if (value === 'denied') {
-      this.pendingExposure = false;
-      return;
-    }
-    if (this.pendingExposure) await this.queueOrSendExposure();
+    if (value === 'granted') await this.queueOrSendExposure();
   }
 
   private finishReport(
@@ -479,38 +485,38 @@ export class Lykar {
 
   private async queueOrSendExposure(): Promise<void> {
     this.assertActive();
-    if (this.exposureSent || !this.analyticsContext) return;
-    if (this.analyticsConsent === 'pending') {
-      this.pendingExposure = true;
-      return;
+    if (this.exposureSent || !this.exposureReady || !this.analyticsContext || this.analyticsConsent !== 'granted') return;
+    if (!this.exposurePromise) {
+      this.exposurePromise = (async () => {
+        const result = await this.sendEvent('exposure', '$exposure', {}, this.exposureEventId);
+        this.assertActive();
+        if (result.accepted) this.exposureSent = true;
+      })().finally(() => { this.exposurePromise = undefined; });
     }
-    if (this.analyticsConsent === 'denied') return;
-    const result = await this.sendEvent('exposure', '$exposure', {});
-    this.assertActive();
-    if (result.accepted) {
-      this.exposureSent = true;
-      this.pendingExposure = false;
-    }
+    await this.exposurePromise;
   }
 
   private async sendEvent(
     eventType: 'exposure' | 'conversion',
     name: string,
     properties: AnalyticsProperties,
+    clientEventId: string = createUuid(),
   ): Promise<TrackEventResult> {
     this.assertActive();
     if (!this.analyticsContext || !this.fetcher) return { accepted: false, code: 'NO_ACTIVE_EXPERIMENT' };
-    const result = await sendAnalyticsEvent({
-      apiBaseUrl: this.apiBaseUrl,
-      capability: this.analyticsContext.capability,
-      eventType,
-      name,
-      properties,
-      credentials: this.credentials,
-      signal: this.signal,
-      fetch: this.fetcher,
-    });
-    this.assertActive();
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(clientEventId)) throw new Error('Lykar clientEventId must be a UUID v4');
+    let result: TrackEventResult = {accepted: false, code: 'EVENT_SEND_FAILED'};
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      this.assertActive();
+      if (this.analyticsConsent !== 'granted') return {accepted: false, code: this.analyticsConsent === 'denied' ? 'CONSENT_DENIED' : 'CONSENT_REQUIRED'};
+      result = await sendAnalyticsEvent({
+        apiBaseUrl: this.apiBaseUrl, capability: this.analyticsContext.capability,
+        eventType, name, properties, clientEventId, credentials: this.credentials,
+        signal: this.signal, fetch: this.fetcher,
+      });
+      this.assertActive();
+      if (result.accepted) break;
+    }
     return result;
   }
 
@@ -610,12 +616,12 @@ export function init(
     : new Lykar(projectKeyOrOptions).start();
 }
 
-export function track(name: string, properties: Record<string, unknown> = {}): Promise<TrackEventResult> {
+export function track(name: string, properties: Record<string, unknown> = {}, options: {clientEventId?: string} = {}): Promise<TrackEventResult> {
   if (!activeRuntime) return Promise.resolve({ accepted: false, code: 'NO_ACTIVE_EXPERIMENT' });
-  return activeRuntime.track(name, properties);
+  return activeRuntime.track(name, properties, options);
 }
 
-export function consent(value: Exclude<AnalyticsConsent, 'pending'>): Promise<void> {
+export function consent(value: AnalyticsConsent): Promise<void> {
   if (!activeRuntime) return Promise.resolve();
   return activeRuntime.consent(value);
 }

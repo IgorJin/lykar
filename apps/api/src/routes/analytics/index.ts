@@ -81,6 +81,23 @@ const analyticsRoutes: FastifyPluginAsync<AnalyticsRoutesOptions> = async (fasti
     )),
   );
 
+  fastify.post<{ Params: ExperimentParams }>(
+    '/api/admin/experiments/:experimentId/analytics-tests',
+    { preHandler: requireSession, logLevel: 'silent' },
+    async (request, reply) => { reply.header('Cache-Control', 'no-store'); return reply.code(201).send(await options.analyticsService.createTest(authenticatedSession(request).user.id, request.params.experimentId)); },
+  );
+  fastify.get<{ Params: ExperimentParams & { testId: string } }>(
+    '/api/admin/experiments/:experimentId/analytics-tests/:testId',
+    { preHandler: requireSession, logLevel: 'silent' },
+    async (request, reply) => { reply.header('Cache-Control', 'no-store'); return { test: await options.analyticsService.getTest(authenticatedSession(request).user.id, request.params.experimentId, request.params.testId) }; },
+  );
+  fastify.post<{ Params: RuntimeParams; Body: { token: unknown; pathname: unknown; consent: unknown; name?: unknown; clientEventId?: unknown } }>(
+    '/api/runtime/projects/:publicKey/analytics-tests',
+    { logLevel: 'silent', schema: { body: { type: 'object', required: ['token', 'pathname', 'consent'], additionalProperties: false,
+      properties: { token: { type: 'string', minLength: 32, maxLength: 256 }, pathname: { type: 'string' }, consent: { type: 'string', enum: ['pending','granted','denied'] }, name: { type: 'string', minLength: 1, maxLength: 120 }, clientEventId: { type: 'string' } } } } },
+    async (request, reply) => { reply.header('Cache-Control', 'no-store'); return reply.code(202).send(await options.analyticsService.recordTest(request.params.publicKey, request.body)); },
+  );
+
   fastify.get<{ Params: ExperimentParams }>(
     '/api/admin/experiments/:experimentId/analytics',
     { preHandler: requireSession },

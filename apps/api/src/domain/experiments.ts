@@ -41,6 +41,7 @@ export type ExperimentRecord = {
   name: string;
   status: ExperimentStatus;
   winnerVariantKey: ExperimentVariantKey | null;
+  conversionEventName: string | null;
   firstActivatedAt: string | null;
   activatedAt: string | null;
   pausedAt: string | null;
@@ -63,6 +64,7 @@ export interface ExperimentRepository {
     userId: string;
     pageId: string;
     name: string;
+    conversionEventName: string | null;
     variants: Array<{
       id: string;
       key: ExperimentVariantKey;
@@ -71,6 +73,7 @@ export interface ExperimentRepository {
       weightBps: number;
     }>;
   }): Promise<ExperimentRecord>;
+  updateGoal(userId: string, experimentId: string, conversionEventName: string | null): Promise<ExperimentRecord>;
   listExperiments(userId: string, pageId: string): Promise<ExperimentRecord[]>;
   updateVariant(input: {
     userId: string;
@@ -118,6 +121,7 @@ export class ExperimentService {
     pageIdValue: unknown,
     nameValue: unknown,
     variantsValue: unknown,
+    conversionEventNameValue?: unknown,
   ): Promise<ExperimentRecord> {
     if (!Array.isArray(variantsValue) || variantsValue.length !== 2) {
       throw new ValidationError('variants must contain exactly A and B');
@@ -135,8 +139,13 @@ export class ExperimentService {
       userId: requireUuid(userIdValue, 'userId'),
       pageId: requireUuid(pageIdValue, 'pageId'),
       name: requireExperimentName(nameValue),
+      conversionEventName: conversionEventNameValue == null ? null : requireConversionEventName(conversionEventNameValue),
       variants: variants.map(variant => ({ id: randomUUID(), ...variant })),
     });
+  }
+
+  updateGoal(userIdValue: unknown, experimentIdValue: unknown, value: unknown): Promise<ExperimentRecord> {
+    return this.repository.updateGoal(requireUuid(userIdValue, 'userId'), requireUuid(experimentIdValue, 'experimentId'), value === null ? null : requireConversionEventName(value));
   }
 
   listExperiments(userIdValue: unknown, pageIdValue: unknown): Promise<ExperimentRecord[]> {
@@ -310,5 +319,10 @@ function requireExperimentName(value: unknown): string {
   if (typeof value !== 'string' || !value.trim() || value.trim().length > 120) {
     throw new ValidationError('experiment name must contain between 1 and 120 characters');
   }
+  return value.trim();
+}
+
+export function requireConversionEventName(value: unknown): string {
+  if (typeof value !== 'string' || !value.trim() || value.trim().length > 120 || value.trim().startsWith('$')) throw new ValidationError('conversion event name must contain 1 to 120 characters and cannot start with $');
   return value.trim();
 }

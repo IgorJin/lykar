@@ -2,8 +2,8 @@ import { createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
 
 import type { PublishedManifestV1 } from '@lykar/protocol';
 
-import { hashToken } from './auth';
-import type { ExperimentVariantKey } from './experiments';
+import { hashToken, issueOpaqueToken } from './auth';
+import { requireConversionEventName, type ExperimentVariantKey } from './experiments';
 import { UnauthorizedError, ValidationError, normalizePathname, requireUuid } from './versioning';
 
 export type AnalyticsConsent = 'pending' | 'granted' | 'denied';
@@ -37,11 +37,20 @@ export type AnalyticsVariantReport = {
 
 export type ExperimentAnalyticsReport = {
   experimentId: string;
+  conversionEventName: string | null;
   generatedAt: string;
   variants: [AnalyticsVariantReport, AnalyticsVariantReport];
 };
 
+export type AnalyticsTest = {
+  id: string; eventName: string; expiresAt: string;
+  consent: AnalyticsConsent | null; eventReceived: boolean; lastReceivedAt: string | null;
+};
+
 export interface AnalyticsRepository {
+  createTest(input: { id: string; userId: string; experimentId: string; tokenHash: string; expiresAt: Date }): Promise<{ test: AnalyticsTest; origin: string; pathname: string }>;
+  getTest(userId: string, experimentId: string, testId: string): Promise<AnalyticsTest>;
+  recordTest(input: { publicKey: string; pathname: string; tokenHash: string; consent: AnalyticsConsent; name?: string; clientEventId?: string }): Promise<{ eventReceived: boolean }>;
   resolveAssignment(input: {
     assignmentId: string;
     publicKey: string;
@@ -153,6 +162,27 @@ export class AnalyticsService {
       occurredAt,
     });
     return { accepted: true, duplicate: result.duplicate };
+  }
+
+  async createTest(userIdValue: unknown, experimentIdValue: unknown): Promise<{ test: { id: string; eventName: string; expiresAt: string; url: string } }> {
+    const token = issueOpaqueToken();
+    const result = await this.repository.createTest({ id: randomUUID(), userId: requireUuid(userIdValue, 'userId'), experimentId: requireUuid(experimentIdValue, 'experimentId'), tokenHash: hashToken(token), expiresAt: new Date(this.now().getTime() + 30 * 60 * 1000) });
+    const url = new URL(result.pathname, result.origin);
+    url.hash = new URLSearchParams({ lykar_analytics_test: token }).toString();
+    return { test: { id: result.test.id, eventName: result.test.eventName, expiresAt: result.test.expiresAt, url: url.toString() } };
+  }
+
+  getTest(userIdValue: unknown, experimentIdValue: unknown, testIdValue: unknown): Promise<AnalyticsTest> {
+    return this.repository.getTest(requireUuid(userIdValue, 'userId'), requireUuid(experimentIdValue, 'experimentId'), requireUuid(testIdValue, 'testId'));
+  }
+
+  async recordTest(publicKeyValue: unknown, input: { token: unknown; pathname: unknown; consent: unknown; name?: unknown; clientEventId?: unknown }): Promise<{ accepted: true; eventReceived: boolean }> {
+    if (!['pending', 'granted', 'denied'].includes(String(input.consent))) throw new ValidationError('consent is invalid');
+    const consent = input.consent as AnalyticsConsent;
+    if (input.name !== undefined && consent !== 'granted') throw new ValidationError('Test events require granted consent');
+    if ((input.name === undefined) !== (input.clientEventId === undefined)) throw new ValidationError('name and clientEventId must be provided together');
+    const result = await this.repository.recordTest({ publicKey: requirePublicKey(publicKeyValue), pathname: normalizePathname(input.pathname), tokenHash: hashToken(requireOpaqueToken(input.token, 'token')), consent, ...(input.name === undefined ? {} : { name: requireConversionEventName(input.name), clientEventId: requireUuid(input.clientEventId, 'clientEventId') }) });
+    return { accepted: true, ...result };
   }
 
   getReport(userIdValue: unknown, experimentIdValue: unknown): Promise<ExperimentAnalyticsReport> {

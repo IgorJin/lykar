@@ -202,6 +202,7 @@ test('S3 Admin → release/share → sticky experiment → consent-gated report'
   // Native A + immutable Release 2 B, then test sticky assignment and consent.
   await admin.getByRole('button', { name: 'Experiments' }).click();
   await admin.getByPlaceholder('Название эксперимента').fill('S3 consent report');
+  await admin.getByLabel('Событие конверсии',{exact:true}).fill('signup');
   const rootReleasesResponse = await owner.request.get(`${apiBaseUrl}/api/admin/pages/${rootPage.id}/releases`);
   expect(rootReleasesResponse.ok()).toBeTruthy();
   const rootReleases = (await rootReleasesResponse.json() as { releases: Array<{ id: string; version: number }> }).releases;

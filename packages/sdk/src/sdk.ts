@@ -5,6 +5,7 @@ import {
   Lykar as RuntimeLykar,
   ManifestRequestError,
   visitorTokensFromLocation,
+  type AnalyticsConsent,
   type ApplyReport,
   type FetchLike,
   type RuntimeStartResult,
@@ -73,6 +74,12 @@ type RuntimeRunOptions = {
   experimentToken?: string;
 };
 
+function uuid(): string {
+  if (typeof globalThis.crypto.randomUUID === 'function') return globalThis.crypto.randomUUID();
+  return '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, digit =>
+    (Number(digit) ^ (globalThis.crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (Number(digit) / 4)))).toString(16));
+}
+
 function getBrowserDocument(document?: Document): Document {
   const browserDocument = document ?? globalThis.document;
   if (!browserDocument) {
@@ -135,6 +142,10 @@ export class Lykar {
   get conditionalState() { return this.runtime?.conditionalState ?? {groups: [], stats: null}; }
 
   private runtime?: RuntimeLykar;
+  private analyticsConsent: AnalyticsConsent;
+  private exposureEventIds = new Map<string, string>();
+  private analyticsTest?: {token: string; pathname: string};
+  private analyticsTestContext?: PageSessionContext;
   private pathnameOverride?: string;
   private rootOverride?: Element;
   private rotateSession = false;
@@ -160,6 +171,7 @@ export class Lykar {
 
     this.projectKey = options.projectKey;
     this.options = {...options};
+    this.analyticsConsent = options.analyticsConsent ?? 'pending';
   }
 
   async start(): Promise<LykarSdkResult> {
@@ -226,6 +238,8 @@ export class Lykar {
         'Lykar SDK navigation root belongs to another document.',
       );
     }
+    const previous = this.pageSession?.snapshot();
+    if (options.pathname !== previous?.pathname || (options.root ?? this.options.root ?? document) !== previous?.root) this.exposureEventIds = new Map();
     this.pathnameOverride = options.pathname;
     this.rootOverride = options.root;
     return this.refresh();
@@ -242,6 +256,8 @@ export class Lykar {
     this.rotateSession = false;
     this.destroyed = true;
     this.shareByPath.clear();
+    this.analyticsTest = undefined;
+    this.analyticsTestContext = undefined;
     this.runtimeLoadController?.abort();
     this.runtimeLoadController = undefined;
     this.runtimeLoadPromise = undefined;
@@ -250,16 +266,51 @@ export class Lykar {
   async track(
     eventName: string,
     properties?: Record<string, string | number | boolean | null>,
+    options: {clientEventId?: string} = {},
   ): Promise<{accepted: boolean; duplicate?: boolean; code?: string}> {
+    if (this.analyticsTest) {
+      if (this.analyticsConsent !== 'granted') return {accepted: false, code: this.analyticsConsent === 'denied' ? 'CONSENT_DENIED' : 'CONSENT_REQUIRED'};
+      if (typeof eventName !== 'string' || !eventName.trim() || eventName.trim().length > 120) throw new Error('Lykar event name must contain between 1 and 120 characters');
+      return this.sendAnalyticsTest(eventName.trim(), options.clientEventId ?? uuid());
+    }
     if (!this.runtime) {
       return {accepted: false, code: 'NO_ACTIVE_RUNTIME'};
     }
-    return this.runtime.track(eventName, properties);
+    return this.runtime.track(eventName, properties, options);
   }
 
-  consent(value: 'pending' | 'granted' | 'denied'): void {
-    if (value === 'pending') return;
-    void this.runtime?.consent(value);
+  async consent(value: AnalyticsConsent): Promise<void> {
+    if (!['pending', 'granted', 'denied'].includes(value)) throw new Error('Lykar consent must be pending, granted or denied');
+    this.analyticsConsent = value;
+    if (this.analyticsTest) {
+      await this.sendAnalyticsTest();
+      return;
+    }
+    await this.runtime?.consent(value);
+  }
+
+  private async sendAnalyticsTest(name?: string, clientEventId?: string): Promise<{accepted: boolean; code?: string}> {
+    const context = this.analyticsTestContext;
+    const test = this.analyticsTest;
+    if (!test || !context?.isCurrent() || context.pathname !== test.pathname) return {accepted: false, code: 'ANALYTICS_TEST_UNAVAILABLE'};
+    const fetch = this.networkFetch(context.signal);
+    if (!fetch) return {accepted: false, code: 'EVENT_SEND_FAILED'};
+    try {
+      const response = await fetch(`${(this.options.apiBaseUrl ?? '').replace(/\/+$/, '')}/api/runtime/projects/${encodeURIComponent(this.projectKey)}/analytics-tests`, {
+        method: 'POST', headers: {'Content-Type': 'application/json', Accept: 'application/json'},
+        ...(this.options.credentials ? {credentials: this.options.credentials} : {}),
+        signal: context.signal,
+        body: JSON.stringify({token: test.token, pathname: context.pathname, consent: this.analyticsConsent,
+          ...(name ? {name, clientEventId} : {})}),
+      });
+      context.assertCurrent();
+      if (!response.ok) return {accepted: false, code: 'EVENT_SEND_FAILED'};
+      const payload: unknown = await response.json();
+      context.assertCurrent();
+      return typeof payload === 'object' && payload !== null && 'accepted' in payload && payload.accepted === true
+        && (!name || ('eventReceived' in payload && payload.eventReceived === true))
+        ? {accepted: true} : {accepted: false, code: 'EVENT_SEND_FAILED'};
+    } catch { return {accepted: false, code: 'EVENT_SEND_FAILED'}; }
   }
 
   private async startInternal(context: PageSessionContext): Promise<LykarSdkResult> {
@@ -276,6 +327,19 @@ export class Lykar {
     context.assertCurrent();
 
     const location = resolveLocation(document);
+    const hash = new URLSearchParams(location.hash.replace(/^#/, ''));
+    if (hash.has('lykar_analytics_test')) {
+      const tokens = hash.getAll('lykar_analytics_test');
+      this.analyticsTest = {token: tokens.length === 1 ? tokens[0] : '', pathname: context.pathname};
+      hash.delete('lykar_analytics_test');
+      try { document.defaultView?.history.replaceState(document.defaultView.history.state, '', `${location.pathname}${location.search}${hash.size ? `#${hash}` : ''}`); } catch { /* Test mode remains isolated if URL cleanup is unavailable. */ }
+    }
+    if (this.analyticsTest) {
+      this.analyticsTestContext = context;
+      await this.sendAnalyticsTest();
+      context.assertCurrent();
+      return {mode: 'native', reason: 'ANALYTICS_TEST'};
+    }
     const configuredMode = normalizeMode(this.options.mode);
     const selectors = getLocationSelectors(document);
 
@@ -466,7 +530,8 @@ export class Lykar {
         version: options.version,
         variantToken: options.variantToken,
         experimentToken: options.experimentToken,
-        analyticsConsent: this.options.analyticsConsent,
+        analyticsConsent: this.analyticsConsent,
+        exposureEventIds: this.exposureEventIds,
         pathname: this.pathnameOverride ?? this.options.pathname,
         accessToken: options.accessToken ?? this.options.accessToken,
         credentials: this.options.credentials,
@@ -493,13 +558,17 @@ export class Lykar {
         },
         fetch: this.networkFetch(context.signal),
       });
+      this.runtime = runtimeInstance;
       const runtime = await runtimeInstance.start();
       context.assertCurrent();
       if (options.version !== undefined && (options.accessToken ?? this.options.accessToken) && !('mode' in runtime)) {
         context.registerCleanup(installPreviewReportBridge({document: getBrowserDocument(this.options.document),
           apiBaseUrl: this.options.apiBaseUrl, projectKey: this.projectKey, report: runtime, isCurrent: context.isCurrent}));
       }
-      if (options.deployment && 'mode' in runtime) runtimeInstance.destroy();
+      if (options.deployment && 'mode' in runtime) {
+        runtimeInstance.destroy();
+        if (this.runtime === runtimeInstance) this.runtime = undefined;
+      }
       else this.runtime = runtimeInstance;
       return {
         mode: options.deployment && 'mode' in runtime ? 'native' : modeForRuntime(options),
@@ -508,6 +577,7 @@ export class Lykar {
       };
     } catch (error) {
       runtimeInstance?.destroy();
+      if (this.runtime === runtimeInstance) this.runtime = undefined;
       context.assertCurrent();
       if (error instanceof LykarSdkError && error.code.startsWith('RUNTIME_ASSET_')) {
         return {mode: 'native', reason: 'RUNTIME_ASSET_UNAVAILABLE'};

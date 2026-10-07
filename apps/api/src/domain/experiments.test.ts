@@ -21,6 +21,7 @@ class CapturingExperimentRepository implements ExperimentRepository {
     this.created = input;
     return record(input.id, input.name);
   }
+  async updateGoal(): Promise<ExperimentRecord> { throw new Error('unused'); }
   async listExperiments(): Promise<ExperimentRecord[]> { return []; }
   async updateVariant(input: Parameters<ExperimentRepository['updateVariant']>[0]): Promise<ExperimentRecord> {
     this.updated = input;
@@ -101,7 +102,7 @@ function record(id: string, name: string): ExperimentRecord {
   return {
     id, projectId: 'project', pageId: PAGE_ID, name, status: 'draft',
     winnerVariantKey: null,
-    firstActivatedAt: null, activatedAt: null, pausedAt: null, completedAt: null,
+    conversionEventName: null, firstActivatedAt: null, activatedAt: null, pausedAt: null, completedAt: null,
     createdAt: now, updatedAt: now, links: [],
     variants: [
       { id: 'variant-a', key: 'A', releaseId: null, releaseVersion: null, description: null, weightBps: 5000, links: [] },
@@ -109,3 +110,15 @@ function record(id: string, name: string): ExperimentRecord {
     ],
   };
 }
+
+test('conversion goals normalize explicit named events and preserve omitted legacy goals', async () => {
+  const repository = new CapturingExperimentRepository();
+  const service = new ExperimentService(repository);
+  const variants = [{ key: 'A', releaseId: null }, { key: 'B', releaseId: RELEASE_ID }];
+  await service.createExperiment(USER_ID, PAGE_ID, 'goal', variants);
+  assert.equal(repository.created?.conversionEventName, null);
+  await service.createExperiment(USER_ID, PAGE_ID, 'goal', variants, ' signup ');
+  assert.equal(repository.created?.conversionEventName, 'signup');
+  assert.throws(() => service.createExperiment(USER_ID, PAGE_ID, 'goal', variants, '$exposure'), /cannot start/);
+  assert.throws(() => service.updateGoal(USER_ID, PAGE_ID, undefined), /conversion event name/);
+});

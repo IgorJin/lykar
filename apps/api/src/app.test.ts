@@ -52,6 +52,7 @@ class ApiRepository implements VersioningRepository {
 
 class ApiExperimentRepository implements ExperimentRepository {
   async createExperiment():Promise<ExperimentRecord>{throw new Error('unused');}
+  async updateGoal(): Promise<ExperimentRecord> { throw new Error('unused'); }
   async listExperiments():Promise<ExperimentRecord[]>{return[];}
   async updateVariant():Promise<ExperimentRecord>{throw new Error('unused');}
   async transition():Promise<ExperimentRecord>{throw new Error('unused');}
@@ -63,6 +64,9 @@ class ApiExperimentRepository implements ExperimentRepository {
 }
 
 class ApiAnalyticsRepository implements AnalyticsRepository {
+  async createTest(): ReturnType<AnalyticsRepository['createTest']> { throw new Error('unused'); }
+  async getTest(): ReturnType<AnalyticsRepository['getTest']> { throw new Error('unused'); }
+  async recordTest(): ReturnType<AnalyticsRepository['recordTest']> { throw new Error('unused'); }
   async resolveAssignment():ReturnType<AnalyticsRepository['resolveAssignment']>{return null;}
   async recordEvent():Promise<{duplicate:boolean}>{return{duplicate:false};}
   async getReport():Promise<ExperimentAnalyticsReport>{throw new Error('unused');}

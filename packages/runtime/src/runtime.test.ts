@@ -918,6 +918,87 @@ describe('manifest loading and runtime lifecycle', () => {
     expect(calls[2].body.name).toBe('signup');
   });
 
+  it('recovers consent, serializes exposure before conversions and retries lost responses with stable IDs', async () => {
+    const dom = new JSDOM('<h1>Control</h1>', {url: 'https://site.test/page'});
+    const received = new Set<string>();
+    const calls: Array<Record<string, unknown>> = [];
+    let loseResponse = true;
+    const fetch: FetchLike = async (input, init) => {
+      if (String(input).endsWith('/experiments/resolve')) return response({selection: {
+        assignmentId: 'assignment', experimentId: 'experiment', variantKey: 'A', capability: 'capability',
+        capabilityExpiresAt: '2027-01-01T00:00:00.000Z', manifest: null,
+      }});
+      const body = JSON.parse(String(init?.body)) as Record<string, unknown>;
+      calls.push(body);
+      const id = String(body.clientEventId);
+      const duplicate = received.has(id);
+      received.add(id);
+      if (loseResponse) { loseResponse = false; throw new Error('response lost after acceptance'); }
+      return response({accepted: true, duplicate}, 202);
+    };
+    const runtime = new Lykar({projectKey: 'pk', document: dom.window.document, fetch,
+      experimentToken: 'e'.repeat(48), waitForDom: false});
+    await runtime.start();
+    await runtime.consent('denied');
+    await expect(runtime.track('signup')).resolves.toEqual({accepted: false, code: 'CONSENT_DENIED'});
+    await Promise.all([runtime.consent('granted'), runtime.consent('granted'), runtime.track('signup')]);
+    expect(calls.map(call => call.eventType)).toEqual(['exposure', 'exposure', 'conversion']);
+    expect(calls[0].clientEventId).toBe(calls[1].clientEventId);
+    expect(received.size).toBe(2);
+    const clientEventId = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+    await runtime.track('signup', {}, {clientEventId});
+    await expect(runtime.track('signup', {}, {clientEventId})).resolves.toEqual({accepted: true, duplicate: true});
+    expect(received.size).toBe(3);
+    await runtime.consent('pending');
+    await expect(runtime.track('signup')).resolves.toEqual({accepted: false, code: 'CONSENT_REQUIRED'});
+    await runtime.consent('granted');
+    expect(calls.filter(call => call.eventType === 'exposure')).toHaveLength(2);
+    runtime.destroy();
+  });
+
+  it('waits for replay readiness before exposing a grant received during startup', async () => {
+    const dom = new JSDOM('<main></main>', {url: 'https://site.test/page'});
+    const events: string[] = [];
+    const fetch: FetchLike = async (input, init) => {
+      if (String(input).endsWith('/experiments/resolve')) return response({selection: {
+        assignmentId: 'assignment', experimentId: 'experiment', variantKey: 'B', capability: 'capability',
+        capabilityExpiresAt: '2027-01-01T00:00:00.000Z', manifest: manifest([textOperation('later', 'later', 'Ready')]),
+      }});
+      events.push(JSON.parse(String(init?.body)).eventType);
+      return response({accepted: true, duplicate: false}, 202);
+    };
+    const runtime = new Lykar({projectKey: 'pk', document: dom.window.document, fetch,
+      experimentToken: 'e'.repeat(48), waitForDom: false, targetRetryMs: 1000, targetRetryIntervalMs: 100});
+    const started = runtime.start();
+    await new Promise(resolve => setTimeout(resolve, 0));
+    await runtime.consent('granted');
+    expect(events).toEqual([]);
+    dom.window.document.querySelector('main')!.innerHTML = '<p data-lykar-id="later">Loading</p>';
+    await started;
+    expect(dom.window.document.querySelector('p')?.textContent).toBe('Ready');
+    expect(events).toEqual(['exposure']);
+    runtime.destroy();
+  });
+
+  it('does not send a conversion when exposure fails', async () => {
+    const dom = new JSDOM('<h1>Control</h1>', {url: 'https://site.test/page'});
+    const events: string[] = [];
+    const fetch: FetchLike = async (input, init) => {
+      if (String(input).endsWith('/experiments/resolve')) return response({selection: {
+        assignmentId: 'assignment', experimentId: 'experiment', variantKey: 'A', capability: 'capability',
+        capabilityExpiresAt: '2027-01-01T00:00:00.000Z', manifest: null,
+      }});
+      events.push(JSON.parse(String(init?.body)).eventType);
+      return response({}, 503);
+    };
+    const runtime = new Lykar({projectKey: 'pk', document: dom.window.document, fetch,
+      experimentToken: 'e'.repeat(48), waitForDom: false, analyticsConsent: 'granted'});
+    await runtime.start();
+    await expect(runtime.track('signup')).resolves.toEqual({accepted: false, code: 'EVENT_SEND_FAILED'});
+    expect(events).toEqual(['exposure', 'exposure', 'exposure', 'exposure']);
+    runtime.destroy();
+  });
+
   it('returns no active experiment from the global tracker when the latest runtime has no assignment', async () => {
     const dom = new JSDOM('<h1>Native</h1>', { url: 'https://site.test/page' });
     new Lykar({ projectKey: 'pk_public', document: dom.window.document, waitForDom: false });

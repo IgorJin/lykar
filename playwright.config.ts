@@ -15,8 +15,8 @@ export default defineConfig({
   outputDir: 'test-results',
   projects: [
     {name: 'chromium', use: {browserName: 'chromium', channel: 'chromium'}},
-    {name: 'firefox', testMatch: /(style-(editor-acceptance|matrix)|s4-(spa-critical|conditional-flow)|deployment-(flow|admin|repair)|auth-and-editor|site-connection|onboarding)\.spec\.ts/, use: {browserName: 'firefox', channel: undefined}},
-    {name: 'webkit', testMatch: /(style-(editor-acceptance|matrix)|s4-(spa-critical|conditional-flow)|deployment-(flow|admin|repair)|auth-and-editor|site-connection|onboarding)\.spec\.ts/, use: {browserName: 'webkit', channel: undefined}},
+    {name: 'firefox', testMatch: /(style-(editor-acceptance|matrix)|s4-(spa-critical|conditional-flow)|deployment-(flow|admin|repair)|auth-and-editor|site-connection|onboarding|analytics-setup)\.spec\.ts/, use: {browserName: 'firefox', channel: undefined}},
+    {name: 'webkit', testMatch: /(style-(editor-acceptance|matrix)|s4-(spa-critical|conditional-flow)|deployment-(flow|admin|repair)|auth-and-editor|site-connection|onboarding|analytics-setup)\.spec\.ts/, use: {browserName: 'webkit', channel: undefined}},
   ],
   use: {
     headless: true,

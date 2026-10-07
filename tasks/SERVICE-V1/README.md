@@ -82,7 +82,7 @@ Decision date: 2026-10-02.
 | SERVICE-V1-07 | Доставка писем, лимиты и переключение провайдеров | IN_PROGRESS | P0 | SERVICE-V1-06, SERVICE-V1-12 | W7 | По умолчанию sender печатает секретную ссылку в API log, а пользователю нечего открыть в почте. | Регистрацию и приглашения вне локального стенда.; Последующую очередь повторной отправки. | [07](07-email-delivery.md) |
 | SERVICE-V1-08 | Подтверждение сайта и диагностика подключения | DONE | P0 | SERVICE-V1-07 | W8 | Создание Project/allowed origin само по себе не подтверждает право на сайт и успешную интеграцию. | Мастер подключения с проверяемым результатом.; Понятную диагностику CSP, assets и framework readiness. | [08](08-site-verification-health.md) |
 | SERVICE-V1-09 | Мастер подключения и первый полезный результат | DONE (local; external 07/12 pending) | P0 | SERVICE-V1-08 | W9 | Admin показывает localhost, ключи и технические состояния, а клиент должен самостоятельно соединять установку, страницу и редактор. | Самостоятельную активацию клиента.; Проверяемую точку входа в публикацию и A/B. | [09](09-onboarding-admin.md) |
-| SERVICE-V1-10 | Настройка конверсии и consent для A/B | PLANNED | P0 | SERVICE-V1-09 | W10 | Explicit track/consent есть в SDK, но нулевой отчёт не объясняет отсутствие события, согласия или посещений. | Осмысленный отчёт A/B с выбранным событием.; Диагностику интеграции до отправки трафика. | [10](10-analytics-setup.md) |
+| SERVICE-V1-10 | Настройка конверсии и consent для A/B | DONE (local; external 07/12 pending) | P0 | SERVICE-V1-09 | W10 | Explicit track/consent есть в SDK, но нулевой отчёт не объясняет отсутствие события, согласия или посещений. | Осмысленный отчёт A/B с выбранным событием.; Диагностику интеграции до отправки трафика. | [10](10-analytics-setup.md) |
 | SERVICE-V1-11 | Полный A/B-сценарий по ссылке и читаемый отчёт | PLANNED | P0 | SERVICE-V1-10 | W11 | Технический эксперимент работает, но setup, QA-ссылки, traffic entry и результаты требуют продуктовой ясности. | Рабочую A/B-функцию первого сервиса.; Проверенный путь от варианта страницы до отчёта. | [11](11-ab-workflow-report.md) |
 | SERVICE-V1-12 | Среды, CI и доставка SDK клиентам | PLANNED | P0 | SERVICE-V1-02 | W3 | В репозитории не найдены production deployment pipeline; SDK/frameworks пока private и требуют ручного размещения assets. | HTTPS staging для email/onboarding и финальных проверок.; Управляемый выпуск и откат версии самого SDK. | [12](12-staging-ci-distribution.md) |
 | SERVICE-V1-13 | Лимиты сервиса и безопасная диагностика | PLANNED | P0 | SERVICE-V1-11, SERVICE-V1-12 | W12 | Public auth, resolve и analytics требуют контролируемого поведения при большом числе запросов; лимиты пока не оформлены. | Эксплуатацию регистрации и public runtime.; Предсказуемую работу jobs и monitoring. | [13](13-limits-safe-logs.md) |
@@ -263,3 +263,11 @@ connection reports и вкладку Admin. Внешняя доставка 07 �
 открытыми: владелец явно поручил переход к технической реализации 08 без ожидания ключей.
 [Отчёт 08](../../docs/verification/reports/SERVICE-V1/onboarding.html#SERVICE-V1-08).
 Следующий функциональный этап — 09, мастер самостоятельного подключения.
+
+### Checkpoint 2026-10-07 — цель и consent A/B
+
+10 принят локально: именованная immutable цель, изолированная test-ссылка, host
+consent и точные named rollups с сохранением legacy reports. 95/95 API/PostgreSQL,
+112/112 runtime, 112/112 SDK, 16/16 browser и workspace typecheck — PASS.
+[Отчёт 10](../../docs/verification/reports/SERVICE-V1/experiments.html#SERVICE-V1-10).
+Внешние gates 07/12 остаются открытыми; следующий продуктовый этап — 11.

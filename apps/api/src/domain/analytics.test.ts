@@ -18,6 +18,9 @@ class CapturingRepository implements AnalyticsRepository {
   resolution?: Parameters<AnalyticsRepository['resolveAssignment']>[0];
   event?: Parameters<AnalyticsRepository['recordEvent']>[0];
 
+  async createTest(): ReturnType<AnalyticsRepository['createTest']> { throw new Error('unused'); }
+  async getTest(): ReturnType<AnalyticsRepository['getTest']> { throw new Error('unused'); }
+  async recordTest(): ReturnType<AnalyticsRepository['recordTest']> { throw new Error('unused'); }
   async resolveAssignment(input: Parameters<AnalyticsRepository['resolveAssignment']>[0]) {
     this.resolution = input;
     return { assignmentId: ASSIGNMENT_ID, experimentLinkId: EXPERIMENT_LINK_ID, experimentId: EXPERIMENT_ID, variantKey: 'B' as const, manifest: null };
@@ -82,4 +85,18 @@ test('assignment bucket is deterministic and bounded', () => {
   const first = assignmentBucket(EXPERIMENT_ID, 'a'.repeat(64));
   assert.equal(first, assignmentBucket(EXPERIMENT_ID, 'a'.repeat(64)));
   assert.ok(first >= 0 && first < 10000);
+});
+
+test('test diagnostics validate consent and event fields before storing anything', async () => {
+  const repository = new CapturingRepository();
+  let calls = 0;
+  repository.recordTest = async () => { calls++; return { eventReceived: true }; };
+  const service = new AnalyticsService(repository, { signingSecret: 's'.repeat(32), now: () => NOW });
+  const input = { token: 't'.repeat(43), pathname: '/', consent: 'denied', name: 'signup', clientEventId: ANONYMOUS_ID };
+  await assert.rejects(service.recordTest('pk_public', input), /granted consent/);
+  await assert.rejects(service.recordTest('pk_public', { ...input, consent: 'granted', clientEventId: undefined }), /provided together/);
+  await assert.rejects(service.recordTest('pk_public', { ...input, consent: 'granted', name: '$exposure' }), /cannot start/);
+  assert.equal(calls, 0);
+  assert.deepEqual(await service.recordTest('pk_public', { ...input, consent: 'granted' }), { accepted: true, eventReceived: true });
+  assert.equal(calls, 1);
 });

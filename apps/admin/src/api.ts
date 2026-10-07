@@ -9,9 +9,9 @@ export type ExperimentVariantKey = 'A'|'B';
 export type ExperimentVariantLink = { id:string; variantId:string; tokenHint:string; revokedAt:string|null; createdAt:string };
 export type ExperimentLink = { id:string; experimentId:string; tokenHint:string; revokedAt:string|null; createdAt:string };
 export type ExperimentVariant = { id:string; key:ExperimentVariantKey; releaseId:string|null; releaseVersion:number|null; description:string|null; weightBps:number; links:ExperimentVariantLink[] };
-export type Experiment = { id:string; projectId:string; pageId:string; name:string; status:ExperimentStatus; winnerVariantKey:ExperimentVariantKey|null; firstActivatedAt:string|null; activatedAt:string|null; pausedAt:string|null; completedAt:string|null; createdAt:string; updatedAt:string; links:ExperimentLink[]; variants:[ExperimentVariant,ExperimentVariant] };
+export type Experiment = { id:string; projectId:string; pageId:string; name:string; status:ExperimentStatus; winnerVariantKey:ExperimentVariantKey|null; conversionEventName:string|null; firstActivatedAt:string|null; activatedAt:string|null; pausedAt:string|null; completedAt:string|null; createdAt:string; updatedAt:string; links:ExperimentLink[]; variants:[ExperimentVariant,ExperimentVariant] };
 export type AnalyticsVariantReport = { key:ExperimentVariantKey; weightBps:number; visitors:number; views:number; uniqueConversions:number; conversions:number; conversionRate:number|null; upliftVsA:number|null };
-export type ExperimentAnalyticsReport = { experimentId:string; generatedAt:string; variants:[AnalyticsVariantReport,AnalyticsVariantReport] };
+export type ExperimentAnalyticsReport = { experimentId:string; conversionEventName:string|null; generatedAt:string; variants:[AnalyticsVariantReport,AnalyticsVariantReport] };
 export type ProjectRole = 'owner'|'admin'|'editor'|'viewer';
 export type ProjectPermissions = { view:boolean; edit:boolean; publish:boolean; manageMembers:boolean; transferOwnership:boolean };
 export type ProjectMember = { id:string; projectId:string; userId:string; email:string; role:ProjectRole; createdAt:string; updatedAt:string };
@@ -52,3 +52,5 @@ export type DeploymentAction = 'deploy' | 'disable' | 'rollback';
 export type DeploymentActivation = {id:string;pageId:string;revision:number;previousReleaseId:string|null;releaseId:string|null;action:DeploymentAction;reason:string;actorUserId:string;createdAt:string};
 export type DeploymentState = {pageId:string;revision:number;activeReleaseId:string|null;activation:DeploymentActivation|null};
 export type DeploymentHistory = {activations:DeploymentActivation[];nextBeforeRevision:number|null};
+
+export type AnalyticsTest = { id:string; eventName:string; expiresAt:string; consent:'pending'|'granted'|'denied'|null; eventReceived:boolean; lastReceivedAt:string|null };

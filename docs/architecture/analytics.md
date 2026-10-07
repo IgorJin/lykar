@@ -87,13 +87,14 @@ different Lykar release.
 
 Analytics consent is `pending` by default. Assignment and DOM selection are
 functional and remain independent of analytics delivery. Events are queued
-only in memory while consent is pending and are discarded when consent is
-denied.
+only in memory while consent is pending. Denied/pending block delivery; a later
+explicit grant records the current visit exposure once before conversions.
+Revoking consent stops subsequent analytics requests.
 
 The host integrates its consent manager through:
 
 ```ts
-runtime.consent('granted');
+await runtime.consent('granted');
 await runtime.start();
 
 await runtime.track('signup_completed', { plan: 'pro' });
@@ -125,7 +126,11 @@ personal data in custom properties.
 
 The signed assignment capability is required for ingestion. It prevents a
 caller from choosing another experiment or variant when submitting an event.
-The client event UUID makes retries safe.
+The client event UUID makes retries safe. `track(name, properties,
+{clientEventId})` allows the host to reuse one action UUID across retries and
+rerenders; distinct actions use distinct IDs. A bounded transport retry uses
+the same ID. SDK refresh retains exposure IDs scoped to the assignment and
+logical visit; real navigation rotates that scope.
 
 ## Report semantics
 
@@ -133,8 +138,10 @@ For each variant the MVP report shows:
 
 - `visitors`: distinct assignments with at least one exposure;
 - `views`: all accepted exposure events;
-- `uniqueConversions`: distinct exposed assignments with any conversion event;
-- `conversions`: all accepted conversion events from exposed assignments;
+- `uniqueConversions`: distinct exposed assignments with the selected conversion event
+  (any event for legacy experiments with a null goal);
+- `conversions`: accepted selected-event occurrences from exposed assignments
+  (all events for legacy null goals);
 - `conversionRate`: `uniqueConversions / visitors`;
 - `uplift`: relative conversion-rate change compared with variant A.
 
@@ -186,3 +193,33 @@ deleting historic reports.
 - statistical significance and winner recommendations;
 - warehouse export and third-party analytics integrations;
 - configurable retention and data-subject deletion tooling.
+
+## Named goals and installation diagnostics (SERVICE-V1-10)
+
+New Admin experiments require a `conversionEventName` (trimmed, 1–120 characters,
+no leading `$`). The API keeps an optional/null field for old clients. The goal
+can change only before first activation; row locking serializes goal updates
+with activation. A different metric after launch requires a new experiment.
+
+Migration 014 leaves every existing goal null and preserves generic assignment
+rollups. It backfills per-event rollups from retained raw events only; pruned
+raw history cannot be reconstructed. Named rollups survive raw pruning. Server
+ingestion requires a recorded exposure before a conversion, rejects timestamps
+before exposure, and authorizes the assignment/link before treating retries as
+duplicates. Idempotency keys remain available for the raw-event retention period.
+
+Editors/Owners/Admins can create a 30-minute test link for a saved goal. The SDK
+recognizes `#lykar_analytics_test=…`, removes the secret from the URL, leaves the
+host native, and sends only separate installation-diagnostic requests. Ordinary
+`track` is consent-gated and reports the matching goal through the test endpoint.
+No production assignment, visitor identity, exposure, or conversion is created
+by this mode. Pending/denied diagnostic consent signals are not production
+analytics events. Tests are bound to project/path/experiment/goal; changing the
+goal revokes earlier tests. Probe state is accessible only to allowed members.
+
+No SDK signal means the test has not connected; pending/denied means no consent;
+granted without a matching event means no selected action received. These are
+test-session observations, not inferred production visitor consent. Test mode
+remains isolated until a fresh page load; switching only the URL fragment does
+not turn the current test session into a production experiment. Cleanup of
+expired test records is deferred to the jobs/data lifecycle stages 14–15.

@@ -91,6 +91,7 @@ export type LykarRuntimeOptions = {
   variantToken?: string;
   experimentToken?: string;
   analyticsConsent?: AnalyticsConsent;
+  exposureEventIds?: Map<string, string>;
   pathname?: string;
   accessToken?: string;
   credentials?: RequestCredentials;

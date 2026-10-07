@@ -1,0 +1,14 @@
+{
+  "command": [
+    "npx",
+    "playwright",
+    "test",
+    "tests/e2e/analytics-setup.spec.ts",
+    "tests/e2e/s3-acceptance.spec.ts",
+    "tests/e2e/s4-spa-critical.spec.ts",
+    "--reporter=line,json"
+  ],
+  "startedAt": "2026-10-07T10:30:48.209179+00:00",
+  "durationSeconds": 49.61,
+  "exitCode": 1
+}

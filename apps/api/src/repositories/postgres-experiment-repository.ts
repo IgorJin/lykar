@@ -20,6 +20,7 @@ type ExperimentRow = {
   page_id: string;
   name: string;
   status: ExperimentStatus;
+  conversion_event_name: string | null;
   first_activated_at: Date | string | null;
   activated_at: Date | string | null;
   paused_at: Date | string | null;
@@ -62,9 +63,9 @@ export class PostgresExperimentRepository implements ExperimentRepository {
         if (variant.releaseId) await requireReleaseOnPage(client, variant.releaseId, page.id);
       }
       await client.query(
-        `INSERT INTO experiments (id, project_id, page_id, name, created_by)
-         VALUES ($1, $2, $3, $4, $5)`,
-        [input.id, page.project_id, page.id, input.name, input.userId],
+        `INSERT INTO experiments (id, project_id, page_id, name, created_by, conversion_event_name)
+         VALUES ($1, $2, $3, $4, $5, $6)`,
+        [input.id, page.project_id, page.id, input.name, input.userId, input.conversionEventName],
       );
       for (const variant of input.variants) {
         await client.query(
@@ -74,6 +75,16 @@ export class PostgresExperimentRepository implements ExperimentRepository {
         );
       }
       return loadExperiment(client, input.userId, input.id);
+    });
+  }
+
+  async updateGoal(userId: string, experimentId: string, conversionEventName: string | null): Promise<ExperimentRecord> {
+    return this.transaction(async client => {
+      const experiment = await requireExperimentAccess(client, userId, experimentId, 'edit', true);
+      if (experiment.first_activated_at !== null) throw new ConflictError('Conversion goal is immutable after the first activation');
+      if (experiment.conversion_event_name !== conversionEventName) await client.query('UPDATE analytics_tests SET revoked_at = NOW() WHERE experiment_id = $1 AND revoked_at IS NULL', [experimentId]);
+      await client.query('UPDATE experiments SET conversion_event_name = $2, updated_at = NOW() WHERE id = $1', [experimentId, conversionEventName]);
+      return loadExperiment(client, userId, experimentId);
     });
   }
 
@@ -432,6 +443,7 @@ async function loadExperiment(database: Queryable, userId: string, experimentId:
     name: experiment.name,
     status: experiment.status,
     winnerVariantKey: experiment.winner_variant_key,
+    conversionEventName: experiment.conversion_event_name,
     firstActivatedAt: optionalIso(experiment.first_activated_at),
     activatedAt: optionalIso(experiment.activated_at),
     pausedAt: optionalIso(experiment.paused_at),

@@ -1,6 +1,7 @@
 # SERVICE-V1-10 — Настройка конверсии и consent для A/B
 
-Status: PLANNED
+Status: DONE
+Acceptance scope: local implementation; external acceptance remains gated by SERVICE-V1-07/12.
 Priority: P0
 Depends on: SERVICE-V1-09
 Parallel wave: W10
@@ -38,10 +39,10 @@ Hard prerequisites: SERVICE-V1-09. Все транзитивные prerequisites
 
 ## Acceptance criteria
 
-- [ ] Пользователь видит, какое событие измеряет запуск и прошло ли тестовое событие; нет обещания no-code instrumentation.
-- [ ] Pending/denied не отправляют exposure/conversion; granted не дублирует ранее зарегистрированное посещение.
-- [ ] Ререндер, retry и lost response не увеличивают totals повторно; страницы и эксперименты изолированы.
-- [ ] Новая цель не переопределяет исторический смысл уже запущенного эксперимента; legacy reports читаются.
+- [x] Пользователь видит, какое событие измеряет запуск и прошло ли тестовое событие; нет обещания no-code instrumentation.
+- [x] Pending/denied не отправляют exposure/conversion; granted не дублирует ранее зарегистрированное посещение.
+- [x] Ререндер, retry и lost response не увеличивают totals повторно; страницы и эксперименты изолированы.
+- [x] Новая цель не переопределяет исторический смысл уже запущенного эксперимента; legacy reports читаются.
 
 ## Checks
 
@@ -67,9 +68,30 @@ Hard prerequisites: SERVICE-V1-09. Все транзитивные prerequisites
 
 Report: `docs/verification/reports/SERVICE-V1/experiments.html`
 
-Групповой report этапа E4; выделить отдельную запись/anchor `SERVICE-V1-10`, приложить machine evidence и ограничения. На стадии планирования отчёт ещё не создан и проверки не выполнены.
+Групповой report этапа E4; выделить отдельную запись/anchor `SERVICE-V1-10`, приложить machine evidence и ограничения. Отчёт и machine evidence созданы 2026-10-07.
 
 ## Notes
 
 - Выбор конкретного события/метрики закрывается в 02; суммарные conversions разных событий нельзя подписать как результат выбранной цели.
 - Численные новые budgets и внешние prerequisites нельзя объявлять согласованными по наличию этого файла. Решения 02/20 и журнал соглашения обязательны.
+
+## Execution — 2026-10-07
+
+Именованная цель в Admin/API, immutable после first activation; старые null-goal
+эксперименты сохраняют общий отчёт. CVR использует прежнюю долю уникальных
+exposed visitors с выбранной конверсией; повторные выбранные события — отдельный
+total. Migration 014 сохраняет generic rollups и добавляет durable named totals.
+
+Изолированная 30-минутная test-ссылка проверяет host consent/track без боевых
+assignment/events. Goal edits отзывают старые probes. SDK сохраняет consent при
+refresh/navigation; pending/denied подавляют события. Exposure scoped по visit и
+assignment; concurrent grants/retry/lost response не дублируют его.
+
+PASS: 95/95 API/PostgreSQL + HTTP smoke, 112/112 runtime, 112/112 SDK, 16/16 browser
+(Chromium/Firefox/WebKit, без skips/flaky), дополнительные 3/3 keyboard/UI checks,
+workspace typecheck. Migration rollback/backfill, tenant isolation, expiry и
+retention проверены. Desktop/mobile screenshots visually reviewed.
+
+[Evidence](../../docs/verification/reports/SERVICE-V1/artifacts/2026-10-07-analytics/README.md).
+Внешние письма/HTTPS staging/distribution (07/12) остаются открытыми. Cleanup
+expired test records — lifecycle 14–15. Следующий этап: SERVICE-V1-11.

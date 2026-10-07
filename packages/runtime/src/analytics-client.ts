@@ -72,6 +72,7 @@ export async function resolveExperimentSelection(
 export async function sendAnalyticsEvent(options: {
   apiBaseUrl: string;
   capability: string;
+  clientEventId?: string;
   eventType: 'exposure' | 'conversion';
   name: string;
   properties: AnalyticsProperties;
@@ -89,7 +90,7 @@ export async function sendAnalyticsEvent(options: {
         ...(options.signal ? { signal: options.signal } : {}),
         body: JSON.stringify({
           capability: options.capability,
-          clientEventId: createUuid(),
+          clientEventId: options.clientEventId ?? createUuid(),
           eventType: options.eventType,
           name: options.name,
           properties: options.properties,
@@ -169,7 +170,7 @@ function writeStorage(document: Document, value: string, expiresAt: number): voi
   }
 }
 
-function createUuid(): string {
+export function createUuid(): string {
   const cryptoApi = globalThis.crypto;
   if (typeof cryptoApi?.randomUUID === 'function') return cryptoApi.randomUUID();
   const bytes = new Uint8Array(16);

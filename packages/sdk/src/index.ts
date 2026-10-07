@@ -56,12 +56,13 @@ export function init(
 export function track(
   eventName: string,
   properties?: Record<string, string | number | boolean | null>,
+  options?: {clientEventId?: string},
 ): Promise<{accepted: boolean; duplicate?: boolean; code?: string}> {
-  return activeSdk?.track(eventName, properties) ?? Promise.resolve({accepted: false, code: 'NO_ACTIVE_RUNTIME'});
+  return activeSdk?.track(eventName, properties, options) ?? Promise.resolve({accepted: false, code: 'NO_ACTIVE_RUNTIME'});
 }
 
-export function consent(value: 'pending' | 'granted' | 'denied'): void {
-  activeSdk?.consent(value);
+export function consent(value: 'pending' | 'granted' | 'denied'): Promise<void> {
+  return activeSdk?.consent(value) ?? Promise.resolve();
 }
 
 function requireLykar(): typeof import('./sdk.js').Lykar {
